@@ -74,121 +74,57 @@
 </head>
 
 <body>
-<div class="container">
-
-<h2>Retirement Control Panel</h2>
-
-<div class="tabs">
-  <div class="tab active" onclick="showTab(event,'snapshot')">Snapshot</div>
-  <div class="tab" onclick="showTab(event,'scenario')">Scenarios</div>
-  <div class="tab" onclick="showTab(event,'advisor')">Advisor</div>
-</div>
-
-<!-- SNAPSHOT -->
-<div id="snapshot" class="panel active">
-  <div class="card">
-    <h3>Financial Snapshot</h3>
-
-    Savings
-    <input id="savings" type="number" placeholder="Total savings">
-
-    Monthly Income
-    <input id="income" type="number">
-
-    Monthly Expenses
-    <input id="expenses" type="number">
-
-    <button onclick="saveSnapshot()">Save</button>
-
-    <div class="result" id="snapshotResult"></div>
-  </div>
-</div>
-
-<!-- SCENARIO -->
-<div id="scenario" class="panel">
-  <div class="card">
-    <h3>Scenario Simulator</h3>
-
-    Savings
-    <input id="scSavings" type="number">
-
-    Monthly Spend
-    <input id="scSpend" type="number">
-
-    <button onclick="runScenario()">Run</button>
-
-    <div class="result" id="scenarioResult"></div>
-  </div>
-</div>
-
-<!-- ADVISOR -->
-<div id="advisor" class="panel">
-  <div class="card">
-    <h3>Advisor Translator</h3>
-
-    <textarea id="advisorText" placeholder="Paste advisor recommendation..."></textarea>
-
-    <button onclick="copyPrompt()">Copy for ChatGPT</button>
-
-    <div class="result" id="advisorResult"></div>
-  </div>
-</div>
-
-</div>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <script>
-/* 🔥 PASTE YOUR FIREBASE CONFIG HERE */
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_DOMAIN",
-  projectId: "YOUR_PROJECT_ID"
+  apiKey: "AIzaSyAyCyCesDBGytZw4pqItYqxjUJ_ENFC7mc",
+  authDomain: "retirement-dashboard-4c0d3.firebaseapp.com",
+  projectId: "retirement-dashboard-4c0d3"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-/* Tabs */
-function showTab(evt, tab){
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-
-  document.getElementById(tab).classList.add('active');
-  evt.currentTarget.classList.add('active');
-}
-
-/* Save Snapshot */
-function saveSnapshot(){
+/* SAVE */
+function saveData(){
   let s = +document.getElementById("savings").value;
   let i = +document.getElementById("income").value;
   let e = +document.getElementById("expenses").value;
 
   let surplus = i - e;
+  let years = s / (e * 12);
+  let score = Math.min(100, Math.max(0, (s / (e * 12 * 25)) * 100));
 
-  document.getElementById("snapshotResult").innerHTML =
-    `Net Worth: $${s.toLocaleString()}<br>
-     Monthly Surplus: $${surplus}`;
+  document.getElementById("netWorth").innerText = `$${s.toLocaleString()}`;
+  document.getElementById("surplus").innerText = `$${surplus}`;
+  document.getElementById("years").innerText = `${Math.round(years)} yrs`;
+  document.getElementById("score").innerText = `${Math.round(score)}/100`;
 
   db.collection("profiles").doc("main").set({
     savings: s,
     income: i,
-    expenses: e,
-    updated: new Date()
+    expenses: e
   });
 }
 
-/* Load Data */
+/* LOAD */
 window.onload = async () => {
   let doc = await db.collection("profiles").doc("main").get();
 
   if(doc.exists){
     let d = doc.data();
-    document.getElementById("savings").value = d.savings || "";
-    document.getElementById("income").value = d.income || "";
-    document.getElementById("expenses").value = d.expenses || "";
+
+    savings.value = d.savings || "";
+    income.value = d.income || "";
+    expenses.value = d.expenses || "";
+
+    saveData(); // auto update UI
   }
 };
 
-/* Scenario */
+/* SCENARIO */
 function runScenario(){
   let savings = +document.getElementById("scSavings").value;
   let spend = +document.getElementById("scSpend").value * 12;
@@ -198,30 +134,8 @@ function runScenario(){
   let status = years > 25 ? "🟢 Strong" :
                years > 15 ? "🟡 Moderate" : "🔴 Risk";
 
-  document.getElementById("scenarioResult").innerHTML =
-    `Money lasts ~ ${Math.round(years)} years<br>${status}`;
-}
-
-/* Advisor Prompt */
-function copyPrompt(){
-  let text = document.getElementById("advisorText").value;
-
-  let prompt = `
-You are a financial translator.
-
-Break this into:
-1. What they are recommending
-2. Costs
-3. Risks
-4. When it makes sense
-5. Questions to ask
-
-${text}
-`;
-
-  navigator.clipboard.writeText(prompt);
-  document.getElementById("advisorResult").innerHTML =
-    "Copied → paste into ChatGPT";
+  document.getElementById("scenarioResult").innerText =
+    `Lasts ~ ${Math.round(years)} years (${status})`;
 }
 </script>
 
