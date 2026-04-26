@@ -1,53 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Avora</title>
-
 <link rel="icon" href="data:,">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-:root{
---bg:#0B0F1A;
---card:#111827;
---text:#E5E7EB;
---sub:#9CA3AF;
-}
-
-.light{
---bg:#F9FAFB;
---card:#FFFFFF;
---text:#111827;
---sub:#6B7280;
-}
-
-body{
-margin:0;
-font-family:Inter;
-background:var(--bg);
-color:var(--text);
-display:flex;
-height:100vh;
-}
-
-.sidebar{width:200px;padding:20px;background:var(--card);}
-.nav-item{cursor:pointer;margin:10px 0;color:var(--sub);}
-.nav-item.active{color:var(--text);}
-
+body{margin:0;font-family:Inter;background:#0B0F1A;color:white;display:flex;height:100vh;}
+.sidebar{width:200px;padding:20px;background:#0F172A;}
+.nav-item{margin:10px 0;color:#9CA3AF;cursor:pointer;}
+.nav-item.active{color:white;}
 .main{flex:1;padding:20px;overflow:auto;}
-.ai{width:260px;background:var(--card);padding:15px;}
+.ai{width:250px;background:#0F172A;padding:15px;}
 
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
 .chartGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+.card{background:#111827;padding:10px;border-radius:8px;}
 
-.card{background:var(--card);padding:12px;border-radius:10px;}
-input{width:100%;margin-top:8px;padding:8px;background:#1F2937;border:none;color:white;border-radius:6px;}
-button{margin-top:10px;padding:8px;border:none;background:#3B82F6;color:white;border-radius:6px;}
-
-.light input{background:#E5E7EB;color:black;}
+input{width:100%;margin-top:6px;padding:8px;background:#1F2937;border:none;color:white;}
 canvas{max-height:200px;}
 </style>
 </head>
@@ -55,22 +26,19 @@ canvas{max-height:200px;}
 <body>
 
 <div class="sidebar">
-<div style="font-weight:600;margin-bottom:15px;">AVORA</div>
-<div class="nav-item active" onclick="showView('dashboard',event)">Dashboard</div>
-<div class="nav-item" onclick="showView('inputs',event)">Financials</div>
-
-<button onclick="toggleTheme()">Toggle Theme</button>
+<div class="nav-item active" onclick="showView('dashboard')">Dashboard</div>
+<div class="nav-item" onclick="showView('inputs')">Financials</div>
 </div>
 
 <div class="main">
 
+<!-- DASHBOARD -->
 <div id="dashboardView">
-
 <div class="grid">
 <div class="card">Net Worth<div id="netWorth">$0</div></div>
-<div class="card">Surplus<div id="surplus">$0</div></div>
+<div class="card">Monthly Income<div id="incomeTotal">$0</div></div>
+<div class="card">Expenses<div id="expenseTotal">$0</div></div>
 <div class="card">Years<div id="years">--</div></div>
-<div class="card">Score<div id="score">--</div></div>
 </div>
 
 <div class="chartGrid">
@@ -79,37 +47,34 @@ canvas{max-height:200px;}
 <div class="card"><canvas id="netFlowChart"></canvas></div>
 <div class="card"><canvas id="riskChart"></canvas></div>
 </div>
-
 </div>
 
+<!-- FINANCIALS -->
 <div id="inputView" style="display:none">
+
 <div class="card">
+<h3>Income</h3>
+<input id="incomeA" placeholder="Person A Income">
+<input id="incomeB" placeholder="Person B Income">
 
-<h4>Income</h4>
-<input id="incomeA" placeholder="Person A">
-<input id="incomeB" placeholder="Person B">
-
-<h4>Assets</h4>
+<h3>Assets</h3>
 <input id="cash" placeholder="Cash">
 <input id="investments" placeholder="Investments">
 
-<h4>Portfolio</h4>
-<input id="ticker1" placeholder="Ticker (AAPL)">
-<input id="value1" placeholder="Value">
-<input id="ticker2" placeholder="Ticker (VTI)">
-<input id="value2" placeholder="Value">
-
-<h4>Expenses</h4>
+<h3>Expenses</h3>
 <input id="expenses" placeholder="Monthly Expenses">
 
-<h4>Ages</h4>
+<h3>Ages</h3>
 <input id="ageA" placeholder="Age A">
 <input id="ageB" placeholder="Age B">
-
 <input id="retAge" placeholder="Retirement Age">
 <input id="lifeExp" placeholder="Life Expectancy">
 
+<h3>Live Calculation</h3>
+<div id="liveCalc"></div>
+
 </div>
+
 </div>
 
 </div>
@@ -123,13 +88,20 @@ canvas{max-height:200px;}
 
 let charts={};
 
-function showView(v,e){
-dashboardView.style.display="none";
-inputView.style.display="none";
-document.getElementById(v+"View").style.display="block";
+/* SAFE NAV */
+function showView(view){
+
+const dash=document.getElementById("dashboardView");
+const input=document.getElementById("inputView");
+
+if(dash) dash.style.display="none";
+if(input) input.style.display="none";
+
+if(view==="dashboard") dash.style.display="block";
+if(view==="inputs") input.style.display="block";
 
 document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
-e.target.classList.add("active");
+event.target.classList.add("active");
 }
 
 /* MODEL */
@@ -140,60 +112,64 @@ let t=[];
 let years=Math.max(life-age,1);
 
 for(let y=0;y<years;y++){
+
 let cur=age+y;
 let inc=cur<ret?income*12:0;
 let ex=exp*12*Math.pow(1.025,y);
+
 bal+=bal*0.05+inc-ex;
+
 t.push({age:cur,bal,inc,ex});
+
 if(bal<=0) break;
 }
 
 return t;
 }
 
-/* UPDATE */
+/* UPDATE EVERYTHING */
 function updateAll(){
 
-let income=(+incomeA.value||0)+(+incomeB.value||0);
+let incomeAVal=+incomeA.value||0;
+let incomeBVal=+incomeB.value||0;
+let income=incomeAVal+incomeBVal;
 
-let portfolioTotal=(+value1.value||0)+(+value2.value||0);
-
-let total=(+cash.value||0)+(+investments.value||0)+portfolioTotal;
-
+let total=(+cash.value||0)+(+investments.value||0);
 let exp=+expenses.value||0;
 
 let age=Math.min(+ageA.value||65,+ageB.value||65);
 let ret=+retAge.value||65;
 let life=+lifeExp.value||90;
 
+/* fallback */
 if(total===0 && income===0){
 total=100000; income=5000; exp=4000;
 }
 
 let m=buildModel(total,income,exp,age,ret,life);
 
-/* KPI */
+/* KPIs */
 netWorth.innerText="$"+total.toLocaleString();
-surplus.innerText="$"+(income-exp);
+incomeTotal.innerText="$"+income.toLocaleString();
+expenseTotal.innerText="$"+exp.toLocaleString();
 years.innerText=m.length;
-score.innerText=m.length>30?"85":"45";
+
+/* LIVE PANEL */
+liveCalc.innerHTML=
+"Income: $"+income.toLocaleString()+"<br>"+
+"Expenses: $"+exp.toLocaleString()+"<br>"+
+"Surplus: $"+(income-exp).toLocaleString();
 
 /* CHARTS */
 renderCharts(m);
 
 /* AI */
-let ai=[];
-if(m.length<25) ai.push("⚠️ Risk of running out early");
-else ai.push("✅ Plan sustainable");
-
-if(income<exp) ai.push("⚠️ Spending exceeds income");
-
-if(ticker1.value) ai.push("Portfolio includes "+ticker1.value);
-
-aiOutput.innerHTML=ai.join("<br><br>");
+aiOutput.innerHTML =
+(m.length<25?"⚠️ Risk early":"✅ Stable")+"<br>"+
+(income<exp?"⚠️ Negative cashflow":"");
 }
 
-/* CHARTS */
+/* CHARTS FIXED */
 function renderCharts(m){
 
 const ctx1=document.getElementById("projectionChart").getContext("2d");
@@ -215,22 +191,13 @@ charts.n=new Chart(ctx3,{type:"line",data:{labels,datasets:[{label:"Net Flow",da
 charts.r=new Chart(ctx4,{type:"bar",data:{labels:["Years"],datasets:[{data:[m.length]}]}});
 }
 
-/* THEME */
-function toggleTheme(){
-document.body.classList.toggle("light");
-localStorage.setItem("theme",document.body.classList.contains("light"));
-}
-
-if(localStorage.getItem("theme")==="true"){
-document.body.classList.add("light");
-}
-
 /* AUTO UPDATE */
 document.querySelectorAll("input").forEach(i=>{
 i.addEventListener("input",updateAll);
 });
 
-updateAll();
+/* INIT */
+window.onload=updateAll;
 
 </script>
 
