@@ -10,6 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
+    /* Basic styles */
     body { margin: 0; font-family: 'Inter', sans-serif; background: #0B0F1A; color: #E5E7EB; display: flex; height: 100vh; }
     .sidebar { width: 220px; padding: 20px; background: #0F172A; }
     .logo { font-weight: 600; margin-bottom: 20px; }
@@ -29,7 +30,6 @@
 
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
   <div class="logo">AVORA</div>
   <div class="nav-item active" onclick="showView('dashboardView',this)">Dashboard</div>
@@ -38,7 +38,6 @@
   <button onclick="toggleTheme()">Toggle Theme</button>
 </div>
 
-<!-- MAIN CONTENT -->
 <div class="main">
 
   <!-- DASHBOARD -->
@@ -49,7 +48,6 @@
       <div class="card">Annual Expenses<div id="expenseTotal">$0</div></div>
       <div class="card">Years Covered<div id="years">--</div></div>
     </div>
-
     <div class="chartGrid">
       <div class="card"><canvas id="projectionChart"></canvas></div>
       <div class="card"><canvas id="cashflowChart"></canvas></div>
@@ -94,9 +92,11 @@
       <h4>Longevity</h4>
       <input id="lifeExpA" placeholder="Life Expectancy (A)">
       <input id="lifeExpB" placeholder="Life Expectancy (B)">
+
       <h4>Market</h4>
       <input id="returnRateInput" placeholder="Return %">
       <input id="marketDrop" placeholder="Market Drop %">
+
       <h4>Spending</h4>
       <input id="inflationInput" placeholder="Inflation %">
       <input id="expenseShock" placeholder="Extra Expense">
