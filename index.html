@@ -86,11 +86,6 @@
     <div id="score" class="stat">--</div>
     <div id="scoreHint" style="font-size:12px; opacity:.7;"></div>
   </div>
-</div>
-  <div class="card col">
-  Retirement Score
-  <div id="score" class="stat">--</div>
-  <div id="scoreHint" style="font-size:12px; opacity:.7;"></div>
 
   <div style="margin-top:8px; height:6px; background:#111; border-radius:4px;">
     <div id="scoreBar" style="height:6px; width:0%; background:#3b82f6; border-radius:4px;"></div>
@@ -134,6 +129,12 @@
   <button onclick="generateSummary()">Generate Summary</button>
 
   <div id="summaryOutput" style="margin-top:10px;"></div>
+</div>
+
+  <div class="card">
+  <h3>Export</h3>
+
+  <button onclick="exportSummary()">Download Summary</button>
 </div>
 
 <script>
@@ -240,7 +241,8 @@ function runScenario(){
     <em>Paste this into ChatGPT Advisor Agent for full breakdown</em>
   `;
 }
-function generateSummary(){
+
+  function exportSummary(){
 
   let s = +document.getElementById("savings").value;
   let i = +document.getElementById("income").value;
@@ -253,21 +255,34 @@ function generateSummary(){
   let status = score >= 80 ? "Strong" :
                score >= 60 ? "Moderate" : "At Risk";
 
-  document.getElementById("summaryOutput").innerHTML = `
-    <strong>Financial Snapshot:</strong><br>
-    Net Worth: $${s.toLocaleString()}<br>
-    Monthly Surplus: $${surplus}<br>
-    Years Covered: ${Math.round(years)}<br><br>
+  let content = `
+RETIREMENT SUMMARY
+---------------------------
 
-    <strong>Assessment:</strong><br>
-    Retirement Readiness: ${status} (${score}/100)<br><br>
+Net Worth: $${s.toLocaleString()}
+Monthly Surplus: $${surplus}
+Years Covered: ${Math.round(years)}
 
-    <strong>Key Questions for Advisor:</strong><br>
-    • What assumptions are you using for returns?<br>
-    • How are fees structured?<br>
-    • What happens in a downturn?<br>
-    • Is this plan flexible if spending changes?
-  `;
+Retirement Readiness: ${status} (${score}/100)
+
+KEY QUESTIONS:
+- What assumptions are used for returns?
+- What are total fees?
+- What happens in a downturn?
+- How flexible is this plan?
+
+Generated from Retirement Dashboard
+`;
+
+  let blob = new Blob([content], { type: "text/plain" });
+  let url = URL.createObjectURL(blob);
+
+  let a = document.createElement("a");
+  a.href = url;
+  a.download = "retirement-summary.txt";
+  a.click();
+
+  URL.revokeObjectURL(url);
 }
   
 </script>
