@@ -23,25 +23,27 @@ body{background:var(--bg);color:var(--text);display:flex;height:100vh;}
 .main{flex:1;display:flex;flex-direction:column;}
 .topbar{padding:20px;border-bottom:1px solid #111;}
 .content{padding:20px;overflow:auto;}
+
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;}
-.card{background:var(--card);padding:20px;border-radius:12px;}
-.section{margin-top:20px;}
-.kpi{font-size:22px;margin-top:5px;}
+.chartGrid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:20px;}
+
+.card{background:var(--card);padding:15px;border-radius:12px;}
+.kpi{font-size:20px;margin-top:5px;}
 
 .field{position:relative;margin-top:12px;}
 .field input{
-width:100%;padding:16px 10px 6px 10px;
+width:100%;padding:16px 10px 6px;
 background:var(--card-light);border:none;border-radius:8px;color:white;
 }
 .field label{
-position:absolute;top:50%;left:10px;
-transform:translateY(-50%);
+position:absolute;top:50%;left:10px;transform:translateY(-50%);
 color:var(--sub);font-size:13px;transition:.2s;
 }
 .field input:focus+label,
 .field input:not(:placeholder-shown)+label{
 top:5px;font-size:11px;color:#3B82F6;
 }
+
 button{
 margin-top:15px;padding:10px;border:none;
 background:var(--grad);color:white;border-radius:8px;cursor:pointer;
@@ -69,15 +71,24 @@ background:var(--grad);color:white;border-radius:8px;cursor:pointer;
 <div class="card">Net Worth<div id="netWorth" class="kpi">$0</div></div>
 <div class="card">Surplus<div id="surplus" class="kpi">$0</div></div>
 <div class="card">Years Covered<div id="years" class="kpi">--</div></div>
-<div class="card">Score<div id="score" class="kpi">--</div><div id="scoreHint"></div></div>
+<div class="card">Score<div id="score" class="kpi">--</div></div>
 </div>
 
-<div class="section card"><h3>Net Worth Projection</h3><canvas id="projectionChart"></canvas></div>
-<div class="section card"><h3>Income vs Expenses</h3><canvas id="cashflowChart"></canvas></div>
-<div class="section card"><h3>Net Cashflow Trend</h3><canvas id="netFlowChart"></canvas></div>
-<div class="section card"><h3>Risk Buffer</h3><canvas id="riskChart"></canvas></div>
+<div class="grid">
+<div class="card">Savings Rate<div id="saveRate" class="kpi">--</div></div>
+<div class="card">Burn Rate<div id="burnRate" class="kpi">--</div></div>
+<div class="card">Income Ratio<div id="incomeRatio" class="kpi">--</div></div>
+<div class="card">Risk Buffer<div id="riskBuffer" class="kpi">--</div></div>
+</div>
 
-<div class="section card">
+<div class="chartGrid">
+<div class="card"><canvas id="projectionChart"></canvas></div>
+<div class="card"><canvas id="cashflowChart"></canvas></div>
+<div class="card"><canvas id="netFlowChart"></canvas></div>
+<div class="card"><canvas id="riskChart"></canvas></div>
+</div>
+
+<div class="card" style="margin-top:20px;">
 <h3>AI Insight</h3>
 <button onclick="runAI()">Analyze Plan</button>
 <div id="aiOutput"></div>
@@ -85,28 +96,28 @@ background:var(--grad);color:white;border-radius:8px;cursor:pointer;
 
 </div>
 
-<!-- INPUT -->
+<!-- INPUTS -->
 <div id="inputView" style="display:none">
+
 <div class="card">
 
+<h4>Person A</h4>
+<div class="field"><input id="incomeA" placeholder=" "><label>Income</label></div>
+<div class="field"><input id="retA" placeholder=" "><label>Retirement</label></div>
+
+<h4 style="margin-top:10px;">Person B</h4>
+<div class="field"><input id="incomeB" placeholder=" "><label>Income</label></div>
+<div class="field"><input id="retB" placeholder=" "><label>Retirement</label></div>
+
+<h4 style="margin-top:10px;">Shared</h4>
 <div class="field"><input id="cash" placeholder=" "><label>Cash</label></div>
 <div class="field"><input id="investments" placeholder=" "><label>Investments</label></div>
-<div class="field"><input id="retirement" placeholder=" "><label>401k</label></div>
-
-<div class="field"><input id="income" placeholder=" "><label>Income</label></div>
-<div class="field"><input id="ssEstimate" placeholder=" "><label>SSI</label></div>
 <div class="field"><input id="expenses" placeholder=" "><label>Expenses</label></div>
-
-<select id="maritalStatus">
-<option value="single">Single</option>
-<option value="married">Married</option>
-</select>
-
-<div class="field"><input id="income2" placeholder=" "><label>Spouse Income</label></div>
 
 <button onclick="saveData()">Update Dashboard</button>
 
 </div>
+
 </div>
 
 </div>
@@ -116,112 +127,98 @@ background:var(--grad);color:white;border-radius:8px;cursor:pointer;
 
 let projectionChart,cashflowChart,netFlowChart,riskChart;
 
-/* NAV */
 function showView(v,e){
-document.getElementById("dashboardView").style.display="none";
-document.getElementById("inputView").style.display="none";
-
+dashboardView.style.display="none";
+inputView.style.display="none";
 document.getElementById(v+"View").style.display="block";
-
 document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
 e.target.classList.add("active");
 }
 
-/* ENGINE */
-function buildModel(inputs){
-let balance=inputs.assets;
+function buildModel(total, income, expenses){
+let balance=total;
 let timeline=[];
 for(let y=0;y<40;y++){
-let income=inputs.income*12;
-let exp=inputs.expenses*12*Math.pow(1.025,y);
-let growth=balance*0.05;
-balance+=growth+income-exp;
-timeline.push({y,balance,income,exp});
+let inc=income*12;
+let exp=expenses*12*Math.pow(1.025,y);
+balance+=balance*0.05+inc-exp;
+timeline.push({y,balance,inc,exp});
 if(balance<=0) break;
 }
 return timeline;
 }
 
-/* SAVE */
 function saveData(){
 
-let cash = parseFloat(document.getElementById("cash").value) || 0;
-let inv = parseFloat(document.getElementById("investments").value) || 0;
-let ret = parseFloat(document.getElementById("retirement").value) || 0;
+let incomeA=+incomeAEl.value||0;
+let incomeB=+incomeB.value||0;
 
-let inc = parseFloat(document.getElementById("income").value) || 0;
-let exp = parseFloat(document.getElementById("expenses").value) || 0;
+let totalIncome=incomeA+incomeB;
 
-let total = cash + inv + ret;
+let cash=+cash.value||0;
+let inv=+investments.value||0;
+let totalAssets=cash+inv;
 
-let model = buildModel({assets: total, income: inc, expenses: exp});
+let exp=+expenses.value||0;
+
+let model=buildModel(totalAssets,totalIncome,exp);
 
 /* KPI */
-document.getElementById("netWorth").innerText="$"+total.toLocaleString();
-document.getElementById("surplus").innerText="$"+(inc-exp).toLocaleString();
-document.getElementById("years").innerText=model.length;
-document.getElementById("score").innerText=model.length>30?"85":"45";
-document.getElementById("scoreHint").innerText=model.length>30?"Healthy":"At Risk";
+netWorth.innerText="$"+totalAssets.toLocaleString();
+surplus.innerText="$"+(totalIncome-exp);
+years.innerText=model.length;
 
-/* Charts */
+let scoreVal=model.length>30?85:45;
+score.innerText=scoreVal;
+
+/* NEW METRICS */
+saveRate.innerText=((totalIncome-exp)/totalIncome*100||0).toFixed(1)+"%";
+burnRate.innerText=(exp*12).toLocaleString();
+incomeRatio.innerText=(totalIncome/exp||0).toFixed(2);
+riskBuffer.innerText=model.length+" yrs";
+
+/* CHARTS */
 renderCharts(model);
 }
 
-/* CHARTS */
 function renderCharts(m){
 
 let yrs=m.map(x=>x.y);
 let bal=m.map(x=>x.balance);
-let inc=m.map(x=>x.income);
+let inc=m.map(x=>x.inc);
 let exp=m.map(x=>x.exp);
-let net=m.map(x=>x.income-x.exp);
+let net=m.map(x=>x.inc-x.exp);
 
 if(projectionChart)projectionChart.destroy();
-projectionChart=new Chart(document.getElementById("projectionChart"),{
-type:"line",
-data:{labels:yrs,datasets:[{data:bal,borderColor:"#3B82F6"}]}
-});
+projectionChart=new Chart(projectionChartCanvas,{type:"line",data:{labels:yrs,datasets:[{data:bal}]}});
 
 if(cashflowChart)cashflowChart.destroy();
-cashflowChart=new Chart(document.getElementById("cashflowChart"),{
-type:"line",
-data:{labels:yrs,datasets:[
-{data:inc,borderColor:"#22C55E"},
-{data:exp,borderColor:"#EF4444"}
-]}
-});
+cashflowChart=new Chart(cashflowChartCanvas,{type:"line",data:{labels:yrs,datasets:[{data:inc},{data:exp}]}});
 
 if(netFlowChart)netFlowChart.destroy();
-netFlowChart=new Chart(document.getElementById("netFlowChart"),{
-type:"line",
-data:{labels:yrs,datasets:[{data:net,borderColor:"#F59E0B"}]}
-});
+netFlowChart=new Chart(netFlowChartCanvas,{type:"line",data:{labels:yrs,datasets:[{data:net}]}});
 
 if(riskChart)riskChart.destroy();
-riskChart=new Chart(document.getElementById("riskChart"),{
-type:"bar",
-data:{labels:["Years Covered"],datasets:[{data:[m.length],backgroundColor:"#6366F1"}]}
-});
+riskChart=new Chart(riskChartCanvas,{type:"bar",data:{labels:["Years"],datasets:[{data:[m.length]}]}});
 }
 
-/* AI */
 function runAI(){
-let yrs=parseInt(document.getElementById("years").innerText)||0;
-let surplusVal=parseFloat(document.getElementById("surplus").innerText.replace("$",""))||0;
+
+let yrs=parseInt(years.innerText)||0;
+let surplusVal=parseFloat(surplus.innerText)||0;
 
 let out=[];
-if(yrs<25) out.push("⚠️ Plan may fail early");
-else out.push("✅ Plan is stable");
 
-if(surplusVal<0) out.push("⚠️ Negative cashflow risk");
+if(yrs<25) out.push("⚠️ High longevity risk");
+else out.push("✅ Strong sustainability");
 
-out.push("Focus: reduce expenses or increase income.");
+if(surplusVal<0) out.push("⚠️ Structural deficit detected");
 
-document.getElementById("aiOutput").innerHTML=out.join("<br><br>");
+if(yrs<20 && surplusVal<0)
+out.push("🚨 Critical: Plan fails early and burns cash");
+
+aiOutput.innerHTML=out.join("<br><br>");
 }
-
-/* AUTO INIT */
-saveData();
 
 </script>
 
