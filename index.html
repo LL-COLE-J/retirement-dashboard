@@ -28,7 +28,7 @@ body{background:var(--bg);color:var(--text);display:flex;height:100vh;}
 .chartGrid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:20px;}
 
 .card{background:var(--card);padding:15px;border-radius:12px;}
-.kpi{font-size:20px;margin-top:5px;}
+.kpi{font-size:18px;margin-top:5px;}
 
 .field{position:relative;margin-top:12px;}
 .field input{
@@ -36,7 +36,8 @@ width:100%;padding:16px 10px 6px;
 background:var(--card-light);border:none;border-radius:8px;color:white;
 }
 .field label{
-position:absolute;top:50%;left:10px;transform:translateY(-50%);
+position:absolute;top:50%;left:10px;
+transform:translateY(-50%);
 color:var(--sub);font-size:13px;transition:.2s;
 }
 .field input:focus+label,
@@ -70,15 +71,15 @@ background:var(--grad);color:white;border-radius:8px;cursor:pointer;
 <div class="grid">
 <div class="card">Net Worth<div id="netWorth" class="kpi">$0</div></div>
 <div class="card">Surplus<div id="surplus" class="kpi">$0</div></div>
-<div class="card">Years Covered<div id="years" class="kpi">--</div></div>
+<div class="card">Years<div id="years" class="kpi">--</div></div>
 <div class="card">Score<div id="score" class="kpi">--</div></div>
 </div>
 
 <div class="grid">
 <div class="card">Savings Rate<div id="saveRate" class="kpi">--</div></div>
 <div class="card">Burn Rate<div id="burnRate" class="kpi">--</div></div>
-<div class="card">Income Ratio<div id="incomeRatio" class="kpi">--</div></div>
-<div class="card">Risk Buffer<div id="riskBuffer" class="kpi">--</div></div>
+<div class="card">Income Coverage<div id="incomeRatio" class="kpi">--</div></div>
+<div class="card">Risk Years<div id="riskBuffer" class="kpi">--</div></div>
 </div>
 
 <div class="chartGrid">
@@ -96,28 +97,24 @@ background:var(--grad);color:white;border-radius:8px;cursor:pointer;
 
 </div>
 
-<!-- INPUTS -->
+<!-- INPUT -->
 <div id="inputView" style="display:none">
-
 <div class="card">
 
 <h4>Person A</h4>
 <div class="field"><input id="incomeA" placeholder=" "><label>Income</label></div>
-<div class="field"><input id="retA" placeholder=" "><label>Retirement</label></div>
 
-<h4 style="margin-top:10px;">Person B</h4>
+<h4>Person B</h4>
 <div class="field"><input id="incomeB" placeholder=" "><label>Income</label></div>
-<div class="field"><input id="retB" placeholder=" "><label>Retirement</label></div>
 
-<h4 style="margin-top:10px;">Shared</h4>
+<h4>Shared</h4>
 <div class="field"><input id="cash" placeholder=" "><label>Cash</label></div>
 <div class="field"><input id="investments" placeholder=" "><label>Investments</label></div>
 <div class="field"><input id="expenses" placeholder=" "><label>Expenses</label></div>
 
-<button onclick="saveData()">Update Dashboard</button>
+<button onclick="saveData()">Save & Update</button>
 
 </div>
-
 </div>
 
 </div>
@@ -127,60 +124,75 @@ background:var(--grad);color:white;border-radius:8px;cursor:pointer;
 
 let projectionChart,cashflowChart,netFlowChart,riskChart;
 
+/* NAV */
 function showView(v,e){
-dashboardView.style.display="none";
-inputView.style.display="none";
+document.getElementById("dashboardView").style.display="none";
+document.getElementById("inputView").style.display="none";
 document.getElementById(v+"View").style.display="block";
 document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
 e.target.classList.add("active");
 }
 
-function buildModel(total, income, expenses){
+/* MODEL */
+function buildModel(total,income,expenses){
 let balance=total;
-let timeline=[];
+let t=[];
 for(let y=0;y<40;y++){
 let inc=income*12;
 let exp=expenses*12*Math.pow(1.025,y);
 balance+=balance*0.05+inc-exp;
-timeline.push({y,balance,inc,exp});
+t.push({y,balance,inc,exp});
 if(balance<=0) break;
 }
-return timeline;
+return t;
 }
 
+/* SAVE */
 function saveData(){
 
-let incomeA=+incomeAEl.value||0;
-let incomeB=+incomeB.value||0;
+let incomeA=parseFloat(document.getElementById("incomeA").value)||0;
+let incomeB=parseFloat(document.getElementById("incomeB").value)||0;
+let income=incomeA+incomeB;
 
-let totalIncome=incomeA+incomeB;
+let cash=parseFloat(document.getElementById("cash").value)||0;
+let inv=parseFloat(document.getElementById("investments").value)||0;
+let expenses=parseFloat(document.getElementById("expenses").value)||0;
 
-let cash=+cash.value||0;
-let inv=+investments.value||0;
-let totalAssets=cash+inv;
+let total=cash+inv;
 
-let exp=+expenses.value||0;
+localStorage.setItem("profile",JSON.stringify({incomeA,incomeB,cash,inv,expenses}));
 
-let model=buildModel(totalAssets,totalIncome,exp);
+let m=buildModel(total,income,expenses);
 
 /* KPI */
-netWorth.innerText="$"+totalAssets.toLocaleString();
-surplus.innerText="$"+(totalIncome-exp);
-years.innerText=model.length;
+document.getElementById("netWorth").innerText="$"+total.toLocaleString();
+document.getElementById("surplus").innerText="$"+(income-expenses);
+document.getElementById("years").innerText=m.length;
+document.getElementById("score").innerText=m.length>30?"85":"45";
 
-let scoreVal=model.length>30?85:45;
-score.innerText=scoreVal;
+/* Metrics */
+document.getElementById("saveRate").innerText=((income-expenses)/income*100||0).toFixed(1)+"%";
+document.getElementById("burnRate").innerText="$"+(expenses*12).toLocaleString();
+document.getElementById("incomeRatio").innerText=(income/expenses||0).toFixed(2);
+document.getElementById("riskBuffer").innerText=m.length+" yrs";
 
-/* NEW METRICS */
-saveRate.innerText=((totalIncome-exp)/totalIncome*100||0).toFixed(1)+"%";
-burnRate.innerText=(exp*12).toLocaleString();
-incomeRatio.innerText=(totalIncome/exp||0).toFixed(2);
-riskBuffer.innerText=model.length+" yrs";
-
-/* CHARTS */
-renderCharts(model);
+renderCharts(m);
 }
 
+/* LOAD PROFILE */
+(function(){
+let p=JSON.parse(localStorage.getItem("profile")||"{}");
+if(p){
+document.getElementById("incomeA").value=p.incomeA||"";
+document.getElementById("incomeB").value=p.incomeB||"";
+document.getElementById("cash").value=p.cash||"";
+document.getElementById("investments").value=p.inv||"";
+document.getElementById("expenses").value=p.expenses||"";
+saveData();
+}
+})();
+
+/* CHARTS */
 function renderCharts(m){
 
 let yrs=m.map(x=>x.y);
@@ -190,34 +202,34 @@ let exp=m.map(x=>x.exp);
 let net=m.map(x=>x.inc-x.exp);
 
 if(projectionChart)projectionChart.destroy();
-projectionChart=new Chart(projectionChartCanvas,{type:"line",data:{labels:yrs,datasets:[{data:bal}]}});
+projectionChart=new Chart(document.getElementById("projectionChart"),{type:"line",data:{labels:yrs,datasets:[{data:bal}]}});
 
 if(cashflowChart)cashflowChart.destroy();
-cashflowChart=new Chart(cashflowChartCanvas,{type:"line",data:{labels:yrs,datasets:[{data:inc},{data:exp}]}});
+cashflowChart=new Chart(document.getElementById("cashflowChart"),{type:"line",data:{labels:yrs,datasets:[{data:inc},{data:exp}]}});
 
 if(netFlowChart)netFlowChart.destroy();
-netFlowChart=new Chart(netFlowChartCanvas,{type:"line",data:{labels:yrs,datasets:[{data:net}]}});
+netFlowChart=new Chart(document.getElementById("netFlowChart"),{type:"line",data:{labels:yrs,datasets:[{data:net}]}});
 
 if(riskChart)riskChart.destroy();
-riskChart=new Chart(riskChartCanvas,{type:"bar",data:{labels:["Years"],datasets:[{data:[m.length]}]}});
+riskChart=new Chart(document.getElementById("riskChart"),{type:"bar",data:{labels:["Years"],datasets:[{data:[m.length]}]}});
 }
 
+/* AI */
 function runAI(){
 
-let yrs=parseInt(years.innerText)||0;
-let surplusVal=parseFloat(surplus.innerText)||0;
+let yrs=parseInt(document.getElementById("years").innerText)||0;
+let surplus=parseFloat(document.getElementById("surplus").innerText)||0;
 
 let out=[];
 
-if(yrs<25) out.push("⚠️ High longevity risk");
-else out.push("✅ Strong sustainability");
+if(yrs<25) out.push("⚠️ Longevity risk detected");
+else out.push("✅ Plan sustainability strong");
 
-if(surplusVal<0) out.push("⚠️ Structural deficit detected");
+if(surplus<0) out.push("⚠️ Negative monthly cashflow");
 
-if(yrs<20 && surplusVal<0)
-out.push("🚨 Critical: Plan fails early and burns cash");
+if(yrs<20 && surplus<0) out.push("🚨 Plan fails early");
 
-aiOutput.innerHTML=out.join("<br><br>");
+document.getElementById("aiOutput").innerHTML=out.join("<br><br>");
 }
 
 </script>
