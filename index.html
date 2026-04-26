@@ -10,7 +10,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    /* Basic styles */
     body { margin: 0; font-family: 'Inter', sans-serif; background: #0B0F1A; color: #E5E7EB; display: flex; height: 100vh; }
     .sidebar { width: 220px; padding: 20px; background: #0F172A; }
     .logo { font-weight: 600; margin-bottom: 20px; }
@@ -48,6 +47,7 @@
       <div class="card">Annual Expenses<div id="expenseTotal">$0</div></div>
       <div class="card">Years Covered<div id="years">--</div></div>
     </div>
+
     <div class="chartGrid">
       <div class="card"><canvas id="projectionChart"></canvas></div>
       <div class="card"><canvas id="cashflowChart"></canvas></div>
@@ -108,7 +108,7 @@
 <!-- AI PANEL -->
 <div class="ai">
   <h4>AI Advisor</h4>
-  <div id="aiOutput"></div>
+  <div id="aiOutput">Loading...</div>
 </div>
 
 <script>
