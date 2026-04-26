@@ -35,22 +35,26 @@ display:flex;
 height:100vh;
 }
 
-/* layout */
 .sidebar{
 width:220px;
 background:var(--sidebar);
 padding:20px;
 }
+
 .logo{
 font-weight:600;
 margin-bottom:20px;
 }
+
 .nav-item{
 margin:10px 0;
 color:var(--sub);
 cursor:pointer;
 }
-.nav-item.active{color:var(--text);}
+
+.nav-item.active{
+color:var(--text);
+}
 
 .main{
 flex:1;
@@ -65,7 +69,6 @@ padding:15px;
 border-left:1px solid #222;
 }
 
-/* cards */
 .grid{
 display:grid;
 grid-template-columns:repeat(4,1fr);
@@ -85,7 +88,6 @@ padding:12px;
 border-radius:10px;
 }
 
-/* inputs */
 input{
 width:100%;
 margin-top:8px;
@@ -101,9 +103,6 @@ background:#E5E7EB;
 color:black;
 }
 
-h4{margin-top:12px;}
-
-canvas{max-height:200px;}
 button{
 margin-top:10px;
 padding:8px;
@@ -113,12 +112,15 @@ border:none;
 border-radius:6px;
 cursor:pointer;
 }
+
+canvas{
+max-height:200px;
+}
 </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
 <div class="logo">AVORA</div>
 
@@ -128,7 +130,6 @@ cursor:pointer;
 <button onclick="toggleTheme()">Toggle Theme</button>
 </div>
 
-<!-- MAIN -->
 <div class="main">
 
 <!-- DASHBOARD -->
@@ -158,10 +159,16 @@ cursor:pointer;
 <h4>Person A</h4>
 <input id="incomeA" placeholder="Annual Income (A)">
 <input id="ageA" placeholder="Age (A)">
+<input id="retAgeA" placeholder="Retirement Age (A)">
+<input id="ssiAgeA" placeholder="SSI Start Age (A)">
+<input id="ssiA" placeholder="SSI Monthly (A)">
 
 <h4>Person B</h4>
 <input id="incomeB" placeholder="Annual Income (B)">
 <input id="ageB" placeholder="Age (B)">
+<input id="retAgeB" placeholder="Retirement Age (B)">
+<input id="ssiAgeB" placeholder="SSI Start Age (B)">
+<input id="ssiB" placeholder="SSI Monthly (B)">
 
 <h4>Household</h4>
 <input id="cash" placeholder="Cash">
@@ -169,7 +176,6 @@ cursor:pointer;
 <input id="expenses" placeholder="Annual Expenses">
 
 <h4>Planning</h4>
-<input id="retAge" placeholder="Retirement Age">
 <input id="lifeExp" placeholder="Life Expectancy">
 
 </div>
@@ -178,7 +184,6 @@ cursor:pointer;
 
 </div>
 
-<!-- AI PANEL -->
 <div class="ai">
 <h4>AI Advisor</h4>
 <div id="aiOutput"></div>
@@ -188,75 +193,100 @@ cursor:pointer;
 
 let charts={};
 
-/* NAV FIXED */
+/* NAV */
 function showView(view, el){
+document.getElementById("dashboardView").style.display="none";
+document.getElementById("inputView").style.display="none";
 
-const dash=document.getElementById("dashboardView");
-const input=document.getElementById("inputView");
-
-if(dash) dash.style.display="none";
-if(input) input.style.display="none";
-
-if(view==="dashboard") dash.style.display="block";
-if(view==="inputs") input.style.display="block";
-
-document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
-if(el) el.classList.add("active");
+if(view==="dashboard"){
+document.getElementById("dashboardView").style.display="block";
+}
+if(view==="inputs"){
+document.getElementById("inputView").style.display="block";
 }
 
-/* MODEL */
-function buildModel(total,income,exp,age,ret,life){
+document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+el.classList.add("active");
+}
 
-let bal=total;
-let t=[];
-let years=Math.max(life-age,1);
+/* MODEL (UPGRADED WITH RETIREMENT + SSI) */
+function buildModel(total, exp, life){
 
-for(let y=0;y<years;y++){
+let bal = total;
+let t = [];
 
-let cur=age+y;
-let inc=cur<ret?income:0;
-let ex=exp*Math.pow(1.025,y);
+let startAgeA = (+ageA.value || 65);
+let startAgeB = (+ageB.value || 65);
 
-bal+=bal*0.05+inc-ex;
+for(let y=0; y<60; y++){
 
-t.push({age:cur,bal,inc,ex});
+let ageAcur = startAgeA + y;
+let ageBcur = startAgeB + y;
 
-if(bal<=0) break;
+let income = 0;
+
+/* PERSON A */
+if(ageAcur < (+retAgeA.value || 65)){
+income += (+incomeA.value || 0);
+}
+if(ageAcur >= (+ssiAgeA.value || 67)){
+income += ((+ssiA.value || 0) * 12);
+}
+
+/* PERSON B */
+if(ageBcur < (+retAgeB.value || 65)){
+income += (+incomeB.value || 0);
+}
+if(ageBcur >= (+ssiAgeB.value || 67)){
+income += ((+ssiB.value || 0) * 12);
+}
+
+/* EXPENSES */
+let expenses = exp * Math.pow(1.025, y);
+
+/* BALANCE */
+bal += bal * 0.05 + income - expenses;
+
+t.push({
+age: Math.min(ageAcur, ageBcur),
+bal,
+inc: income,
+ex: expenses
+});
+
+if(bal <= 0) break;
 }
 
 return t;
 }
 
-/* UPDATE (NO OVERWRITES) */
+/* UPDATE */
 function updateAll(){
 
-let income=(+incomeA.value||0)+(+incomeB.value||0);
-let total=(+cash.value||0)+(+investments.value||0);
-let exp=+expenses.value||0;
+let income = (+incomeA.value || 0) + (+incomeB.value || 0);
+let total = (+cash.value || 0) + (+investments.value || 0);
+let exp = (+expenses.value || 0);
+let life = (+lifeExp.value || 90);
 
-let age=Math.min(+ageA.value||65,+ageB.value||65);
-let ret=+retAge.value||65;
-let life=+lifeExp.value||90;
-
-let m=buildModel(total,income,exp,age,ret,life);
+let m = buildModel(total, exp, life);
 
 /* KPIs */
-document.getElementById("netWorth").innerText="$"+total.toLocaleString();
-document.getElementById("incomeTotal").innerText="$"+income.toLocaleString();
-document.getElementById("expenseTotal").innerText="$"+exp.toLocaleString();
-document.getElementById("years").innerText=m.length;
+netWorth.innerText = "$"+total.toLocaleString();
+incomeTotal.innerText = "$"+income.toLocaleString();
+expenseTotal.innerText = "$"+exp.toLocaleString();
+years.innerText = m.length;
 
 /* charts */
 renderCharts(m);
 
 /* AI */
 let ai=[];
-if(m.length<25) ai.push("⚠️ Risk of running out early");
+if(m.length < 25) ai.push("⚠️ Risk of running out early");
 else ai.push("✅ Plan sustainable");
 
-if(income<exp) ai.push("⚠️ Annual expenses exceed income");
+if(income < exp) ai.push("⚠️ Annual expenses exceed income");
 
-document.getElementById("aiOutput").innerHTML=ai.join("<br><br>");
+aiOutput.innerHTML = ai.join("<br><br>");
 }
 
 /* CHARTS */
@@ -299,7 +329,6 @@ document.querySelectorAll("input").forEach(i=>{
 i.addEventListener("input",updateAll);
 });
 
-/* INIT */
 window.onload=updateAll;
 
 </script>
