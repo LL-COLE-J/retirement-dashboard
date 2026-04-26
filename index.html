@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Retirement Control Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      background:#0f172a;
+      color:white;
+      margin:0;
+    }
+    .container {
+      padding:20px;
+      max-width:800px;
+      margin:auto;
+    }
+    h2 {
+      margin-bottom:15px;
+    }
+    .tabs {
+      display:flex;
+      gap:10px;
+      margin-bottom:20px;
+      flex-wrap:wrap;
+    }
+    .tab {
+      padding:10px 15px;
+      background:#1e293b;
+      cursor:pointer;
+      border-radius:8px;
+    }
+    .tab.active {
+      background:#3b82f6;
+    }
+    .panel {
+      display:none;
+    }
+    .panel.active {
+      display:block;
+    }
+    .card {
+      background:#1e293b;
+      padding:15px;
+      border-radius:10px;
+      margin-bottom:15px;
+    }
+    input, textarea {
+      width:100%;
+      padding:8px;
+      margin-top:5px;
+      border-radius:6px;
+      border:none;
+    }
+    button {
+      padding:10px;
+      margin-top:10px;
+      background:#3b82f6;
+      color:white;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+    }
+    .result {
+      margin-top:10px;
+      font-size:16px;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+
+<h2>Retirement Control Panel</h2>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab(event,'snapshot')">Snapshot</div>
+  <div class="tab" onclick="showTab(event,'scenario')">Scenarios</div>
+  <div class="tab" onclick="showTab(event,'advisor')">Advisor</div>
+</div>
+
+<!-- SNAPSHOT -->
+<div id="snapshot" class="panel active">
+  <div class="card">
+    <h3>Financial Snapshot</h3>
+
+    Savings
+    <input id="savings" type="number" placeholder="Total savings">
+
+    Monthly Income
+    <input id="income" type="number">
+
+    Monthly Expenses
+    <input id="expenses" type="number">
+
+    <button onclick="saveSnapshot()">Save</button>
+
+    <div class="result" id="snapshotResult"></div>
+  </div>
+</div>
+
+<!-- SCENARIO -->
+<div id="scenario" class="panel">
+  <div class="card">
+    <h3>Scenario Simulator</h3>
+
+    Savings
+    <input id="scSavings" type="number">
+
+    Monthly Spend
+    <input id="scSpend" type="number">
+
+    <button onclick="runScenario()">Run</button>
+
+    <div class="result" id="scenarioResult"></div>
+  </div>
+</div>
+
+<!-- ADVISOR -->
+<div id="advisor" class="panel">
+  <div class="card">
+    <h3>Advisor Translator</h3>
+
+    <textarea id="advisorText" placeholder="Paste advisor recommendation..."></textarea>
+
+    <button onclick="copyPrompt()">Copy for ChatGPT</button>
+
+    <div class="result" id="advisorResult"></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+/* 🔥 PASTE YOUR FIREBASE CONFIG HERE */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_PROJECT_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+/* Tabs */
+function showTab(evt, tab){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+
+  document.getElementById(tab).classList.add('active');
+  evt.currentTarget.classList.add('active');
+}
+
+/* Save Snapshot */
+function saveSnapshot(){
+  let s = +document.getElementById("savings").value;
+  let i = +document.getElementById("income").value;
+  let e = +document.getElementById("expenses").value;
+
+  let surplus = i - e;
+
+  document.getElementById("snapshotResult").innerHTML =
+    `Net Worth: $${s.toLocaleString()}<br>
+     Monthly Surplus: $${surplus}`;
+
+  db.collection("profiles").doc("main").set({
+    savings: s,
+    income: i,
+    expenses: e,
+    updated: new Date()
+  });
+}
+
+/* Load Data */
+window.onload = async () => {
+  let doc = await db.collection("profiles").doc("main").get();
+
+  if(doc.exists){
+    let d = doc.data();
+    document.getElementById("savings").value = d.savings || "";
+    document.getElementById("income").value = d.income || "";
+    document.getElementById("expenses").value = d.expenses || "";
+  }
+};
+
+/* Scenario */
+function runScenario(){
+  let savings = +document.getElementById("scSavings").value;
+  let spend = +document.getElementById("scSpend").value * 12;
+
+  let years = savings / spend;
+
+  let status = years > 25 ? "🟢 Strong" :
+               years > 15 ? "🟡 Moderate" : "🔴 Risk";
+
+  document.getElementById("scenarioResult").innerHTML =
+    `Money lasts ~ ${Math.round(years)} years<br>${status}`;
+}
+
+/* Advisor Prompt */
+function copyPrompt(){
+  let text = document.getElementById("advisorText").value;
+
+  let prompt = `
+You are a financial translator.
+
+Break this into:
+1. What they are recommending
+2. Costs
+3. Risks
+4. When it makes sense
+5. Questions to ask
+
+${text}
+`;
+
+  navigator.clipboard.writeText(prompt);
+  document.getElementById("advisorResult").innerHTML =
+    "Copied → paste into ChatGPT";
+}
+</script>
+
+</body>
+</html>
