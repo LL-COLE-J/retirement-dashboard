@@ -146,14 +146,26 @@
 
   <!-- INPUT -->
   <div class="card">
-    <h3>Financial Snapshot</h3>
+  <h3>Financial Snapshot</h3>
 
-    <input id="savings" placeholder="Total Savings">
-    <input id="income" placeholder="Monthly Income">
-    <input id="expenses" placeholder="Monthly Expenses">
+<input id="savings" placeholder="Total Savings">
 
-    <button onclick="saveData()">Save</button>
-  </div>
+<input id="income" placeholder="Person A Monthly Income">
+<input id="income2" placeholder="Person B Monthly Income (optional)">
+
+<input id="expenses" placeholder="Monthly Expenses">
+
+<select id="maritalStatus">
+  <option value="single">Single</option>
+  <option value="married">Married</option>
+</select>
+
+<h4 style="margin-top:10px;">Insurance (Optional)</h4>
+
+<input id="insurancePayout" placeholder="Life Insurance Payout">
+<input id="insuranceIncome" placeholder="Monthly Survivor Income">
+
+<button onclick="saveData()">Save</button>
 
   <!-- SCENARIO -->
   <div class="card">
@@ -206,13 +218,39 @@ const db = firebase.firestore();
 
 function buildFinancialModelV2(inputs) {
 
-  const { liquidAssets, expenses, income, assumptions } = inputs;
+  const {
+    liquidAssets,
+    expenses,
+    incomeA,
+    incomeB,
+    maritalStatus,
+    insurancePayout,
+    insuranceIncome,
+    assumptions
+  } = inputs;
 
   let balance = liquidAssets;
 
+  let combinedIncome = incomeA + (maritalStatus === "married" ? incomeB : 0);
+
   for (let year = 0; year < assumptions.years; year++) {
 
-    const yearlyIncome = income * 12;
+    let yearlyIncome = combinedIncome * 12;
+
+    // SIMPLE survivor drop at year 20 (placeholder logic for now)
+    if (maritalStatus === "married" && year > 20) {
+      yearlyIncome = Math.max(incomeA, incomeB) * 12;
+
+      // Apply insurance once
+      if (year === 21 && insurancePayout) {
+        balance += insurancePayout;
+      }
+
+      if (insuranceIncome) {
+        yearlyIncome += insuranceIncome * 12;
+      }
+    }
+
     const yearlyExpenses = expenses * 12 * Math.pow(1 + assumptions.inflation, year);
     const growth = balance * assumptions.returnRate;
 
@@ -238,20 +276,28 @@ function buildFinancialModelV2(inputs) {
 
 function saveData(){
 
-  let s = +document.getElementById("savings").value;
-  let i = +document.getElementById("income").value;
-  let e = +document.getElementById("expenses").value;
+ let s = +document.getElementById("savings").value;
+let i1 = +document.getElementById("income").value;
+let i2 = +document.getElementById("income2").value;
+let e = +document.getElementById("expenses").value;
+let status = document.getElementById("maritalStatus").value;
 
+let insurancePayout = +document.getElementById("insurancePayout").value;
+let insuranceIncome = +document.getElementById("insuranceIncome").value;
   let model = buildFinancialModelV2({
-    liquidAssets: s,
-    income: i,
-    expenses: e,
-    assumptions: {
-      years: 40,
-      returnRate: 0.05,
-      inflation: 0.025
-    }
-  });
+  liquidAssets: s,
+  incomeA: i1,
+  incomeB: i2,
+  expenses: e,
+  maritalStatus: status,
+  insurancePayout,
+  insuranceIncome,
+  assumptions: {
+    years: 40,
+    returnRate: 0.05,
+    inflation: 0.025
+  }
+});
 
   let surplus = i - e;
 
