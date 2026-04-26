@@ -10,7 +10,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    /* Basic styles */
     body { margin: 0; font-family: 'Inter', sans-serif; background: #0B0F1A; color: #E5E7EB; display: flex; height: 100vh; }
     .sidebar { width: 220px; padding: 20px; background: #0F172A; }
     .logo { font-weight: 600; margin-bottom: 20px; }
@@ -50,6 +49,7 @@
       <div class="card">Annual Expenses<div id="expenseTotal">$0</div></div>
       <div class="card">Years Covered<div id="years">--</div></div>
     </div>
+
     <div class="chartGrid">
       <div class="card"><canvas id="projectionChart"></canvas></div>
       <div class="card"><canvas id="cashflowChart"></canvas></div>
@@ -79,19 +79,25 @@
       <input id="cash" placeholder="Cash">
       <input id="investments" placeholder="Investments">
       <input id="expenses" placeholder="Annual Expenses">
+
+      <h4>Portfolio</h4>
+      <input id="ticker1" placeholder="Ticker (AAPL)">
+      <input id="value1" placeholder="Amount">
+      <input id="ticker2" placeholder="Ticker (TSLA)">
+      <input id="value2" placeholder="Amount">
     </div>
   </div>
 
   <!-- SCENARIOS -->
   <div id="scenariosView" style="display:none">
     <div class="card">
-      <h4>Longevity Risk</h4>
+      <h4>Longevity</h4>
       <input id="lifeExpA" placeholder="Life Expectancy (A)">
       <input id="lifeExpB" placeholder="Life Expectancy (B)">
-      <h4>Market Risk</h4>
+      <h4>Market</h4>
       <input id="returnRateInput" placeholder="Return %">
       <input id="marketDrop" placeholder="Market Drop %">
-      <h4>Spending Risk</h4>
+      <h4>Spending</h4>
       <input id="inflationInput" placeholder="Inflation %">
       <input id="expenseShock" placeholder="Extra Expense">
     </div>
@@ -154,7 +160,7 @@ function buildModel(total, exp){
 
     // Expense Adjustment (if someone dies)
     let baseExp = exp;
-    if (ageAcur >= lifeA || ageBcur >= lifeB) baseExp *= 0.7; // Reduce after one dies
+    if (ageAcur >= lifeA || ageBcur >= lifeB) baseExp *= 0.7;
 
     let expenses = (baseExp + shock) * Math.pow(1 + inf, y);
 
@@ -206,7 +212,6 @@ function updateAll() {
 
 /* CHARTS */
 function renderCharts(m) {
-
   const ctx1 = document.getElementById("projectionChart").getContext("2d");
   const ctx2 = document.getElementById("cashflowChart").getContext("2d");
   const ctx3 = document.getElementById("netFlowChart").getContext("2d");
