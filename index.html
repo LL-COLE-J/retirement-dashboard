@@ -10,7 +10,7 @@
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 
 /* ===== RESET ===== */
@@ -156,6 +156,20 @@ button {
         <div id="scoreHint" class="kpi-sub"></div>
       </div>
 
+      </div> <!-- end grid -->
+
+<div class="section card">
+  <h3>Projection</h3>
+  <canvas id="projectionChart"></canvas>
+</div>
+
+<div class="section card">
+  <h3>Income vs Expenses</h3>
+  <canvas id="cashflowChart"></canvas>
+</div>
+    
+  <canvas id="projectionChart"></canvas>
+
     </div>
 
     <!-- INPUT SECTION -->
@@ -177,7 +191,23 @@ button {
 <input id="expenses" placeholder="Monthly Expenses">
 
 <button onclick="saveData()">Update Dashboard</button>
-</div>
+ <h4 style="margin-top:10px;">Household</h4>
+
+<select id="maritalStatus">
+  <option value="single">Single</option>
+  <option value="married">Married</option>
+</select>
+
+<input id="income2" placeholder="Spouse Monthly Income (if married)">
+    <h4 style="margin-top:10px;">Insurance</h4>
+<input id="insurancePayout" placeholder="Life Insurance Payout">
+<input id="insuranceIncome" placeholder="Monthly Survivor Income">
+
+    </div>
+   
+
+
+    
     <!-- SCENARIO -->
     <div class="section card">
       <h3>Scenario</h3>
@@ -218,28 +248,71 @@ const db = firebase.firestore();
 /* ENGINE */
 function buildFinancialModelV2(inputs) {
 
-  let { liquidAssets, income, expenses, assumptions } = inputs;
+  let {
+    liquidAssets,
+    income,
+    income2 = 0,
+    expenses,
+    maritalStatus = "single",
+    insurancePayout = 0,
+    insuranceIncome = 0,
+    assumptions
+  } = inputs;
 
   let balance = liquidAssets;
+  let timeline = [];
+
+  let combinedIncome = income + (maritalStatus === "married" ? income2 : 0);
 
   for (let year = 0; year < assumptions.years; year++) {
 
-    const yearlyIncome = income * 12;
-    const yearlyExpenses = expenses * 12 * Math.pow(1 + assumptions.inflation, year);
+    let yearlyIncome = combinedIncome * 12;
+
+    if (maritalStatus === "married" && year > 20) {
+
+      yearlyIncome = Math.max(income, income2) * 12;
+
+      if (year === 21 && insurancePayout) {
+        balance += insurancePayout;
+      }
+
+      if (insuranceIncome) {
+        yearlyIncome += insuranceIncome * 12;
+      }
+    }
+
+    const yearlyExpenses =
+      expenses * 12 * Math.pow(1 + assumptions.inflation, year);
+
     const growth = balance * assumptions.returnRate;
 
     balance = balance + growth + yearlyIncome - yearlyExpenses;
 
-    if (balance <= 0) {
-      return { success:false, yearsCovered:year, endingBalance:balance };
-    }
+    timeline.push({
+      year,
+      balance,
+      income: yearlyIncome,
+      expenses: yearlyExpenses
+    });
+
+    if (balance <= 0) break;
   }
 
-  return { success:true, yearsCovered:assumptions.years, endingBalance:balance };
+  return {
+    success: balance > 0,
+    yearsCovered: timeline.length,
+    endingBalance: balance,
+    timeline
+  };
 }
 
 /* SAVE */
 function saveData(){
+
+  let income2 = +document.getElementById("income2").value || 0;
+  let status = document.getElementById("maritalStatus").value;
+  let insurancePayout = +document.getElementById("insurancePayout").value || 0;
+  let insuranceIncome = +document.getElementById("insuranceIncome").value || 0;
 
   let cash = +document.getElementById("cash").value || 0;
   let investments = +document.getElementById("investments").value || 0;
@@ -251,7 +324,6 @@ function saveData(){
   let ss = +document.getElementById("ssEstimate").value || 0;
   let expenses = +document.getElementById("expenses").value || 0;
 
-  // ✅ SSI fallback
   if (!ss || ss === 0) {
     ss = income * 0.4;
   }
@@ -259,7 +331,11 @@ function saveData(){
   let model = buildFinancialModelV2({
     liquidAssets: totalAssets,
     income: ss,
-    expenses: expenses,
+    income2,
+    expenses,
+    maritalStatus: status,
+    insurancePayout,
+    insuranceIncome,
     assumptions: {
       years: 40,
       returnRate: 0.05,
@@ -283,7 +359,7 @@ function saveData(){
   document.getElementById("scoreHint").innerText =
     model.success ? "Sustainable" : "Risk";
 
-  // ✅ Correct Firebase save
+  // Save to Firebase
   db.collection("profiles").doc("main").set({
     cash,
     investments,
@@ -292,7 +368,20 @@ function saveData(){
     ss,
     expenses
   });
+
+  // Render charts
+  renderCharts(model);
 }
+ // ✅ Correct Firebase save
+  db.collection("profiles").doc("main").set({
+    cash,
+    investments,
+    retirement,
+    income,
+    ss,
+    expenses
+    renderCharts(model);
+  
 /* LOAD */
 window.onload = async () => {
 
@@ -335,7 +424,74 @@ function analyzeAdvisor(){
   if(t.includes("fee")) flags.push("⚠️ Fees");
   advisorOutput.innerHTML = flags.join("<br>");
 }
+let projectionChart;
+let cashflowChart;
 
+function renderCharts(model){
+
+  const years = model.timeline.map(t => t.year);
+  const balances = model.timeline.map(t => t.balance);
+  const income = model.timeline.map(t => t.income);
+  const expenses = model.timeline.map(t => t.expenses);
+
+  // Destroy old charts
+  if (projectionChart) projectionChart.destroy();
+  if (cashflowChart) cashflowChart.destroy();
+
+  // Balance Chart
+  projectionChart = new Chart(
+    document.getElementById("projectionChart"),
+    {
+      type: "line",
+      data: {
+        labels: years,
+        datasets: [{
+          label: "Balance",
+          data: balances,
+          borderColor: "#3B82F6",
+          tension: 0.3
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: "#9CA3AF" }},
+          y: { ticks: { color: "#9CA3AF" }}
+        }
+      }
+    }
+  );
+
+  // Cashflow Chart
+  cashflowChart = new Chart(
+    document.getElementById("cashflowChart"),
+    {
+      type: "line",
+      data: {
+        labels: years,
+        datasets: [
+          {
+            label: "Income",
+            data: income,
+            borderColor: "#22C55E"
+          },
+          {
+            label: "Expenses",
+            data: expenses,
+            borderColor: "#EF4444"
+          }
+        ]
+      },
+      options: {
+        plugins: { legend: { labels: { color:"#9CA3AF" } } },
+        scales: {
+          x: { ticks: { color: "#9CA3AF" }},
+          y: { ticks: { color: "#9CA3AF" }}
+        }
+      }
+    }
+  );
+}
 </script>
 
 </body>
