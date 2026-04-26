@@ -77,25 +77,10 @@ background:var(--grad);color:white;border-radius:8px;cursor:pointer;
 </div>
 
 <div class="chartGrid">
-<div class="card">
-<h4>Net Worth Over Time</h4>
-<canvas id="projectionChart"></canvas>
-</div>
-
-<div class="card">
-<h4>Income vs Expenses</h4>
-<canvas id="cashflowChart"></canvas>
-</div>
-
-<div class="card">
-<h4>Net Cashflow</h4>
-<canvas id="netFlowChart"></canvas>
-</div>
-
-<div class="card">
-<h4>Longevity (Years Covered)</h4>
-<canvas id="riskChart"></canvas>
-</div>
+<div class="card"><h4>Net Worth Over Time</h4><canvas id="projectionChart"></canvas></div>
+<div class="card"><h4>Income vs Expenses</h4><canvas id="cashflowChart"></canvas></div>
+<div class="card"><h4>Net Cashflow</h4><canvas id="netFlowChart"></canvas></div>
+<div class="card"><h4>Longevity (Years Covered)</h4><canvas id="riskChart"></canvas></div>
 </div>
 
 </div>
@@ -107,14 +92,20 @@ background:var(--grad);color:white;border-radius:8px;cursor:pointer;
 
 <h3>Person A</h3>
 <div class="field"><input id="incomeA" placeholder=" "><label>Monthly Income</label></div>
+<div class="field"><input id="ageA" placeholder=" "><label>Age</label></div>
 
 <h3 class="section">Person B</h3>
 <div class="field"><input id="incomeB" placeholder=" "><label>Monthly Income</label></div>
+<div class="field"><input id="ageB" placeholder=" "><label>Age</label></div>
 
 <h3 class="section">Household</h3>
 <div class="field"><input id="cash" placeholder=" "><label>Cash</label></div>
 <div class="field"><input id="investments" placeholder=" "><label>Investments</label></div>
 <div class="field"><input id="expenses" placeholder=" "><label>Monthly Expenses</label></div>
+
+<h3 class="section">Planning</h3>
+<div class="field"><input id="retAge" placeholder=" "><label>Retirement Age</label></div>
+<div class="field"><input id="lifeExp" placeholder=" "><label>Life Expectancy</label></div>
 
 <div class="section card" style="background:#1F2937;">
 <h4>Live Summary</h4>
@@ -142,29 +133,40 @@ document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
 e.target.classList.add("active");
 }
 
-/* MODEL */
-function buildModel(total,income,expenses){
+/* MODEL WITH AGE */
+function buildModel(total,income,expenses,age,retAge,lifeExp){
+
 let balance=total;
 let t=[];
-for(let y=0;y<40;y++){
-let inc=income*12;
-let exp=expenses*12*Math.pow(1.025,y);
-balance+=balance*0.05+inc-exp;
-t.push({y,balance,inc,exp});
+
+let years=lifeExp-age;
+
+for(let y=0;y<years;y++){
+
+let currentAge=age+y;
+
+let inc = currentAge < retAge ? income*12 : 0;
+let exp = expenses*12*Math.pow(1.025,y);
+
+balance += balance*0.05 + inc - exp;
+
+t.push({age:currentAge,balance,inc,exp});
+
 if(balance<=0) break;
 }
+
 return t;
 }
 
 /* LIVE SUMMARY */
 function updateLive(){
-let incomeA=parseFloat(incomeA.value)||0;
-let incomeB=parseFloat(incomeB.value)||0;
+let incomeAVal=parseFloat(incomeA.value)||0;
+let incomeBVal=parseFloat(incomeB.value)||0;
 let cashVal=parseFloat(cash.value)||0;
 let inv=parseFloat(investments.value)||0;
 let exp=parseFloat(expenses.value)||0;
 
-let totalIncome=incomeA+incomeB;
+let totalIncome=incomeAVal+incomeBVal;
 let totalAssets=cashVal+inv;
 
 liveSummary.innerHTML=
@@ -184,17 +186,26 @@ let cashVal=parseFloat(document.getElementById("cash").value)||0;
 let inv=parseFloat(document.getElementById("investments").value)||0;
 let exp=parseFloat(document.getElementById("expenses").value)||0;
 
+let ageA=parseFloat(document.getElementById("ageA").value)||65;
+let ageB=parseFloat(document.getElementById("ageB").value)||65;
+let age=Math.min(ageA,ageB);
+
+let retAge=parseFloat(document.getElementById("retAge").value)||65;
+let lifeExp=parseFloat(document.getElementById("lifeExp").value)||90;
+
 let total=cashVal+inv;
 
-localStorage.setItem("profile",JSON.stringify({incomeAVal,incomeBVal,cashVal,inv,exp}));
+localStorage.setItem("profile",JSON.stringify({
+incomeAVal,incomeBVal,cashVal,inv,exp,ageA,ageB,retAge,lifeExp
+}));
 
-let m=buildModel(total,income,exp);
+let m=buildModel(total,income,exp,age,retAge,lifeExp);
 
 /* KPI */
-netWorth.innerText="$"+total.toLocaleString();
-surplus.innerText="$"+(income-exp);
-years.innerText=m.length;
-score.innerText=m.length>30?"85":"45";
+document.getElementById("netWorth").innerText="$"+total.toLocaleString();
+document.getElementById("surplus").innerText="$"+(income-exp);
+document.getElementById("years").innerText=m.length+" yrs";
+document.getElementById("score").innerText=m.length>30?"85":"45";
 
 renderCharts(m);
 }
@@ -208,6 +219,10 @@ incomeB.value=p.incomeBVal||"";
 cash.value=p.cashVal||"";
 investments.value=p.inv||"";
 expenses.value=p.exp||"";
+ageA.value=p.ageA||"";
+ageB.value=p.ageB||"";
+retAge.value=p.retAge||"";
+lifeExp.value=p.lifeExp||"";
 saveData();
 }
 })();
@@ -215,7 +230,7 @@ saveData();
 /* CHARTS */
 function renderCharts(m){
 
-let yrs=m.map(x=>x.y);
+let labels=m.map(x=>x.age);
 let bal=m.map(x=>x.balance);
 let inc=m.map(x=>x.inc);
 let exp=m.map(x=>x.exp);
@@ -224,13 +239,13 @@ let net=m.map(x=>x.inc-x.exp);
 if(projectionChart)projectionChart.destroy();
 projectionChart=new Chart(document.getElementById("projectionChart"),{
 type:"line",
-data:{labels:yrs,datasets:[{label:"Net Worth",data:bal}]}
+data:{labels:labels,datasets:[{label:"Net Worth",data:bal}]}
 });
 
 if(cashflowChart)cashflowChart.destroy();
 cashflowChart=new Chart(document.getElementById("cashflowChart"),{
 type:"line",
-data:{labels:yrs,datasets:[
+data:{labels:labels,datasets:[
 {label:"Income",data:inc},
 {label:"Expenses",data:exp}
 ]}
@@ -239,7 +254,7 @@ data:{labels:yrs,datasets:[
 if(netFlowChart)netFlowChart.destroy();
 netFlowChart=new Chart(document.getElementById("netFlowChart"),{
 type:"line",
-data:{labels:yrs,datasets:[{label:"Net Cashflow",data:net}]}
+data:{labels:labels,datasets:[{label:"Net Cashflow",data:net}]}
 });
 
 if(riskChart)riskChart.destroy();
