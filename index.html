@@ -144,39 +144,48 @@ return{success:balance>0,years:timeline.length,ending:balance,timeline};
 /* SAVE */
 function saveData(){
 
-let cash=+cashEl.value||0;
-let inv=+investments.value||0;
-let ret=+retirement.value||0;
-let total=cash+inv+ret;
+let cash = +document.getElementById("cash").value || 0;
+let inv = +document.getElementById("investments").value || 0;
+let ret = +document.getElementById("retirement").value || 0;
+let total = cash + inv + ret;
 
-let inc=+income.value||0;
-let ss=+ssEstimate.value||inc*0.4;
-let exp=+expenses.value||0;
+let inc = +document.getElementById("income").value || 0;
+let ss = +document.getElementById("ssEstimate").value || inc * 0.4;
+let exp = +document.getElementById("expenses").value || 0;
 
-let model=buildModel({
-liquidAssets:total,
-income:ss,
-income2:+income2.value||0,
-expenses:exp,
-maritalStatus:maritalStatus.value,
-insurancePayout:+insurancePayout.value||0,
-insuranceIncome:+insuranceIncome.value||0,
+let model = buildModel({
+liquidAssets: total,
+income: ss,
+income2: +document.getElementById("income2").value || 0,
+expenses: exp,
+maritalStatus: document.getElementById("maritalStatus").value,
+insurancePayout: +document.getElementById("insurancePayout").value || 0,
+insuranceIncome: +document.getElementById("insuranceIncome").value || 0,
 assumptions:{years:40,returnRate:0.05,inflation:0.025}
 });
 
-netWorth.innerText="$"+total.toLocaleString();
-surplus.innerText="$"+(inc-exp);
-years.innerText=model.years;
-score.innerText=model.success?"80":"40";
-scoreHint.innerText=model.success?"Stable":"Risk";
+/* KPI */
+document.getElementById("netWorth").innerText="$"+total.toLocaleString();
+document.getElementById("surplus").innerText="$"+(inc-exp).toLocaleString();
+document.getElementById("years").innerText=model.years;
+document.getElementById("score").innerText=model.success?"80":"40";
+document.getElementById("scoreHint").innerText=model.success?"Stable":"Risk";
 
+/* Charts */
 renderCharts(model);
 
-db.collection("profiles").doc("main").set({cash,inv,ret,inc,ss,exp});
+/* Save */
+db.collection("profiles").doc("main").set({
+cash, investments:inv, retirement:ret,
+income:inc, ss, expenses:exp
+});
 }
 
 /* CHARTS */
 function renderCharts(m){
+
+const ctx1=document.getElementById("projectionChart");
+const ctx2=document.getElementById("cashflowChart");
 
 let yrs=m.timeline.map(t=>t.y);
 let bal=m.timeline.map(t=>t.balance);
@@ -184,13 +193,14 @@ let inc=m.timeline.map(t=>t.income);
 let exp=m.timeline.map(t=>t.expenses);
 
 if(projectionChart)projectionChart.destroy();
-projectionChart=new Chart(projectionChartCanvas,{
+projectionChart=new Chart(ctx1,{
 type:"line",
-data:{labels:yrs,datasets:[{data:bal,borderColor:"#3B82F6"}]}
+data:{labels:yrs,datasets:[{data:bal,borderColor:"#3B82F6"}]},
+options:{plugins:{legend:{display:false}}}
 });
 
 if(cashflowChart)cashflowChart.destroy();
-cashflowChart=new Chart(cashflowChartCanvas,{
+cashflowChart=new Chart(ctx2,{
 type:"line",
 data:{labels:yrs,datasets:[
 {data:inc,borderColor:"#22C55E"},
@@ -199,26 +209,25 @@ data:{labels:yrs,datasets:[
 });
 }
 
-/* AI (LOCAL V1) */
+/* AI (cleaned) */
 function runAI(){
 
-let yrs=years.innerText;
-let sc=score.innerText;
+let yrs=document.getElementById("years").innerText;
+let surplusVal=parseFloat(document.getElementById("surplus").innerText.replace("$",""))||0;
+let scoreVal=parseInt(document.getElementById("score").innerText)||0;
 
 let insights=[];
 
-if(sc<50) insights.push("Plan likely fails. Spending too high.");
-else insights.push("Plan currently sustainable.");
+if(scoreVal<50) insights.push("❌ Plan likely fails — spending too high.");
+else insights.push("✅ Plan currently sustainable.");
 
-insights.push("Covers "+yrs+" years.");
+insights.push("📊 Covers "+yrs+" years.");
 
-if(+surplus.innerText.replace("$","")<0)
-insights.push("Negative cashflow risk.");
+if(surplusVal<0) insights.push("⚠️ Negative monthly cashflow.");
 
-aiOutput.innerHTML=insights.join("<br><br>");
+document.getElementById("aiOutput").innerHTML=insights.join("<br><br>");
 }
 
 </script>
-
 </body>
 </html>
