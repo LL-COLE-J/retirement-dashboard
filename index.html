@@ -6,9 +6,6 @@
 <title>Avora</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
@@ -21,7 +18,6 @@
 --card-light:#1F2937;
 --text:#E5E7EB;
 --sub:#9CA3AF;
---border:rgba(255,255,255,0.05);
 --grad:linear-gradient(135deg,#3B82F6,#6366F1);
 }
 
@@ -33,61 +29,34 @@ body{background:var(--bg);color:var(--text);display:flex;height:100vh;}
 .nav-item.active{color:white;}
 
 .main{flex:1;display:flex;flex-direction:column;}
-.topbar{padding:20px;border-bottom:1px solid var(--border);}
+.topbar{padding:20px;border-bottom:1px solid #111;}
 .content{padding:20px;overflow:auto;}
 
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;}
-
-.card{
-background:var(--card);
-padding:20px;
-border-radius:12px;
-}
-
+.card{background:var(--card);padding:20px;border-radius:12px;}
 .section{margin-top:20px;}
 .kpi{font-size:22px;margin-top:5px;}
 
-/* FLOATING INPUT */
-.field{
-position:relative;
-margin-top:12px;
-}
-
+.field{position:relative;margin-top:12px;}
 .field input{
 width:100%;
 padding:16px 10px 6px 10px;
 background:var(--card-light);
-border:none;
-border-radius:8px;
-color:white;
+border:none;border-radius:8px;color:white;
 }
-
 .field label{
-position:absolute;
-top:50%;
-left:10px;
+position:absolute;top:50%;left:10px;
 transform:translateY(-50%);
-color:var(--sub);
-font-size:13px;
-transition:0.2s;
-pointer-events:none;
+color:var(--sub);font-size:13px;transition:.2s;
 }
-
-.field input:focus + label,
-.field input:not(:placeholder-shown) + label{
-top:5px;
-font-size:11px;
-color:#3B82F6;
+.field input:focus+label,
+.field input:not(:placeholder-shown)+label{
+top:5px;font-size:11px;color:#3B82F6;
 }
 
 button{
-margin-top:15px;
-padding:10px;
-border:none;
-background:var(--grad);
-color:white;
-border-radius:8px;
-cursor:pointer;
+margin-top:15px;padding:10px;border:none;
+background:var(--grad);color:white;border-radius:8px;cursor:pointer;
 }
 </style>
 </head>
@@ -101,7 +70,7 @@ cursor:pointer;
 </div>
 
 <div class="main">
-<div class="topbar">Retirement Overview</div>
+<div class="topbar">Retirement Dashboard</div>
 
 <div class="content">
 
@@ -111,54 +80,60 @@ cursor:pointer;
 <div class="grid">
 <div class="card">Net Worth<div id="netWorth" class="kpi">$0</div></div>
 <div class="card">Surplus<div id="surplus" class="kpi">$0</div></div>
-<div class="card">Years<div id="years" class="kpi">--</div></div>
+<div class="card">Years Covered<div id="years" class="kpi">--</div></div>
 <div class="card">Score<div id="score" class="kpi">--</div><div id="scoreHint"></div></div>
 </div>
 
 <div class="section card">
-<h3>Projection</h3>
+<h3>Net Worth Projection</h3>
 <canvas id="projectionChart"></canvas>
 </div>
 
 <div class="section card">
-<h3>Cashflow</h3>
+<h3>Income vs Expenses</h3>
 <canvas id="cashflowChart"></canvas>
 </div>
 
 <div class="section card">
-<h3>How This Is Calculated</h3>
-<div id="calcDetails" style="font-size:13px;color:#9CA3AF;margin-top:10px;"></div>
+<h3>Net Cashflow Trend</h3>
+<canvas id="netFlowChart"></canvas>
+</div>
+
+<div class="section card">
+<h3>Risk Buffer</h3>
+<canvas id="riskChart"></canvas>
+</div>
+
+<div class="section card">
+<h3>AI Insight</h3>
+<button onclick="runAI()">Analyze Plan</button>
+<div id="aiOutput"></div>
 </div>
 
 </div>
 
-<!-- INPUT VIEW -->
+<!-- INPUT -->
 <div id="inputView" style="display:none">
-
 <div class="card">
-<h3>Financial Snapshot</h3>
 
 <div class="field"><input id="cash" placeholder=" "><label>Cash</label></div>
 <div class="field"><input id="investments" placeholder=" "><label>Investments</label></div>
-<div class="field"><input id="retirement" placeholder=" "><label>401k / IRA</label></div>
+<div class="field"><input id="retirement" placeholder=" "><label>401k</label></div>
 
-<div class="field"><input id="income" placeholder=" "><label>Monthly Income</label></div>
-<div class="field"><input id="ssEstimate" placeholder=" "><label>Social Security (optional)</label></div>
-<div class="field"><input id="expenses" placeholder=" "><label>Monthly Expenses</label></div>
+<div class="field"><input id="income" placeholder=" "><label>Income</label></div>
+<div class="field"><input id="ssEstimate" placeholder=" "><label>SSI</label></div>
+<div class="field"><input id="expenses" placeholder=" "><label>Expenses</label></div>
 
-<select id="maritalStatus" style="margin-top:10px;width:100%;padding:10px;background:#1F2937;color:white;border:none;border-radius:8px;">
+<select id="maritalStatus">
 <option value="single">Single</option>
 <option value="married">Married</option>
 </select>
 
 <div class="field"><input id="income2" placeholder=" "><label>Spouse Income</label></div>
-<div class="field"><input id="insurancePayout" placeholder=" "><label>Insurance Payout</label></div>
-<div class="field"><input id="insuranceIncome" placeholder=" "><label>Insurance Monthly</label></div>
 
-<button onclick="saveData()">Update Dashboard</button>
+<button onclick="saveData()">Update</button>
 
 </div>
-
 </div>
 
 </div>
@@ -166,15 +141,7 @@ cursor:pointer;
 
 <script>
 
-const firebaseConfig={
-apiKey:"AIzaSyAyCyCesDBGytZw4pqItYqxjUJ_ENFC7mc",
-authDomain:"retirement-dashboard-4c0d3.firebaseapp.com",
-projectId:"retirement-dashboard-4c0d3"
-};
-firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
-
-let projectionChart,cashflowChart;
+let projectionChart,cashflowChart,netFlowChart,riskChart;
 
 /* NAV */
 function showView(v,e){
@@ -191,95 +158,105 @@ e.target.classList.add("active");
 /* ENGINE */
 function buildModel(inputs){
 
-let{liquidAssets,income,income2=0,expenses,maritalStatus,insurancePayout,insuranceIncome,assumptions}=inputs;
-
-let balance=liquidAssets;
+let balance=inputs.assets;
 let timeline=[];
-let combined=income+(maritalStatus==="married"?income2:0);
 
-for(let y=0;y<assumptions.years;y++){
+for(let y=0;y<40;y++){
 
-let yearly=combined*12;
+let income=inputs.income*12;
+let exp=inputs.expenses*12*Math.pow(1.025,y);
+let growth=balance*0.05;
 
-if(maritalStatus==="married"&&y>20){
-yearly=Math.max(income,income2)*12;
-if(y===21) balance+=insurancePayout;
-yearly+=insuranceIncome*12;
-}
+balance+=growth+income-exp;
 
-let exp=expenses*12*Math.pow(1+assumptions.inflation,y);
-let growth=balance*assumptions.returnRate;
+timeline.push({y,balance,income,exp});
 
-balance+=growth+yearly-exp;
-
-timeline.push({y,balance,income:yearly,expenses:exp});
 if(balance<=0) break;
 }
 
-return{success:balance>0,years:timeline.length,ending:balance,timeline};
+return timeline;
 }
 
 /* SAVE */
 function saveData(){
 
-let cash=+cash.value||0;
-let inv=+investments.value||0;
-let ret=+retirement.value||0;
+let cash=+document.getElementById("cash").value||0;
+let inv=+document.getElementById("investments").value||0;
+let ret=+document.getElementById("retirement").value||0;
 let total=cash+inv+ret;
 
-let inc=+income.value||0;
-let ss=+ssEstimate.value||inc*0.4;
-let exp=+expenses.value||0;
+let inc=+document.getElementById("income").value||0;
+let exp=+document.getElementById("expenses").value||0;
 
-let model=buildModel({
-liquidAssets:total,
-income:ss,
-income2:+income2.value||0,
-expenses:exp,
-maritalStatus:maritalStatus.value,
-insurancePayout:+insurancePayout.value||0,
-insuranceIncome:+insuranceIncome.value||0,
-assumptions:{years:40,returnRate:0.05,inflation:0.025}
-});
+let model=buildModel({assets:total,income:inc,expenses:exp});
 
+/* KPI */
 netWorth.innerText="$"+total.toLocaleString();
-surplus.innerText="$"+(inc-exp).toLocaleString();
-years.innerText=model.years;
-score.innerText=model.success?"80":"40";
-scoreHint.innerText=model.success?"Sustainable":"Risk";
+surplus.innerText="$"+(inc-exp);
+years.innerText=model.length;
+score.innerText=model.length>30?"85":"45";
 
+/* CHARTS */
 renderCharts(model);
-
-calcDetails.innerHTML=
-"Assets grow at 5% annually. Expenses inflate at 2.5%.<br>" +
-"Income transitions to Social Security if provided.<br>" +
-"Survivor logic applies after year 20 if married.";
-
-db.collection("profiles").doc("main").set({cash,inv,ret,inc,ss,exp});
 }
 
 /* CHARTS */
 function renderCharts(m){
 
-let yrs=m.timeline.map(t=>t.y);
-let bal=m.timeline.map(t=>t.balance);
-let inc=m.timeline.map(t=>t.income);
-let exp=m.timeline.map(t=>t.expenses);
+let yrs=m.map(x=>x.y);
+let bal=m.map(x=>x.balance);
+let inc=m.map(x=>x.income);
+let exp=m.map(x=>x.exp);
+let net=m.map(x=>x.income-x.exp);
 
+/* Projection */
 if(projectionChart)projectionChart.destroy();
-projectionChart=new Chart(projectionChart,{
+projectionChart=new Chart(document.getElementById("projectionChart"),{
 type:"line",
 data:{labels:yrs,datasets:[{data:bal,borderColor:"#3B82F6"}]}
 });
 
+/* Cashflow */
 if(cashflowChart)cashflowChart.destroy();
-cashflowChart=new Chart(cashflowChart,{
+cashflowChart=new Chart(document.getElementById("cashflowChart"),{
 type:"line",
 data:{labels:yrs,datasets:[
 {data:inc,borderColor:"#22C55E"},
 {data:exp,borderColor:"#EF4444"}
 ]}
 });
+
+/* Net Flow */
+if(netFlowChart)netFlowChart.destroy();
+netFlowChart=new Chart(document.getElementById("netFlowChart"),{
+type:"line",
+data:{labels:yrs,datasets:[{data:net,borderColor:"#F59E0B"}]}
+});
+
+/* Risk */
+if(riskChart)riskChart.destroy();
+riskChart=new Chart(document.getElementById("riskChart"),{
+type:"bar",
+data:{labels:["Years Covered"],datasets:[{data:[m.length],backgroundColor:"#6366F1"}]}
+});
+}
+
+/* AI */
+function runAI(){
+
+let yrs=parseInt(years.innerText);
+let surplusVal=parseFloat(surplus.innerText.replace("$",""));
+
+let out=[];
+
+if(yrs<25) out.push("⚠️ Plan may fail early");
+else out.push("✅ Plan is stable");
+
+if(surplusVal<0) out.push("⚠️ Negative cashflow risk");
+
+out.push("Focus: reduce expenses or increase income.");
+
+aiOutput.innerHTML=out.join("<br><br>");
 }
 
 </script>
