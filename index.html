@@ -20,37 +20,13 @@
       max-width:800px;
       margin:auto;
     }
-    h2 {
-      margin-bottom:15px;
-    }
-    .tabs {
-      display:flex;
-      gap:10px;
-      margin-bottom:20px;
-      flex-wrap:wrap;
-    }
-    .tab {
-      padding:10px 15px;
-      background:#1e293b;
-      cursor:pointer;
-      border-radius:8px;
-    }
-    .tab.active {
-      background:#3b82f6;
-    }
-    .panel {
-      display:none;
-    }
-    .panel.active {
-      display:block;
-    }
     .card {
       background:#1e293b;
       padding:15px;
       border-radius:10px;
       margin-bottom:15px;
     }
-    input, textarea {
+    input {
       width:100%;
       padding:8px;
       margin-top:5px;
@@ -66,16 +42,75 @@
       border-radius:6px;
       cursor:pointer;
     }
-    .result {
-      margin-top:10px;
-      font-size:16px;
+    .stat {
+      font-size:22px;
+      margin-top:5px;
+    }
+    .row {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .col {
+      flex:1;
+      min-width:150px;
     }
   </style>
 </head>
 
 <body>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<div class="container">
+
+  <h2>Retirement Dashboard</h2>
+
+  <!-- KPI ROW -->
+  <div class="row">
+    <div class="card col">
+      Net Worth
+      <div id="netWorth" class="stat">$0</div>
+    </div>
+
+    <div class="card col">
+      Monthly Surplus
+      <div id="surplus" class="stat">$0</div>
+    </div>
+
+    <div class="card col">
+      Years Covered
+      <div id="years" class="stat">--</div>
+    </div>
+
+    <div class="card col">
+      Retirement Score
+      <div id="score" class="stat">--</div>
+    </div>
+  </div>
+
+  <!-- INPUT -->
+  <div class="card">
+    <h3>Financial Snapshot</h3>
+
+    <input id="savings" placeholder="Total Savings">
+    <input id="income" placeholder="Monthly Income">
+    <input id="expenses" placeholder="Monthly Expenses">
+
+    <button onclick="saveData()">Save</button>
+  </div>
+
+  <!-- SCENARIO -->
+  <div class="card">
+    <h3>Scenario</h3>
+
+    <input id="scSavings" placeholder="Savings">
+    <input id="scSpend" placeholder="Monthly Spend">
+
+    <button onclick="runScenario()">Run</button>
+
+    <div id="scenarioResult" style="margin-top:10px;"></div>
+  </div>
+
+</div>
 
 <script>
 const firebaseConfig = {
@@ -116,11 +151,11 @@ window.onload = async () => {
   if(doc.exists){
     let d = doc.data();
 
-    savings.value = d.savings || "";
-    income.value = d.income || "";
-    expenses.value = d.expenses || "";
+    document.getElementById("savings").value = d.savings || "";
+    document.getElementById("income").value = d.income || "";
+    document.getElementById("expenses").value = d.expenses || "";
 
-    saveData(); // auto update UI
+    saveData();
   }
 };
 
