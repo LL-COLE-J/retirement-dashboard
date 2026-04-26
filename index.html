@@ -10,23 +10,64 @@
 
   <style>
     body {
+      margin:0;
       font-family: Arial;
       background:#0f172a;
-      color:white;
-      margin:0;
+      color:#e5e7eb;
+      display:flex;
     }
 
-    .container {
+    /* SIDEBAR */
+    .sidebar {
+      width:220px;
+      background:#020617;
+      height:100vh;
       padding:20px;
-      max-width:900px;
-      margin:auto;
+    }
+
+    .sidebar h2 {
+      color:#60a5fa;
+    }
+
+    .nav-item {
+      margin:12px 0;
+      cursor:pointer;
+      opacity:.8;
+    }
+
+    .nav-item:hover {
+      opacity:1;
+      color:#60a5fa;
+    }
+
+    /* MAIN */
+    .main {
+      flex:1;
+      padding:20px;
+    }
+
+    .header {
+      font-size:20px;
+      margin-bottom:20px;
+    }
+
+    .row {
+      display:flex;
+      gap:15px;
+      flex-wrap:wrap;
     }
 
     .card {
       background:#1e293b;
-      padding:15px;
-      border-radius:10px;
-      margin-bottom:15px;
+      padding:16px;
+      border-radius:12px;
+      flex:1;
+      min-width:200px;
+    }
+
+    .stat {
+      font-size:22px;
+      margin-top:5px;
     }
 
     input, textarea {
@@ -35,6 +76,8 @@
       margin-top:5px;
       border-radius:6px;
       border:none;
+      background:#0f172a;
+      color:white;
     }
 
     button {
@@ -47,66 +90,54 @@
       cursor:pointer;
     }
 
-    .row {
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .col {
-      flex:1;
-      min-width:150px;
-    }
-
-    .stat {
-      font-size:22px;
-      margin-top:5px;
-    }
-
     .success { color:#22c55e; }
-    .warn { color:#eab308; }
     .danger { color:#ef4444; }
-
-    /* 🚀 UX EXPANSION AREA */
-    .placeholder {
-      opacity:.5;
-      font-size:12px;
-      margin-top:10px;
-    }
+    .warn { color:#eab308; }
 
   </style>
 </head>
 
 <body>
 
-<div class="container">
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h2>AVORA</h2>
 
-  <h2>Avora — Retirement Control Panel</h2>
+  <div class="nav-item">Dashboard</div>
+  <div class="nav-item">Scenarios</div>
+  <div class="nav-item">Advisor</div>
+  <div class="nav-item">AI Insights</div>
+</div>
 
-  <!-- KPI ROW -->
+<!-- MAIN -->
+<div class="main">
+
+  <div class="header">Retirement Control Panel</div>
+
+  <!-- KPI -->
   <div class="row">
 
-    <div class="card col">
+    <div class="card">
       Net Worth
       <div id="netWorth" class="stat">$0</div>
     </div>
 
-    <div class="card col">
+    <div class="card">
       Monthly Surplus
       <div id="surplus" class="stat">$0</div>
     </div>
 
-    <div class="card col">
+    <div class="card">
       Years Covered
       <div id="years" class="stat">--</div>
     </div>
 
-    <div class="card col">
+    <div class="card">
       Retirement Score
       <div id="score" class="stat">--</div>
-      <div id="scoreHint" style="font-size:12px;"></div>
+      <div id="scoreHint"></div>
 
-      <div style="margin-top:10px; height:8px; background:#111;">
+      <div style="margin-top:10px; height:6px; background:#111;">
         <div id="scoreBar" style="height:6px; width:0%;"></div>
       </div>
     </div>
@@ -147,21 +178,20 @@
     <div id="advisorOutput"></div>
   </div>
 
-  <!-- 🚀 FUTURE UX AREA -->
+  <!-- AI INSIGHTS -->
   <div class="card">
-    <h3>AI Insight Panel (Coming Next)</h3>
-    <div class="placeholder">
-      This will show AI-driven insights, risk explanations, and scenario advice.
-    </div>
+    <h3>AI Insights</h3>
+
+    <button onclick="generateInsights()">Analyze My Plan</button>
+
+    <div id="aiOutput"></div>
   </div>
 
 </div>
 
 <script>
 
-/* =========================
-   🔧 FIREBASE
-========================= */
+/* FIREBASE */
 
 const firebaseConfig = {
   apiKey: "AIzaSyAyCyCesDBGytZw4pqItYqxjUJ_ENFC7mc",
@@ -172,21 +202,13 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-/* =========================
-   🧠 CORE ENGINE
-========================= */
+/* ENGINE */
 
 function buildFinancialModelV2(inputs) {
 
-  const {
-    liquidAssets,
-    expenses,
-    income,
-    assumptions
-  } = inputs;
+  const { liquidAssets, expenses, income, assumptions } = inputs;
 
   let balance = liquidAssets;
-  let timeline = [];
 
   for (let year = 0; year < assumptions.years; year++) {
 
@@ -196,21 +218,23 @@ function buildFinancialModelV2(inputs) {
 
     balance = balance + growth + yearlyIncome - yearlyExpenses;
 
-    timeline.push({ year, balance });
-
-    if (balance <= 0) break;
+    if (balance <= 0) {
+      return {
+        success: false,
+        yearsCovered: year,
+        endingBalance: balance
+      };
+    }
   }
 
   return {
-    success: balance > 0,
-    yearsCovered: timeline.length,
+    success: true,
+    yearsCovered: assumptions.years,
     endingBalance: balance
   };
 }
 
-/* =========================
-   💾 SAVE + CALCULATE
-========================= */
+/* SAVE */
 
 function saveData(){
 
@@ -231,15 +255,8 @@ function saveData(){
 
   let surplus = i - e;
 
-  let score = model.success
-    ? Math.min(100, 70 + model.yearsCovered)
-    : 40;
-
-  let hint = model.success
-    ? "Sustainable plan"
-    : "Risk of running out";
-
-  let color = model.success ? "#22c55e" : "#ef4444";
+  let score = model.success ? 80 : 40;
+  let hint = model.success ? "Sustainable" : "Risk";
 
   document.getElementById("netWorth").innerText = `$${s.toLocaleString()}`;
   document.getElementById("surplus").innerText = `$${surplus}`;
@@ -249,7 +266,7 @@ function saveData(){
 
   let bar = document.getElementById("scoreBar");
   bar.style.width = `${score}%`;
-  bar.style.background = color;
+  bar.style.background = model.success ? "#22c55e" : "#ef4444";
 
   db.collection("profiles").doc("main").set({
     savings: s,
@@ -258,9 +275,7 @@ function saveData(){
   });
 }
 
-/* =========================
-   📊 LOAD
-========================= */
+/* LOAD */
 
 window.onload = async () => {
 
@@ -277,9 +292,7 @@ window.onload = async () => {
   }
 };
 
-/* =========================
-   🧪 SCENARIO
-========================= */
+/* SCENARIO */
 
 function runScenario(){
 
@@ -302,9 +315,7 @@ function runScenario(){
      Ending Balance: $${Math.round(model.endingBalance).toLocaleString()}`;
 }
 
-/* =========================
-   🧠 ADVISOR CHECK
-========================= */
+/* ADVISOR */
 
 function analyzeAdvisor(){
 
@@ -312,12 +323,44 @@ function analyzeAdvisor(){
 
   let flags = [];
 
-  if (text.includes("annuity")) flags.push("Annuity detected");
-  if (text.includes("guaranteed")) flags.push("Verify guarantees");
-  if (text.includes("fee")) flags.push("Check total fees");
+  if (text.includes("annuity")) flags.push("⚠️ Annuity detected");
+  if (text.includes("guaranteed")) flags.push("⚠️ Verify guarantees");
+  if (text.includes("fee")) flags.push("⚠️ Check fees");
 
   document.getElementById("advisorOutput").innerHTML =
     flags.length ? flags.join("<br>") : "No major flags";
+}
+
+/* AI INSIGHT (LOGIC-BASED V1) */
+
+function generateInsights(){
+
+  let s = +document.getElementById("savings").value;
+  let i = +document.getElementById("income").value;
+  let e = +document.getElementById("expenses").value;
+
+  let model = buildFinancialModelV2({
+    liquidAssets: s,
+    income: i,
+    expenses: e,
+    assumptions: {
+      years: 40,
+      returnRate: 0.05,
+      inflation: 0.025
+    }
+  });
+
+  let insights = [];
+
+  if (!model.success) insights.push("❌ You will run out of money.");
+  else insights.push("✅ Plan looks sustainable.");
+
+  insights.push(`📊 Covers ${model.yearsCovered} years.`);
+
+  if (i < e) insights.push("⚠️ Spending exceeds income.");
+
+  document.getElementById("aiOutput").innerHTML =
+    insights.join("<br><br>");
 }
 
 </script>
