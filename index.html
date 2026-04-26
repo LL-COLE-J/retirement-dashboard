@@ -160,15 +160,24 @@ button {
 
     <!-- INPUT SECTION -->
     <div class="section card">
-      <h3>Financial Snapshot</h3>
+     <h3>Financial Snapshot</h3>
 
-      <input id="savings" placeholder="Total Savings">
-      <input id="income" placeholder="Monthly Income">
-      <input id="expenses" placeholder="Monthly Expenses">
+<h4>Assets</h4>
+<input id="cash" placeholder="Cash / Savings">
+<input id="investments" placeholder="Investments (Brokerage)">
+<input id="retirement" placeholder="401k / IRA">
 
-      <button onclick="saveData()">Update Dashboard</button>
-    </div>
+<h4 style="margin-top:10px;">Income</h4>
+<input id="income" placeholder="Current Monthly Income">
 
+<h4 style="margin-top:10px;">Social Security</h4>
+<input id="ssEstimate" placeholder="Monthly SSI (or leave blank)">
+
+<h4 style="margin-top:10px;">Expenses</h4>
+<input id="expenses" placeholder="Monthly Expenses">
+
+<button onclick="saveData()">Update Dashboard</button>
+</div>
     <!-- SCENARIO -->
     <div class="section card">
       <h3>Scenario</h3>
@@ -232,34 +241,73 @@ function buildFinancialModelV2(inputs) {
 /* SAVE */
 function saveData(){
 
-  let s = +document.getElementById("savings").value;
-  let i = +document.getElementById("income").value;
-  let e = +document.getElementById("expenses").value;
+  let cash = +document.getElementById("cash").value || 0;
+  let investments = +document.getElementById("investments").value || 0;
+  let retirement = +document.getElementById("retirement").value || 0;
+
+  let totalAssets = cash + investments + retirement;
+
+  let income = +document.getElementById("income").value || 0;
+  let ss = +document.getElementById("ssEstimate").value || 0;
+  let expenses = +document.getElementById("expenses").value || 0;
+
+  // ✅ SSI fallback
+  if (!ss || ss === 0) {
+    ss = income * 0.4;
+  }
 
   let model = buildFinancialModelV2({
-    liquidAssets:s,
-    income:i,
-    expenses:e,
-    assumptions:{ years:40, returnRate:0.05, inflation:0.025 }
+    liquidAssets: totalAssets,
+    income: ss,
+    expenses: expenses,
+    assumptions: {
+      years: 40,
+      returnRate: 0.05,
+      inflation: 0.025
+    }
   });
 
-  document.getElementById("netWorth").innerText = `$${s.toLocaleString()}`;
-  document.getElementById("surplus").innerText = `$${(i-e)}`;
-  document.getElementById("years").innerText = `${model.yearsCovered} yrs`;
-  document.getElementById("score").innerText = model.success ? "80" : "40";
-  document.getElementById("scoreHint").innerText = model.success ? "Sustainable" : "Risk";
+  // KPI updates
+  document.getElementById("netWorth").innerText =
+    `$${totalAssets.toLocaleString()}`;
 
-  db.collection("profiles").doc("main").set({ savings:s, income:i, expenses:e });
+  document.getElementById("surplus").innerText =
+    `$${(income - expenses).toLocaleString()}`;
+
+  document.getElementById("years").innerText =
+    `${model.yearsCovered} yrs`;
+
+  document.getElementById("score").innerText =
+    model.success ? "80" : "40";
+
+  document.getElementById("scoreHint").innerText =
+    model.success ? "Sustainable" : "Risk";
+
+  // ✅ Correct Firebase save
+  db.collection("profiles").doc("main").set({
+    cash,
+    investments,
+    retirement,
+    income,
+    ss,
+    expenses
+  });
 }
-
 /* LOAD */
 window.onload = async () => {
+
   let doc = await db.collection("profiles").doc("main").get();
+
   if(doc.exists){
     let d = doc.data();
-    savings.value = d.savings;
-    income.value = d.income;
-    expenses.value = d.expenses;
+
+    cash.value = d.cash || "";
+    investments.value = d.investments || "";
+    retirement.value = d.retirement || "";
+    income.value = d.income || "";
+    ssEstimate.value = d.ss || "";
+    expenses.value = d.expenses || "";
+
     saveData();
   }
 };
