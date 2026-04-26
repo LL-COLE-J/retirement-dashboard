@@ -126,6 +126,7 @@ max-height:200px;
 
 <div class="nav-item active" onclick="showView('dashboard', this)">Dashboard</div>
 <div class="nav-item" onclick="showView('inputs', this)">Financials</div>
+<div class="nav-item" onclick="showView('scenarios', this)">Scenarios</div>
 
 <button onclick="toggleTheme()">Toggle Theme</button>
 </div>
@@ -134,7 +135,6 @@ max-height:200px;
 
 <!-- DASHBOARD -->
 <div id="dashboardView">
-
 <div class="grid">
 <div class="card">Net Worth<div id="netWorth">$0</div></div>
 <div class="card">Annual Income<div id="incomeTotal">$0</div></div>
@@ -148,12 +148,10 @@ max-height:200px;
 <div class="card"><canvas id="netFlowChart"></canvas></div>
 <div class="card"><canvas id="riskChart"></canvas></div>
 </div>
-
 </div>
 
 <!-- FINANCIALS -->
 <div id="inputView" style="display:none">
-
 <div class="card">
 
 <h4>Person A</h4>
@@ -175,11 +173,23 @@ max-height:200px;
 <input id="investments" placeholder="Investments">
 <input id="expenses" placeholder="Annual Expenses">
 
-<h4>Planning</h4>
-<input id="lifeExp" placeholder="Life Expectancy">
-
+</div>
 </div>
 
+<!-- SCENARIOS -->
+<div id="scenariosView" style="display:none">
+<div class="card">
+
+<h4>Global Assumptions</h4>
+<input id="lifeExp" placeholder="Life Expectancy (Both)">
+<input id="returnRate" placeholder="Return % (default 5)">
+<input id="inflationRate" placeholder="Inflation % (default 2.5)">
+
+<h4>Stress Scenarios</h4>
+<input id="expenseShock" placeholder="Extra Annual Expense">
+<input id="marketDrop" placeholder="Market Drop % (year 1)">
+
+</div>
 </div>
 
 </div>
@@ -193,27 +203,28 @@ max-height:200px;
 
 let charts={};
 
-/* NAV */
 function showView(view, el){
 document.getElementById("dashboardView").style.display="none";
 document.getElementById("inputView").style.display="none";
+document.getElementById("scenariosView").style.display="none";
 
-if(view==="dashboard"){
-document.getElementById("dashboardView").style.display="block";
-}
-if(view==="inputs"){
-document.getElementById("inputView").style.display="block";
-}
+document.getElementById(view+"View").style.display="block";
 
 document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
 el.classList.add("active");
 }
 
-/* MODEL (UPGRADED WITH RETIREMENT + SSI) */
-function buildModel(total, exp, life){
+/* MODEL WITH SCENARIOS */
+function buildModel(total, exp){
 
 let bal = total;
 let t = [];
+
+let life = (+lifeExp.value || 90);
+let returnRate = ((+returnRate.value || 5)/100);
+let inflation = ((+inflationRate.value || 2.5)/100);
+let shock = (+expenseShock.value || 0);
+let drop = ((+marketDrop.value || 0)/100);
 
 let startAgeA = (+ageA.value || 65);
 let startAgeB = (+ageB.value || 65);
@@ -225,34 +236,26 @@ let ageBcur = startAgeB + y;
 
 let income = 0;
 
-/* PERSON A */
-if(ageAcur < (+retAgeA.value || 65)){
-income += (+incomeA.value || 0);
-}
-if(ageAcur >= (+ssiAgeA.value || 67)){
-income += ((+ssiA.value || 0) * 12);
-}
+/* A */
+if(ageAcur < (+retAgeA.value || 65)) income += (+incomeA.value || 0);
+if(ageAcur >= (+ssiAgeA.value || 67)) income += ((+ssiA.value || 0)*12);
 
-/* PERSON B */
-if(ageBcur < (+retAgeB.value || 65)){
-income += (+incomeB.value || 0);
-}
-if(ageBcur >= (+ssiAgeB.value || 67)){
-income += ((+ssiB.value || 0) * 12);
-}
+/* B */
+if(ageBcur < (+retAgeB.value || 65)) income += (+incomeB.value || 0);
+if(ageBcur >= (+ssiAgeB.value || 67)) income += ((+ssiB.value || 0)*12);
 
-/* EXPENSES */
-let expenses = exp * Math.pow(1.025, y);
+/* EXPENSE */
+let expenses = (exp + shock) * Math.pow(1+inflation, y);
 
-/* BALANCE */
-bal += bal * 0.05 + income - expenses;
+/* RETURN */
+let growth = bal * returnRate;
 
-t.push({
-age: Math.min(ageAcur, ageBcur),
-bal,
-inc: income,
-ex: expenses
-});
+/* MARKET DROP YEAR 1 */
+if(y===0) bal *= (1-drop);
+
+bal += growth + income - expenses;
+
+t.push({age:Math.min(ageAcur,ageBcur),bal,inc:income,ex:expenses});
 
 if(bal <= 0) break;
 }
@@ -263,39 +266,31 @@ return t;
 /* UPDATE */
 function updateAll(){
 
-let income = (+incomeA.value || 0) + (+incomeB.value || 0);
-let total = (+cash.value || 0) + (+investments.value || 0);
-let exp = (+expenses.value || 0);
-let life = (+lifeExp.value || 90);
+let income = (+incomeA.value||0)+(+incomeB.value||0);
+let total = (+cash.value||0)+(+investments.value||0);
+let exp = (+expenses.value||0);
 
-let m = buildModel(total, exp, life);
+let m = buildModel(total,exp);
 
-/* KPIs */
-netWorth.innerText = "$"+total.toLocaleString();
-incomeTotal.innerText = "$"+income.toLocaleString();
-expenseTotal.innerText = "$"+exp.toLocaleString();
-years.innerText = m.length;
+netWorth.innerText="$"+total.toLocaleString();
+incomeTotal.innerText="$"+income.toLocaleString();
+expenseTotal.innerText="$"+exp.toLocaleString();
+years.innerText=m.length;
 
-/* charts */
 renderCharts(m);
 
-/* AI */
-let ai=[];
-if(m.length < 25) ai.push("⚠️ Risk of running out early");
-else ai.push("✅ Plan sustainable");
-
-if(income < exp) ai.push("⚠️ Annual expenses exceed income");
-
-aiOutput.innerHTML = ai.join("<br><br>");
+aiOutput.innerHTML =
+(m.length<25?"⚠️ Risk early":"✅ Stable")+"<br>"+
+(income<exp?"⚠️ Expenses exceed income":"");
 }
 
 /* CHARTS */
 function renderCharts(m){
 
-const ctx1=document.getElementById("projectionChart").getContext("2d");
-const ctx2=document.getElementById("cashflowChart").getContext("2d");
-const ctx3=document.getElementById("netFlowChart").getContext("2d");
-const ctx4=document.getElementById("riskChart").getContext("2d");
+const ctx1=projectionChart.getContext("2d");
+const ctx2=cashflowChart.getContext("2d");
+const ctx3=netFlowChart.getContext("2d");
+const ctx4=riskChart.getContext("2d");
 
 let labels=m.map(x=>x.age);
 let bal=m.map(x=>x.bal);
@@ -306,10 +301,7 @@ let net=m.map(x=>x.inc-x.ex);
 Object.values(charts).forEach(c=>c.destroy());
 
 charts.p=new Chart(ctx1,{type:"line",data:{labels,datasets:[{label:"Net Worth",data:bal}]}});
-charts.c=new Chart(ctx2,{type:"line",data:{labels,datasets:[
-{label:"Income",data:inc},
-{label:"Expenses",data:exp}
-]}});
+charts.c=new Chart(ctx2,{type:"line",data:{labels,datasets:[{label:"Income",data:inc},{label:"Expenses",data:exp}]}});
 charts.n=new Chart(ctx3,{type:"line",data:{labels,datasets:[{label:"Net Flow",data:net}]}});
 charts.r=new Chart(ctx4,{type:"bar",data:{labels:["Years"],datasets:[{data:[m.length]}]}});
 }
