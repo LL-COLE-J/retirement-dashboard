@@ -7,491 +7,217 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-
-/* ===== RESET ===== */
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
-
-/* ===== COLORS ===== */
-:root {
-  --bg:#0B0F1A;
-  --sidebar:#0F172A;
-  --card:#111827;
-  --card-light:#1F2937;
-  --text-primary:#E5E7EB;
-  --text-secondary:#9CA3AF;
-  --border:rgba(255,255,255,0.05);
-  --gradient:linear-gradient(135deg,#3B82F6,#6366F1);
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+:root{
+--bg:#0B0F1A;--sidebar:#0F172A;--card:#111827;
+--card-light:#1F2937;--text:#E5E7EB;
+--sub:#9CA3AF;--border:rgba(255,255,255,0.05);
+--grad:linear-gradient(135deg,#3B82F6,#6366F1);
 }
-
-/* ===== LAYOUT ===== */
-body { background:var(--bg); color:var(--text-primary); display:flex; height:100vh; }
-
-/* ===== SIDEBAR ===== */
-.sidebar {
-  width:240px; background:var(--sidebar);
-  display:flex; flex-direction:column;
-  padding:20px; border-right:1px solid var(--border);
-}
-
-.logo { font-size:20px; font-weight:600; margin-bottom:30px; }
-
-.nav-item {
-  padding:12px 14px; border-radius:10px;
-  color:var(--text-secondary); margin-bottom:8px;
-  cursor:pointer; transition:0.2s;
-}
-
-.nav-item:hover { background:var(--card); color:white; }
-.nav-item.active { background:var(--gradient); color:white; }
-
-/* ===== MAIN ===== */
-.main { flex:1; display:flex; flex-direction:column; }
-
-/* ===== TOPBAR ===== */
-.topbar {
-  height:70px; display:flex; align-items:center;
-  justify-content:space-between; padding:0 30px;
-  border-bottom:1px solid var(--border);
-}
-
-.topbar-title { font-size:18px; }
-
-/* ===== CONTENT ===== */
-.content { padding:30px; overflow-y:auto; }
-
-/* ===== GRID ===== */
-.grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
-
-/* ===== CARDS ===== */
-.card {
-  background:var(--card);
-  border-radius:14px;
-  padding:20px;
-  border:1px solid var(--border);
-}
-
-/* ===== KPI ===== */
-.kpi-title { font-size:13px; color:var(--text-secondary); }
-.kpi-value { font-size:26px; margin-top:8px; font-weight:600; }
-.kpi-sub { font-size:12px; margin-top:6px; }
-
-/* ===== FORM ===== */
-input {
-  width:100%;
-  padding:10px;
-  margin-top:8px;
-  background:var(--card-light);
-  border:none;
-  border-radius:8px;
-  color:white;
-}
-
-button {
-  margin-top:10px;
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  background:var(--gradient);
-  color:white;
-  cursor:pointer;
-}
-
-.section { margin-top:30px; }
-
-/* ===== RESPONSIVE ===== */
-@media (max-width:1100px){
-  .grid { grid-template-columns:repeat(2,1fr); }
-}
-
+body{background:var(--bg);color:var(--text);display:flex;height:100vh;}
+.sidebar{width:220px;background:var(--sidebar);padding:20px;}
+.logo{margin-bottom:20px;font-weight:600;}
+.nav-item{margin:8px 0;cursor:pointer;color:var(--sub);}
+.main{flex:1;display:flex;flex-direction:column;}
+.topbar{padding:20px;border-bottom:1px solid var(--border);}
+.content{padding:20px;overflow:auto;}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;}
+.card{background:var(--card);padding:15px;border-radius:12px;}
+input{width:100%;padding:8px;margin-top:6px;background:var(--card-light);border:none;color:white;}
+button{margin-top:10px;padding:8px;border:none;background:var(--grad);color:white;border-radius:8px;cursor:pointer;}
+.section{margin-top:20px;}
+.kpi{font-size:22px;margin-top:5px;}
 </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
-  <div class="logo">AVORA</div>
-  <div class="nav-item active">Dashboard</div>
-  <div class="nav-item">Scenarios</div>
-  <div class="nav-item">Advisor</div>
+<div class="logo">AVORA</div>
+<div class="nav-item">Dashboard</div>
+<div class="nav-item">Scenarios</div>
+<div class="nav-item">Advisor</div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
+<div class="topbar">Retirement Overview</div>
 
-  <!-- TOPBAR -->
-  <div class="topbar">
-    <div class="topbar-title">Retirement Overview</div>
-  </div>
+<div class="content">
 
-  <!-- CONTENT -->
-  <div class="content">
-
-    <!-- KPI GRID -->
-    <div class="grid">
-
-      <div class="card">
-        <div class="kpi-title">Net Worth</div>
-        <div id="netWorth" class="kpi-value">$0</div>
-      </div>
-
-      <div class="card">
-        <div class="kpi-title">Monthly Surplus</div>
-        <div id="surplus" class="kpi-value">$0</div>
-      </div>
-
-      <div class="card">
-        <div class="kpi-title">Years Covered</div>
-        <div id="years" class="kpi-value">--</div>
-      </div>
-
-      <div class="card">
-        <div class="kpi-title">Retirement Score</div>
-        <div id="score" class="kpi-value">--</div>
-        <div id="scoreHint" class="kpi-sub"></div>
-      </div>
-
-      </div> <!-- end grid -->
-
-<div class="section card">
-  <h3>Projection</h3>
-  <canvas id="projectionChart"></canvas>
+<div class="grid">
+<div class="card">Net Worth<div id="netWorth" class="kpi">$0</div></div>
+<div class="card">Surplus<div id="surplus" class="kpi">$0</div></div>
+<div class="card">Years<div id="years" class="kpi">--</div></div>
+<div class="card">Score<div id="score" class="kpi">--</div><div id="scoreHint"></div></div>
 </div>
 
 <div class="section card">
-  <h3>Income vs Expenses</h3>
-  <canvas id="cashflowChart"></canvas>
+<h3>Projection</h3>
+<canvas id="projectionChart"></canvas>
 </div>
-    
-  <canvas id="projectionChart"></canvas>
 
-    </div>
+<div class="section card">
+<h3>Cashflow</h3>
+<canvas id="cashflowChart"></canvas>
+</div>
 
-    <!-- INPUT SECTION -->
-    <div class="section card">
-     <h3>Financial Snapshot</h3>
+<div class="section card">
+<h3>Financial Snapshot</h3>
 
-<h4>Assets</h4>
-<input id="cash" placeholder="Cash / Savings">
-<input id="investments" placeholder="Investments (Brokerage)">
-<input id="retirement" placeholder="401k / IRA">
+<input id="cash" placeholder="Cash">
+<input id="investments" placeholder="Investments">
+<input id="retirement" placeholder="401k">
 
-<h4 style="margin-top:10px;">Income</h4>
-<input id="income" placeholder="Current Monthly Income">
-
-<h4 style="margin-top:10px;">Social Security</h4>
-<input id="ssEstimate" placeholder="Monthly SSI (or leave blank)">
-
-<h4 style="margin-top:10px;">Expenses</h4>
-<input id="expenses" placeholder="Monthly Expenses">
-
-<button onclick="saveData()">Update Dashboard</button>
- <h4 style="margin-top:10px;">Household</h4>
+<input id="income" placeholder="Income">
+<input id="ssEstimate" placeholder="SSI">
+<input id="expenses" placeholder="Expenses">
 
 <select id="maritalStatus">
-  <option value="single">Single</option>
-  <option value="married">Married</option>
+<option value="single">Single</option>
+<option value="married">Married</option>
 </select>
 
-<input id="income2" placeholder="Spouse Monthly Income (if married)">
-    <h4 style="margin-top:10px;">Insurance</h4>
-<input id="insurancePayout" placeholder="Life Insurance Payout">
-<input id="insuranceIncome" placeholder="Monthly Survivor Income">
+<input id="income2" placeholder="Spouse Income">
+<input id="insurancePayout" placeholder="Insurance Payout">
+<input id="insuranceIncome" placeholder="Insurance Income">
 
-    </div>
-   
+<button onclick="saveData()">Update</button>
+</div>
 
+<div class="section card">
+<h3>AI Insights</h3>
+<button onclick="runAI()">Analyze Plan</button>
+<div id="aiOutput"></div>
+</div>
 
-    
-    <!-- SCENARIO -->
-    <div class="section card">
-      <h3>Scenario</h3>
-
-      <input id="scSavings" placeholder="Savings">
-      <input id="scSpend" placeholder="Monthly Spend">
-
-      <button onclick="runScenario()">Run Scenario</button>
-
-      <div id="scenarioResult" style="margin-top:10px;"></div>
-    </div>
-
-    <!-- ADVISOR -->
-    <div class="section card">
-      <h3>Advisor Review</h3>
-
-      <input id="advisorInput" placeholder="Paste recommendation...">
-
-      <button onclick="analyzeAdvisor()">Analyze</button>
-
-      <div id="advisorOutput"></div>
-    </div>
-
-  </div>
+</div>
 </div>
 
 <script>
 
-/* FIREBASE */
-const firebaseConfig = {
-  apiKey: "AIzaSyAyCyCesDBGytZw4pqItYqxjUJ_ENFC7mc",
-  authDomain: "retirement-dashboard-4c0d3.firebaseapp.com",
-  projectId: "retirement-dashboard-4c0d3"
+const firebaseConfig={
+apiKey:"AIzaSyAyCyCesDBGytZw4pqItYqxjUJ_ENFC7mc",
+authDomain:"retirement-dashboard-4c0d3.firebaseapp.com",
+projectId:"retirement-dashboard-4c0d3"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const db=firebase.firestore();
+
+let projectionChart,cashflowChart;
 
 /* ENGINE */
-function buildFinancialModelV2(inputs) {
+function buildModel(inputs){
 
-  let {
-    liquidAssets,
-    income,
-    income2 = 0,
-    expenses,
-    maritalStatus = "single",
-    insurancePayout = 0,
-    insuranceIncome = 0,
-    assumptions
-  } = inputs;
+let{liquidAssets,income,income2=0,expenses,maritalStatus,insurancePayout,insuranceIncome,assumptions}=inputs;
 
-  let balance = liquidAssets;
-  let timeline = [];
+let balance=liquidAssets;
+let timeline=[];
+let combined=income+(maritalStatus==="married"?income2:0);
 
-  let combinedIncome = income + (maritalStatus === "married" ? income2 : 0);
+for(let y=0;y<assumptions.years;y++){
 
-  for (let year = 0; year < assumptions.years; year++) {
+let yearly=combined*12;
 
-    let yearlyIncome = combinedIncome * 12;
+if(maritalStatus==="married"&&y>20){
+yearly=Math.max(income,income2)*12;
+if(y===21) balance+=insurancePayout;
+yearly+=insuranceIncome*12;
+}
 
-    if (maritalStatus === "married" && year > 20) {
+let exp=expenses*12*Math.pow(1+assumptions.inflation,y);
+let growth=balance*assumptions.returnRate;
 
-      yearlyIncome = Math.max(income, income2) * 12;
+balance+=growth+yearly-exp;
 
-      if (year === 21 && insurancePayout) {
-        balance += insurancePayout;
-      }
+timeline.push({y,balance,income:yearly,expenses:exp});
+if(balance<=0) break;
+}
 
-      if (insuranceIncome) {
-        yearlyIncome += insuranceIncome * 12;
-      }
-    }
-
-    const yearlyExpenses =
-      expenses * 12 * Math.pow(1 + assumptions.inflation, year);
-
-    const growth = balance * assumptions.returnRate;
-
-    balance = balance + growth + yearlyIncome - yearlyExpenses;
-
-    timeline.push({
-      year,
-      balance,
-      income: yearlyIncome,
-      expenses: yearlyExpenses
-    });
-
-    if (balance <= 0) break;
-  }
-
-  return {
-    success: balance > 0,
-    yearsCovered: timeline.length,
-    endingBalance: balance,
-    timeline
-  };
+return{success:balance>0,years:timeline.length,ending:balance,timeline};
 }
 
 /* SAVE */
 function saveData(){
 
-  let income2 = +document.getElementById("income2").value || 0;
-  let status = document.getElementById("maritalStatus").value;
-  let insurancePayout = +document.getElementById("insurancePayout").value || 0;
-  let insuranceIncome = +document.getElementById("insuranceIncome").value || 0;
+let cash=+cashEl.value||0;
+let inv=+investments.value||0;
+let ret=+retirement.value||0;
+let total=cash+inv+ret;
 
-  let cash = +document.getElementById("cash").value || 0;
-  let investments = +document.getElementById("investments").value || 0;
-  let retirement = +document.getElementById("retirement").value || 0;
+let inc=+income.value||0;
+let ss=+ssEstimate.value||inc*0.4;
+let exp=+expenses.value||0;
 
-  let totalAssets = cash + investments + retirement;
+let model=buildModel({
+liquidAssets:total,
+income:ss,
+income2:+income2.value||0,
+expenses:exp,
+maritalStatus:maritalStatus.value,
+insurancePayout:+insurancePayout.value||0,
+insuranceIncome:+insuranceIncome.value||0,
+assumptions:{years:40,returnRate:0.05,inflation:0.025}
+});
 
-  let income = +document.getElementById("income").value || 0;
-  let ss = +document.getElementById("ssEstimate").value || 0;
-  let expenses = +document.getElementById("expenses").value || 0;
+netWorth.innerText="$"+total.toLocaleString();
+surplus.innerText="$"+(inc-exp);
+years.innerText=model.years;
+score.innerText=model.success?"80":"40";
+scoreHint.innerText=model.success?"Stable":"Risk";
 
-  if (!ss || ss === 0) {
-    ss = income * 0.4;
-  }
+renderCharts(model);
 
-  let model = buildFinancialModelV2({
-    liquidAssets: totalAssets,
-    income: ss,
-    income2,
-    expenses,
-    maritalStatus: status,
-    insurancePayout,
-    insuranceIncome,
-    assumptions: {
-      years: 40,
-      returnRate: 0.05,
-      inflation: 0.025
-    }
-  });
-
-  // KPI updates
-  document.getElementById("netWorth").innerText =
-    `$${totalAssets.toLocaleString()}`;
-
-  document.getElementById("surplus").innerText =
-    `$${(income - expenses).toLocaleString()}`;
-
-  document.getElementById("years").innerText =
-    `${model.yearsCovered} yrs`;
-
-  document.getElementById("score").innerText =
-    model.success ? "80" : "40";
-
-  document.getElementById("scoreHint").innerText =
-    model.success ? "Sustainable" : "Risk";
-
-  // Save to Firebase
-  db.collection("profiles").doc("main").set({
-    cash,
-    investments,
-    retirement,
-    income,
-    ss,
-    expenses
-  });
-
-  // Render charts
-  renderCharts(model);
-}
- // ✅ Correct Firebase save
-  db.collection("profiles").doc("main").set({
-    cash,
-    investments,
-    retirement,
-    income,
-    ss,
-    expenses
-    renderCharts(model);
-  
-/* LOAD */
-window.onload = async () => {
-
-  let doc = await db.collection("profiles").doc("main").get();
-
-  if(doc.exists){
-    let d = doc.data();
-
-    cash.value = d.cash || "";
-    investments.value = d.investments || "";
-    retirement.value = d.retirement || "";
-    income.value = d.income || "";
-    ssEstimate.value = d.ss || "";
-    expenses.value = d.expenses || "";
-
-    saveData();
-  }
-};
-
-/* SCENARIO */
-function runScenario(){
-  let s = +scSavings.value;
-  let e = +scSpend.value;
-
-  let model = buildFinancialModelV2({
-    liquidAssets:s,
-    income:0,
-    expenses:e,
-    assumptions:{ years:40, returnRate:0.05, inflation:0.025 }
-  });
-
-  scenarioResult.innerHTML = `Lasts ${model.yearsCovered} yrs`;
+db.collection("profiles").doc("main").set({cash,inv,ret,inc,ss,exp});
 }
 
-/* ADVISOR */
-function analyzeAdvisor(){
-  let t = advisorInput.value.toLowerCase();
-  let flags=[];
-  if(t.includes("annuity")) flags.push("⚠️ Annuity");
-  if(t.includes("fee")) flags.push("⚠️ Fees");
-  advisorOutput.innerHTML = flags.join("<br>");
+/* CHARTS */
+function renderCharts(m){
+
+let yrs=m.timeline.map(t=>t.y);
+let bal=m.timeline.map(t=>t.balance);
+let inc=m.timeline.map(t=>t.income);
+let exp=m.timeline.map(t=>t.expenses);
+
+if(projectionChart)projectionChart.destroy();
+projectionChart=new Chart(projectionChartCanvas,{
+type:"line",
+data:{labels:yrs,datasets:[{data:bal,borderColor:"#3B82F6"}]}
+});
+
+if(cashflowChart)cashflowChart.destroy();
+cashflowChart=new Chart(cashflowChartCanvas,{
+type:"line",
+data:{labels:yrs,datasets:[
+{data:inc,borderColor:"#22C55E"},
+{data:exp,borderColor:"#EF4444"}
+]}
+});
 }
-let projectionChart;
-let cashflowChart;
 
-function renderCharts(model){
+/* AI (LOCAL V1) */
+function runAI(){
 
-  const years = model.timeline.map(t => t.year);
-  const balances = model.timeline.map(t => t.balance);
-  const income = model.timeline.map(t => t.income);
-  const expenses = model.timeline.map(t => t.expenses);
+let yrs=years.innerText;
+let sc=score.innerText;
 
-  // Destroy old charts
-  if (projectionChart) projectionChart.destroy();
-  if (cashflowChart) cashflowChart.destroy();
+let insights=[];
 
-  // Balance Chart
-  projectionChart = new Chart(
-    document.getElementById("projectionChart"),
-    {
-      type: "line",
-      data: {
-        labels: years,
-        datasets: [{
-          label: "Balance",
-          data: balances,
-          borderColor: "#3B82F6",
-          tension: 0.3
-        }]
-      },
-      options: {
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: "#9CA3AF" }},
-          y: { ticks: { color: "#9CA3AF" }}
-        }
-      }
-    }
-  );
+if(sc<50) insights.push("Plan likely fails. Spending too high.");
+else insights.push("Plan currently sustainable.");
 
-  // Cashflow Chart
-  cashflowChart = new Chart(
-    document.getElementById("cashflowChart"),
-    {
-      type: "line",
-      data: {
-        labels: years,
-        datasets: [
-          {
-            label: "Income",
-            data: income,
-            borderColor: "#22C55E"
-          },
-          {
-            label: "Expenses",
-            data: expenses,
-            borderColor: "#EF4444"
-          }
-        ]
-      },
-      options: {
-        plugins: { legend: { labels: { color:"#9CA3AF" } } },
-        scales: {
-          x: { ticks: { color: "#9CA3AF" }},
-          y: { ticks: { color: "#9CA3AF" }}
-        }
-      }
-    }
-  );
+insights.push("Covers "+yrs+" years.");
+
+if(+surplus.innerText.replace("$","")<0)
+insights.push("Negative cashflow risk.");
+
+aiOutput.innerHTML=insights.join("<br><br>");
 }
+
 </script>
 
 </body>
