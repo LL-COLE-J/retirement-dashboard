@@ -1,44 +1,144 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Avora</title>
+
 <link rel="icon" href="data:,">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{margin:0;font-family:Inter;background:#0B0F1A;color:white;display:flex;height:100vh;}
-.sidebar{width:200px;padding:20px;background:#0F172A;}
-.nav-item{margin:10px 0;color:#9CA3AF;cursor:pointer;}
-.nav-item.active{color:white;}
-.main{flex:1;padding:20px;overflow:auto;}
-.ai{width:250px;background:#0F172A;padding:15px;}
+:root{
+--bg:#0B0F1A;
+--sidebar:#0F172A;
+--card:#111827;
+--text:#E5E7EB;
+--sub:#9CA3AF;
+}
 
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-.chartGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
-.card{background:#111827;padding:10px;border-radius:8px;}
+.light{
+--bg:#F9FAFB;
+--sidebar:#FFFFFF;
+--card:#FFFFFF;
+--text:#111827;
+--sub:#6B7280;
+}
 
-input{width:100%;margin-top:6px;padding:8px;background:#1F2937;border:none;color:white;}
+body{
+margin:0;
+font-family:Inter;
+background:var(--bg);
+color:var(--text);
+display:flex;
+height:100vh;
+}
+
+/* layout */
+.sidebar{
+width:220px;
+background:var(--sidebar);
+padding:20px;
+}
+.logo{
+font-weight:600;
+margin-bottom:20px;
+}
+.nav-item{
+margin:10px 0;
+color:var(--sub);
+cursor:pointer;
+}
+.nav-item.active{color:var(--text);}
+
+.main{
+flex:1;
+padding:20px;
+overflow:auto;
+}
+
+.ai{
+width:260px;
+background:var(--sidebar);
+padding:15px;
+border-left:1px solid #222;
+}
+
+/* cards */
+.grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:10px;
+}
+
+.chartGrid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+margin-top:10px;
+}
+
+.card{
+background:var(--card);
+padding:12px;
+border-radius:10px;
+}
+
+/* inputs */
+input{
+width:100%;
+margin-top:8px;
+padding:8px;
+background:#1F2937;
+border:none;
+color:white;
+border-radius:6px;
+}
+
+.light input{
+background:#E5E7EB;
+color:black;
+}
+
+h4{margin-top:12px;}
+
 canvas{max-height:200px;}
+button{
+margin-top:10px;
+padding:8px;
+background:#3B82F6;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
 </style>
 </head>
 
 <body>
 
+<!-- SIDEBAR -->
 <div class="sidebar">
-<div class="nav-item active" onclick="showView('dashboard')">Dashboard</div>
-<div class="nav-item" onclick="showView('inputs')">Financials</div>
+<div class="logo">AVORA</div>
+
+<div class="nav-item active" onclick="showView('dashboard', this)">Dashboard</div>
+<div class="nav-item" onclick="showView('inputs', this)">Financials</div>
+
+<button onclick="toggleTheme()">Toggle Theme</button>
 </div>
 
+<!-- MAIN -->
 <div class="main">
 
 <!-- DASHBOARD -->
 <div id="dashboardView">
+
 <div class="grid">
 <div class="card">Net Worth<div id="netWorth">$0</div></div>
-<div class="card">Monthly Income<div id="incomeTotal">$0</div></div>
-<div class="card">Expenses<div id="expenseTotal">$0</div></div>
-<div class="card">Years<div id="years">--</div></div>
+<div class="card">Annual Income<div id="incomeTotal">$0</div></div>
+<div class="card">Annual Expenses<div id="expenseTotal">$0</div></div>
+<div class="card">Years Covered<div id="years">--</div></div>
 </div>
 
 <div class="chartGrid">
@@ -47,38 +147,38 @@ canvas{max-height:200px;}
 <div class="card"><canvas id="netFlowChart"></canvas></div>
 <div class="card"><canvas id="riskChart"></canvas></div>
 </div>
+
 </div>
 
 <!-- FINANCIALS -->
 <div id="inputView" style="display:none">
 
 <div class="card">
-<h3>Income</h3>
-<input id="incomeA" placeholder="Person A Income">
-<input id="incomeB" placeholder="Person B Income">
 
-<h3>Assets</h3>
+<h4>Person A</h4>
+<input id="incomeA" placeholder="Annual Income (A)">
+<input id="ageA" placeholder="Age (A)">
+
+<h4>Person B</h4>
+<input id="incomeB" placeholder="Annual Income (B)">
+<input id="ageB" placeholder="Age (B)">
+
+<h4>Household</h4>
 <input id="cash" placeholder="Cash">
 <input id="investments" placeholder="Investments">
+<input id="expenses" placeholder="Annual Expenses">
 
-<h3>Expenses</h3>
-<input id="expenses" placeholder="Monthly Expenses">
-
-<h3>Ages</h3>
-<input id="ageA" placeholder="Age A">
-<input id="ageB" placeholder="Age B">
+<h4>Planning</h4>
 <input id="retAge" placeholder="Retirement Age">
 <input id="lifeExp" placeholder="Life Expectancy">
 
-<h3>Live Calculation</h3>
-<div id="liveCalc"></div>
-
 </div>
 
 </div>
 
 </div>
 
+<!-- AI PANEL -->
 <div class="ai">
 <h4>AI Advisor</h4>
 <div id="aiOutput"></div>
@@ -88,8 +188,8 @@ canvas{max-height:200px;}
 
 let charts={};
 
-/* SAFE NAV */
-function showView(view){
+/* NAV FIXED */
+function showView(view, el){
 
 const dash=document.getElementById("dashboardView");
 const input=document.getElementById("inputView");
@@ -101,7 +201,7 @@ if(view==="dashboard") dash.style.display="block";
 if(view==="inputs") input.style.display="block";
 
 document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
-event.target.classList.add("active");
+if(el) el.classList.add("active");
 }
 
 /* MODEL */
@@ -114,8 +214,8 @@ let years=Math.max(life-age,1);
 for(let y=0;y<years;y++){
 
 let cur=age+y;
-let inc=cur<ret?income*12:0;
-let ex=exp*12*Math.pow(1.025,y);
+let inc=cur<ret?income:0;
+let ex=exp*Math.pow(1.025,y);
 
 bal+=bal*0.05+inc-ex;
 
@@ -127,13 +227,10 @@ if(bal<=0) break;
 return t;
 }
 
-/* UPDATE EVERYTHING */
+/* UPDATE (NO OVERWRITES) */
 function updateAll(){
 
-let incomeAVal=+incomeA.value||0;
-let incomeBVal=+incomeB.value||0;
-let income=incomeAVal+incomeBVal;
-
+let income=(+incomeA.value||0)+(+incomeB.value||0);
 let total=(+cash.value||0)+(+investments.value||0);
 let exp=+expenses.value||0;
 
@@ -141,35 +238,28 @@ let age=Math.min(+ageA.value||65,+ageB.value||65);
 let ret=+retAge.value||65;
 let life=+lifeExp.value||90;
 
-/* fallback */
-if(total===0 && income===0){
-total=100000; income=5000; exp=4000;
-}
-
 let m=buildModel(total,income,exp,age,ret,life);
 
 /* KPIs */
-netWorth.innerText="$"+total.toLocaleString();
-incomeTotal.innerText="$"+income.toLocaleString();
-expenseTotal.innerText="$"+exp.toLocaleString();
-years.innerText=m.length;
+document.getElementById("netWorth").innerText="$"+total.toLocaleString();
+document.getElementById("incomeTotal").innerText="$"+income.toLocaleString();
+document.getElementById("expenseTotal").innerText="$"+exp.toLocaleString();
+document.getElementById("years").innerText=m.length;
 
-/* LIVE PANEL */
-liveCalc.innerHTML=
-"Income: $"+income.toLocaleString()+"<br>"+
-"Expenses: $"+exp.toLocaleString()+"<br>"+
-"Surplus: $"+(income-exp).toLocaleString();
-
-/* CHARTS */
+/* charts */
 renderCharts(m);
 
 /* AI */
-aiOutput.innerHTML =
-(m.length<25?"⚠️ Risk early":"✅ Stable")+"<br>"+
-(income<exp?"⚠️ Negative cashflow":"");
+let ai=[];
+if(m.length<25) ai.push("⚠️ Risk of running out early");
+else ai.push("✅ Plan sustainable");
+
+if(income<exp) ai.push("⚠️ Annual expenses exceed income");
+
+document.getElementById("aiOutput").innerHTML=ai.join("<br><br>");
 }
 
-/* CHARTS FIXED */
+/* CHARTS */
 function renderCharts(m){
 
 const ctx1=document.getElementById("projectionChart").getContext("2d");
@@ -186,9 +276,22 @@ let net=m.map(x=>x.inc-x.ex);
 Object.values(charts).forEach(c=>c.destroy());
 
 charts.p=new Chart(ctx1,{type:"line",data:{labels,datasets:[{label:"Net Worth",data:bal}]}});
-charts.c=new Chart(ctx2,{type:"line",data:{labels,datasets:[{label:"Income",data:inc},{label:"Expenses",data:exp}]}});
+charts.c=new Chart(ctx2,{type:"line",data:{labels,datasets:[
+{label:"Income",data:inc},
+{label:"Expenses",data:exp}
+]}});
 charts.n=new Chart(ctx3,{type:"line",data:{labels,datasets:[{label:"Net Flow",data:net}]}});
 charts.r=new Chart(ctx4,{type:"bar",data:{labels:["Years"],datasets:[{data:[m.length]}]}});
+}
+
+/* THEME */
+function toggleTheme(){
+document.body.classList.toggle("light");
+localStorage.setItem("theme",document.body.classList.contains("light"));
+}
+
+if(localStorage.getItem("theme")==="true"){
+document.body.classList.add("light");
 }
 
 /* AUTO UPDATE */
