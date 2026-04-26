@@ -5,67 +5,43 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Avora</title>
 
+<link rel="icon" href="data:,"> <!-- fixes favicon error -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-
-:root{
---bg:#0B0F1A;--sidebar:#0F172A;--card:#111827;
---card-light:#1F2937;--text:#E5E7EB;--sub:#9CA3AF;
---grad:linear-gradient(135deg,#3B82F6,#6366F1);
-}
-
-body{background:var(--bg);color:var(--text);display:flex;height:100vh;}
-
-.sidebar{width:200px;background:var(--sidebar);padding:20px;}
-.aiPanel{width:260px;background:#0F172A;padding:15px;border-left:1px solid #222;}
-
-.main{flex:1;display:flex;flex-direction:column;}
-.content{padding:20px;overflow:auto;}
-
-.nav-item{cursor:pointer;margin:10px 0;color:var(--sub);}
+body{background:#0B0F1A;color:#E5E7EB;display:flex;height:100vh;}
+.sidebar{width:200px;background:#0F172A;padding:20px;}
+.nav-item{margin:10px 0;color:#9CA3AF;cursor:pointer;}
 .nav-item.active{color:white;}
+.main{flex:1;padding:20px;overflow:auto;}
+.ai{width:260px;background:#0F172A;padding:15px;}
 
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-.chartGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;}
-
-.card{background:var(--card);padding:12px;border-radius:10px;}
-.kpi{font-size:16px;margin-top:5px;}
-
-.field{margin-top:10px;}
-.field input{
-width:100%;padding:10px;background:var(--card-light);
-border:none;border-radius:6px;color:white;
-}
-
-button{margin-top:10px;padding:8px;border:none;background:var(--grad);color:white;border-radius:6px;cursor:pointer;}
-
+.chartGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+.card{background:#111827;padding:10px;border-radius:8px;}
+input{width:100%;margin-top:8px;padding:8px;background:#1F2937;border:none;color:white;}
+button{margin-top:10px;padding:8px;background:#3B82F6;color:white;border:none;border-radius:6px;}
 canvas{max-height:200px;}
 </style>
 </head>
 
 <body>
 
-<!-- LEFT NAV -->
 <div class="sidebar">
-<div style="margin-bottom:20px;font-weight:600;">AVORA</div>
 <div class="nav-item active" onclick="showView('dashboard',event)">Dashboard</div>
 <div class="nav-item" onclick="showView('inputs',event)">Financials</div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
-<div class="content">
 
-<!-- DASHBOARD -->
 <div id="dashboardView">
 <div class="grid">
-<div class="card">Net Worth<div id="netWorth" class="kpi">$0</div></div>
-<div class="card">Surplus<div id="surplus" class="kpi">$0</div></div>
-<div class="card">Years<div id="years" class="kpi">--</div></div>
-<div class="card">Score<div id="score" class="kpi">--</div></div>
+<div class="card">Net Worth<div id="netWorth">$0</div></div>
+<div class="card">Surplus<div id="surplus">$0</div></div>
+<div class="card">Years<div id="years">--</div></div>
+<div class="card">Score<div id="score">--</div></div>
 </div>
 
 <div class="chartGrid">
@@ -76,189 +52,129 @@ canvas{max-height:200px;}
 </div>
 </div>
 
-<!-- FINANCIALS -->
 <div id="inputView" style="display:none">
-
 <div class="card">
-<h4>Person A</h4>
-<input id="incomeA" placeholder="Income">
-<input id="ageA" placeholder="Age">
-
-<h4>Person B</h4>
-<input id="incomeB" placeholder="Income">
-<input id="ageB" placeholder="Age">
-
-<h4>Household</h4>
+<input id="incomeA" placeholder="Income A">
+<input id="incomeB" placeholder="Income B">
 <input id="cash" placeholder="Cash">
 <input id="investments" placeholder="Investments">
 <input id="expenses" placeholder="Expenses">
-
-<h4>Planning</h4>
+<input id="ageA" placeholder="Age A">
+<input id="ageB" placeholder="Age B">
 <input id="retAge" placeholder="Retirement Age">
 <input id="lifeExp" placeholder="Life Expectancy">
-
-<button onclick="saveData()">Save + Update</button>
-
-<div id="livePreview" style="margin-top:10px;font-size:12px;"></div>
-
-<input type="file" onchange="loadFile(event)">
+</div>
 </div>
 
 </div>
 
-</div>
-</div>
-
-<!-- AI PANEL -->
-<div class="aiPanel">
+<div class="ai">
 <h4>AI Advisor</h4>
-<div id="aiOutput" style="font-size:12px;margin-top:10px;"></div>
+<div id="aiOutput"></div>
 </div>
 
 <script>
 
-let projectionChart,cashflowChart,netFlowChart,riskChart;
+let charts={};
 
+/* SAFE NAV */
 function showView(v,e){
-dashboardView.style.display="none";
-inputView.style.display="none";
-document.getElementById(v+"View").style.display="block";
+
+const dashboard = document.getElementById("dashboardView");
+const input = document.getElementById("inputView");
+
+if(dashboard) dashboard.style.display="none";
+if(input) input.style.display="none";
+
+const target = document.getElementById(v+"View");
+if(target) target.style.display="block";
+
 document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
-e.target.classList.add("active");
+if(e && e.target) e.target.classList.add("active");
 }
 
-function buildModel(total,income,expenses,age,retAge,lifeExp){
+/* MODEL */
+function buildModel(total,income,exp,age,ret,life){
 
-let balance=total;
+let bal=total;
 let t=[];
-let years=lifeExp-age;
+let years=Math.max(life-age,1);
 
 for(let y=0;y<years;y++){
-let currentAge=age+y;
-let inc=currentAge<retAge?income*12:0;
-let exp=expenses*12*Math.pow(1.025,y);
-
-balance+=balance*0.05+inc-exp;
-
-t.push({age:currentAge,balance,inc,exp});
-if(balance<=0) break;
+let cur=age+y;
+let inc=cur<ret?income*12:0;
+let ex=exp*12*Math.pow(1.025,y);
+bal+=bal*0.05+inc-ex;
+t.push({age:cur,bal,inc,ex});
+if(bal<=0) break;
 }
 
 return t;
 }
 
-function saveData(){
+/* UPDATE */
+function updateAll(){
 
-let incomeAVal=parseFloat(incomeA.value)||0;
-let incomeBVal=parseFloat(incomeB.value)||0;
-let income=incomeAVal+incomeBVal;
+let income=(+incomeA.value||0)+(+incomeB.value||0);
+let total=(+cash.value||0)+(+investments.value||0);
+let exp=+expenses.value||0;
 
-let cashVal=parseFloat(cash.value)||0;
-let inv=parseFloat(investments.value)||0;
-let exp=parseFloat(expenses.value)||0;
+let age=Math.min(+ageA.value||65,+ageB.value||65);
+let ret=+retAge.value||65;
+let life=+lifeExp.value||90;
 
-let age=Math.min(parseFloat(ageA.value)||65,parseFloat(ageB.value)||65);
-let ret=parseFloat(retAge.value)||65;
-let life=parseFloat(lifeExp.value)||90;
-
-let total=cashVal+inv;
-
-localStorage.setItem("profile",JSON.stringify({incomeAVal,incomeBVal,cashVal,inv,exp,age,ret,life}));
+if(total===0 && income===0){
+total=100000; income=5000; exp=4000;
+}
 
 let m=buildModel(total,income,exp,age,ret,life);
 
-/* KPIs */
+/* KPI */
 netWorth.innerText="$"+total.toLocaleString();
 surplus.innerText="$"+(income-exp);
 years.innerText=m.length;
 score.innerText=m.length>30?"85":"45";
 
+/* CHARTS */
 renderCharts(m);
-runAI(m,income,exp);
-
-/* preview */
-livePreview.innerHTML=
-"Income: $"+income+"<br>Expenses: $"+exp+"<br>Assets: $"+total;
-}
-
-function renderCharts(m){
-
-let labels=m.map(x=>x.age);
-let bal=m.map(x=>x.balance);
-let inc=m.map(x=>x.inc);
-let exp=m.map(x=>x.exp);
-let net=m.map(x=>x.inc-x.exp);
-
-if(projectionChart)projectionChart.destroy();
-projectionChart=new Chart(projectionChart,{
-type:"line",
-data:{labels:labels,datasets:[{label:"Net Worth",data:bal}]}
-});
-
-if(cashflowChart)cashflowChart.destroy();
-cashflowChart=new Chart(cashflowChart,{
-type:"line",
-data:{labels:labels,datasets:[
-{label:"Income",data:inc},
-{label:"Expenses",data:exp}
-]}
-});
-
-if(netFlowChart)netFlowChart.destroy();
-netFlowChart=new Chart(netFlowChart,{
-type:"line",
-data:{labels:labels,datasets:[{label:"Net Flow",data:net}]}
-});
-
-if(riskChart)riskChart.destroy();
-riskChart=new Chart(riskChart,{
-type:"bar",
-data:{labels:["Years"],datasets:[{data:[m.length]}]}
-});
-}
 
 /* AI */
-function runAI(m,income,exp){
-
-let yrs=m.length;
-let out=[];
-
-if(yrs<25) out.push("⚠️ Risk of running out of money early");
-else out.push("✅ Plan looks sustainable");
-
-if(income<exp) out.push("⚠️ Spending exceeds income");
-
-aiOutput.innerHTML=out.join("<br><br>");
+aiOutput.innerHTML =
+(m.length<25?"⚠️ Risk early":"✅ Stable")+"<br>"+
+(income<exp?"⚠️ Negative cashflow":"");
 }
 
-/* FILE LOAD */
-function loadFile(e){
-let file=e.target.files[0];
-let reader=new FileReader();
-reader.onload=function(){
-let data=JSON.parse(reader.result);
-incomeA.value=data.incomeA||0;
-incomeB.value=data.incomeB||0;
-cash.value=data.cash||0;
-investments.value=data.investments||0;
-expenses.value=data.expenses||0;
-saveData();
-};
-reader.readAsText(file);
+/* FIXED CHARTS */
+function renderCharts(m){
+
+const ctx1=document.getElementById("projectionChart")?.getContext("2d");
+const ctx2=document.getElementById("cashflowChart")?.getContext("2d");
+const ctx3=document.getElementById("netFlowChart")?.getContext("2d");
+const ctx4=document.getElementById("riskChart")?.getContext("2d");
+
+if(!ctx1) return;
+
+let labels=m.map(x=>x.age);
+let bal=m.map(x=>x.bal);
+let inc=m.map(x=>x.inc);
+let exp=m.map(x=>x.ex);
+let net=m.map(x=>x.inc-x.ex);
+
+Object.values(charts).forEach(c=>c.destroy());
+
+charts.projection=new Chart(ctx1,{type:"line",data:{labels,datasets:[{label:"Net Worth",data:bal}]}});
+charts.cashflow=new Chart(ctx2,{type:"line",data:{labels,datasets:[{label:"Income",data:inc},{label:"Expenses",data:exp}]}});
+charts.net=new Chart(ctx3,{type:"line",data:{labels,datasets:[{label:"Net Flow",data:net}]}});
+charts.risk=new Chart(ctx4,{type:"bar",data:{labels:["Years"],datasets:[{data:[m.length]}]}});
 }
 
-/* AUTO LOAD */
-(function(){
-let p=JSON.parse(localStorage.getItem("profile")||"{}");
-if(p){
-incomeA.value=p.incomeAVal||"";
-incomeB.value=p.incomeBVal||"";
-cash.value=p.cashVal||"";
-investments.value=p.inv||"";
-expenses.value=p.exp||"";
-saveData();
-}
-})();
+/* AUTO UPDATE */
+document.querySelectorAll("input").forEach(i=>{
+i.addEventListener("input",updateAll);
+});
+
+/* INIT AFTER DOM */
+window.onload=updateAll;
 
 </script>
 
