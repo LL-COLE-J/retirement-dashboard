@@ -10,28 +10,19 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-
 :root{
---bg:#0B0F1A;
---sidebar:#0F172A;
---card:#111827;
---card-light:#1F2937;
---text:#E5E7EB;
---sub:#9CA3AF;
+--bg:#0B0F1A;--sidebar:#0F172A;--card:#111827;
+--card-light:#1F2937;--text:#E5E7EB;--sub:#9CA3AF;
 --grad:linear-gradient(135deg,#3B82F6,#6366F1);
 }
-
 body{background:var(--bg);color:var(--text);display:flex;height:100vh;}
-
 .sidebar{width:220px;background:var(--sidebar);padding:20px;}
 .logo{margin-bottom:20px;font-weight:600;}
 .nav-item{margin:8px 0;cursor:pointer;color:var(--sub);}
 .nav-item.active{color:white;}
-
 .main{flex:1;display:flex;flex-direction:column;}
 .topbar{padding:20px;border-bottom:1px solid #111;}
 .content{padding:20px;overflow:auto;}
-
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;}
 .card{background:var(--card);padding:20px;border-radius:12px;}
 .section{margin-top:20px;}
@@ -39,10 +30,8 @@ body{background:var(--bg);color:var(--text);display:flex;height:100vh;}
 
 .field{position:relative;margin-top:12px;}
 .field input{
-width:100%;
-padding:16px 10px 6px 10px;
-background:var(--card-light);
-border:none;border-radius:8px;color:white;
+width:100%;padding:16px 10px 6px 10px;
+background:var(--card-light);border:none;border-radius:8px;color:white;
 }
 .field label{
 position:absolute;top:50%;left:10px;
@@ -53,7 +42,6 @@ color:var(--sub);font-size:13px;transition:.2s;
 .field input:not(:placeholder-shown)+label{
 top:5px;font-size:11px;color:#3B82F6;
 }
-
 button{
 margin-top:15px;padding:10px;border:none;
 background:var(--grad);color:white;border-radius:8px;cursor:pointer;
@@ -84,25 +72,10 @@ background:var(--grad);color:white;border-radius:8px;cursor:pointer;
 <div class="card">Score<div id="score" class="kpi">--</div><div id="scoreHint"></div></div>
 </div>
 
-<div class="section card">
-<h3>Net Worth Projection</h3>
-<canvas id="projectionChart"></canvas>
-</div>
-
-<div class="section card">
-<h3>Income vs Expenses</h3>
-<canvas id="cashflowChart"></canvas>
-</div>
-
-<div class="section card">
-<h3>Net Cashflow Trend</h3>
-<canvas id="netFlowChart"></canvas>
-</div>
-
-<div class="section card">
-<h3>Risk Buffer</h3>
-<canvas id="riskChart"></canvas>
-</div>
+<div class="section card"><h3>Net Worth Projection</h3><canvas id="projectionChart"></canvas></div>
+<div class="section card"><h3>Income vs Expenses</h3><canvas id="cashflowChart"></canvas></div>
+<div class="section card"><h3>Net Cashflow Trend</h3><canvas id="netFlowChart"></canvas></div>
+<div class="section card"><h3>Risk Buffer</h3><canvas id="riskChart"></canvas></div>
 
 <div class="section card">
 <h3>AI Insight</h3>
@@ -131,7 +104,7 @@ background:var(--grad);color:white;border-radius:8px;cursor:pointer;
 
 <div class="field"><input id="income2" placeholder=" "><label>Spouse Income</label></div>
 
-<button onclick="saveData()">Update</button>
+<button onclick="saveData()">Update Dashboard</button>
 
 </div>
 </div>
@@ -145,11 +118,10 @@ let projectionChart,cashflowChart,netFlowChart,riskChart;
 
 /* NAV */
 function showView(v,e){
-dashboardView.style.display="none";
-inputView.style.display="none";
+document.getElementById("dashboardView").style.display="none";
+document.getElementById("inputView").style.display="none";
 
-if(v==="dashboard") dashboardView.style.display="block";
-if(v==="inputs") inputView.style.display="block";
+document.getElementById(v+"View").style.display="block";
 
 document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
 e.target.classList.add("active");
@@ -157,46 +129,41 @@ e.target.classList.add("active");
 
 /* ENGINE */
 function buildModel(inputs){
-
 let balance=inputs.assets;
 let timeline=[];
-
 for(let y=0;y<40;y++){
-
 let income=inputs.income*12;
 let exp=inputs.expenses*12*Math.pow(1.025,y);
 let growth=balance*0.05;
-
 balance+=growth+income-exp;
-
 timeline.push({y,balance,income,exp});
-
 if(balance<=0) break;
 }
-
 return timeline;
 }
 
 /* SAVE */
 function saveData(){
 
-let cash=+document.getElementById("cash").value||0;
-let inv=+document.getElementById("investments").value||0;
-let ret=+document.getElementById("retirement").value||0;
-let total=cash+inv+ret;
+let cash = parseFloat(document.getElementById("cash").value) || 0;
+let inv = parseFloat(document.getElementById("investments").value) || 0;
+let ret = parseFloat(document.getElementById("retirement").value) || 0;
 
-let inc=+document.getElementById("income").value||0;
-let exp=+document.getElementById("expenses").value||0;
+let inc = parseFloat(document.getElementById("income").value) || 0;
+let exp = parseFloat(document.getElementById("expenses").value) || 0;
 
-let model=buildModel({assets:total,income:inc,expenses:exp});
+let total = cash + inv + ret;
+
+let model = buildModel({assets: total, income: inc, expenses: exp});
 
 /* KPI */
-netWorth.innerText="$"+total.toLocaleString();
-surplus.innerText="$"+(inc-exp);
-years.innerText=model.length;
-score.innerText=model.length>30?"85":"45";
+document.getElementById("netWorth").innerText="$"+total.toLocaleString();
+document.getElementById("surplus").innerText="$"+(inc-exp).toLocaleString();
+document.getElementById("years").innerText=model.length;
+document.getElementById("score").innerText=model.length>30?"85":"45";
+document.getElementById("scoreHint").innerText=model.length>30?"Healthy":"At Risk";
 
-/* CHARTS */
+/* Charts */
 renderCharts(model);
 }
 
@@ -209,14 +176,12 @@ let inc=m.map(x=>x.income);
 let exp=m.map(x=>x.exp);
 let net=m.map(x=>x.income-x.exp);
 
-/* Projection */
 if(projectionChart)projectionChart.destroy();
 projectionChart=new Chart(document.getElementById("projectionChart"),{
 type:"line",
 data:{labels:yrs,datasets:[{data:bal,borderColor:"#3B82F6"}]}
 });
 
-/* Cashflow */
 if(cashflowChart)cashflowChart.destroy();
 cashflowChart=new Chart(document.getElementById("cashflowChart"),{
 type:"line",
@@ -226,14 +191,12 @@ data:{labels:yrs,datasets:[
 ]}
 });
 
-/* Net Flow */
 if(netFlowChart)netFlowChart.destroy();
 netFlowChart=new Chart(document.getElementById("netFlowChart"),{
 type:"line",
 data:{labels:yrs,datasets:[{data:net,borderColor:"#F59E0B"}]}
 });
 
-/* Risk */
 if(riskChart)riskChart.destroy();
 riskChart=new Chart(document.getElementById("riskChart"),{
 type:"bar",
@@ -243,12 +206,10 @@ data:{labels:["Years Covered"],datasets:[{data:[m.length],backgroundColor:"#6366
 
 /* AI */
 function runAI(){
-
-let yrs=parseInt(years.innerText);
-let surplusVal=parseFloat(surplus.innerText.replace("$",""));
+let yrs=parseInt(document.getElementById("years").innerText)||0;
+let surplusVal=parseFloat(document.getElementById("surplus").innerText.replace("$",""))||0;
 
 let out=[];
-
 if(yrs<25) out.push("⚠️ Plan may fail early");
 else out.push("✅ Plan is stable");
 
@@ -256,8 +217,11 @@ if(surplusVal<0) out.push("⚠️ Negative cashflow risk");
 
 out.push("Focus: reduce expenses or increase income.");
 
-aiOutput.innerHTML=out.join("<br><br>");
+document.getElementById("aiOutput").innerHTML=out.join("<br><br>");
 }
+
+/* AUTO INIT */
+saveData();
 
 </script>
 
