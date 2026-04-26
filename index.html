@@ -10,115 +10,109 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+
 :root{
 --bg:#0B0F1A;--sidebar:#0F172A;--card:#111827;
 --card-light:#1F2937;--text:#E5E7EB;--sub:#9CA3AF;
 --grad:linear-gradient(135deg,#3B82F6,#6366F1);
 }
+
 body{background:var(--bg);color:var(--text);display:flex;height:100vh;}
-.sidebar{width:220px;background:var(--sidebar);padding:20px;}
-.logo{margin-bottom:20px;font-weight:600;}
-.nav-item{margin:8px 0;cursor:pointer;color:var(--sub);}
-.nav-item.active{color:white;}
+
+.sidebar{width:200px;background:var(--sidebar);padding:20px;}
+.aiPanel{width:260px;background:#0F172A;padding:15px;border-left:1px solid #222;}
+
 .main{flex:1;display:flex;flex-direction:column;}
-.topbar{padding:20px;border-bottom:1px solid #111;}
 .content{padding:20px;overflow:auto;}
 
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;}
-.chartGrid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:20px;}
+.nav-item{cursor:pointer;margin:10px 0;color:var(--sub);}
+.nav-item.active{color:white;}
 
-.card{background:var(--card);padding:15px;border-radius:12px;}
-.kpi{font-size:18px;margin-top:5px;}
-.section{margin-top:15px;}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.chartGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;}
 
-.field{position:relative;margin-top:10px;}
+.card{background:var(--card);padding:12px;border-radius:10px;}
+.kpi{font-size:16px;margin-top:5px;}
+
+.field{margin-top:10px;}
 .field input{
-width:100%;padding:14px 10px 6px;
-background:var(--card-light);border:none;border-radius:8px;color:white;
-}
-.field label{
-position:absolute;top:50%;left:10px;
-transform:translateY(-50%);
-color:var(--sub);font-size:12px;transition:.2s;
-}
-.field input:focus+label,
-.field input:not(:placeholder-shown)+label{
-top:5px;font-size:10px;color:#3B82F6;
+width:100%;padding:10px;background:var(--card-light);
+border:none;border-radius:6px;color:white;
 }
 
-button{
-margin-top:15px;padding:10px;border:none;
-background:var(--grad);color:white;border-radius:8px;cursor:pointer;
-}
+button{margin-top:10px;padding:8px;border:none;background:var(--grad);color:white;border-radius:6px;cursor:pointer;}
+
+canvas{max-height:200px;}
 </style>
 </head>
 
 <body>
 
+<!-- LEFT NAV -->
 <div class="sidebar">
-<div class="logo">AVORA</div>
+<div style="margin-bottom:20px;font-weight:600;">AVORA</div>
 <div class="nav-item active" onclick="showView('dashboard',event)">Dashboard</div>
 <div class="nav-item" onclick="showView('inputs',event)">Financials</div>
 </div>
 
+<!-- MAIN -->
 <div class="main">
-<div class="topbar">Retirement Dashboard</div>
-
 <div class="content">
 
 <!-- DASHBOARD -->
 <div id="dashboardView">
-
 <div class="grid">
 <div class="card">Net Worth<div id="netWorth" class="kpi">$0</div></div>
-<div class="card">Monthly Surplus<div id="surplus" class="kpi">$0</div></div>
-<div class="card">Years Covered<div id="years" class="kpi">--</div></div>
+<div class="card">Surplus<div id="surplus" class="kpi">$0</div></div>
+<div class="card">Years<div id="years" class="kpi">--</div></div>
 <div class="card">Score<div id="score" class="kpi">--</div></div>
 </div>
 
 <div class="chartGrid">
-<div class="card"><h4>Net Worth Over Time</h4><canvas id="projectionChart"></canvas></div>
-<div class="card"><h4>Income vs Expenses</h4><canvas id="cashflowChart"></canvas></div>
-<div class="card"><h4>Net Cashflow</h4><canvas id="netFlowChart"></canvas></div>
-<div class="card"><h4>Longevity (Years Covered)</h4><canvas id="riskChart"></canvas></div>
+<div class="card"><canvas id="projectionChart"></canvas></div>
+<div class="card"><canvas id="cashflowChart"></canvas></div>
+<div class="card"><canvas id="netFlowChart"></canvas></div>
+<div class="card"><canvas id="riskChart"></canvas></div>
 </div>
-
 </div>
 
 <!-- FINANCIALS -->
 <div id="inputView" style="display:none">
 
 <div class="card">
+<h4>Person A</h4>
+<input id="incomeA" placeholder="Income">
+<input id="ageA" placeholder="Age">
 
-<h3>Person A</h3>
-<div class="field"><input id="incomeA" placeholder=" "><label>Monthly Income</label></div>
-<div class="field"><input id="ageA" placeholder=" "><label>Age</label></div>
+<h4>Person B</h4>
+<input id="incomeB" placeholder="Income">
+<input id="ageB" placeholder="Age">
 
-<h3 class="section">Person B</h3>
-<div class="field"><input id="incomeB" placeholder=" "><label>Monthly Income</label></div>
-<div class="field"><input id="ageB" placeholder=" "><label>Age</label></div>
+<h4>Household</h4>
+<input id="cash" placeholder="Cash">
+<input id="investments" placeholder="Investments">
+<input id="expenses" placeholder="Expenses">
 
-<h3 class="section">Household</h3>
-<div class="field"><input id="cash" placeholder=" "><label>Cash</label></div>
-<div class="field"><input id="investments" placeholder=" "><label>Investments</label></div>
-<div class="field"><input id="expenses" placeholder=" "><label>Monthly Expenses</label></div>
+<h4>Planning</h4>
+<input id="retAge" placeholder="Retirement Age">
+<input id="lifeExp" placeholder="Life Expectancy">
 
-<h3 class="section">Planning</h3>
-<div class="field"><input id="retAge" placeholder=" "><label>Retirement Age</label></div>
-<div class="field"><input id="lifeExp" placeholder=" "><label>Life Expectancy</label></div>
+<button onclick="saveData()">Save + Update</button>
 
-<div class="section card" style="background:#1F2937;">
-<h4>Live Summary</h4>
-<div id="liveSummary"></div>
-</div>
+<div id="livePreview" style="margin-top:10px;font-size:12px;"></div>
 
-<button onclick="saveData()">Save & Update Dashboard</button>
-
+<input type="file" onchange="loadFile(event)">
 </div>
 
 </div>
 
 </div>
+</div>
+
+<!-- AI PANEL -->
+<div class="aiPanel">
+<h4>AI Advisor</h4>
+<div id="aiOutput" style="font-size:12px;margin-top:10px;"></div>
 </div>
 
 <script>
@@ -126,108 +120,67 @@ background:var(--grad);color:white;border-radius:8px;cursor:pointer;
 let projectionChart,cashflowChart,netFlowChart,riskChart;
 
 function showView(v,e){
-document.getElementById("dashboardView").style.display="none";
-document.getElementById("inputView").style.display="none";
+dashboardView.style.display="none";
+inputView.style.display="none";
 document.getElementById(v+"View").style.display="block";
 document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
 e.target.classList.add("active");
 }
 
-/* MODEL WITH AGE */
 function buildModel(total,income,expenses,age,retAge,lifeExp){
 
 let balance=total;
 let t=[];
-
 let years=lifeExp-age;
 
 for(let y=0;y<years;y++){
-
 let currentAge=age+y;
+let inc=currentAge<retAge?income*12:0;
+let exp=expenses*12*Math.pow(1.025,y);
 
-let inc = currentAge < retAge ? income*12 : 0;
-let exp = expenses*12*Math.pow(1.025,y);
-
-balance += balance*0.05 + inc - exp;
+balance+=balance*0.05+inc-exp;
 
 t.push({age:currentAge,balance,inc,exp});
-
 if(balance<=0) break;
 }
 
 return t;
 }
 
-/* LIVE SUMMARY */
-function updateLive(){
+function saveData(){
+
 let incomeAVal=parseFloat(incomeA.value)||0;
 let incomeBVal=parseFloat(incomeB.value)||0;
+let income=incomeAVal+incomeBVal;
+
 let cashVal=parseFloat(cash.value)||0;
 let inv=parseFloat(investments.value)||0;
 let exp=parseFloat(expenses.value)||0;
 
-let totalIncome=incomeAVal+incomeBVal;
-let totalAssets=cashVal+inv;
-
-liveSummary.innerHTML=
-"Income: $"+totalIncome.toLocaleString()+"<br>"+
-"Expenses: $"+exp.toLocaleString()+"<br>"+
-"Assets: $"+totalAssets.toLocaleString();
-}
-
-/* SAVE */
-function saveData(){
-
-let incomeAVal=parseFloat(document.getElementById("incomeA").value)||0;
-let incomeBVal=parseFloat(document.getElementById("incomeB").value)||0;
-let income=incomeAVal+incomeBVal;
-
-let cashVal=parseFloat(document.getElementById("cash").value)||0;
-let inv=parseFloat(document.getElementById("investments").value)||0;
-let exp=parseFloat(document.getElementById("expenses").value)||0;
-
-let ageA=parseFloat(document.getElementById("ageA").value)||65;
-let ageB=parseFloat(document.getElementById("ageB").value)||65;
-let age=Math.min(ageA,ageB);
-
-let retAge=parseFloat(document.getElementById("retAge").value)||65;
-let lifeExp=parseFloat(document.getElementById("lifeExp").value)||90;
+let age=Math.min(parseFloat(ageA.value)||65,parseFloat(ageB.value)||65);
+let ret=parseFloat(retAge.value)||65;
+let life=parseFloat(lifeExp.value)||90;
 
 let total=cashVal+inv;
 
-localStorage.setItem("profile",JSON.stringify({
-incomeAVal,incomeBVal,cashVal,inv,exp,ageA,ageB,retAge,lifeExp
-}));
+localStorage.setItem("profile",JSON.stringify({incomeAVal,incomeBVal,cashVal,inv,exp,age,ret,life}));
 
-let m=buildModel(total,income,exp,age,retAge,lifeExp);
+let m=buildModel(total,income,exp,age,ret,life);
 
-/* KPI */
-document.getElementById("netWorth").innerText="$"+total.toLocaleString();
-document.getElementById("surplus").innerText="$"+(income-exp);
-document.getElementById("years").innerText=m.length+" yrs";
-document.getElementById("score").innerText=m.length>30?"85":"45";
+/* KPIs */
+netWorth.innerText="$"+total.toLocaleString();
+surplus.innerText="$"+(income-exp);
+years.innerText=m.length;
+score.innerText=m.length>30?"85":"45";
 
 renderCharts(m);
+runAI(m,income,exp);
+
+/* preview */
+livePreview.innerHTML=
+"Income: $"+income+"<br>Expenses: $"+exp+"<br>Assets: $"+total;
 }
 
-/* LOAD */
-(function(){
-let p=JSON.parse(localStorage.getItem("profile")||"{}");
-if(p){
-incomeA.value=p.incomeAVal||"";
-incomeB.value=p.incomeBVal||"";
-cash.value=p.cashVal||"";
-investments.value=p.inv||"";
-expenses.value=p.exp||"";
-ageA.value=p.ageA||"";
-ageB.value=p.ageB||"";
-retAge.value=p.retAge||"";
-lifeExp.value=p.lifeExp||"";
-saveData();
-}
-})();
-
-/* CHARTS */
 function renderCharts(m){
 
 let labels=m.map(x=>x.age);
@@ -237,13 +190,13 @@ let exp=m.map(x=>x.exp);
 let net=m.map(x=>x.inc-x.exp);
 
 if(projectionChart)projectionChart.destroy();
-projectionChart=new Chart(document.getElementById("projectionChart"),{
+projectionChart=new Chart(projectionChart,{
 type:"line",
 data:{labels:labels,datasets:[{label:"Net Worth",data:bal}]}
 });
 
 if(cashflowChart)cashflowChart.destroy();
-cashflowChart=new Chart(document.getElementById("cashflowChart"),{
+cashflowChart=new Chart(cashflowChart,{
 type:"line",
 data:{labels:labels,datasets:[
 {label:"Income",data:inc},
@@ -252,20 +205,60 @@ data:{labels:labels,datasets:[
 });
 
 if(netFlowChart)netFlowChart.destroy();
-netFlowChart=new Chart(document.getElementById("netFlowChart"),{
+netFlowChart=new Chart(netFlowChart,{
 type:"line",
-data:{labels:labels,datasets:[{label:"Net Cashflow",data:net}]}
+data:{labels:labels,datasets:[{label:"Net Flow",data:net}]}
 });
 
 if(riskChart)riskChart.destroy();
-riskChart=new Chart(document.getElementById("riskChart"),{
+riskChart=new Chart(riskChart,{
 type:"bar",
-data:{labels:["Years Covered"],datasets:[{data:[m.length]}]}
+data:{labels:["Years"],datasets:[{data:[m.length]}]}
 });
 }
 
-/* LIVE UPDATE */
-document.querySelectorAll("input").forEach(i=>i.addEventListener("input",updateLive));
+/* AI */
+function runAI(m,income,exp){
+
+let yrs=m.length;
+let out=[];
+
+if(yrs<25) out.push("⚠️ Risk of running out of money early");
+else out.push("✅ Plan looks sustainable");
+
+if(income<exp) out.push("⚠️ Spending exceeds income");
+
+aiOutput.innerHTML=out.join("<br><br>");
+}
+
+/* FILE LOAD */
+function loadFile(e){
+let file=e.target.files[0];
+let reader=new FileReader();
+reader.onload=function(){
+let data=JSON.parse(reader.result);
+incomeA.value=data.incomeA||0;
+incomeB.value=data.incomeB||0;
+cash.value=data.cash||0;
+investments.value=data.investments||0;
+expenses.value=data.expenses||0;
+saveData();
+};
+reader.readAsText(file);
+}
+
+/* AUTO LOAD */
+(function(){
+let p=JSON.parse(localStorage.getItem("profile")||"{}");
+if(p){
+incomeA.value=p.incomeAVal||"";
+incomeB.value=p.incomeBVal||"";
+cash.value=p.cashVal||"";
+investments.value=p.inv||"";
+expenses.value=p.exp||"";
+saveData();
+}
+})();
 
 </script>
 
