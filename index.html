@@ -65,27 +65,37 @@
   <h2>Retirement Dashboard</h2>
 
   <!-- KPI ROW -->
-  <div class="row">
-    <div class="card col">
-      Net Worth
-      <div id="netWorth" class="stat">$0</div>
-    </div>
-
-    <div class="card col">
-      Monthly Surplus
-      <div id="surplus" class="stat">$0</div>
-    </div>
-
-    <div class="card col">
-      Years Covered
-      <div id="years" class="stat">--</div>
-    </div>
-
-    <div class="card col">
-      Retirement Score
-      <div id="score" class="stat">--</div>
-    </div>
+ <div class="row">
+  <div class="card col">
+    Net Worth
+    <div id="netWorth" class="stat">$0</div>
   </div>
+
+  <div class="card col">
+    Monthly Surplus
+    <div id="surplus" class="stat">$0</div>
+  </div>
+
+  <div class="card col">
+    Years Covered
+    <div id="years" class="stat">--</div>
+  </div>
+
+  <div class="card col">
+    Retirement Score
+    <div id="score" class="stat">--</div>
+    <div id="scoreHint" style="font-size:12px; opacity:.7;"></div>
+  </div>
+</div>
+  <div class="card col">
+  Retirement Score
+  <div id="score" class="stat">--</div>
+  <div id="scoreHint" style="font-size:12px; opacity:.7;"></div>
+
+  <div style="margin-top:8px; height:6px; background:#111; border-radius:4px;">
+    <div id="scoreBar" style="height:6px; width:0%; background:#3b82f6; border-radius:4px;"></div>
+  </div>
+</div>
 
   <!-- INPUT -->
   <div class="card">
@@ -109,7 +119,21 @@
 
     <div id="scenarioResult" style="margin-top:10px;"></div>
   </div>
+ <div class="card">
+  <h3>Advisor Review</h3>
 
+  <textarea id="advisorInput" placeholder="Paste what the advisor recommended..."></textarea>
+
+  <button onclick="analyzeAdvisor()">Analyze</button>
+
+  <div id="advisorOutput" style="margin-top:10px;"></div>
+</div>
+<div class="card">
+  <h3>Advisor Summary</h3>
+
+  <button onclick="generateSummary()">Generate Summary</button>
+
+  <div id="summaryOutput" style="margin-top:10px;"></div>
 </div>
 
 <script>
@@ -129,14 +153,24 @@ function saveData(){
   let e = +document.getElementById("expenses").value;
 
   let surplus = i - e;
-  let years = s / (e * 12);
+  let years = e > 0 ? s / (e * 12) : 0;
   let score = Math.min(100, Math.max(0, (s / (e * 12 * 25)) * 100));
+let hint = "";
 
+if (score >= 80) hint = "Strong position";
+else if (score >= 60) hint = "On track, but watch spending";
+else hint = "Needs adjustment";
+document.getElementById("summaryOutput").innerHTML = "";
+document.getElementById("scoreHint").innerText = hint;
   document.getElementById("netWorth").innerText = `$${s.toLocaleString()}`;
   document.getElementById("surplus").innerText = `$${surplus}`;
   document.getElementById("years").innerText = `${Math.round(years)} yrs`;
   document.getElementById("score").innerText = `${Math.round(score)}/100`;
+let color = score >= 80 ? "#22c55e" : score >= 60 ? "#eab308" : "#ef4444";
 
+let bar = document.getElementById("scoreBar");
+bar.style.width = `${score}%`;
+bar.style.background = color;
   db.collection("profiles").doc("main").set({
     savings: s,
     income: i,
@@ -165,13 +199,77 @@ function runScenario(){
   let spend = +document.getElementById("scSpend").value * 12;
 
   let years = savings / spend;
+  let endAge = 65 + years; // simple assumption
 
-  let status = years > 25 ? "🟢 Strong" :
-               years > 15 ? "🟡 Moderate" : "🔴 Risk";
+  let status = "";
+  let message = "";
 
-  document.getElementById("scenarioResult").innerText =
-    `Lasts ~ ${Math.round(years)} years (${status})`;
+  if (years > 25) {
+    status = "🟢 Strong";
+    message = "You have flexibility and buffer.";
+  } else if (years > 15) {
+    status = "🟡 Moderate";
+    message = "Plan works but not much margin.";
+  } else {
+    status = "🔴 Risk";
+    message = "High risk of running out early.";
+  }
+
+  document.getElementById("scenarioResult").innerHTML =
+    `Lasts ~ ${Math.round(years)} years<br>
+     Approx age: ${Math.round(endAge)}<br>
+     ${status}<br>
+     <small>${message}</small>`;
 }
+ 
+  function analyzeAdvisor(){
+  let text = document.getElementById("advisorInput").value;
+
+  if (!text) {
+    alert("Paste something first");
+    return;
+  }
+
+  document.getElementById("advisorOutput").innerHTML = `
+    <strong>What to look for:</strong><br>
+    • What are the fees?<br>
+    • Is there a lock-in period?<br>
+    • What happens in a downturn?<br>
+    • Is this necessary or just optional?<br><br>
+
+    <em>Paste this into ChatGPT Advisor Agent for full breakdown</em>
+  `;
+}
+function generateSummary(){
+
+  let s = +document.getElementById("savings").value;
+  let i = +document.getElementById("income").value;
+  let e = +document.getElementById("expenses").value;
+
+  let surplus = i - e;
+  let years = e > 0 ? s / (e * 12) : 0;
+  let score = Math.round((s / (e * 12 * 25)) * 100);
+
+  let status = score >= 80 ? "Strong" :
+               score >= 60 ? "Moderate" : "At Risk";
+
+  document.getElementById("summaryOutput").innerHTML = `
+    <strong>Financial Snapshot:</strong><br>
+    Net Worth: $${s.toLocaleString()}<br>
+    Monthly Surplus: $${surplus}<br>
+    Years Covered: ${Math.round(years)}<br><br>
+
+    <strong>Assessment:</strong><br>
+    Retirement Readiness: ${status} (${score}/100)<br><br>
+
+    <strong>Key Questions for Advisor:</strong><br>
+    • What assumptions are you using for returns?<br>
+    • How are fees structured?<br>
+    • What happens in a downturn?<br>
+    • Is this plan flexible if spending changes?
+  `;
+}
+  
 </script>
 
 </body>
