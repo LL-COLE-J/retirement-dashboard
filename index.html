@@ -1,412 +1,291 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Avora - Retirement Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avora</title>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <style>
-    body {
-      margin:0;
-      font-family: Arial;
-      background:#0f172a;
-      color:#e5e7eb;
-      display:flex;
-    }
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-    /* SIDEBAR */
-    .sidebar {
-      width:220px;
-      background:#020617;
-      height:100vh;
-      padding:20px;
-    }
+<style>
 
-    .sidebar h2 {
-      color:#60a5fa;
-    }
+/* ===== RESET ===== */
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
 
-    .nav-item {
-      margin:12px 0;
-      cursor:pointer;
-      opacity:.8;
-    }
+/* ===== COLORS ===== */
+:root {
+  --bg:#0B0F1A;
+  --sidebar:#0F172A;
+  --card:#111827;
+  --card-light:#1F2937;
+  --text-primary:#E5E7EB;
+  --text-secondary:#9CA3AF;
+  --border:rgba(255,255,255,0.05);
+  --gradient:linear-gradient(135deg,#3B82F6,#6366F1);
+}
 
-    .nav-item:hover {
-      opacity:1;
-      color:#60a5fa;
-    }
+/* ===== LAYOUT ===== */
+body { background:var(--bg); color:var(--text-primary); display:flex; height:100vh; }
 
-    /* MAIN */
-    .main {
-      flex:1;
-      padding:20px;
-    }
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width:240px; background:var(--sidebar);
+  display:flex; flex-direction:column;
+  padding:20px; border-right:1px solid var(--border);
+}
 
-    .header {
-      font-size:20px;
-      margin-bottom:20px;
-    }
+.logo { font-size:20px; font-weight:600; margin-bottom:30px; }
 
-    .row {
-      display:flex;
-      gap:15px;
-      flex-wrap:wrap;
-    }
+.nav-item {
+  padding:12px 14px; border-radius:10px;
+  color:var(--text-secondary); margin-bottom:8px;
+  cursor:pointer; transition:0.2s;
+}
 
-    .card {
-      background:#1e293b;
-      padding:16px;
-      border-radius:12px;
-      flex:1;
-      min-width:200px;
-    }
+.nav-item:hover { background:var(--card); color:white; }
+.nav-item.active { background:var(--gradient); color:white; }
 
-    .stat {
-      font-size:22px;
-      margin-top:5px;
-    }
+/* ===== MAIN ===== */
+.main { flex:1; display:flex; flex-direction:column; }
 
-    input, textarea {
-      width:100%;
-      padding:8px;
-      margin-top:5px;
-      border-radius:6px;
-      border:none;
-      background:#0f172a;
-      color:white;
-    }
+/* ===== TOPBAR ===== */
+.topbar {
+  height:70px; display:flex; align-items:center;
+  justify-content:space-between; padding:0 30px;
+  border-bottom:1px solid var(--border);
+}
 
-    button {
-      padding:10px;
-      margin-top:10px;
-      background:#3b82f6;
-      color:white;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
-    }
+.topbar-title { font-size:18px; }
 
-    .success { color:#22c55e; }
-    .danger { color:#ef4444; }
-    .warn { color:#eab308; }
+/* ===== CONTENT ===== */
+.content { padding:30px; overflow-y:auto; }
 
-  </style>
+/* ===== GRID ===== */
+.grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+
+/* ===== CARDS ===== */
+.card {
+  background:var(--card);
+  border-radius:14px;
+  padding:20px;
+  border:1px solid var(--border);
+}
+
+/* ===== KPI ===== */
+.kpi-title { font-size:13px; color:var(--text-secondary); }
+.kpi-value { font-size:26px; margin-top:8px; font-weight:600; }
+.kpi-sub { font-size:12px; margin-top:6px; }
+
+/* ===== FORM ===== */
+input {
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  background:var(--card-light);
+  border:none;
+  border-radius:8px;
+  color:white;
+}
+
+button {
+  margin-top:10px;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:var(--gradient);
+  color:white;
+  cursor:pointer;
+}
+
+.section { margin-top:30px; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:1100px){
+  .grid { grid-template-columns:repeat(2,1fr); }
+}
+
+</style>
 </head>
 
 <body>
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-  <h2>AVORA</h2>
-
-  <div class="nav-item">Dashboard</div>
+  <div class="logo">AVORA</div>
+  <div class="nav-item active">Dashboard</div>
   <div class="nav-item">Scenarios</div>
   <div class="nav-item">Advisor</div>
-  <div class="nav-item">AI Insights</div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
-  <div class="header">Retirement Control Panel</div>
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-title">Retirement Overview</div>
+  </div>
 
-  <!-- KPI -->
-  <div class="row">
+  <!-- CONTENT -->
+  <div class="content">
 
-    <div class="card">
-      Net Worth
-      <div id="netWorth" class="stat">$0</div>
-    </div>
+    <!-- KPI GRID -->
+    <div class="grid">
 
-    <div class="card">
-      Monthly Surplus
-      <div id="surplus" class="stat">$0</div>
-    </div>
-
-    <div class="card">
-      Years Covered
-      <div id="years" class="stat">--</div>
-    </div>
-
-    <div class="card">
-      Retirement Score
-      <div id="score" class="stat">--</div>
-      <div id="scoreHint"></div>
-
-      <div style="margin-top:10px; height:6px; background:#111;">
-        <div id="scoreBar" style="height:6px; width:0%;"></div>
+      <div class="card">
+        <div class="kpi-title">Net Worth</div>
+        <div id="netWorth" class="kpi-value">$0</div>
       </div>
+
+      <div class="card">
+        <div class="kpi-title">Monthly Surplus</div>
+        <div id="surplus" class="kpi-value">$0</div>
+      </div>
+
+      <div class="card">
+        <div class="kpi-title">Years Covered</div>
+        <div id="years" class="kpi-value">--</div>
+      </div>
+
+      <div class="card">
+        <div class="kpi-title">Retirement Score</div>
+        <div id="score" class="kpi-value">--</div>
+        <div id="scoreHint" class="kpi-sub"></div>
+      </div>
+
+    </div>
+
+    <!-- INPUT SECTION -->
+    <div class="section card">
+      <h3>Financial Snapshot</h3>
+
+      <input id="savings" placeholder="Total Savings">
+      <input id="income" placeholder="Monthly Income">
+      <input id="expenses" placeholder="Monthly Expenses">
+
+      <button onclick="saveData()">Update Dashboard</button>
+    </div>
+
+    <!-- SCENARIO -->
+    <div class="section card">
+      <h3>Scenario</h3>
+
+      <input id="scSavings" placeholder="Savings">
+      <input id="scSpend" placeholder="Monthly Spend">
+
+      <button onclick="runScenario()">Run Scenario</button>
+
+      <div id="scenarioResult" style="margin-top:10px;"></div>
+    </div>
+
+    <!-- ADVISOR -->
+    <div class="section card">
+      <h3>Advisor Review</h3>
+
+      <input id="advisorInput" placeholder="Paste recommendation...">
+
+      <button onclick="analyzeAdvisor()">Analyze</button>
+
+      <div id="advisorOutput"></div>
     </div>
 
   </div>
-
-  <!-- INPUT -->
-  <div class="card">
-  <h3>Financial Snapshot</h3>
-
-<input id="savings" placeholder="Total Savings">
-
-<input id="income" placeholder="Person A Monthly Income">
-<input id="income2" placeholder="Person B Monthly Income (optional)">
-
-<input id="expenses" placeholder="Monthly Expenses">
-
-<select id="maritalStatus">
-  <option value="single">Single</option>
-  <option value="married">Married</option>
-</select>
-
-<h4 style="margin-top:10px;">Insurance (Optional)</h4>
-
-<input id="insurancePayout" placeholder="Life Insurance Payout">
-<input id="insuranceIncome" placeholder="Monthly Survivor Income">
-
-<button onclick="saveData()">Save</button>
-
-  <!-- SCENARIO -->
-  <div class="card">
-    <h3>Scenario</h3>
-
-    <input id="scSavings" placeholder="Savings">
-    <input id="scSpend" placeholder="Monthly Spend">
-
-    <button onclick="runScenario()">Run</button>
-
-    <div id="scenarioResult"></div>
-  </div>
-
-  <!-- ADVISOR -->
-  <div class="card">
-    <h3>Advisor Review</h3>
-
-    <textarea id="advisorInput"></textarea>
-
-    <button onclick="analyzeAdvisor()">Analyze</button>
-
-    <div id="advisorOutput"></div>
-  </div>
-
-  <!-- AI INSIGHTS -->
-  <div class="card">
-    <h3>AI Insights</h3>
-
-    <button onclick="generateInsights()">Analyze My Plan</button>
-
-    <div id="aiOutput"></div>
-  </div>
-
 </div>
 
 <script>
 
 /* FIREBASE */
-
 const firebaseConfig = {
   apiKey: "AIzaSyAyCyCesDBGytZw4pqItYqxjUJ_ENFC7mc",
   authDomain: "retirement-dashboard-4c0d3.firebaseapp.com",
   projectId: "retirement-dashboard-4c0d3"
 };
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 /* ENGINE */
-
 function buildFinancialModelV2(inputs) {
 
-  const {
-    liquidAssets,
-    expenses,
-    incomeA,
-    incomeB,
-    maritalStatus,
-    insurancePayout,
-    insuranceIncome,
-    assumptions
-  } = inputs;
+  let { liquidAssets, income, expenses, assumptions } = inputs;
 
   let balance = liquidAssets;
 
-  let combinedIncome = incomeA + (maritalStatus === "married" ? incomeB : 0);
-
   for (let year = 0; year < assumptions.years; year++) {
 
-    let yearlyIncome = combinedIncome * 12;
-
-    // SIMPLE survivor drop at year 20 (placeholder logic for now)
-    if (maritalStatus === "married" && year > 20) {
-      yearlyIncome = Math.max(incomeA, incomeB) * 12;
-
-      // Apply insurance once
-      if (year === 21 && insurancePayout) {
-        balance += insurancePayout;
-      }
-
-      if (insuranceIncome) {
-        yearlyIncome += insuranceIncome * 12;
-      }
-    }
-
+    const yearlyIncome = income * 12;
     const yearlyExpenses = expenses * 12 * Math.pow(1 + assumptions.inflation, year);
     const growth = balance * assumptions.returnRate;
 
     balance = balance + growth + yearlyIncome - yearlyExpenses;
 
     if (balance <= 0) {
-      return {
-        success: false,
-        yearsCovered: year,
-        endingBalance: balance
-      };
+      return { success:false, yearsCovered:year, endingBalance:balance };
     }
   }
 
-  return {
-    success: true,
-    yearsCovered: assumptions.years,
-    endingBalance: balance
-  };
+  return { success:true, yearsCovered:assumptions.years, endingBalance:balance };
 }
 
 /* SAVE */
-
 function saveData(){
-
- let s = +document.getElementById("savings").value;
-let i1 = +document.getElementById("income").value;
-let i2 = +document.getElementById("income2").value;
-let e = +document.getElementById("expenses").value;
-let status = document.getElementById("maritalStatus").value;
-
-let insurancePayout = +document.getElementById("insurancePayout").value;
-let insuranceIncome = +document.getElementById("insuranceIncome").value;
-  let model = buildFinancialModelV2({
-  liquidAssets: s,
-  incomeA: i1,
-  incomeB: i2,
-  expenses: e,
-  maritalStatus: status,
-  insurancePayout,
-  insuranceIncome,
-  assumptions: {
-    years: 40,
-    returnRate: 0.05,
-    inflation: 0.025
-  }
-});
-
-  let surplus = i - e;
-
-  let score = model.success ? 80 : 40;
-  let hint = model.success ? "Sustainable" : "Risk";
-
-  document.getElementById("netWorth").innerText = `$${s.toLocaleString()}`;
-  document.getElementById("surplus").innerText = `$${surplus}`;
-  document.getElementById("years").innerText = `${model.yearsCovered} yrs`;
-  document.getElementById("score").innerText = `${score}/100`;
-  document.getElementById("scoreHint").innerText = hint;
-
-  let bar = document.getElementById("scoreBar");
-  bar.style.width = `${score}%`;
-  bar.style.background = model.success ? "#22c55e" : "#ef4444";
-
-  db.collection("profiles").doc("main").set({
-    savings: s,
-    income: i,
-    expenses: e
-  });
-}
-
-/* LOAD */
-
-window.onload = async () => {
-
-  let doc = await db.collection("profiles").doc("main").get();
-
-  if(doc.exists){
-    let d = doc.data();
-
-    document.getElementById("savings").value = d.savings || "";
-    document.getElementById("income").value = d.income || "";
-    document.getElementById("expenses").value = d.expenses || "";
-
-    saveData();
-  }
-};
-
-/* SCENARIO */
-
-function runScenario(){
-
-  let savings = +document.getElementById("scSavings").value;
-  let spend = +document.getElementById("scSpend").value;
-
-  let model = buildFinancialModelV2({
-    liquidAssets: savings,
-    income: 0,
-    expenses: spend,
-    assumptions: {
-      years: 40,
-      returnRate: 0.05,
-      inflation: 0.025
-    }
-  });
-
-  document.getElementById("scenarioResult").innerHTML =
-    `Lasts ${model.yearsCovered} years<br>
-     Ending Balance: $${Math.round(model.endingBalance).toLocaleString()}`;
-}
-
-/* ADVISOR */
-
-function analyzeAdvisor(){
-
-  let text = document.getElementById("advisorInput").value.toLowerCase();
-
-  let flags = [];
-
-  if (text.includes("annuity")) flags.push("⚠️ Annuity detected");
-  if (text.includes("guaranteed")) flags.push("⚠️ Verify guarantees");
-  if (text.includes("fee")) flags.push("⚠️ Check fees");
-
-  document.getElementById("advisorOutput").innerHTML =
-    flags.length ? flags.join("<br>") : "No major flags";
-}
-
-/* AI INSIGHT (LOGIC-BASED V1) */
-
-function generateInsights(){
 
   let s = +document.getElementById("savings").value;
   let i = +document.getElementById("income").value;
   let e = +document.getElementById("expenses").value;
 
   let model = buildFinancialModelV2({
-    liquidAssets: s,
-    income: i,
-    expenses: e,
-    assumptions: {
-      years: 40,
-      returnRate: 0.05,
-      inflation: 0.025
-    }
+    liquidAssets:s,
+    income:i,
+    expenses:e,
+    assumptions:{ years:40, returnRate:0.05, inflation:0.025 }
   });
 
-  let insights = [];
+  document.getElementById("netWorth").innerText = `$${s.toLocaleString()}`;
+  document.getElementById("surplus").innerText = `$${(i-e)}`;
+  document.getElementById("years").innerText = `${model.yearsCovered} yrs`;
+  document.getElementById("score").innerText = model.success ? "80" : "40";
+  document.getElementById("scoreHint").innerText = model.success ? "Sustainable" : "Risk";
 
-  if (!model.success) insights.push("❌ You will run out of money.");
-  else insights.push("✅ Plan looks sustainable.");
+  db.collection("profiles").doc("main").set({ savings:s, income:i, expenses:e });
+}
 
-  insights.push(`📊 Covers ${model.yearsCovered} years.`);
+/* LOAD */
+window.onload = async () => {
+  let doc = await db.collection("profiles").doc("main").get();
+  if(doc.exists){
+    let d = doc.data();
+    savings.value = d.savings;
+    income.value = d.income;
+    expenses.value = d.expenses;
+    saveData();
+  }
+};
 
-  if (i < e) insights.push("⚠️ Spending exceeds income.");
+/* SCENARIO */
+function runScenario(){
+  let s = +scSavings.value;
+  let e = +scSpend.value;
 
-  document.getElementById("aiOutput").innerHTML =
-    insights.join("<br><br>");
+  let model = buildFinancialModelV2({
+    liquidAssets:s,
+    income:0,
+    expenses:e,
+    assumptions:{ years:40, returnRate:0.05, inflation:0.025 }
+  });
+
+  scenarioResult.innerHTML = `Lasts ${model.yearsCovered} yrs`;
+}
+
+/* ADVISOR */
+function analyzeAdvisor(){
+  let t = advisorInput.value.toLowerCase();
+  let flags=[];
+  if(t.includes("annuity")) flags.push("⚠️ Annuity");
+  if(t.includes("fee")) flags.push("⚠️ Fees");
+  advisorOutput.innerHTML = flags.join("<br>");
 }
 
 </script>
