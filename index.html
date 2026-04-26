@@ -55,6 +55,12 @@
       flex:1;
       min-width:150px;
     }
+    .row {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:stretch;
+}
   </style>
 </head>
 
@@ -82,13 +88,12 @@
   </div>
 
   <div class="card col">
-    Retirement Score
-    <div id="score" class="stat">--</div>
-    <div id="scoreHint" style="font-size:12px; opacity:.7;"></div>
-  </div>
+  Retirement Score
+  <div id="score" class="stat">--</div>
+  <div id="scoreHint" style="font-size:12px; opacity:.7;"></div>
 
   <div style="margin-top:8px; height:6px; background:#111; border-radius:4px;">
-    <div id="scoreBar" style="height:6px; width:0%; background:#3b82f6; border-radius:4px;"></div>
+    <div id="scoreBar" style="height:6px; width:0%; border-radius:4px;"></div>
   </div>
 </div>
 
@@ -199,7 +204,7 @@ function runScenario(){
   let savings = +document.getElementById("scSavings").value;
   let spend = +document.getElementById("scSpend").value * 12;
 
-  let years = savings / spend;
+  let years = spend > 0 ? savings / spend : 0;
   let endAge = 65 + years; // simple assumption
 
   let status = "";
