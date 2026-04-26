@@ -1,227 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Avora</title>
+<!-- ONLY SHOWING UPDATED SCENARIO + MODEL + AI PARTS (DROP INTO YOUR FILE) -->
 
-<link rel="icon" href="data:,">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-:root{
---bg:#0B0F1A;
---sidebar:#0F172A;
---card:#111827;
---text:#E5E7EB;
---sub:#9CA3AF;
-}
-
-.light{
---bg:#F9FAFB;
---sidebar:#FFFFFF;
---card:#FFFFFF;
---text:#111827;
---sub:#6B7280;
-}
-
-body{
-margin:0;
-font-family:Inter;
-background:var(--bg);
-color:var(--text);
-display:flex;
-height:100vh;
-}
-
-.sidebar{
-width:220px;
-background:var(--sidebar);
-padding:20px;
-}
-
-.logo{
-font-weight:600;
-margin-bottom:20px;
-}
-
-.nav-item{
-margin:10px 0;
-color:var(--sub);
-cursor:pointer;
-}
-
-.nav-item.active{
-color:var(--text);
-}
-
-.main{
-flex:1;
-padding:20px;
-overflow:auto;
-}
-
-.ai{
-width:260px;
-background:var(--sidebar);
-padding:15px;
-border-left:1px solid #222;
-}
-
-.grid{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:10px;
-}
-
-.chartGrid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-margin-top:10px;
-}
-
-.card{
-background:var(--card);
-padding:12px;
-border-radius:10px;
-}
-
-input{
-width:100%;
-margin-top:8px;
-padding:8px;
-background:#1F2937;
-border:none;
-color:white;
-border-radius:6px;
-}
-
-.light input{
-background:#E5E7EB;
-color:black;
-}
-
-button{
-margin-top:10px;
-padding:8px;
-background:#3B82F6;
-color:white;
-border:none;
-border-radius:6px;
-cursor:pointer;
-}
-
-canvas{
-max-height:200px;
-}
-</style>
-</head>
-
-<body>
-
-<div class="sidebar">
-<div class="logo">AVORA</div>
-
-<div class="nav-item active" onclick="showView('dashboard', this)">Dashboard</div>
-<div class="nav-item" onclick="showView('inputs', this)">Financials</div>
-<div class="nav-item" onclick="showView('scenarios', this)">Scenarios</div>
-
-<button onclick="toggleTheme()">Toggle Theme</button>
-</div>
-
-<div class="main">
-
-<!-- DASHBOARD -->
-<div id="dashboardView">
-<div class="grid">
-<div class="card">Net Worth<div id="netWorth">$0</div></div>
-<div class="card">Annual Income<div id="incomeTotal">$0</div></div>
-<div class="card">Annual Expenses<div id="expenseTotal">$0</div></div>
-<div class="card">Years Covered<div id="years">--</div></div>
-</div>
-
-<div class="chartGrid">
-<div class="card"><canvas id="projectionChart"></canvas></div>
-<div class="card"><canvas id="cashflowChart"></canvas></div>
-<div class="card"><canvas id="netFlowChart"></canvas></div>
-<div class="card"><canvas id="riskChart"></canvas></div>
-</div>
-</div>
-
-<!-- FINANCIALS -->
-<div id="inputView" style="display:none">
-<div class="card">
-
-<h4>Person A</h4>
-<input id="incomeA" placeholder="Annual Income (A)">
-<input id="ageA" placeholder="Age (A)">
-<input id="retAgeA" placeholder="Retirement Age (A)">
-<input id="ssiAgeA" placeholder="SSI Start Age (A)">
-<input id="ssiA" placeholder="SSI Monthly (A)">
-
-<h4>Person B</h4>
-<input id="incomeB" placeholder="Annual Income (B)">
-<input id="ageB" placeholder="Age (B)">
-<input id="retAgeB" placeholder="Retirement Age (B)">
-<input id="ssiAgeB" placeholder="SSI Start Age (B)">
-<input id="ssiB" placeholder="SSI Monthly (B)">
-
-<h4>Household</h4>
-<input id="cash" placeholder="Cash">
-<input id="investments" placeholder="Investments">
-<input id="expenses" placeholder="Annual Expenses">
-
-</div>
-</div>
-
-<!-- SCENARIOS -->
+<!-- REPLACE SCENARIOS PANEL -->
 <div id="scenariosView" style="display:none">
 <div class="card">
 
-<h4>Global Assumptions</h4>
-<input id="lifeExp" placeholder="Life Expectancy (Both)">
-<input id="returnRate" placeholder="Return % (default 5)">
-<input id="inflationRate" placeholder="Inflation % (default 2.5)">
+<h4>Longevity Risk</h4>
+<input id="lifeExpA" placeholder="Life Expectancy (A)">
+<input id="lifeExpB" placeholder="Life Expectancy (B)">
 
-<h4>Stress Scenarios</h4>
-<input id="expenseShock" placeholder="Extra Annual Expense">
+<h4>Market Risk</h4>
+<input id="returnRateInput" placeholder="Return % (default 5)">
 <input id="marketDrop" placeholder="Market Drop % (year 1)">
 
-</div>
-</div>
+<h4>Spending Risk</h4>
+<input id="inflationRate" placeholder="Inflation % (default 2.5)">
+<input id="expenseShock" placeholder="Extra Annual Expense">
 
 </div>
-
-<div class="ai">
-<h4>AI Advisor</h4>
-<div id="aiOutput"></div>
 </div>
 
 <script>
 
-let charts={};
-
-function showView(view, el){
-document.getElementById("dashboardView").style.display="none";
-document.getElementById("inputView").style.display="none";
-document.getElementById("scenariosView").style.display="none";
-
-document.getElementById(view+"View").style.display="block";
-
-document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
-el.classList.add("active");
-}
-
-/* MODEL WITH SCENARIOS */
+/* UPDATED MODEL WITH DEATH LOGIC */
 function buildModel(total, exp){
 
 let bal = total;
 let t = [];
 
-let life = (+lifeExp.value || 90);
-let returnRate = ((+returnRate.value || 5)/100);
+let rRate = ((+returnRateInput.value || 5)/100);
 let inflation = ((+inflationRate.value || 2.5)/100);
 let shock = (+expenseShock.value || 0);
 let drop = ((+marketDrop.value || 0)/100);
@@ -229,33 +35,53 @@ let drop = ((+marketDrop.value || 0)/100);
 let startAgeA = (+ageA.value || 65);
 let startAgeB = (+ageB.value || 65);
 
+let lifeA = (+lifeExpA.value || 90);
+let lifeB = (+lifeExpB.value || 90);
+
 for(let y=0; y<60; y++){
 
 let ageAcur = startAgeA + y;
 let ageBcur = startAgeB + y;
 
+let aliveA = ageAcur < lifeA;
+let aliveB = ageBcur < lifeB;
+
 let income = 0;
 
-/* A */
-if(ageAcur < (+retAgeA.value || 65)) income += (+incomeA.value || 0);
-if(ageAcur >= (+ssiAgeA.value || 67)) income += ((+ssiA.value || 0)*12);
+/* PERSON A */
+if(aliveA){
+  if(ageAcur < (+retAgeA.value || 65)) income += (+incomeA.value || 0);
+  if(ageAcur >= (+ssiAgeA.value || 67)) income += ((+ssiA.value || 0)*12);
+}
 
-/* B */
-if(ageBcur < (+retAgeB.value || 65)) income += (+incomeB.value || 0);
-if(ageBcur >= (+ssiAgeB.value || 67)) income += ((+ssiB.value || 0)*12);
+/* PERSON B */
+if(aliveB){
+  if(ageBcur < (+retAgeB.value || 65)) income += (+incomeB.value || 0);
+  if(ageBcur >= (+ssiAgeB.value || 67)) income += ((+ssiB.value || 0)*12);
+}
 
-/* EXPENSE */
-let expenses = (exp + shock) * Math.pow(1+inflation, y);
+/* EXPENSE ADJUSTMENT AFTER DEATH */
+let baseExp = exp;
+if(!aliveA || !aliveB){
+  baseExp *= 0.7; // reduce household cost
+}
 
-/* RETURN */
-let growth = bal * returnRate;
+let expenses = (baseExp + shock) * Math.pow(1+inflation, y);
 
-/* MARKET DROP YEAR 1 */
+/* MARKET DROP */
 if(y===0) bal *= (1-drop);
 
-bal += growth + income - expenses;
+/* BALANCE */
+bal += bal*rRate + income - expenses;
 
-t.push({age:Math.min(ageAcur,ageBcur),bal,inc:income,ex:expenses});
+t.push({
+age: Math.min(ageAcur,ageBcur),
+bal,
+inc: income,
+ex: expenses,
+aliveA,
+aliveB
+});
 
 if(bal <= 0) break;
 }
@@ -263,7 +89,7 @@ if(bal <= 0) break;
 return t;
 }
 
-/* UPDATE */
+/* ENHANCED AI INSIGHT */
 function updateAll(){
 
 let income = (+incomeA.value||0)+(+incomeB.value||0);
@@ -279,51 +105,32 @@ years.innerText=m.length;
 
 renderCharts(m);
 
-aiOutput.innerHTML =
-(m.length<25?"⚠️ Risk early":"✅ Stable")+"<br>"+
-(income<exp?"⚠️ Expenses exceed income":"");
+/* SCENARIO ANALYSIS */
+let ai=[];
+
+/* longevity */
+if((+lifeExpA.value||90) !== (+lifeExpB.value||90)){
+ai.push("⚠️ Longevity mismatch: one spouse outlives the other → income drops, expenses partially remain");
 }
 
-/* CHARTS */
-function renderCharts(m){
-
-const ctx1=projectionChart.getContext("2d");
-const ctx2=cashflowChart.getContext("2d");
-const ctx3=netFlowChart.getContext("2d");
-const ctx4=riskChart.getContext("2d");
-
-let labels=m.map(x=>x.age);
-let bal=m.map(x=>x.bal);
-let inc=m.map(x=>x.inc);
-let exp=m.map(x=>x.ex);
-let net=m.map(x=>x.inc-x.ex);
-
-Object.values(charts).forEach(c=>c.destroy());
-
-charts.p=new Chart(ctx1,{type:"line",data:{labels,datasets:[{label:"Net Worth",data:bal}]}});
-charts.c=new Chart(ctx2,{type:"line",data:{labels,datasets:[{label:"Income",data:inc},{label:"Expenses",data:exp}]}});
-charts.n=new Chart(ctx3,{type:"line",data:{labels,datasets:[{label:"Net Flow",data:net}]}});
-charts.r=new Chart(ctx4,{type:"bar",data:{labels:["Years"],datasets:[{data:[m.length]}]}});
+/* market */
+if((+marketDrop.value||0) > 10){
+ai.push("⚠️ Market shock scenario applied → early portfolio drawdown risk");
 }
 
-/* THEME */
-function toggleTheme(){
-document.body.classList.toggle("light");
-localStorage.setItem("theme",document.body.classList.contains("light"));
+/* spending */
+if((+expenseShock.value||0) > 0){
+ai.push("⚠️ Expense stress added → higher burn rate");
 }
 
-if(localStorage.getItem("theme")==="true"){
-document.body.classList.add("light");
+/* core */
+if(m.length < 25){
+ai.push("🚨 Plan fails early under current assumptions");
+}else{
+ai.push("✅ Plan holds under current scenario");
 }
 
-/* AUTO UPDATE */
-document.querySelectorAll("input").forEach(i=>{
-i.addEventListener("input",updateAll);
-});
-
-window.onload=updateAll;
+aiOutput.innerHTML = ai.join("<br><br>");
+}
 
 </script>
-
-</body>
-</html>
