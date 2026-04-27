@@ -201,7 +201,9 @@ const AI_URL = "https://summer-boat-369f.llcolej8.workers.dev";
 
 let charts={};
 let aiOpen=true;
+let portfolio=[];
 
+/* NAV */
 function showView(id,el){
   ["dashboard","financials","scenarios"].forEach(v=>{
     document.getElementById(v).style.display="none";
@@ -212,6 +214,7 @@ function showView(id,el){
   el.classList.add("active");
 }
 
+/* MODEL */
 function buildModel(total,exp){
 
 let r=((+returnRate.value||5)/100);
@@ -239,9 +242,12 @@ if(bal<=0) break;
 return arr;
 }
 
+/* UPDATE */
 function updateAll(){
 
-let total=(+cash.value||0)+(+invest.value||0);
+let stockValue = portfolio.reduce((sum,p)=>sum+(p.price*p.shares),0);
+
+let total=(+cash.value||0)+(+invest.value||0)+stockValue;
 let income=(+incomeA.value||0)+(+incomeB.value||0);
 let exp=(+document.getElementById("exp").value||0);
 
@@ -258,10 +264,12 @@ callAI({
   netWorth: total,
   income: income,
   expenses: exp,
-  years: m.length
+  years: m.length,
+  portfolio: portfolio
 });
 }
 
+/* REAL AI */
 async function callAI(model){
 
   try{
@@ -283,6 +291,73 @@ async function callAI(model){
   }
 }
 
+/* STOCKS */
+async function addStock(){
+
+  const t = ticker.value.toUpperCase();
+  const s = +shares.value || 0;
+
+  if(!t || !s) return;
+
+  const res = await fetch(`https://api.twelvedata.com/price?symbol=${t}&apikey=demo`);
+  const data = await res.json();
+
+  const price = +data.price || 0;
+
+  portfolio.push({ticker:t,shares:s,price:price});
+
+  renderPortfolio();
+  updateAll();
+}
+
+function renderPortfolio(){
+
+  stockList.innerHTML = portfolio.map(p=>
+    `${p.ticker} - ${p.shares} ($${(p.price*p.shares).toFixed(0)})`
+  ).join("<br>");
+}
+
+/* SAVE / LOAD */
+function saveProfile(){
+
+  const data = {
+    incomeA: incomeA.value,
+    incomeB: incomeB.value,
+    ageA: ageA.value,
+    ageB: ageB.value,
+    retA: retA.value,
+    retB: retB.value,
+    cash: cash.value,
+    invest: invest.value,
+    exp: exp.value,
+    portfolio
+  };
+
+  localStorage.setItem("avoraProfile", JSON.stringify(data));
+}
+
+function loadProfile(){
+
+  const data = JSON.parse(localStorage.getItem("avoraProfile"));
+  if(!data) return;
+
+  incomeA.value=data.incomeA;
+  incomeB.value=data.incomeB;
+  ageA.value=data.ageA;
+  ageB.value=data.ageB;
+  retA.value=data.retA;
+  retB.value=data.retB;
+  cash.value=data.cash;
+  invest.value=data.invest;
+  exp.value=data.exp;
+
+  portfolio=data.portfolio||[];
+
+  renderPortfolio();
+  updateAll();
+}
+
+/* CHARTS */
 function renderCharts(m){
 
 let labels=m.map(x=>x.year);
@@ -293,24 +368,19 @@ let exp=m.map(x=>x.exp);
 Object.values(charts).forEach(c=>c.destroy());
 
 charts.c1=new Chart(c1,{type:'line',data:{labels,datasets:[{label:'Net Worth',data:bal}]}});
-
-charts.c2=new Chart(c2,{type:'line',data:{labels,datasets:[
-{label:'Income',data:inc},
-{label:'Expenses',data:exp}
-]}});
-
+charts.c2=new Chart(c2,{type:'line',data:{labels,datasets:[{label:'Income',data:inc},{label:'Expenses',data:exp}]}});
 charts.c3=new Chart(c3,{type:'bar',data:{labels,datasets:[{label:'Balance',data:bal}]}});
-
 charts.c4=new Chart(c4,{type:'line',data:{labels,datasets:[{label:'Expenses',data:exp}]}});
-
 }
 
+/* UI */
 function toggleAI(){
   let panel=document.getElementById("aiPanel");
   panel.style.height=aiOpen?"40px":"140px";
   aiOpen=!aiOpen;
 }
 
+/* LISTEN */
 document.querySelectorAll("input").forEach(i=>{
   i.addEventListener("input",updateAll);
 });
