@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Avora</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 body{background:#0B0F1A;color:white;font-family:Arial;display:flex}
 .sidebar{width:200px;background:#111;padding:20px}
@@ -32,12 +33,13 @@ button{margin-top:10px;padding:6px;background:#3B82F6;color:white;border:none}
 
 <div class="grid">
 <div class="card">Net Worth<div id="nw"></div></div>
-<div class="card">Income<div id="inc"></div></div>
+<div class="card">Income (After Tax)<div id="inc"></div></div>
 <div class="card">Expenses<div id="expOut"></div></div>
 <div class="card">Success %<div id="succ"></div></div>
 </div>
 
 <canvas id="chart"></canvas>
+<div id="taxExplain"></div>
 
 </div>
 
@@ -69,10 +71,24 @@ button{margin-top:10px;padding:6px;background:#3B82F6;color:white;border:none}
 </div>
 
 <div class="card">
-<h3>Assets</h3>
+<h3>Assets (Legacy Support)</h3>
 <input id="cash" placeholder="Cash">
 <input id="invest" placeholder="Investments">
 <input id="debt" placeholder="Debt">
+</div>
+
+<div class="card">
+<h3>Accounts (New)</h3>
+<div id="accountsList"></div>
+<button onclick="addAccount()">+ Add Account</button>
+</div>
+
+<div class="card">
+<h3>Tax</h3>
+<select id="filing">
+<option value="single">Single</option>
+<option value="married">Married</option>
+</select>
 </div>
 
 </div>
@@ -92,20 +108,21 @@ button{margin-top:10px;padding:6px;background:#3B82F6;color:white;border:none}
 
 <script>
 
-let incomes=[],expenses=[],goals=[],scenarios=[],chart;
+/* ===== STATE ===== */
+let incomes=[],expenses=[],goals=[],scenarios=[],accounts=[],chart;
 
-/* NAV */
+/* ===== NAV ===== */
 function show(v){
 ["dashboard","financials","compare"].forEach(x=>document.getElementById(x).style.display="none");
 document.getElementById(v).style.display="block";
 }
 
-/* NORMALIZE */
+/* ===== NORMALIZE ===== */
 function norm(a,f){
 return a*(f==="monthly"?12:f==="biweekly"?26:1);
 }
 
-/* STAGE LOGIC */
+/* ===== STAGE ===== */
 function stage(age){
 if(age<30) return 0.1;
 if(age<50) return 0.2;
@@ -113,7 +130,60 @@ if(age<65) return 0.25;
 return 0;
 }
 
-/* ADD INCOME */
+/* ===== TAX ENGINE ===== */
+function calcTax(income, filing){
+
+let brackets = filing==="single"
+? [[10000,0.1],[40000,0.12],[85000,0.22],[160000,0.24]]
+: [[20000,0.1],[80000,0.12],[170000,0.22],[320000,0.24]];
+
+let tax=0,prev=0;
+
+for(let [limit,rate] of brackets){
+if(income > limit){
+tax += (limit-prev)*rate;
+prev = limit;
+}else{
+tax += (income-prev)*rate;
+break;
+}
+}
+return tax;
+}
+
+/* ===== ACCOUNT SYSTEM ===== */
+function addAccount(){
+let id = Date.now();
+accounts.push({id,type:"CHK",balance:0});
+renderAccounts();
+}
+
+function renderAccounts(){
+accountsList.innerHTML = accounts.map(a=>`
+<div class="row">
+<select onchange="updateAccountType(${a.id},this.value)">
+<option>CHK</option>
+<option>SAV</option>
+<option>CD</option>
+<option>BROKER</option>
+<option>401K</option>
+<option>ROTH</option>
+</select>
+<input placeholder="Balance" oninput="updateAccountBalance(${a.id},this.value)">
+</div>
+`).join("");
+}
+
+function updateAccountType(id,val){
+accounts.find(x=>x.id===id).type = val;
+}
+
+function updateAccountBalance(id,val){
+accounts.find(x=>x.id===id).balance = +val;
+update();
+}
+
+/* ===== INCOME ===== */
 function addIncome(){
 let id=Date.now();
 incomes.push({id,amount:0,freq:"yearly",cat:"salary"});
@@ -133,7 +203,7 @@ incomeList.innerHTML=incomes.map(i=>`
 </div>`).join("");
 }
 
-/* ADD EXPENSE */
+/* ===== EXPENSE ===== */
 function addExpense(){
 let id=Date.now();
 expenses.push({id,amount:0,freq:"yearly",cat:"general"});
@@ -153,7 +223,7 @@ expenseList.innerHTML=expenses.map(e=>`
 </div>`).join("");
 }
 
-/* ADD GOAL */
+/* ===== GOALS ===== */
 function addGoal(){
 let id=Date.now();
 goals.push({id,amount:0,year:5});
@@ -168,7 +238,7 @@ goalList.innerHTML=goals.map(g=>`
 </div>`).join("");
 }
 
-/* UPDATERS */
+/* ===== UPDATERS ===== */
 function updateIncome(id,val){incomes.find(x=>x.id===id).amount=+val;update();}
 function updateIncomeFreq(id,val){incomes.find(x=>x.id===id).freq=val;update();}
 function updateIncomeCat(id,val){incomes.find(x=>x.id===id).cat=val;}
@@ -180,15 +250,20 @@ function updateExpenseCat(id,val){expenses.find(x=>x.id===id).cat=val;}
 function updateGoal(id,val){goals.find(x=>x.id===id).amount=+val;}
 function updateGoalYear(id,val){goals.find(x=>x.id===id).year=+val;}
 
-/* SIM */
+/* ===== SIMULATION (UNCHANGED CORE + EXTENDED SAFELY) ===== */
 function simulate(){
 
 let runs=100,results=[],path=[];
 
 for(let r=0;r<runs;r++){
 
-let bal=(+cash.value||0)+(+invest.value||0)-(+debt.value||0);
-let inc=incomes.reduce((t,i)=>t+norm(i.amount,i.freq),0);
+let baseBal=(+cash.value||0)+(+invest.value||0)-(+debt.value||0);
+let bal = accounts.length ? accounts.reduce((t,a)=>t+a.balance,0) : baseBal;
+
+let incRaw=incomes.reduce((t,i)=>t+norm(i.amount,i.freq),0);
+let tax=calcTax(incRaw, filing.value);
+let inc=incRaw - tax;
+
 let exp=expenses.reduce((t,e)=>t+norm(e.amount,e.freq),0);
 
 let arr=[];
@@ -199,12 +274,10 @@ let ageNow=(+age.value||40)+y;
 let saveRate=stage(ageNow);
 
 let ret=0.06 + (Math.random()-0.5)*0.2;
-
 let contrib = inc * saveRate;
 
 bal+=bal*ret + inc - exp + contrib;
 
-// goals
 goals.forEach(g=>{
 if(g.year===y) bal-=g.amount;
 });
@@ -221,33 +294,42 @@ let success=results.filter(x=>x>=30).length/runs;
 return {success,path};
 }
 
-/* UPDATE */
+/* ===== UPDATE ===== */
 function update(){
 
 let sim=simulate();
 
-let inc=incomes.reduce((t,i)=>t+norm(i.amount,i.freq),0);
+let incRaw=incomes.reduce((t,i)=>t+norm(i.amount,i.freq),0);
+let tax=calcTax(incRaw, filing.value);
+let inc=incRaw-tax;
+
 let exp=expenses.reduce((t,e)=>t+norm(e.amount,e.freq),0);
-let nwVal=(+cash.value||0)+(+invest.value||0)-(+debt.value||0);
+
+let nwVal = accounts.length
+? accounts.reduce((t,a)=>t+a.balance,0)
+: ((+cash.value||0)+(+invest.value||0)-(+debt.value||0));
 
 nw.innerText="$"+nwVal.toLocaleString();
 inc.innerText="$"+inc.toLocaleString();
 expOut.innerText="$"+exp.toLocaleString();
 succ.innerText=(sim.success*100).toFixed(0)+"%";
 
-if(chart) chart.destroy();
-chart=new Chart(chart,{type:'line',data:{labels:sim.path.map((_,i)=>i),datasets:[{data:sim.path}]}});
+taxExplain.innerHTML=`Estimated Tax: $${tax.toLocaleString()}`;
 
+if(chart) chart.destroy();
+chart=new Chart(chart,{
+type:'line',
+data:{labels:sim.path.map((_,i)=>i),datasets:[{data:sim.path}]}
+});
 }
 
-/* SCENARIO SAVE */
+/* ===== SCENARIO ===== */
 function saveScenario(){
 let sim=simulate();
 scenarios.push({success:sim.success});
 renderScenarios();
 }
 
-/* DELTA ENGINE */
 function renderScenarios(){
 
 scenarios.innerHTML=scenarios.map((s,i)=>`
@@ -258,17 +340,17 @@ if(scenarios.length>=2){
 let base=scenarios[0].success;
 let last=scenarios[scenarios.length-1].success;
 let diff=((last-base)*100).toFixed(1);
-
 delta.innerHTML=`Δ Change vs Base: ${diff}%`;
 }
-
 }
 
-/* INIT */
+/* ===== INIT ===== */
 addIncome();
 addExpense();
 addGoal();
-document.querySelectorAll("input").forEach(i=>i.addEventListener("input",update));
+addAccount();
+
+document.querySelectorAll("input,select").forEach(i=>i.addEventListener("input",update));
 
 </script>
 
