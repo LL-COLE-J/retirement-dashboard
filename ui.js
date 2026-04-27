@@ -276,8 +276,9 @@ function renderFinancials(){
   /* =========================
      TAX
   ========================= */
-  const filing = document.getElementById("filing");
+ const filing = document.getElementById("filing");
 
+if(filing){
   filing.value = state.filing;
   filing.onchange = e => {
     state.filing = e.target.value;
