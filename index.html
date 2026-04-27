@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="UTF-8">
 <title>Avora</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -8,12 +9,14 @@
 <style>
 
 /* BASE */
+/* BASE */
 body{
 margin:0;
 background:#F6F8FB;
 color:#111827;
-font-family:Inter, system-ui;
+font-family:Inter, system-ui, -apple-system;
 display:flex;
+-webkit-font-smoothing:antialiased;
 }
 
 /* SIDEBAR */
@@ -22,6 +25,8 @@ width:230px;
 background:#ffffff;
 border-right:1px solid #E6EAF0;
 padding:20px;
+display:flex;
+flex-direction:column;
 }
 
 .logo{
@@ -36,6 +41,7 @@ border-radius:8px;
 cursor:pointer;
 color:#6B7280;
 margin-bottom:6px;
+transition:.15s;
 }
 
 .nav-item:hover{
@@ -49,6 +55,7 @@ flex:1;
 padding:32px;
 max-width:1300px;
 margin:auto;
+width:100%;
 }
 
 /* START CARD */
@@ -102,6 +109,12 @@ background:#fff;
 padding:22px;
 border-radius:18px;
 border:1px solid #E6EAF0;
+min-height:300px;
+}
+
+canvas{
+width:100% !important;
+height:auto !important;
 }
 
 /* RIGHT PANEL */
@@ -161,8 +174,16 @@ padding:10px;
 border:1px solid #E6EAF0;
 border-radius:8px;
 width:100%;
+font-size:14px;
 }
 
+input:focus,select:focus{
+outline:none;
+border-color:#5B8DEF;
+box-shadow:0 0 0 2px rgba(91,141,239,.15);
+}
+
+/* BUTTONS */
 button{
 margin-top:8px;
 margin-right:6px;
@@ -172,10 +193,74 @@ color:white;
 border:none;
 border-radius:6px;
 cursor:pointer;
+font-size:13px;
+transition:.15s;
 }
 
 button:hover{
 background:#4A7DE0;
+}
+
+/* =========================
+   MOBILE OPTIMIZATION
+========================= */
+@media (max-width: 900px){
+
+  body{
+    flex-direction:column;
+  }
+
+  /* TOP NAV */
+  .sidebar{
+    width:100%;
+    flex-direction:row;
+    align-items:center;
+    justify-content:space-between;
+    border-right:none;
+    border-bottom:1px solid #E6EAF0;
+    padding:12px 16px;
+  }
+
+  .logo{
+    margin-bottom:0;
+  }
+
+  .nav-item{
+    margin:0;
+    margin-left:8px;
+    padding:8px 10px;
+    font-size:14px;
+  }
+
+  .main{
+    padding:16px;
+  }
+
+  .metrics{
+    flex-direction:column;
+  }
+
+  .main-grid{
+    grid-template-columns:1fr;
+  }
+
+  .modules{
+    grid-template-columns:1fr;
+  }
+
+  .row{
+    grid-template-columns:1fr;
+  }
+
+  button{
+    width:100%;
+    margin-top:10px;
+  }
+
+  .chart-card{
+    padding:12px;
+  }
+
 }
 
 </style>
