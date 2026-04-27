@@ -2,61 +2,40 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Avora</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-body{background:#0B0F1A;color:#E5E7EB;display:flex;height:100vh;}
-.sidebar{width:220px;background:#0F172A;padding:20px;}
-.nav-item{padding:10px;border-radius:8px;cursor:pointer;margin-bottom:6px;}
-.nav-item.active{background:linear-gradient(135deg,#3B82F6,#6366F1);}
-.main{flex:1;display:flex;}
-.content{flex:1;padding:20px;overflow:auto;}
-.card{background:#111827;padding:15px;border-radius:12px;margin-bottom:12px;}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-input, select{width:100%;padding:8px;margin-top:4px;background:#1F2937;border:none;color:white;border-radius:6px;}
-button{margin-top:10px;padding:6px 10px;border:none;border-radius:6px;background:#3B82F6;color:white;cursor:pointer;}
-.ai{width:260px;background:#0F172A;padding:15px;}
-label{display:block;font-size:12px;margin-top:10px;color:#9CA3AF;}
-canvas{height:220px!important;}
+body{background:#0B0F1A;color:white;font-family:Arial;display:flex}
+.sidebar{width:200px;background:#111;padding:20px}
+.nav-item{padding:10px;cursor:pointer}
+.main{flex:1;padding:20px}
+.card{background:#1a1a1a;padding:15px;margin-bottom:10px;border-radius:10px}
+input,select{width:100%;margin-top:5px;padding:6px;background:#222;color:white;border:none}
+button{margin-top:10px;padding:6px;background:#3B82F6;color:white;border:none}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.row{display:flex;gap:5px;margin-top:5px}
 </style>
 </head>
 
 <body>
 
 <div class="sidebar">
-<div class="nav-item active" onclick="showView('dashboard',this)">Dashboard</div>
-<div class="nav-item" onclick="showView('financials',this)">Financials</div>
-<div class="nav-item" onclick="showView('scenarios',this)">Scenarios</div>
-<div class="nav-item" onclick="showView('tools',this)">Tools</div>
+<div class="nav-item" onclick="show('dashboard')">Dashboard</div>
+<div class="nav-item" onclick="show('financials')">Financials</div>
+<div class="nav-item" onclick="show('compare')">Compare</div>
 </div>
 
 <div class="main">
-
-<div class="content">
 
 <!-- DASHBOARD -->
 <div id="dashboard">
 
 <div class="grid">
-<div class="card">Net Worth<div id="netWorth"></div></div>
-<div class="card">Income<div id="income"></div></div>
-<div class="card">Expenses<div id="expensesOut"></div></div>
-<div class="card">Success %<div id="successRate"></div></div>
+<div class="card">Net Worth<div id="nw"></div></div>
+<div class="card">Income<div id="inc"></div></div>
+<div class="card">Expenses<div id="expOut"></div></div>
+<div class="card">Success %<div id="succ"></div></div>
 </div>
-
-<div class="grid">
-<div class="card">FI Ratio<div id="fiRatio"></div></div>
-<div class="card">Savings Rate<div id="savingsRate"></div></div>
-<div class="card">Burn Multiple<div id="burnMultiple"></div></div>
-<div class="card">Decision<div id="decision"></div></div>
-</div>
-
-<div class="card" id="summary"></div>
 
 <canvas id="chart"></canvas>
 
@@ -66,225 +45,142 @@ canvas{height:220px!important;}
 <div id="financials" style="display:none">
 
 <div class="card">
-<h4>Household</h4>
-
-<label>Current Age</label>
-<input id="age" placeholder="e.g. 40">
-
-<label>Retirement Age</label>
-<input id="retAge" placeholder="e.g. 65">
-
-<label>Total Income</label>
-<input id="incomeInput" placeholder="e.g. 90000">
-
-<label>Income Frequency</label>
-<select id="incomeFreq">
-<option value="yearly">Yearly</option>
-<option value="monthly">Monthly</option>
-<option value="biweekly">Biweekly</option>
-<option value="weekly">Weekly</option>
-</select>
-
+<h3>Income Streams</h3>
+<div id="incomeList"></div>
+<button onclick="addIncome()">+ Add Income</button>
 </div>
 
 <div class="card">
-<h4>Dependents</h4>
-
-<label>Annual Cost per Dependent</label>
-<input id="depCost" placeholder="e.g. 12000">
-
-<label>Years Remaining</label>
-<input id="depYears" placeholder="e.g. 18">
-
+<h3>Expenses</h3>
+<div id="expenseList"></div>
+<button onclick="addExpense()">+ Add Expense</button>
 </div>
 
 <div class="card">
-<h4>Assets</h4>
-
-<label>Cash</label>
-<input id="cash" placeholder="e.g. 20000">
-
-<label>Investments</label>
-<input id="invest" placeholder="e.g. 100000">
+<h3>Assets</h3>
+<input id="cash" placeholder="Cash">
+<input id="invest" placeholder="Investments">
+<input id="debt" placeholder="Debt">
+</div>
 
 </div>
+
+<!-- COMPARE -->
+<div id="compare" style="display:none">
 
 <div class="card">
-<h4>Liabilities</h4>
-
-<label>Total Debt</label>
-<input id="debt" placeholder="e.g. 25000">
-
+<button onclick="saveScenario()">Save Scenario</button>
+<div id="scenarios"></div>
 </div>
 
-<div class="card">
-<h4>Expenses</h4>
-
-<label>Amount</label>
-<input id="exp" placeholder="e.g. 50000">
-
-<label>Frequency</label>
-<select id="expFreq">
-<option value="yearly">Yearly</option>
-<option value="monthly">Monthly</option>
-<option value="biweekly">Biweekly</option>
-</select>
-
-</div>
-
-<div class="card">
-<h4>Contributions</h4>
-
-<label>Annual Contribution</label>
-<input id="contrib" placeholder="e.g. 15000">
-
-</div>
-
-<div class="card">
-<h4>Tax</h4>
-
-<label>Effective Tax Rate</label>
-<input id="taxRate" placeholder="e.g. 0.22">
-
-</div>
-
-</div>
-
-<!-- SCENARIOS -->
-<div id="scenarios" style="display:none">
-<div class="card">
-
-<button onclick="applyScenario('crash')">Market Crash</button>
-<button onclick="applyScenario('inflation')">High Inflation</button>
-<button onclick="applyScenario('jobloss')">Job Loss</button>
-
-<label>Return %</label>
-<input id="returnRate" placeholder="default 6">
-
-<label>Inflation %</label>
-<input id="inflation" placeholder="default 2.5">
-
-</div>
-</div>
-
-<!-- TOOLS -->
-<div id="tools" style="display:none">
-
-<div class="card">
-<h4>Compound Interest</h4>
-
-<label>Principal</label>
-<input id="p">
-
-<label>Rate</label>
-<input id="r">
-
-<label>Years</label>
-<input id="t">
-
-<button onclick="calcCompound()">Calculate</button>
-<div id="compoundOut"></div>
-</div>
-
-<div class="card">
-<h4>Loan Payment</h4>
-
-<label>Loan Amount</label>
-<input id="lp">
-
-<label>Rate</label>
-<input id="lr">
-
-<label>Months</label>
-<input id="lm">
-
-<button onclick="calcLoan()">Calculate</button>
-<div id="loanOut"></div>
-</div>
-
-</div>
-
-</div>
-
-<div class="ai">
-<h4>Advisor</h4>
-<div id="ai"></div>
 </div>
 
 </div>
 
 <script>
 
-let chart;
+let incomes=[],expenses=[],scenarios=[],chart;
 
 /* NAV */
-function showView(id,el){
-["dashboard","financials","scenarios","tools"].forEach(v=>document.getElementById(v).style.display="none");
-document.getElementById(id).style.display="block";
-document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
-el.classList.add("active");
+function show(v){
+["dashboard","financials","compare"].forEach(x=>document.getElementById(x).style.display="none");
+document.getElementById(v).style.display="block";
 }
 
-/* FREQUENCY */
-function normalize(amount,freq){
-const map={weekly:52,biweekly:26,monthly:12,yearly:1};
-return amount*(map[freq]||1);
+/* ADD INCOME */
+function addIncome(){
+let id=Date.now();
+incomes.push({id,amount:0,freq:"yearly"});
+renderIncome();
 }
 
-/* RANDOM RETURN */
-function rand(mean,std){
-let u=Math.random(),v=Math.random();
-let z=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
-return mean+z*std;
+function renderIncome(){
+incomeList.innerHTML=incomes.map(i=>`
+<div class="row">
+<input placeholder="Amount" oninput="updateIncome(${i.id},this.value)">
+<select onchange="updateIncomeFreq(${i.id},this.value)">
+<option>yearly</option>
+<option>monthly</option>
+<option>biweekly</option>
+</select>
+</div>
+`).join("");
 }
 
-/* SIMULATION */
+/* ADD EXPENSE */
+function addExpense(){
+let id=Date.now();
+expenses.push({id,amount:0,freq:"yearly"});
+renderExpense();
+}
+
+function renderExpense(){
+expenseList.innerHTML=expenses.map(e=>`
+<div class="row">
+<input placeholder="Amount" oninput="updateExpense(${e.id},this.value)">
+<select onchange="updateExpenseFreq(${e.id},this.value)">
+<option>yearly</option>
+<option>monthly</option>
+<option>biweekly</option>
+</select>
+</div>
+`).join("");
+}
+
+/* UPDATE */
+function updateIncome(id,val){
+incomes.find(x=>x.id===id).amount=+val;
+update();
+}
+function updateIncomeFreq(id,val){
+incomes.find(x=>x.id===id).freq=val;
+update();
+}
+function updateExpense(id,val){
+expenses.find(x=>x.id===id).amount=+val;
+update();
+}
+function updateExpenseFreq(id,val){
+expenses.find(x=>x.id===id).freq=val;
+update();
+}
+
+/* NORMALIZE */
+function norm(a,f){
+return a*(f==="monthly"?12:f==="biweekly"?26:1);
+}
+
+/* SIM */
 function simulate(){
 
 let runs=100,results=[],path=[];
 
-for(let i=0;i<runs;i++){
+for(let r=0;r<runs;r++){
 
 let bal=(+cash.value||0)+(+invest.value||0)-(+debt.value||0);
 
-let income=normalize(+incomeInput.value||0,incomeFreq.value);
-let expenses=normalize(+exp.value||0,expFreq.value);
-
-let contrib=(+contrib.value||0);
-let tax=(+taxRate.value||0.22);
-let inf=(+inflation.value||2.5)/100;
-let ret=(+returnRate.value||6)/100;
-
-let depCost=(+depCost.value||0);
-let depYears=(+depYears.value||0);
+let inc=incomes.reduce((t,i)=>t+norm(i.amount,i.freq),0);
+let exp=expenses.reduce((t,e)=>t+norm(e.amount,e.freq),0);
 
 let arr=[];
 
 for(let y=0;y<50;y++){
 
-let ror=rand(ret,0.12);
+let ret=0.06 + (Math.random()-0.5)*0.2;
 
-let inc = (y < (+retAge.value - +age.value)) ? income*(1-tax) : 0;
-
-let dep = y < depYears ? depCost : 0;
-
-let expAdj = expenses*Math.pow(1+inf,y);
-
-bal += bal*ror + inc - expAdj - dep + contrib;
+bal+=bal*ret + inc - exp;
 
 arr.push(bal);
-
 if(bal<=0) break;
 }
 
 results.push(arr.length);
-if(i===0) path=arr;
+if(r===0) path=arr;
 }
 
-let success = results.filter(x=>x>=30).length/runs;
-let median = results.sort()[Math.floor(results.length/2)];
+let success=results.filter(x=>x>=30).length/runs;
 
-return {success,median,path};
+return {success,path};
 }
 
 /* UPDATE */
@@ -292,32 +188,14 @@ function update(){
 
 let sim=simulate();
 
-let total=(+cash.value||0)+(+invest.value||0)-(+debt.value||0);
-let income=normalize(+incomeInput.value||0,incomeFreq.value);
-let expenses=normalize(+exp.value||0,expFreq.value);
+let inc=incomes.reduce((t,i)=>t+norm(i.amount,i.freq),0);
+let exp=expenses.reduce((t,e)=>t+norm(e.amount,e.freq),0);
+let nwVal=(+cash.value||0)+(+invest.value||0)-(+debt.value||0);
 
-netWorth.innerText="$"+total.toLocaleString();
-income.innerText="$"+income.toLocaleString();
-expensesOut.innerText="$"+expenses.toLocaleString();
-
-successRate.innerText=(sim.success*100).toFixed(0)+"%";
-
-fiRatio.innerText=(total/(expenses*25)).toFixed(2);
-savingsRate.innerText=((income-expenses)/income*100).toFixed(1)+"%";
-burnMultiple.innerText=(total/expenses).toFixed(1);
-
-let decision="SAFE";
-if(sim.success<0.8) decision="RISK";
-if(sim.success<0.6) decision="FAIL";
-
-decision.innerText=decision;
-
-summary.innerHTML=`Success ${(sim.success*100).toFixed(1)}% | Median ${sim.median} yrs`;
-
-let aiText=[];
-aiText.push(`Success probability: ${(sim.success*100).toFixed(1)}%`);
-aiText.push("Adjust savings or retirement age to improve outcomes.");
-ai.innerHTML=aiText.join("<br><br>");
+nw.innerText="$"+nwVal.toLocaleString();
+inc.innerText="$"+inc.toLocaleString();
+expOut.innerText="$"+exp.toLocaleString();
+succ.innerText=(sim.success*100).toFixed(0)+"%";
 
 if(chart) chart.destroy();
 chart=new Chart(chart,{
@@ -326,28 +204,23 @@ data:{labels:sim.path.map((_,i)=>i),datasets:[{data:sim.path}]}
 });
 }
 
-/* SCENARIOS */
-function applyScenario(t){
-if(t==="crash") returnRate.value=2;
-if(t==="inflation") inflation.value=5;
-if(t==="jobloss") incomeInput.value=0;
-update();
+/* SAVE SCENARIO */
+function saveScenario(){
+let sim=simulate();
+scenarios.push({success:sim.success});
+renderScenarios();
 }
 
-/* TOOLS */
-function calcCompound(){
-let P=+p.value,r=+r.value/100,tv=+t.value;
-compoundOut.innerText=(P*Math.pow(1+r,tv)).toFixed(0);
-}
-
-function calcLoan(){
-let P=+lp.value,r=+lr.value/100/12,n=+lm.value;
-loanOut.innerText=(P*r/(1-Math.pow(1+r,-n))).toFixed(0);
+function renderScenarios(){
+scenarios.innerHTML=scenarios.map((s,i)=>`
+<div>Scenario ${i+1}: ${(s.success*100).toFixed(1)}%</div>
+`).join("");
 }
 
 /* INIT */
-document.querySelectorAll("input,select").forEach(i=>i.addEventListener("input",update));
-window.onload=update;
+addIncome();
+addExpense();
+document.querySelectorAll("input").forEach(i=>i.addEventListener("input",update));
 
 </script>
 
