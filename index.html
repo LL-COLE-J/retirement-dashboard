@@ -6,137 +6,27 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{
-  margin:0;
-  background:#0B0F1A;
-  color:white;
-  font-family:Inter,Arial;
-  display:flex;
-}
+body{margin:0;background:#0B0F1A;color:white;font-family:Inter,Arial;display:flex}
+.sidebar{width:220px;background:#0F172A;padding:20px}
+.logo{font-size:20px;font-weight:600;margin-bottom:20px}
+.nav-item{padding:12px;border-radius:8px;cursor:pointer;margin-bottom:6px}
+.nav-item:hover{background:#1E293B}
+.main{flex:1;padding:25px}
 
-/* SIDEBAR */
-.sidebar{
-  width:220px;
-  background:#0F172A;
-  padding:20px;
-}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.metric{background:#111827;padding:16px;border-radius:14px}
+.metric-label{font-size:12px;color:#9CA3AF}
+.metric-value{font-size:20px;margin-top:6px}
 
-.logo{
-  font-size:20px;
-  font-weight:600;
-  margin-bottom:20px;
-}
+.modules{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.module{background:#111827;padding:18px;border-radius:16px;cursor:pointer}
+.module:hover{background:#1F2937}
 
-.nav-item{
-  padding:12px;
-  border-radius:8px;
-  cursor:pointer;
-  margin-bottom:6px;
-}
+.chart-card{background:#111827;padding:20px;border-radius:16px;margin-bottom:20px}
+.card{background:#111827;padding:16px;border-radius:14px;margin-bottom:12px}
 
-.nav-item:hover{
-  background:#1E293B;
-}
-
-/* MAIN */
-.main{
-  flex:1;
-  padding:25px;
-}
-
-/* METRICS */
-.metrics{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:12px;
-  margin-bottom:20px;
-}
-
-.metric{
-  background:#111827;
-  padding:16px;
-  border-radius:14px;
-}
-
-.metric-label{
-  font-size:12px;
-  color:#9CA3AF;
-}
-
-.metric-value{
-  font-size:20px;
-  margin-top:6px;
-}
-
-/* MODULE GRID */
-.modules{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:14px;
-}
-
-.module{
-  background:#111827;
-  padding:18px;
-  border-radius:16px;
-  cursor:pointer;
-  transition:0.2s;
-}
-
-.module:hover{
-  transform:translateY(-3px);
-  background:#1F2937;
-}
-
-.module-title{
-  font-size:15px;
-  margin-bottom:6px;
-}
-
-.module-desc{
-  font-size:12px;
-  color:#9CA3AF;
-}
-
-/* CHART */
-.chart-card{
-  background:#111827;
-  padding:20px;
-  border-radius:16px;
-  margin-bottom:20px;
-}
-
-/* FINANCIALS */
-.card{
-  background:#111827;
-  padding:16px;
-  border-radius:14px;
-  margin-bottom:12px;
-}
-
-.row{
-  display:flex;
-  gap:6px;
-  margin-top:6px;
-}
-
-input,select{
-  width:100%;
-  padding:8px;
-  background:#1F2937;
-  color:white;
-  border:none;
-  border-radius:6px;
-}
-
-button{
-  margin-top:10px;
-  padding:8px;
-  background:#3B82F6;
-  color:white;
-  border:none;
-  border-radius:6px;
-}
+input,select{width:100%;padding:8px;background:#1F2937;color:white;border:none;border-radius:6px}
+button{margin-top:10px;padding:8px;background:#3B82F6;color:white;border:none;border-radius:6px}
 </style>
 </head>
 
@@ -150,34 +40,16 @@ button{
 
 <div class="main">
 
-
-<!-- DASHBOARD -->
 <div id="dashboard">
 
-<!-- TOP METRICS -->
 <div class="metrics">
-<div class="metric">
-<div class="metric-label">Net Worth</div>
-<div class="metric-value" id="nw"></div>
+<div class="metric"><div class="metric-label">Net Worth</div><div class="metric-value" id="nw"></div></div>
+<div class="metric"><div class="metric-label">Income</div><div class="metric-value" id="inc"></div></div>
+<div class="metric"><div class="metric-label">Expenses</div><div class="metric-value" id="expOut"></div></div>
+<div class="metric"><div class="metric-label">Success Rate</div><div class="metric-value" id="succ"></div></div>
 </div>
 
-<div class="metric">
-<div class="metric-label">Income</div>
-<div class="metric-value" id="inc"></div>
-</div>
-
-<div class="metric">
-<div class="metric-label">Expenses</div>
-<div class="metric-value" id="expOut"></div>
-</div>
-
-<div class="metric">
-<div class="metric-label">Success Rate</div>
-<div class="metric-value" id="succ"></div>
-</div>
-</div>
-
-  <div id="moduleView" style="display:none">
+<div id="moduleView" style="display:none">
 <div class="card">
 <h2 id="moduleTitle"></h2>
 <div id="moduleContent"></div>
@@ -185,104 +57,36 @@ button{
 </div>
 </div>
 
-<!-- CHART -->
 <div class="chart-card">
 <canvas id="chart"></canvas>
 </div>
 
-<!-- MODULE GRID -->
 <div class="modules">
 
-<div class="module" onclick="openModule(Chance of Success')">
-<div class="module-title">Chance of Success</div>
-<div class="module-desc">Monte Carlo simulation of your plan</div>
-</div>
-
-<div class="module" onclick="openModule('Cash Flow')">
-<div class="module-title">Cash Flow</div>
-<div class="module-desc">Income vs expenses over time</div>
-</div>
-
-<div class="module" onclick="openModule('Spending Breakdown')">
-<div class="module-title">Spending Breakdown</div>
-<div class="module-desc">Where your money is going</div>
-</div>
-
-<div class="module" onclick="openModule('Milestones')">
-<div class="module-title">Milestones</div>
-<div class="module-desc">Track FI, $1M, and key goals</div>
-</div>
-
-<div class="module" onclick="openModule('Tax Analytics')">
-<div class="module-title">Tax Analytics</div>
-<div class="module-desc">Estimated tax impact</div>
-</div>
-
-<div class="module" onclick="openModule('Scenario Compare')">
-<div class="module-title">Scenario Compare</div>
-<div class="module-desc">Compare financial outcomes</div>
-</div>
-
-<!-- COMING SOON -->
-<div class="module">
-<div class="module-title">Tax Optimization</div>
-<div class="module-desc">Coming Soon</div>
-</div>
-
-<div class="module">
-<div class="module-title">Withdrawal Strategy</div>
-<div class="module-desc">Coming Soon</div>
-</div>
-
-<div class="module">
-<div class="module-title">Estate Planning</div>
-<div class="module-desc">Coming Soon</div>
-</div>
+<div class="module" onclick="openModule('Chance of Success')">Chance of Success</div>
+<div class="module" onclick="openModule('Cash Flow')">Cash Flow</div>
+<div class="module" onclick="openModule('Spending Breakdown')">Spending Breakdown</div>
+<div class="module" onclick="openModule('Milestones')">Milestones</div>
+<div class="module" onclick="openModule('Tax Analytics')">Tax Analytics</div>
+<div class="module" onclick="openModule('Scenario Compare')">Scenario Compare</div>
 
 </div>
 
-<!-- INSIGHTS -->
-<div class="card">
-<h4>Insights</h4>
-<div id="milestonesOut"></div>
-</div>
-
-<div class="card">
-<h4>Top Spending</h4>
-<div id="categoryOut"></div>
-</div>
-
+<div class="card"><h4>Insights</h4><div id="milestonesOut"></div></div>
+<div class="card"><h4>Top Spending</h4><div id="categoryOut"></div></div>
 <div class="card" id="taxExplain"></div>
 
 </div>
 
-<!-- FINANCIALS -->
 <div id="financials" style="display:none">
-
-<div class="card">
-<h3>Income</h3>
-<div id="incomeList"></div>
-<button onclick="addIncome()">+ Add</button>
-</div>
-
-<div class="card">
-<h3>Expenses</h3>
-<div id="expenseList"></div>
-<button onclick="addExpense()">+ Add</button>
-</div>
-
-<div class="card">
-<h3>Events</h3>
-<div id="eventList"></div>
-<button onclick="addEvent()">+ Add Event</button>
-</div>
-
+<div class="card"><div id="incomeList"></div><button onclick="addIncome()">+ Income</button></div>
+<div class="card"><div id="expenseList"></div><button onclick="addExpense()">+ Expense</button></div>
+<div class="card"><div id="eventList"></div><button onclick="addEvent()">+ Event</button></div>
 <div class="card">
 <input id="cash" placeholder="Cash">
 <input id="invest" placeholder="Investments">
 <input id="debt" placeholder="Debt">
 </div>
-
 <div class="card">
 <select id="filing">
 <option value="single">Single</option>
@@ -290,7 +94,6 @@ button{
 <option value="head">Head</option>
 </select>
 </div>
-
 </div>
 
 </div>
