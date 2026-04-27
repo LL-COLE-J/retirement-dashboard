@@ -83,6 +83,31 @@ function renderAll(){
   saveProfile();
 }
 
+function clearIncome(){
+  state.incomes = [];
+  renderAll();
+}
+
+function clearExpenses(){
+  state.expenses = [];
+  renderAll();
+}
+
+function clearEvents(){
+  state.events = [];
+  renderAll();
+}
+
+function clearAccounts(){
+  state.accounts = [];
+  renderAll();
+}
+
+function clearDependents(){
+  state.dependents = [];
+  renderAll();
+}
+
 /* =========================
    DASHBOARD
 ========================= */
