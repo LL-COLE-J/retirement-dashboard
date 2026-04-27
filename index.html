@@ -57,6 +57,18 @@ button{margin-top:10px;padding:6px;background:#3B82F6;color:white;border:none}
 </div>
 
 <div class="card">
+<h3>Goals (One-Time)</h3>
+<div id="goalList"></div>
+<button onclick="addGoal()">+ Add Goal</button>
+</div>
+
+<div class="card">
+<h3>Household</h3>
+<input id="age" placeholder="Age">
+<input id="retAge" placeholder="Retirement Age">
+</div>
+
+<div class="card">
 <h3>Assets</h3>
 <input id="cash" placeholder="Cash">
 <input id="invest" placeholder="Investments">
@@ -71,6 +83,7 @@ button{margin-top:10px;padding:6px;background:#3B82F6;color:white;border:none}
 <div class="card">
 <button onclick="saveScenario()">Save Scenario</button>
 <div id="scenarios"></div>
+<div id="delta"></div>
 </div>
 
 </div>
@@ -79,7 +92,7 @@ button{margin-top:10px;padding:6px;background:#3B82F6;color:white;border:none}
 
 <script>
 
-let incomes=[],expenses=[],scenarios=[],chart;
+let incomes=[],expenses=[],goals=[],scenarios=[],chart;
 
 /* NAV */
 function show(v){
@@ -87,10 +100,23 @@ function show(v){
 document.getElementById(v).style.display="block";
 }
 
+/* NORMALIZE */
+function norm(a,f){
+return a*(f==="monthly"?12:f==="biweekly"?26:1);
+}
+
+/* STAGE LOGIC */
+function stage(age){
+if(age<30) return 0.1;
+if(age<50) return 0.2;
+if(age<65) return 0.25;
+return 0;
+}
+
 /* ADD INCOME */
 function addIncome(){
 let id=Date.now();
-incomes.push({id,amount:0,freq:"yearly"});
+incomes.push({id,amount:0,freq:"yearly",cat:"salary"});
 renderIncome();
 }
 
@@ -99,18 +125,18 @@ incomeList.innerHTML=incomes.map(i=>`
 <div class="row">
 <input placeholder="Amount" oninput="updateIncome(${i.id},this.value)">
 <select onchange="updateIncomeFreq(${i.id},this.value)">
-<option>yearly</option>
-<option>monthly</option>
-<option>biweekly</option>
+<option>yearly</option><option>monthly</option><option>biweekly</option>
 </select>
-</div>
-`).join("");
+<select onchange="updateIncomeCat(${i.id},this.value)">
+<option>salary</option><option>bonus</option><option>side</option>
+</select>
+</div>`).join("");
 }
 
 /* ADD EXPENSE */
 function addExpense(){
 let id=Date.now();
-expenses.push({id,amount:0,freq:"yearly"});
+expenses.push({id,amount:0,freq:"yearly",cat:"general"});
 renderExpense();
 }
 
@@ -119,36 +145,40 @@ expenseList.innerHTML=expenses.map(e=>`
 <div class="row">
 <input placeholder="Amount" oninput="updateExpense(${e.id},this.value)">
 <select onchange="updateExpenseFreq(${e.id},this.value)">
-<option>yearly</option>
-<option>monthly</option>
-<option>biweekly</option>
+<option>yearly</option><option>monthly</option><option>biweekly</option>
 </select>
-</div>
-`).join("");
+<select onchange="updateExpenseCat(${e.id},this.value)">
+<option>housing</option><option>food</option><option>lifestyle</option>
+</select>
+</div>`).join("");
 }
 
-/* UPDATE */
-function updateIncome(id,val){
-incomes.find(x=>x.id===id).amount=+val;
-update();
-}
-function updateIncomeFreq(id,val){
-incomes.find(x=>x.id===id).freq=val;
-update();
-}
-function updateExpense(id,val){
-expenses.find(x=>x.id===id).amount=+val;
-update();
-}
-function updateExpenseFreq(id,val){
-expenses.find(x=>x.id===id).freq=val;
-update();
+/* ADD GOAL */
+function addGoal(){
+let id=Date.now();
+goals.push({id,amount:0,year:5});
+renderGoals();
 }
 
-/* NORMALIZE */
-function norm(a,f){
-return a*(f==="monthly"?12:f==="biweekly"?26:1);
+function renderGoals(){
+goalList.innerHTML=goals.map(g=>`
+<div class="row">
+<input placeholder="Amount" oninput="updateGoal(${g.id},this.value)">
+<input placeholder="Year" oninput="updateGoalYear(${g.id},this.value)">
+</div>`).join("");
 }
+
+/* UPDATERS */
+function updateIncome(id,val){incomes.find(x=>x.id===id).amount=+val;update();}
+function updateIncomeFreq(id,val){incomes.find(x=>x.id===id).freq=val;update();}
+function updateIncomeCat(id,val){incomes.find(x=>x.id===id).cat=val;}
+
+function updateExpense(id,val){expenses.find(x=>x.id===id).amount=+val;update();}
+function updateExpenseFreq(id,val){expenses.find(x=>x.id===id).freq=val;update();}
+function updateExpenseCat(id,val){expenses.find(x=>x.id===id).cat=val;}
+
+function updateGoal(id,val){goals.find(x=>x.id===id).amount=+val;}
+function updateGoalYear(id,val){goals.find(x=>x.id===id).year=+val;}
 
 /* SIM */
 function simulate(){
@@ -158,7 +188,6 @@ let runs=100,results=[],path=[];
 for(let r=0;r<runs;r++){
 
 let bal=(+cash.value||0)+(+invest.value||0)-(+debt.value||0);
-
 let inc=incomes.reduce((t,i)=>t+norm(i.amount,i.freq),0);
 let exp=expenses.reduce((t,e)=>t+norm(e.amount,e.freq),0);
 
@@ -166,9 +195,19 @@ let arr=[];
 
 for(let y=0;y<50;y++){
 
+let ageNow=(+age.value||40)+y;
+let saveRate=stage(ageNow);
+
 let ret=0.06 + (Math.random()-0.5)*0.2;
 
-bal+=bal*ret + inc - exp;
+let contrib = inc * saveRate;
+
+bal+=bal*ret + inc - exp + contrib;
+
+// goals
+goals.forEach(g=>{
+if(g.year===y) bal-=g.amount;
+});
 
 arr.push(bal);
 if(bal<=0) break;
@@ -179,7 +218,6 @@ if(r===0) path=arr;
 }
 
 let success=results.filter(x=>x>=30).length/runs;
-
 return {success,path};
 }
 
@@ -198,28 +236,38 @@ expOut.innerText="$"+exp.toLocaleString();
 succ.innerText=(sim.success*100).toFixed(0)+"%";
 
 if(chart) chart.destroy();
-chart=new Chart(chart,{
-type:'line',
-data:{labels:sim.path.map((_,i)=>i),datasets:[{data:sim.path}]}
-});
+chart=new Chart(chart,{type:'line',data:{labels:sim.path.map((_,i)=>i),datasets:[{data:sim.path}]}});
+
 }
 
-/* SAVE SCENARIO */
+/* SCENARIO SAVE */
 function saveScenario(){
 let sim=simulate();
 scenarios.push({success:sim.success});
 renderScenarios();
 }
 
+/* DELTA ENGINE */
 function renderScenarios(){
+
 scenarios.innerHTML=scenarios.map((s,i)=>`
 <div>Scenario ${i+1}: ${(s.success*100).toFixed(1)}%</div>
 `).join("");
+
+if(scenarios.length>=2){
+let base=scenarios[0].success;
+let last=scenarios[scenarios.length-1].success;
+let diff=((last-base)*100).toFixed(1);
+
+delta.innerHTML=`Δ Change vs Base: ${diff}%`;
+}
+
 }
 
 /* INIT */
 addIncome();
 addExpense();
+addGoal();
 document.querySelectorAll("input").forEach(i=>i.addEventListener("input",update));
 
 </script>
