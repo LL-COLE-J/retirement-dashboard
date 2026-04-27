@@ -6,51 +6,180 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{margin:0;background:#0B0F1A;color:white;font-family:Inter,Arial;display:flex}
-.sidebar{width:220px;background:#0F172A;padding:20px}
-.logo{font-size:20px;font-weight:600;margin-bottom:20px}
-.nav-item{padding:12px;border-radius:8px;cursor:pointer;margin-bottom:6px}
-.nav-item:hover{background:#1E293B}
-.main{flex:1;padding:25px}
 
-/* METRICS */
-.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
-.metric{background:#111827;padding:16px;border-radius:14px}
-.metric-label{font-size:12px;color:#9CA3AF}
-.metric-value{font-size:20px;margin-top:6px}
+/* =========================
+   BASE
+========================= */
+body{
+margin:0;
+background:#0B0F1A;
+color:#E5E7EB;
+font-family:Inter, system-ui;
+display:flex;
+}
 
-/* CHART */
-.chart-card{background:#111827;padding:20px;border-radius:16px;margin-bottom:20px}
+/* =========================
+   SIDEBAR
+========================= */
+.sidebar{
+width:220px;
+background:#0F172A;
+padding:24px 16px;
+border-right:1px solid #1F2937;
+}
 
-/* MODULES */
-.modules{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
-.module{background:#111827;padding:18px;border-radius:16px;cursor:pointer}
-.module:hover{background:#1F2937}
+.logo{
+font-size:20px;
+font-weight:600;
+margin-bottom:30px;
+color:#F9FAFB;
+}
 
-/* CARDS */
-.card{background:#111827;padding:16px;border-radius:14px;margin-bottom:14px}
+.nav-item{
+padding:12px 14px;
+border-radius:10px;
+cursor:pointer;
+margin-bottom:6px;
+color:#9CA3AF;
+}
 
-/* FORM GRID */
-.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-
-input,select{
-width:100%;
-padding:10px;
+.nav-item:hover{
 background:#1F2937;
 color:white;
-border:none;
-border-radius:8px;
 }
 
+/* =========================
+   MAIN
+========================= */
+.main{
+flex:1;
+padding:28px;
+max-width:1200px;
+margin:auto;
+}
+
+/* =========================
+   METRICS
+========================= */
+.metrics{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:16px;
+margin-bottom:24px;
+}
+
+.metric{
+background:#111827;
+padding:18px;
+border-radius:16px;
+}
+
+.metric-label{
+font-size:12px;
+color:#6B7280;
+}
+
+.metric-value{
+font-size:22px;
+margin-top:6px;
+font-weight:500;
+color:#F9FAFB;
+}
+
+/* =========================
+   CARDS
+========================= */
+.card{
+background:#111827;
+padding:20px;
+border-radius:16px;
+margin-bottom:20px;
+}
+
+.card h3{
+margin-top:0;
+font-weight:500;
+}
+
+/* =========================
+   CHART
+========================= */
+.chart-card{
+background:#111827;
+padding:20px;
+border-radius:16px;
+margin-bottom:24px;
+}
+
+/* =========================
+   MODULE GRID
+========================= */
+.modules{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:16px;
+margin-bottom:24px;
+}
+
+.module{
+background:#111827;
+padding:18px;
+border-radius:16px;
+cursor:pointer;
+transition:0.2s;
+}
+
+.module:hover{
+background:#1F2937;
+transform:translateY(-2px);
+}
+
+/* =========================
+   INPUTS
+========================= */
+.row{
+display:grid;
+grid-template-columns:1fr 140px 160px;
+gap:10px;
+margin-bottom:10px;
+}
+
+input, select{
+width:100%;
+padding:12px;
+background:#0F172A;
+border:1px solid #1F2937;
+color:white;
+border-radius:10px;
+outline:none;
+}
+
+input::placeholder{
+color:#6B7280;
+}
+
+input:focus, select:focus{
+border-color:#3B82F6;
+}
+
+/* =========================
+   BUTTON
+========================= */
 button{
 margin-top:10px;
-padding:10px;
-background:#3B82F6;
+padding:10px 14px;
+background:#2563EB;
 color:white;
 border:none;
-border-radius:8px;
+border-radius:10px;
 cursor:pointer;
+font-weight:500;
 }
+
+button:hover{
+background:#1D4ED8;
+}
+
 </style>
 </head>
 
@@ -65,21 +194,14 @@ cursor:pointer;
 <div class="main">
 
 <!-- DASHBOARD -->
-  <div id="moduleView" style="display:none">
-  <div class="card">
-    <h2 id="moduleTitle"></h2>
-    <div id="moduleContent"></div>
-    <button onclick="show('dashboard')">← Back</button>
-  </div>
-</div>
 <div id="dashboard">
 
 <div class="metrics">
-<div class="metric"><div class="metric-label">Net Worth</div><div id="nw"></div></div>
-<div class="metric"><div class="metric-label">Income</div><div id="inc"></div></div>
-<div class="metric"><div class="metric-label">Expenses</div><div id="expOut"></div></div>
-<div class="metric"><div class="metric-label">Savings Rate</div><div id="saveRate"></div></div>
-<div class="metric"><div class="metric-label">Success</div><div id="succ"></div></div>
+<div class="metric"><div class="metric-label">Net Worth</div><div id="nw" class="metric-value"></div></div>
+<div class="metric"><div class="metric-label">Income</div><div id="inc" class="metric-value"></div></div>
+<div class="metric"><div class="metric-label">Expenses</div><div id="expOut" class="metric-value"></div></div>
+<div class="metric"><div class="metric-label">Savings Rate</div><div id="saveRate" class="metric-value"></div></div>
+<div class="metric"><div class="metric-label">Success</div><div id="succ" class="metric-value"></div></div>
 </div>
 
 <div class="chart-card">
@@ -92,12 +214,12 @@ cursor:pointer;
 <div class="module" onclick="openModule('Spending Breakdown')">Spending Breakdown</div>
 <div class="module" onclick="openModule('Milestones')">Milestones</div>
 <div class="module" onclick="openModule('Tax Analytics')">Tax Analytics</div>
-<div class="module" onclick="openModule('Scenario Compare')">Scenario Compare</div>
+<div class="module">Scenario Compare</div>
 </div>
 
-<div class="card"><h4>AI Insights</h4><div id="milestonesOut"></div></div>
-<div class="card"><h4>Top Spending</h4><div id="categoryOut"></div></div>
-<div class="card" id="taxExplain"></div>
+<div class="card"><h3>AI Insights</h3><div id="milestonesOut"></div></div>
+<div class="card"><h3>Top Spending</h3><div id="categoryOut"></div></div>
+<div class="card"><h3>Tax</h3><div id="taxExplain"></div></div>
 
 </div>
 
@@ -107,32 +229,309 @@ cursor:pointer;
 <div class="card">
 <h3>Income</h3>
 <div id="incomeList"></div>
-<button onclick="addIncome()">+ Income</button>
+<button onclick="addIncome()">+ Add Income</button>
 </div>
 
 <div class="card">
 <h3>Expenses</h3>
 <div id="expenseList"></div>
-<button onclick="addExpense()">+ Expense</button>
+<button onclick="addExpense()">+ Add Expense</button>
 </div>
 
 <div class="card">
 <h3>Events</h3>
 <div id="eventList"></div>
-<button onclick="addEvent()">+ Event</button>
+<button onclick="addEvent()">+ Add Event</button>
 </div>
 
-<div class="card form-grid">
+<div class="card">
+<h3>Assets & Debt</h3>
+<div class="row">
 <input id="cash" placeholder="Cash">
 <input id="invest" placeholder="Investments">
 <input id="debt" placeholder="Debt">
 </div>
+</div>
 
 <div class="card">
+<h3>Tax Profile</h3>
 <select id="filing">
 <option value="single">Single</option>
-<option value="married_joint">Married Joint</option>
-<option value="head">Head</option>
+<option value="married_joint">Married Filing Jointly</option>
+<option value="head">Head of Household</option>
+</select>
+</div>
+
+</div>
+
+</div>
+
+<script src="modules.js"></script>
+<script src="engine.js"></script>
+<script src="ui.js"></script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Avora</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+/* =========================
+   BASE
+========================= */
+body{
+margin:0;
+background:#0B0F1A;
+color:#E5E7EB;
+font-family:Inter, system-ui;
+display:flex;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+.sidebar{
+width:220px;
+background:#0F172A;
+padding:24px 16px;
+border-right:1px solid #1F2937;
+}
+
+.logo{
+font-size:20px;
+font-weight:600;
+margin-bottom:30px;
+color:#F9FAFB;
+}
+
+.nav-item{
+padding:12px 14px;
+border-radius:10px;
+cursor:pointer;
+margin-bottom:6px;
+color:#9CA3AF;
+}
+
+.nav-item:hover{
+background:#1F2937;
+color:white;
+}
+
+/* =========================
+   MAIN
+========================= */
+.main{
+flex:1;
+padding:28px;
+max-width:1200px;
+margin:auto;
+}
+
+/* =========================
+   METRICS
+========================= */
+.metrics{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:16px;
+margin-bottom:24px;
+}
+
+.metric{
+background:#111827;
+padding:18px;
+border-radius:16px;
+}
+
+.metric-label{
+font-size:12px;
+color:#6B7280;
+}
+
+.metric-value{
+font-size:22px;
+margin-top:6px;
+font-weight:500;
+color:#F9FAFB;
+}
+
+/* =========================
+   CARDS
+========================= */
+.card{
+background:#111827;
+padding:20px;
+border-radius:16px;
+margin-bottom:20px;
+}
+
+.card h3{
+margin-top:0;
+font-weight:500;
+}
+
+/* =========================
+   CHART
+========================= */
+.chart-card{
+background:#111827;
+padding:20px;
+border-radius:16px;
+margin-bottom:24px;
+}
+
+/* =========================
+   MODULE GRID
+========================= */
+.modules{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:16px;
+margin-bottom:24px;
+}
+
+.module{
+background:#111827;
+padding:18px;
+border-radius:16px;
+cursor:pointer;
+transition:0.2s;
+}
+
+.module:hover{
+background:#1F2937;
+transform:translateY(-2px);
+}
+
+/* =========================
+   INPUTS
+========================= */
+.row{
+display:grid;
+grid-template-columns:1fr 140px 160px;
+gap:10px;
+margin-bottom:10px;
+}
+
+input, select{
+width:100%;
+padding:12px;
+background:#0F172A;
+border:1px solid #1F2937;
+color:white;
+border-radius:10px;
+outline:none;
+}
+
+input::placeholder{
+color:#6B7280;
+}
+
+input:focus, select:focus{
+border-color:#3B82F6;
+}
+
+/* =========================
+   BUTTON
+========================= */
+button{
+margin-top:10px;
+padding:10px 14px;
+background:#2563EB;
+color:white;
+border:none;
+border-radius:10px;
+cursor:pointer;
+font-weight:500;
+}
+
+button:hover{
+background:#1D4ED8;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+<div class="logo">AVORA</div>
+<div class="nav-item" onclick="show('dashboard')">Dashboard</div>
+<div class="nav-item" onclick="show('financials')">Financials</div>
+</div>
+
+<div class="main">
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+
+<div class="metrics">
+<div class="metric"><div class="metric-label">Net Worth</div><div id="nw" class="metric-value"></div></div>
+<div class="metric"><div class="metric-label">Income</div><div id="inc" class="metric-value"></div></div>
+<div class="metric"><div class="metric-label">Expenses</div><div id="expOut" class="metric-value"></div></div>
+<div class="metric"><div class="metric-label">Savings Rate</div><div id="saveRate" class="metric-value"></div></div>
+<div class="metric"><div class="metric-label">Success</div><div id="succ" class="metric-value"></div></div>
+</div>
+
+<div class="chart-card">
+<canvas id="chart"></canvas>
+</div>
+
+<div class="modules">
+<div class="module" onclick="openModule('Chance of Success')">Chance of Success</div>
+<div class="module" onclick="openModule('Cash Flow')">Cash Flow</div>
+<div class="module" onclick="openModule('Spending Breakdown')">Spending Breakdown</div>
+<div class="module" onclick="openModule('Milestones')">Milestones</div>
+<div class="module" onclick="openModule('Tax Analytics')">Tax Analytics</div>
+<div class="module">Scenario Compare</div>
+</div>
+
+<div class="card"><h3>AI Insights</h3><div id="milestonesOut"></div></div>
+<div class="card"><h3>Top Spending</h3><div id="categoryOut"></div></div>
+<div class="card"><h3>Tax</h3><div id="taxExplain"></div></div>
+
+</div>
+
+<!-- FINANCIALS -->
+<div id="financials" style="display:none">
+
+<div class="card">
+<h3>Income</h3>
+<div id="incomeList"></div>
+<button onclick="addIncome()">+ Add Income</button>
+</div>
+
+<div class="card">
+<h3>Expenses</h3>
+<div id="expenseList"></div>
+<button onclick="addExpense()">+ Add Expense</button>
+</div>
+
+<div class="card">
+<h3>Events</h3>
+<div id="eventList"></div>
+<button onclick="addEvent()">+ Add Event</button>
+</div>
+
+<div class="card">
+<h3>Assets & Debt</h3>
+<div class="row">
+<input id="cash" placeholder="Cash">
+<input id="invest" placeholder="Investments">
+<input id="debt" placeholder="Debt">
+</div>
+</div>
+
+<div class="card">
+<h3>Tax Profile</h3>
+<select id="filing">
+<option value="single">Single</option>
+<option value="married_joint">Married Filing Jointly</option>
+<option value="head">Head of Household</option>
 </select>
 </div>
 
