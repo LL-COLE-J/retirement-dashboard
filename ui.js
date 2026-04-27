@@ -1,47 +1,4 @@
-var chart;
-
-/* =========================
-   ADDERS
-========================= */
-function addAccount(){
-  state.accounts.push({type:"brokerage",balance:0,contrib:0});
-  renderAll();
-}
-
-function addDependent(){
-  state.dependents.push({age:5,cost:10000});
-  renderAll();
-}
-
-function addIncome(){
-  state.incomes.push({amount:0,freq:"yearly"});
-  renderAll();
-}
-
-function addExpense(){
-  state.expenses.push({amount:0,freq:"yearly",cat:"housing"});
-  renderAll();
-}
-
-function addEvent(){
-  state.events.push({year:5,type:"expense",value:10000});
-  renderAll();
-}
-
-function manualSave(){
-  saveProfile();
-  alert("Profile Saved");
-}
-
-function manualLoad(){
-  loadProfile();
-  renderAll();
-  alert("Profile Loaded");
-}
-function openModule(name){
-  document.getElementById("milestonesOut").innerText =
-    name + " coming soon";
-}
+let chart;
 
 /* =========================
    NAVIGATION
@@ -83,6 +40,64 @@ function loadProfile(){
 }
 
 /* =========================
+   ADDERS
+========================= */
+function addIncome(){
+  state.incomes.push({amount:0,freq:"yearly"});
+  renderAll();
+}
+
+function addExpense(){
+  state.expenses.push({amount:0,freq:"yearly",cat:"housing"});
+  renderAll();
+}
+
+function addAccount(){
+  state.accounts.push({type:"brokerage",balance:0,contrib:0});
+  renderAll();
+}
+
+function addDependent(){
+  state.dependents.push({age:5,cost:10000});
+  renderAll();
+}
+
+function addEvent(){
+  state.events.push({year:5,type:"expense",value:10000});
+  renderAll();
+}
+
+/* =========================
+   CLEAR
+========================= */
+function clearIncome(){ state.incomes = []; renderAll(); }
+function clearExpenses(){ state.expenses = []; renderAll(); }
+function clearAccounts(){ state.accounts = []; renderAll(); }
+function clearDependents(){ state.dependents = []; renderAll(); }
+
+/* =========================
+   SAVE / LOAD
+========================= */
+function manualSave(){
+  saveProfile();
+  alert("Profile Saved");
+}
+
+function manualLoad(){
+  loadProfile();
+  renderAll();
+  alert("Profile Loaded");
+}
+
+/* =========================
+   MODULE CLICK
+========================= */
+function openModule(name){
+  document.getElementById("milestonesOut").innerText =
+    name + " coming soon";
+}
+
+/* =========================
    FORMAT
 ========================= */
 function money(n){
@@ -98,31 +113,6 @@ function renderAll(){
   saveProfile();
 }
 
-function clearIncome(){
-  state.incomes = [];
-  renderAll();
-}
-
-function clearExpenses(){
-  state.expenses = [];
-  renderAll();
-}
-
-function clearEvents(){
-  state.events = [];
-  renderAll();
-}
-
-function clearAccounts(){
-  state.accounts = [];
-  renderAll();
-}
-
-function clearDependents(){
-  state.dependents = [];
-  renderAll();
-}
-
 /* =========================
    DASHBOARD
 ========================= */
@@ -135,11 +125,9 @@ function renderDashboard(){
   document.getElementById("expOut").innerText = money(d.expenses);
   document.getElementById("saveRate").innerText = d.savingsRate.toFixed(1)+"%";
 
-  // FIXED (only once)
   document.getElementById("succ").innerText =
     d.net > 0 ? "Surplus" : "Deficit";
 
-  // NEW: savings insight
   if(document.getElementById("savingsOut")){
     document.getElementById("savingsOut").innerText =
       "Annual Savings: " + money(d.totalSavings || 0);
@@ -173,89 +161,75 @@ function renderDashboard(){
 ========================= */
 function renderFinancials(){
 
-  /* =========================
-     INCOME
-  ========================= */
-  const incDiv = document.getElementById("incomeList");
+  /* INCOME */
+  document.getElementById("incomeList").innerHTML =
+    state.incomes.map((i,idx)=>`
+      <div class="row">
+        <input value="${i.amount}"
+          oninput="state.incomes[${idx}].amount=this.value"
+          onblur="state.incomes[${idx}].amount=+this.value;renderAll()">
 
-  incDiv.innerHTML = state.incomes.map((i,idx)=>`
-    <div class="row">
-      <input placeholder="Amount" value="${i.amount}"
-        oninput="state.incomes[${idx}].amount=this.value"
-        onblur="state.incomes[${idx}].amount=+this.value;renderAll()">
+        <select onchange="state.incomes[${idx}].freq=this.value;renderAll()">
+          <option ${i.freq==="yearly"?"selected":""}>yearly</option>
+          <option ${i.freq==="monthly"?"selected":""}>monthly</option>
+        </select>
+      </div>
+    `).join("");
 
-      <select onchange="state.incomes[${idx}].freq=this.value;renderAll()">
-        <option ${i.freq==="yearly"?"selected":""}>yearly</option>
-        <option ${i.freq==="monthly"?"selected":""}>monthly</option>
-      </select>
-    </div>
-  `).join("");
+  /* EXPENSES */
+  document.getElementById("expenseList").innerHTML =
+    state.expenses.map((e,idx)=>`
+      <div class="row">
+        <input value="${e.amount}"
+          oninput="state.expenses[${idx}].amount=this.value"
+          onblur="state.expenses[${idx}].amount=+this.value;renderAll()">
 
-  /* =========================
-     EXPENSES
-  ========================= */
-  const expDiv = document.getElementById("expenseList");
+        <select onchange="state.expenses[${idx}].freq=this.value;renderAll()">
+          <option ${e.freq==="yearly"?"selected":""}>yearly</option>
+          <option ${e.freq==="monthly"?"selected":""}>monthly</option>
+        </select>
 
-  expDiv.innerHTML = state.expenses.map((e,idx)=>`
-    <div class="row">
-      <input placeholder="Amount" value="${e.amount}"
-        oninput="state.expenses[${idx}].amount=this.value"
-        onblur="state.expenses[${idx}].amount=+this.value;renderAll()">
+        <select onchange="state.expenses[${idx}].cat=this.value;renderAll()">
+          <option ${e.cat==="housing"?"selected":""}>housing</option>
+          <option ${e.cat==="food"?"selected":""}>food</option>
+          <option ${e.cat==="transport"?"selected":""}>transport</option>
+          <option ${e.cat==="insurance"?"selected":""}>insurance</option>
+          <option ${e.cat==="lifestyle"?"selected":""}>lifestyle</option>
+        </select>
+      </div>
+    `).join("");
 
-      <select onchange="state.expenses[${idx}].freq=this.value;renderAll()">
-        <option ${e.freq==="yearly"?"selected":""}>yearly</option>
-        <option ${e.freq==="monthly"?"selected":""}>monthly</option>
-      </select>
+  /* ACCOUNTS */
+  document.getElementById("accountList").innerHTML =
+    state.accounts.map((a,idx)=>`
+      <div class="row">
+        <input value="${a.type}"
+          oninput="state.accounts[${idx}].type=this.value">
 
-      <select onchange="state.expenses[${idx}].cat=this.value;renderAll()">
-        <option ${e.cat==="housing"?"selected":""}>housing</option>
-        <option ${e.cat==="food"?"selected":""}>food</option>
-        <option ${e.cat==="transport"?"selected":""}>transport</option>
-        <option ${e.cat==="insurance"?"selected":""}>insurance</option>
-        <option ${e.cat==="lifestyle"?"selected":""}>lifestyle</option>
-      </select>
-    </div>
-  `).join("");
+        <input value="${a.balance}"
+          oninput="state.accounts[${idx}].balance=this.value"
+          onblur="state.accounts[${idx}].balance=+this.value;renderAll()">
 
-  /* =========================
-     ACCOUNTS
-  ========================= */
-  const accDiv = document.getElementById("accountList");
+        <input value="${a.contrib||0}"
+          oninput="state.accounts[${idx}].contrib=this.value"
+          onblur="state.accounts[${idx}].contrib=+this.value;renderAll()">
+      </div>
+    `).join("");
 
-  accDiv.innerHTML = state.accounts.map((a,idx)=>`
-    <div class="row">
-      <input placeholder="Type (401k, roth...)" value="${a.type}"
-        oninput="state.accounts[${idx}].type=this.value">
+  /* DEPENDENTS */
+  document.getElementById("dependentList").innerHTML =
+    state.dependents.map((d,idx)=>`
+      <div class="row">
+        <input value="${d.age}"
+          oninput="state.dependents[${idx}].age=this.value">
 
-      <input placeholder="Balance" value="${a.balance}"
-        oninput="state.accounts[${idx}].balance=this.value"
-        onblur="state.accounts[${idx}].balance=+this.value;renderAll()">
+        <input value="${d.cost}"
+          oninput="state.dependents[${idx}].cost=this.value"
+          onblur="state.dependents[${idx}].cost=+this.value;renderAll()">
+      </div>
+    `).join("");
 
-      <input placeholder="Annual Contribution" value="${a.contrib||0}"
-        oninput="state.accounts[${idx}].contrib=this.value"
-        onblur="state.accounts[${idx}].contrib=+this.value;renderAll()">
-    </div>
-  `).join("");
-
-  /* =========================
-     DEPENDENTS
-  ========================= */
-  const depDiv = document.getElementById("dependentList");
-
-  depDiv.innerHTML = state.dependents.map((d,idx)=>`
-    <div class="row">
-      <input placeholder="Age" value="${d.age}"
-        oninput="state.dependents[${idx}].age=this.value">
-
-      <input placeholder="Annual Cost" value="${d.cost}"
-        oninput="state.dependents[${idx}].cost=this.value"
-        onblur="state.dependents[${idx}].cost=+this.value;renderAll()">
-    </div>
-  `).join("");
-
-  /* =========================
-     ASSETS
-  ========================= */
+  /* ASSETS */
   const cash = document.getElementById("cash");
   const invest = document.getElementById("invest");
   const debt = document.getElementById("debt");
@@ -265,24 +239,11 @@ function renderFinancials(){
   debt.value = state.assets.debt || "";
 
   cash.oninput = e => state.assets.cash = e.target.value;
-  cash.onblur  = e => { state.assets.cash = +e.target.value; renderAll(); };
+  cash.onblur = e => { state.assets.cash = +e.target.value; renderAll(); };
 
   invest.oninput = e => state.assets.invest = e.target.value;
-  invest.onblur  = e => { state.assets.invest = +e.target.value; renderAll(); };
+  invest.onblur = e => { state.assets.invest = +e.target.value; renderAll(); };
 
   debt.oninput = e => state.assets.debt = e.target.value;
-  debt.onblur  = e => { state.assets.debt = +e.target.value; renderAll(); };
-
-  /* =========================
-     TAX
-  ========================= */
- const filing = document.getElementById("filing");
-
-if(filing){
-  filing.value = state.filing;
-  filing.onchange = e => {
-    state.filing = e.target.value;
-    renderAll();
-  };
-}
+  debt.onblur = e => { state.assets.debt = +e.target.value; renderAll(); };
 }
