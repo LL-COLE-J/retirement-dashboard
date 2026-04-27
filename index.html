@@ -6,15 +6,86 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{background:#0B0F1A;color:white;font-family:Arial;display:flex}
-.sidebar{width:200px;background:#111;padding:20px}
-.nav-item{padding:10px;cursor:pointer}
-.main{flex:1;padding:20px}
-.card{background:#1a1a1a;padding:15px;margin-bottom:10px;border-radius:10px}
-input,select{width:100%;margin-top:5px;padding:6px;background:#222;color:white;border:none}
-button{margin-top:10px;padding:6px;background:#3B82F6;color:white;border:none}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.row{display:flex;gap:5px;margin-top:5px}
+body{
+  background:#0B0F1A;
+  color:white;
+  font-family:Inter,Arial;
+  display:flex;
+  margin:0;
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:220px;
+  background:#0F172A;
+  padding:20px;
+}
+
+.nav-item{
+  padding:12px;
+  border-radius:8px;
+  cursor:pointer;
+  margin-bottom:6px;
+}
+
+.nav-item:hover{
+  background:#1E293B;
+}
+
+/* MAIN */
+.main{
+  flex:1;
+  padding:20px;
+}
+
+/* CARDS */
+.card{
+  background:#111827;
+  padding:16px;
+  margin-bottom:14px;
+  border-radius:14px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.35);
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+
+/* INPUTS */
+input,select{
+  width:100%;
+  margin-top:5px;
+  padding:8px;
+  background:#1F2937;
+  color:white;
+  border:none;
+  border-radius:6px;
+}
+
+/* BUTTON */
+button{
+  margin-top:10px;
+  padding:8px;
+  background:#3B82F6;
+  color:white;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.row{
+  display:flex;
+  gap:6px;
+  margin-top:6px;
+}
+
+.small{
+  font-size:12px;
+  color:#9CA3AF;
+}
 </style>
 </head>
 
@@ -30,14 +101,30 @@ button{margin-top:10px;padding:6px;background:#3B82F6;color:white;border:none}
 
 <!-- DASHBOARD -->
 <div id="dashboard">
+
 <div class="grid">
 <div class="card">Net Worth<div id="nw"></div></div>
 <div class="card">Income<div id="inc"></div></div>
 <div class="card">Expenses<div id="expOut"></div></div>
 <div class="card">Success %<div id="succ"></div></div>
 </div>
+
+<div class="card">
 <canvas id="chart"></canvas>
-<div id="taxExplain"></div>
+</div>
+
+<div class="card">
+<h4>Milestones</h4>
+<div id="milestonesOut"></div>
+</div>
+
+<div class="card">
+<h4>Top Spending Categories</h4>
+<div id="categoryOut"></div>
+</div>
+
+<div class="card" id="taxExplain"></div>
+
 </div>
 
 <!-- FINANCIALS -->
@@ -63,8 +150,9 @@ button{margin-top:10px;padding:6px;background:#3B82F6;color:white;border:none}
 </div>
 
 <div class="card">
-<h3>Household</h3>
-<input id="age" placeholder="Age">
+<h3>Timeline Events</h3>
+<div id="eventList"></div>
+<button onclick="addEvent()">+ Add Event</button>
 </div>
 
 <div class="card">
@@ -78,8 +166,8 @@ button{margin-top:10px;padding:6px;background:#3B82F6;color:white;border:none}
 <h3>Tax</h3>
 <select id="filing">
 <option value="single">Single</option>
-<option value="married_joint">Married Filing Jointly</option>
-<option value="married_separate">Married Filing Separately</option>
+<option value="married_joint">Married Joint</option>
+<option value="married_separate">Married Separate</option>
 <option value="head">Head of Household</option>
 </select>
 </div>
@@ -100,7 +188,7 @@ button{margin-top:10px;padding:6px;background:#3B82F6;color:white;border:none}
 <script>
 
 /* ===== STATE ===== */
-let incomes=[],expenses=[],scenarios=[],chart;
+let incomes=[],expenses=[],events=[],scenarios=[],chart;
 
 /* ===== NAV ===== */
 function show(v){
@@ -113,9 +201,8 @@ function norm(a,f){
 return a*(f==="monthly"?12:f==="biweekly"?26:1);
 }
 
-/* ===== TAX ENGINE ===== */
+/* ===== TAX ===== */
 function calcTax(income, filing){
-
 let brackets={
 single:[[10000,0.1],[40000,0.12],[85000,0.22],[160000,0.24]],
 married_joint:[[20000,0.1],[80000,0.12],[170000,0.22],[320000,0.24]],
@@ -135,79 +222,84 @@ tax+=(income-prev)*rate;
 break;
 }
 }
-
 return tax;
 }
 
-/* ===== ADD INCOME (NO RESET BUG FIXED) ===== */
+/* ===== INCOME ===== */
 function addIncome(){
-incomes.push({id:Date.now(),amount:0,freq:"yearly",cat:"salary"});
+incomes.push({id:Date.now(),amount:0,freq:"yearly"});
 renderIncome();
 }
 
-/* ===== RENDER INCOME (PRESERVES VALUES) ===== */
 function renderIncome(){
 incomeList.innerHTML=incomes.map(i=>`
 <div class="row">
-<input value="${i.amount}" placeholder="Amount" 
-oninput="iUpdate(${i.id},this.value)">
+<input value="${i.amount}" placeholder="Amount" oninput="iUpdate(${i.id},this.value)">
 <select onchange="iFreq(${i.id},this.value)">
 <option ${i.freq==="yearly"?"selected":""}>yearly</option>
 <option ${i.freq==="monthly"?"selected":""}>monthly</option>
 <option ${i.freq==="biweekly"?"selected":""}>biweekly</option>
 </select>
-<select onchange="iCat(${i.id},this.value)">
-<option ${i.cat==="salary"?"selected":""}>salary</option>
-<option ${i.cat==="bonus"?"selected":""}>bonus</option>
-<option ${i.cat==="side"?"selected":""}>side</option>
-<option ${i.cat==="rental"?"selected":""}>rental</option>
-<option ${i.cat==="dividends"?"selected":""}>dividends</option>
-</select>
 </div>`).join("");
 }
 
-/* ===== ADD EXPENSE ===== */
+/* ===== EXPENSE ===== */
 function addExpense(){
 expenses.push({id:Date.now(),amount:0,freq:"yearly",cat:"housing"});
 renderExpense();
 }
 
-/* ===== EXPANDED CATEGORIES ===== */
 function renderExpense(){
 expenseList.innerHTML=expenses.map(e=>`
 <div class="row">
-<input value="${e.amount}" placeholder="Amount" 
-oninput="eUpdate(${e.id},this.value)">
+<input value="${e.amount}" oninput="eUpdate(${e.id},this.value)">
 <select onchange="eFreq(${e.id},this.value)">
-<option ${e.freq==="yearly"?"selected":""}>yearly</option>
-<option ${e.freq==="monthly"?"selected":""}>monthly</option>
-<option ${e.freq==="biweekly"?"selected":""}>biweekly</option>
+<option>yearly</option>
+<option>monthly</option>
+<option>biweekly</option>
 </select>
 <select onchange="eCat(${e.id},this.value)">
 <option>housing</option>
-<option>utilities</option>
 <option>food</option>
-<option>transportation</option>
+<option>transport</option>
 <option>insurance</option>
 <option>healthcare</option>
 <option>debt</option>
 <option>entertainment</option>
 <option>travel</option>
-<option>shopping</option>
 <option>kids</option>
 <option>other</option>
 </select>
 </div>`).join("");
 }
 
-/* ===== UPDATERS ===== */
+/* ===== EVENTS ===== */
+function addEvent(){
+events.push({id:Date.now(),year:5,type:"expense",value:10000});
+renderEvents();
+}
+
+function renderEvents(){
+eventList.innerHTML=events.map(e=>`
+<div class="row">
+<input value="${e.year}" oninput="evYear(${e.id},this.value)">
+<select onchange="evType(${e.id},this.value)">
+<option>expense</option>
+<option>income</option>
+</select>
+<input value="${e.value}" oninput="evVal(${e.id},this.value)">
+</div>`).join("");
+}
+
+/* ===== UPDATES ===== */
 function iUpdate(id,val){incomes.find(x=>x.id===id).amount=+val;update();}
 function iFreq(id,val){incomes.find(x=>x.id===id).freq=val;update();}
-function iCat(id,val){incomes.find(x=>x.id===id).cat=val;}
-
 function eUpdate(id,val){expenses.find(x=>x.id===id).amount=+val;update();}
 function eFreq(id,val){expenses.find(x=>x.id===id).freq=val;update();}
 function eCat(id,val){expenses.find(x=>x.id===id).cat=val;}
+function evYear(id,val){events.find(x=>x.id===id).year=+val;}
+function evType(id,val){events.find(x=>x.id===id).type=val;}
+function evVal(id,val){events.find(x=>x.id===id).value=+val;}
 
 /* ===== SIM ===== */
 function simulate(){
@@ -228,7 +320,15 @@ let arr=[];
 
 for(let y=0;y<50;y++){
 
-let ret=0.06 + (Math.random()-0.5)*0.2;
+let ret=0.06+(Math.random()-0.5)*0.2;
+
+events.forEach(ev=>{
+if(ev.year===y){
+if(ev.type==="expense") bal-=ev.value;
+if(ev.type==="income") bal+=ev.value;
+}
+});
+
 bal+=bal*ret + inc - exp;
 
 arr.push(bal);
@@ -261,7 +361,27 @@ inc.innerText="$"+inc.toLocaleString();
 expOut.innerText="$"+exp.toLocaleString();
 succ.innerText=(sim.success*100).toFixed(0)+"%";
 
-taxExplain.innerHTML=`Tax: $${tax.toLocaleString()}`;
+/* MILESTONES */
+let ms=[];
+if(nwVal>=exp*25) ms.push("Financial Independence");
+if(nwVal>=1000000) ms.push("Millionaire");
+
+milestonesOut.innerHTML=ms.join("<br>")||"None yet";
+
+/* CATEGORY BREAKDOWN */
+let cat={};
+expenses.forEach(e=>{
+let val=norm(e.amount,e.freq);
+cat[e.cat]=(cat[e.cat]||0)+val;
+});
+
+categoryOut.innerHTML=Object.entries(cat)
+.sort((a,b)=>b[1]-a[1])
+.slice(0,3)
+.map(([k,v])=>`${k}: $${v.toLocaleString()}`)
+.join("<br>");
+
+taxExplain.innerHTML=`Estimated Tax: $${tax.toLocaleString()}`;
 
 if(chart) chart.destroy();
 chart=new Chart(chart,{
@@ -270,30 +390,19 @@ data:{labels:sim.path.map((_,i)=>i),datasets:[{data:sim.path}]}
 });
 }
 
-/* ===== PROFILE SAVE ===== */
+/* ===== PROFILE ===== */
 function saveProfile(){
-let data={
-incomes,expenses,
-cash:cash.value,
-invest:invest.value,
-debt:debt.value
-};
-localStorage.setItem(profileName.value,JSON.stringify(data));
+localStorage.setItem(profileName.value,JSON.stringify({incomes,expenses,events}));
 }
 
-/* ===== PROFILE LOAD ===== */
 function loadProfile(){
 let data=JSON.parse(localStorage.getItem(profileName.value)||"{}");
-if(!data) return;
-
 incomes=data.incomes||[];
 expenses=data.expenses||[];
-cash.value=data.cash||0;
-invest.value=data.invest||0;
-debt.value=data.debt||0;
-
+events=data.events||[];
 renderIncome();
 renderExpense();
+renderEvents();
 update();
 }
 
@@ -319,6 +428,8 @@ delta.innerHTML=`Δ ${(last-base)*100}%`;
 /* ===== INIT ===== */
 addIncome();
 addExpense();
+addEvent();
+
 document.querySelectorAll("input,select").forEach(i=>i.addEventListener("input",update));
 
 </script>
