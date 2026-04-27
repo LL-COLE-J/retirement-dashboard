@@ -14,7 +14,6 @@ body{
   display:flex;
 }
 
-/* SIDEBAR */
 .sidebar{
   width:220px;
   background:#FFFFFF;
@@ -40,7 +39,6 @@ body{
   color:#111827;
 }
 
-/* MAIN */
 .main{
   flex:1;
   padding:28px;
@@ -48,7 +46,6 @@ body{
   margin:auto;
 }
 
-/* KPI ROW */
 .metrics{
   display:flex;
   gap:12px;
@@ -75,7 +72,6 @@ body{
   margin-top:6px;
 }
 
-/* MAIN GRID */
 .main-grid{
   display:grid;
   grid-template-columns: 2fr 1fr;
@@ -83,7 +79,6 @@ body{
   margin-bottom:20px;
 }
 
-/* CHART */
 .chart-card{
   background:#fff;
   padding:20px;
@@ -92,7 +87,6 @@ body{
   box-shadow:0 8px 24px rgba(0,0,0,0.05);
 }
 
-/* RIGHT PANEL */
 .side-panel{
   display:flex;
   flex-direction:column;
@@ -106,7 +100,6 @@ body{
   border:1px solid #E6EAF0;
 }
 
-/* MODULE GRID */
 .modules{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -127,7 +120,6 @@ body{
   box-shadow:0 10px 25px rgba(0,0,0,0.08);
 }
 
-/* FORM CARDS */
 .card{
   background:#fff;
   padding:18px;
@@ -136,7 +128,6 @@ body{
   margin-bottom:16px;
 }
 
-/* INPUT ROW */
 .row{
   display:grid;
   grid-template-columns:1fr 140px 160px;
@@ -151,7 +142,6 @@ input, select{
   background:white;
 }
 
-/* BUTTON */
 button{
   margin-top:10px;
   padding:10px 14px;
@@ -166,17 +156,14 @@ button{
 
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
   <div class="logo">AVORA</div>
   <div class="nav-item" onclick="show('dashboard')">Dashboard</div>
   <div class="nav-item" onclick="show('financials')">Financials</div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
 
-<!-- DASHBOARD -->
 <div id="dashboard">
 
   <!-- KPIs -->
@@ -196,8 +183,13 @@ button{
       <canvas id="chart"></canvas>
     </div>
 
-    <!-- SIDE PANEL -->
+    <!-- RIGHT PANEL -->
     <div class="side-panel">
+
+      <div class="panel-card">
+        <h4>Savings</h4>
+        <div id="savingsOut"></div>
+      </div>
 
       <div class="panel-card">
         <h4>AI Insights</h4>
@@ -219,11 +211,11 @@ button{
 
   <!-- MODULES -->
   <div class="modules">
-    <div class="module" onclick="openModule('Chance of Success')">Chance of Success</div>
-    <div class="module" onclick="openModule('Cash Flow')">Cash Flow</div>
-    <div class="module" onclick="openModule('Spending Breakdown')">Spending Breakdown</div>
-    <div class="module" onclick="openModule('Milestones')">Milestones</div>
-    <div class="module" onclick="openModule('Tax Analytics')">Tax Analytics</div>
+    <div class="module">Chance of Success</div>
+    <div class="module">Cash Flow</div>
+    <div class="module">Spending Breakdown</div>
+    <div class="module">Milestones</div>
+    <div class="module">Tax Analytics</div>
     <div class="module">Scenario Compare</div>
   </div>
 
@@ -269,22 +261,21 @@ button{
   </div>
 
   <div class="card">
-<h3>Accounts</h3>
-<div id="accountList"></div>
-<button onclick="addAccount()">+ Add Account</button>
-</div>
+    <h3>Accounts</h3>
+    <div id="accountList"></div>
+    <button onclick="addAccount()">+ Add Account</button>
+  </div>
 
-<div class="card">
-<h3>Dependents</h3>
-<div id="dependentList"></div>
-<button onclick="addDependent()">+ Add Dependent</button>
-</div>
-
-</div>
+  <div class="card">
+    <h3>Dependents</h3>
+    <div id="dependentList"></div>
+    <button onclick="addDependent()">+ Add Dependent</button>
+  </div>
 
 </div>
 
-<!-- SCRIPTS -->
+</div>
+
 <script src="modules.js"></script>
 <script src="engine.js"></script>
 <script src="ui.js"></script>
