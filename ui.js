@@ -1,5 +1,8 @@
 var chart;
 
+/* =========================
+   ADDERS
+========================= */
 function addAccount(){
   state.accounts.push({type:"brokerage",balance:0,contrib:0});
   renderAll();
@@ -7,6 +10,21 @@ function addAccount(){
 
 function addDependent(){
   state.dependents.push({age:5,cost:10000});
+  renderAll();
+}
+
+function addIncome(){
+  state.incomes.push({amount:0,freq:"yearly"});
+  renderAll();
+}
+
+function addExpense(){
+  state.expenses.push({amount:0,freq:"yearly",cat:"housing"});
+  renderAll();
+}
+
+function addEvent(){
+  state.events.push({year:5,type:"expense",value:10000});
   renderAll();
 }
 
@@ -50,24 +68,6 @@ function loadProfile(){
 }
 
 /* =========================
-   ADDERS
-========================= */
-function addIncome(){
-  state.incomes.push({amount:0,freq:"yearly"});
-  renderAll();
-}
-
-function addExpense(){
-  state.expenses.push({amount:0,freq:"yearly",cat:"housing"});
-  renderAll();
-}
-
-function addEvent(){
-  state.events.push({year:5,type:"expense",value:10000});
-  renderAll();
-}
-
-/* =========================
    FORMAT
 ========================= */
 function money(n){
@@ -94,9 +94,17 @@ function renderDashboard(){
   document.getElementById("inc").innerText = money(d.income);
   document.getElementById("expOut").innerText = money(d.expenses);
   document.getElementById("saveRate").innerText = d.savingsRate.toFixed(1)+"%";
-  document.getElementById("succ").innerText = d.net > 0 ? "Good" : "Risk";
-   document.getElementById("succ").innerText =
-  d.net > 0 ? "Surplus" : "Deficit";
+
+  // FIXED (only once)
+  document.getElementById("succ").innerText =
+    d.net > 0 ? "Surplus" : "Deficit";
+
+  // NEW: savings insight
+  if(document.getElementById("savingsOut")){
+    document.getElementById("savingsOut").innerText =
+      "Annual Savings: " + money(d.totalSavings || 0);
+  }
+
   const ctx = document.getElementById("chart").getContext("2d");
 
   const data = [...Array(30).keys()].map(i => d.netWorth + i * d.net);
@@ -125,9 +133,7 @@ function renderDashboard(){
 ========================= */
 function renderFinancials(){
 
-  /* =========================
-     INCOME
-  ========================= */
+  /* INCOME */
   const incDiv = document.getElementById("incomeList");
 
   incDiv.innerHTML = state.incomes.map((i,idx)=>`
@@ -142,9 +148,7 @@ function renderFinancials(){
     </div>
   `).join("");
 
-  /* =========================
-     EXPENSES
-  ========================= */
+  /* EXPENSES */
   const expDiv = document.getElementById("expenseList");
 
   expDiv.innerHTML = state.expenses.map((e,idx)=>`
@@ -167,15 +171,13 @@ function renderFinancials(){
     </div>
   `).join("");
 
-  /* =========================
-     ACCOUNTS
-  ========================= */
+  /* ACCOUNTS */
   const accDiv = document.getElementById("accountList");
 
   accDiv.innerHTML = state.accounts.map((a,idx)=>`
     <div class="row">
       <input placeholder="Type (401k, roth...)" value="${a.type}"
-        oninput="state.accounts[${idx}].type=this.value">
+        oninput="state.accounts[${idx}].type=this.value;renderAll()">
 
       <input placeholder="Balance" value="${a.balance}"
         oninput="state.accounts[${idx}].balance=+this.value;renderAll()">
@@ -185,9 +187,7 @@ function renderFinancials(){
     </div>
   `).join("");
 
-  /* =========================
-     DEPENDENTS
-  ========================= */
+  /* DEPENDENTS */
   const depDiv = document.getElementById("dependentList");
 
   depDiv.innerHTML = state.dependents.map((d,idx)=>`
@@ -200,9 +200,7 @@ function renderFinancials(){
     </div>
   `).join("");
 
-  /* =========================
-     ASSETS
-  ========================= */
+  /* ASSETS */
   const cash = document.getElementById("cash");
   const invest = document.getElementById("invest");
   const debt = document.getElementById("debt");
@@ -215,9 +213,7 @@ function renderFinancials(){
   invest.oninput = e => { state.assets.invest = +e.target.value; renderAll(); };
   debt.oninput = e => { state.assets.debt = +e.target.value; renderAll(); };
 
-  /* =========================
-     TAX
-  ========================= */
+  /* TAX */
   const filing = document.getElementById("filing");
 
   filing.value = state.filing;
