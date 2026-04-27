@@ -28,6 +28,17 @@ function addEvent(){
   renderAll();
 }
 
+function manualSave(){
+  saveProfile();
+  alert("Profile Saved");
+}
+
+function manualLoad(){
+  loadProfile();
+  renderAll();
+  alert("Profile Loaded");
+}
+
 /* =========================
    NAVIGATION
 ========================= */
