@@ -30,25 +30,44 @@ function calculate(){
 
   let expenses = state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0);
 
-  // dependents cost
+  /* DEPENDENTS */
   let depCost = state.dependents.reduce((s,d)=>s+d.cost,0);
-
   expenses += depCost;
 
-  let net = income - expenses;
+  /* ACCOUNT CONTRIBUTIONS */
+  let contrib = state.accounts.reduce((s,a)=>{
+    return s + (a.contrib || 0);
+  },0);
+
+  /* MATCH */
+  let match = state.accounts.reduce((s,a)=>{
+    if(a.match) return s + (a.contrib * a.match / 100);
+    return s;
+  },0);
+
+  let totalSavings = contrib + match;
+
+  let net = income - expenses - contrib;
+
+  /* NET WORTH */
+  let accountValue = state.accounts.reduce((s,a)=>s + (a.balance || 0),0);
 
   let netWorth =
+    accountValue +
     (state.assets.cash||0) +
     (state.assets.invest||0) -
     (state.assets.debt||0);
 
-  let savingsRate = income>0 ? (net/income)*100 : 0;
+  let savingsRate = income > 0 ? ((income - expenses) / income) * 100 : 0;
 
   return {
     income,
     expenses,
     net,
     netWorth,
-    savingsRate
+    savingsRate,
+    contrib,
+    match,
+    totalSavings
   };
 }
