@@ -9,115 +9,29 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
-
-:root {
-  --bg:#0B0F1A;
-  --sidebar:#0F172A;
-  --card:#111827;
-  --card-light:#1F2937;
-  --text-primary:#E5E7EB;
-  --text-secondary:#9CA3AF;
-  --border:rgba(255,255,255,0.05);
-  --gradient:linear-gradient(135deg,#3B82F6,#6366F1);
-}
-
-body { background:var(--bg); color:var(--text-primary); display:flex; height:100vh; }
-
-.sidebar {
-  width:220px;
-  background:var(--sidebar);
-  padding:20px;
-  border-right:1px solid var(--border);
-}
-
-.logo { font-size:18px; margin-bottom:20px; }
-
-.nav-item {
-  padding:10px;
-  border-radius:8px;
-  color:var(--text-secondary);
-  cursor:pointer;
-  margin-bottom:6px;
-}
-.nav-item.active { background:var(--gradient); color:white; }
-
-.main { flex:1; display:flex; }
-.content { flex:1; padding:20px; overflow:auto; }
-
-.ai {
-  width:260px;
-  background:var(--sidebar);
-  border-left:1px solid var(--border);
-  padding:15px;
-}
-
-.grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
-.chartGrid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
-
-.card {
-  background:var(--card);
-  padding:15px;
-  border-radius:12px;
-  border:1px solid var(--border);
-}
-
-input {
-  width:100%;
-  padding:10px;
-  margin-top:8px;
-  background:var(--card-light);
-  border:none;
-  border-radius:8px;
-  color:white;
-}
-
-button {
-  margin-top:10px;
-  padding:8px 12px;
-  border:none;
-  border-radius:8px;
-  background:var(--gradient);
-  color:white;
-  cursor:pointer;
-}
-
-canvas { width:100% !important; height:200px !important; }
-
-@media (max-width:900px){
-  body { flex-direction:column; }
-
-  .sidebar {
-    width:100%;
-    display:flex;
-    justify-content:space-around;
-    border-bottom:1px solid var(--border);
-  }
-
-  .main { flex-direction:column; }
-
-  .ai {
-    position:fixed;
-    bottom:0;
-    width:100%;
-    height:140px;
-  }
-
-  .content { padding-bottom:160px; }
-
-  .grid { grid-template-columns:1fr; }
-  .chartGrid { grid-template-columns:1fr; }
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+body{background:#0B0F1A;color:#E5E7EB;display:flex;height:100vh;}
+.sidebar{width:220px;background:#0F172A;padding:20px;}
+.nav-item{padding:10px;border-radius:8px;cursor:pointer;margin-bottom:6px;}
+.nav-item.active{background:linear-gradient(135deg,#3B82F6,#6366F1);}
+.main{flex:1;display:flex;}
+.content{flex:1;padding:20px;overflow:auto;}
+.card{background:#111827;padding:15px;border-radius:12px;margin-bottom:10px;}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.chartGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+input{width:100%;padding:8px;margin-top:5px;background:#1F2937;border:none;color:white;border-radius:6px;}
+button{margin-top:8px;padding:6px 10px;border:none;border-radius:6px;background:#3B82F6;color:white;cursor:pointer;}
+.ai{width:260px;background:#0F172A;padding:15px;}
+canvas{height:200px!important;}
 </style>
 </head>
 
 <body>
 
 <div class="sidebar">
-  <div class="logo">AVORA</div>
-  <div class="nav-item active" onclick="showView('dashboard',this)">Dashboard</div>
-  <div class="nav-item" onclick="showView('financials',this)">Financials</div>
-  <div class="nav-item" onclick="showView('scenarios',this)">Scenarios</div>
+<div class="nav-item active" onclick="showView('dashboard',this)">Dashboard</div>
+<div class="nav-item" onclick="showView('financials',this)">Financials</div>
+<div class="nav-item" onclick="showView('scenarios',this)">Scenarios</div>
 </div>
 
 <div class="main">
@@ -127,24 +41,28 @@ canvas { width:100% !important; height:200px !important; }
 <!-- DASHBOARD -->
 <div id="dashboard">
 <div class="grid">
-  <div class="card">Net Worth<div id="netWorth">$0</div></div>
-  <div class="card">Income<div id="income">$0</div></div>
-  <div class="card">Expenses<div id="expensesOut">$0</div></div>
-  <div class="card">Years<div id="years">0</div></div>
+<div class="card">Net Worth<div id="netWorth"></div></div>
+<div class="card">Income<div id="income"></div></div>
+<div class="card">Expenses<div id="expensesOut"></div></div>
+<div class="card">Years<div id="years"></div></div>
 </div>
 
-<div class="grid" style="margin-top:10px;">
-  <div class="card">Savings Rate<div id="savingsRate"></div></div>
-  <div class="card">Monthly Burn<div id="burnRate"></div></div>
-  <div class="card">Years Safe<div id="yearsSafe"></div></div>
-  <div class="card">Status<div id="status"></div></div>
+<div class="grid">
+<div class="card">Savings Rate<div id="savingsRate"></div></div>
+<div class="card">Burn Rate<div id="burnRate"></div></div>
+<div class="card">Years Safe<div id="yearsSafe"></div></div>
+<div class="card">Decision<div id="decision"></div></div>
+</div>
+
+<div class="card">
+<div id="retirementSummary"></div>
 </div>
 
 <div class="chartGrid">
-  <div class="card"><canvas id="c1"></canvas></div>
-  <div class="card"><canvas id="c2"></canvas></div>
-  <div class="card"><canvas id="c3"></canvas></div>
-  <div class="card"><canvas id="c4"></canvas></div>
+<canvas id="c1"></canvas>
+<canvas id="c2"></canvas>
+<canvas id="c3"></canvas>
+<canvas id="c4"></canvas>
 </div>
 </div>
 
@@ -153,14 +71,14 @@ canvas { width:100% !important; height:200px !important; }
 <div class="card">
 
 <h4>Person A</h4>
-<input id="incomeA" placeholder="Income A (Yearly)">
+<input id="incomeA" placeholder="Income A">
 <input id="ageA" placeholder="Age A">
-<input id="retA" placeholder="Retire Age A">
+<input id="retA" placeholder="Retirement Age A">
 
 <h4>Person B</h4>
-<input id="incomeB" placeholder="Income B (Yearly)">
+<input id="incomeB" placeholder="Income B">
 <input id="ageB" placeholder="Age B">
-<input id="retB" placeholder="Retire Age B">
+<input id="retB" placeholder="Retirement Age B">
 
 <h4>Assets</h4>
 <input id="cash" placeholder="Cash">
@@ -169,19 +87,8 @@ canvas { width:100% !important; height:200px !important; }
 <h4>Expenses</h4>
 <input id="exp" placeholder="Annual Expenses">
 
-<hr style="margin:15px 0;border-color:rgba(255,255,255,0.05);">
-
-<h4>Stock Portfolio</h4>
-<input id="ticker" placeholder="Ticker (AAPL)">
-<input id="shares" placeholder="Shares">
-<button onclick="addStock()">Add Stock</button>
-
-<div id="stockList"></div>
-
-<hr style="margin:15px 0;border-color:rgba(255,255,255,0.05);">
-
 <button onclick="saveProfile()">Save Profile</button>
-<div id="profileList" style="margin-top:10px;"></div>
+<div id="profileList"></div>
 
 </div>
 </div>
@@ -189,6 +96,11 @@ canvas { width:100% !important; height:200px !important; }
 <!-- SCENARIOS -->
 <div id="scenarios" style="display:none">
 <div class="card">
+<h4>Quick Scenarios</h4>
+<button onclick="applyScenario('crash')">Market Crash</button>
+<button onclick="applyScenario('inflation')">High Inflation</button>
+<button onclick="applyScenario('longevity')">Live Longer</button>
+
 <h4>Assumptions</h4>
 <input id="returnRate" placeholder="Return % (default 5)">
 <input id="inflation" placeholder="Inflation % (default 2.5)">
@@ -197,182 +109,151 @@ canvas { width:100% !important; height:200px !important; }
 
 </div>
 
-<!-- AI PANEL -->
-<div class="ai" id="aiPanel">
-  <h4>AI Advisor</h4>
-  <div id="aiOutput">Ready...</div>
+<div class="ai">
+<h4>Advisor Insight</h4>
+<div id="aiOutput"></div>
 </div>
 
 </div>
 
 <script>
 
-const AI_URL = "https://summer-boat-369f.llcolej8.workers.dev";
-
-let portfolio=[], charts={};
+let charts={};
 
 /* NAV */
 function showView(id,el){
-  ["dashboard","financials","scenarios"].forEach(v=>{
-    document.getElementById(v).style.display="none";
-  });
-  document.getElementById(id).style.display="block";
-  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
-  el.classList.add("active");
+["dashboard","financials","scenarios"].forEach(v=>document.getElementById(v).style.display="none");
+document.getElementById(id).style.display="block";
+document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+el.classList.add("active");
 }
 
 /* MODEL */
 function buildModel(total,exp){
+
 let r=((+returnRate.value||5)/100);
 let inf=((+inflation.value||2.5)/100);
+
 let bal=total, arr=[];
 
-for(let i=0;i<40;i++){
+for(let i=0;i<50;i++){
+
 let inc=(+incomeA.value||0)+(+incomeB.value||0);
-if(i>(+retA.value||65)-(+ageA.value||65)) inc-= (+incomeA.value||0);
-if(i>(+retB.value||65)-(+ageB.value||65)) inc-= (+incomeB.value||0);
+
+if(i>(+retA.value-(+ageA.value))) inc-= (+incomeA.value||0);
+if(i>(+retB.value-(+ageB.value))) inc-= (+incomeB.value||0);
 
 let expenses=exp*Math.pow(1+inf,i);
+
 bal+=bal*r + inc - expenses;
 
 arr.push({year:i,bal,inc,exp:expenses});
+
 if(bal<=0) break;
 }
+
 return arr;
 }
 
 /* UPDATE */
 function updateAll(){
 
-let stockValue = portfolio.reduce((s,p)=>s+(p.price*p.shares),0);
-
-let total=(+cash.value||0)+(+invest.value||0)+stockValue;
+let total=(+cash.value||0)+(+invest.value||0);
 let incomeVal=(+incomeA.value||0)+(+incomeB.value||0);
 let expVal=(+exp.value||0);
 
-let savingsRate = incomeVal ? ((incomeVal-expVal)/incomeVal) : 0;
-let burnRate = expVal/12;
-let yearsSafe = total / (expVal || 1);
-
 let m=buildModel(total,expVal);
 
+/* METRICS */
+let savingsRate = incomeVal ? ((incomeVal-expVal)/incomeVal) : 0;
+let burnRate = expVal/12;
+let yearsSafe = total/(expVal||1);
+
+/* DECISION */
+let decision="SAFE";
+if(m.length<25) decision="RISK";
+if(m.length<15) decision="FAIL";
+
+/* FAILURE AGE */
+let failAge=(+ageA.value||65)+m.length;
+
+/* OUTPUT */
 netWorth.innerText="$"+total.toLocaleString();
-document.getElementById("income").innerText="$"+incomeVal.toLocaleString();
+income.innerText="$"+incomeVal.toLocaleString();
 expensesOut.innerText="$"+expVal.toLocaleString();
 years.innerText=m.length;
 
-document.getElementById("savingsRate").innerText=(savingsRate*100).toFixed(1)+"%";
-document.getElementById("burnRate").innerText="$"+burnRate.toFixed(0);
-document.getElementById("yearsSafe").innerText=yearsSafe.toFixed(1);
+savingsRateEl.innerText=(savingsRate*100).toFixed(1)+"%";
+burnRateEl.innerText="$"+burnRate.toFixed(0);
+yearsSafeEl.innerText=yearsSafe.toFixed(1);
+decisionEl.innerText=decision;
 
-let status="Stable";
-if(m.length<20) status="⚠️ Risk";
-if(m.length<10) status="🚨 High Risk";
-document.getElementById("status").innerText=status;
+/* SUMMARY */
+retirementSummary.innerHTML=`
+<b>Status:</b> ${decision}<br>
+<b>Funds Last:</b> ${m.length} years<br>
+<b>Failure Age:</b> ${failAge}
+`;
+
+/* MOCK AI */
+let ai=[];
+if(decision==="FAIL") ai.push("🚨 Retirement not viable.");
+else if(decision==="RISK") ai.push("⚠️ Plan is fragile.");
+else ai.push("✅ Plan looks solid.");
+
+if(savingsRate<0.1) ai.push("Savings rate is too low.");
+if(yearsSafe<15) ai.push("Longevity risk present.");
+
+ai.push("Action: adjust spending or delay retirement.");
+
+aiOutput.innerHTML=ai.join("<br><br>");
 
 renderCharts(m);
-
-callAI({netWorth:total,income:incomeVal,expenses:expVal,years:m.length,savingsRate,burnRate,yearsSafe});
 }
 
-/* AI */
-async function callAI(model){
-
-  // TEMP MOCK AI (until billing fixed)
-
-  let result = [];
-
-  if(model.years < 10){
-    result.push("🚨 You cannot retire — funds deplete too quickly.");
-  } else if(model.years < 25){
-    result.push("⚠️ Retirement is risky — you may run short.");
-  } else {
-    result.push("✅ You are on track for retirement under current assumptions.");
-  }
-
-  if(model.savingsRate < 0.1){
-    result.push("Biggest risk: low savings rate.");
-  } else if(model.yearsSafe < 15){
-    result.push("Biggest risk: longevity risk.");
-  } else {
-    result.push("Biggest risk: market volatility.");
-  }
-
-  result.push("Action: Reduce expenses or increase investment contributions.");
-
-  aiOutput.innerHTML = result.join("<br><br>");
-}
-/* STOCK */
-async function addStock(){
-const t=ticker.value.toUpperCase();
-const s=+shares.value||0;
-if(!t||!s)return;
-
-const res=await fetch(`https://api.twelvedata.com/price?symbol=${t}&apikey=demo`);
-const data=await res.json();
-
-portfolio.push({ticker:t,shares:s,price:+data.price||0});
-renderPortfolio(); updateAll();
+/* SCENARIOS */
+function applyScenario(type){
+if(type==="crash") returnRate.value=2;
+if(type==="inflation") inflation.value=5;
+if(type==="longevity") ageA.value=(+ageA.value||65)-5;
+updateAll();
 }
 
-function renderPortfolio(){
-stockList.innerHTML=portfolio.map(p=>`${p.ticker} - ${p.shares} ($${(p.price*p.shares).toFixed(0)})`).join("<br>");
-}
-
-/* PROFILES */
+/* SAVE */
 function saveProfile(){
 let name=prompt("Profile name?");
 if(!name)return;
 
-let profiles=JSON.parse(localStorage.getItem("avoraProfiles")||"{}");
-profiles[name]={incomeA:incomeA.value,incomeB:incomeB.value,ageA:ageA.value,ageB:ageB.value,retA:retA.value,retB:retB.value,cash:cash.value,invest:invest.value,exp:exp.value,portfolio};
-
-localStorage.setItem("avoraProfiles",JSON.stringify(profiles));
+let p=JSON.parse(localStorage.getItem("profiles")||"{}");
+p[name]={incomeA:incomeA.value,incomeB:incomeB.value,ageA:ageA.value,ageB:ageB.value,retA:retA.value,retB:retB.value,cash:cash.value,invest:invest.value,exp:exp.value};
+localStorage.setItem("profiles",JSON.stringify(p));
 renderProfiles();
 }
 
-function loadProfile(name){
-let profiles=JSON.parse(localStorage.getItem("avoraProfiles")||"{}");
-let d=profiles[name];
-if(!d)return;
-
-Object.keys(d).forEach(k=>{
-if(document.getElementById(k)) document.getElementById(k).value=d[k];
-});
-portfolio=d.portfolio||[];
-
-renderPortfolio(); updateAll();
+function renderProfiles(){
+let p=JSON.parse(localStorage.getItem("profiles")||"{}");
+profileList.innerHTML=Object.keys(p).map(n=>`<div onclick="loadProfile('${n}')">${n}</div>`).join("");
 }
 
-function renderProfiles(){
-let profiles=JSON.parse(localStorage.getItem("avoraProfiles")||"{}");
-profileList.innerHTML=Object.keys(profiles).map(name=>`<div onclick="loadProfile('${name}')" style="cursor:pointer">📁 ${name}</div>`).join("");
+function loadProfile(n){
+let d=JSON.parse(localStorage.getItem("profiles"))[n];
+Object.keys(d).forEach(k=>document.getElementById(k).value=d[k]);
+updateAll();
 }
 
 /* CHARTS */
 function renderCharts(m){
 let labels=m.map(x=>x.year);
 let bal=m.map(x=>x.bal);
-let inc=m.map(x=>x.inc);
-let exp=m.map(x=>x.exp);
 
 Object.values(charts).forEach(c=>c.destroy());
 
-charts.c1=new Chart(c1,{type:'line',data:{labels,datasets:[{label:'Net Worth',data:bal}]}});
-charts.c2=new Chart(c2,{type:'line',data:{labels,datasets:[{label:'Income',data:inc},{label:'Expenses',data:exp}]}});
-charts.c3=new Chart(c3,{type:'bar',data:{labels,datasets:[{label:'Balance',data:bal}]}});
-charts.c4=new Chart(c4,{type:'line',data:{labels,datasets:[{label:'Expenses',data:exp}]}});
+charts.c1=new Chart(c1,{type:'line',data:{labels,datasets:[{data:bal}]}}); 
 }
 
 /* INIT */
-window.onload=()=>{
-renderProfiles();
-updateAll();
-};
-
-document.querySelectorAll("input").forEach(i=>{
-i.addEventListener("input",updateAll);
-});
+document.querySelectorAll("input").forEach(i=>i.addEventListener("input",updateAll));
+window.onload=()=>{renderProfiles();updateAll();};
 
 </script>
 
