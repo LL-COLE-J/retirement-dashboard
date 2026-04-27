@@ -1,38 +1,47 @@
 var chart;
 
-/* NAVIGATION (FIXES TAB RESET ISSUE) */
+/* =========================
+   NAVIGATION
+========================= */
 function show(page){
-  localStorage.setItem("page",page);
+  localStorage.setItem("page", page);
 
-  document.getElementById("dashboard").style.display = page==="dashboard"?"block":"none";
-  document.getElementById("financials").style.display = page==="financials"?"block":"none";
+  document.getElementById("dashboard").style.display =
+    page === "dashboard" ? "block" : "none";
+
+  document.getElementById("financials").style.display =
+    page === "financials" ? "block" : "none";
 }
 
-/* LOAD PAGE ON REFRESH */
+/* =========================
+   INIT
+========================= */
 window.onload = () => {
-
   loadProfile();
 
-  let savedPage = localStorage.getItem("page") || "dashboard";
+  const savedPage = localStorage.getItem("page") || "dashboard";
   show(savedPage);
 
   renderAll();
 };
 
-/* SAVE PROFILE */
+/* =========================
+   STORAGE
+========================= */
 function saveProfile(){
   localStorage.setItem("avora_profile", JSON.stringify(state));
 }
 
-/* LOAD PROFILE */
 function loadProfile(){
-  let data = localStorage.getItem("avora_profile");
+  const data = localStorage.getItem("avora_profile");
   if(data){
     state = JSON.parse(data);
   }
 }
 
-/* ADD FUNCTIONS */
+/* =========================
+   ADDERS
+========================= */
 function addIncome(){
   state.incomes.push({amount:0,freq:"yearly"});
   renderAll();
@@ -48,104 +57,114 @@ function addEvent(){
   renderAll();
 }
 
-/* DEPENDENTS */
-function addDependent(){
-  state.dependents.push({age:5,cost:10000});
-  renderAll();
+/* =========================
+   FORMAT
+========================= */
+function money(n){
+  return "$" + Number(n || 0).toLocaleString();
 }
 
-/* ACCOUNTS */
-function addAccount(){
-  state.accounts.push({type:"401k",balance:0});
-  renderAll();
-}
-
-/* RENDER */
+/* =========================
+   MAIN RENDER
+========================= */
 function renderAll(){
   renderDashboard();
   renderFinancials();
   saveProfile();
 }
 
-/* DASHBOARD */
+/* =========================
+   DASHBOARD
+========================= */
 function renderDashboard(){
 
-  let d = calculate();
+  const d = calculate();
 
-  document.getElementById("nw").innerText = "$"+Math.round(d.netWorth);
-  document.getElementById("inc").innerText = "$"+Math.round(d.income);
-  document.getElementById("expOut").innerText = "$"+Math.round(d.expenses);
+  document.getElementById("nw").innerText = money(d.netWorth);
+  document.getElementById("inc").innerText = money(d.income);
+  document.getElementById("expOut").innerText = money(d.expenses);
   document.getElementById("saveRate").innerText = d.savingsRate.toFixed(1)+"%";
-  document.getElementById("succ").innerText = d.net>0?"Good":"Risk";
+  document.getElementById("succ").innerText = d.net > 0 ? "Good" : "Risk";
 
-  let ctx = document.getElementById("chart").getContext("2d");
+  const ctx = document.getElementById("chart").getContext("2d");
 
-  if(chart) chart.destroy();
+  const data = [...Array(30).keys()].map(i => d.netWorth + i * d.net);
 
-  chart = new Chart(ctx,{
-    type:"line",
-    data:{
-      labels:[...Array(30).keys()],
-      datasets:[{
-        label:"Projection",
-        data:[...Array(30).keys()].map(i=>d.netWorth+i*d.net),
-        borderWidth:2
-      }]
-    }
-  });
+  if(chart){
+    chart.data.datasets[0].data = data;
+    chart.update();
+  } else {
+    chart = new Chart(ctx,{
+      type:"line",
+      data:{
+        labels:[...Array(30).keys()],
+        datasets:[{
+          label:"Projection",
+          data:data,
+          borderWidth:2,
+          tension:0.3
+        }]
+      }
+    });
+  }
 }
 
-/* FINANCIALS */
+/* =========================
+   FINANCIALS
+========================= */
 function renderFinancials(){
 
-  let incDiv = document.getElementById("incomeList");
-  incDiv.innerHTML = "";
+  /* INCOME */
+  const incDiv = document.getElementById("incomeList");
 
-  state.incomes.forEach((i,idx)=>{
-    incDiv.innerHTML += `
-      <div class="row">
-        <input value="${i.amount}" onchange="state.incomes[${idx}].amount=+this.value;renderAll()">
-        <select onchange="state.incomes[${idx}].freq=this.value;renderAll()">
-          <option ${i.freq==="yearly"?"selected":""}>yearly</option>
-          <option ${i.freq==="monthly"?"selected":""}>monthly</option>
-        </select>
-      </div>
-    `;
-  });
+  incDiv.innerHTML = state.incomes.map((i,idx)=>`
+    <div class="row">
+      <input value="${i.amount}" oninput="state.incomes[${idx}].amount=+this.value;renderAll()">
+      <select oninput="state.incomes[${idx}].freq=this.value;renderAll()">
+        <option ${i.freq==="yearly"?"selected":""}>yearly</option>
+        <option ${i.freq==="monthly"?"selected":""}>monthly</option>
+      </select>
+    </div>
+  `).join("");
 
-  let expDiv = document.getElementById("expenseList");
-  expDiv.innerHTML = "";
+  /* EXPENSES */
+  const expDiv = document.getElementById("expenseList");
 
-  state.expenses.forEach((e,idx)=>{
-    expDiv.innerHTML += `
-      <div class="row">
-        <input value="${e.amount}" onchange="state.expenses[${idx}].amount=+this.value;renderAll()">
-        <select onchange="state.expenses[${idx}].freq=this.value;renderAll()">
-          <option ${e.freq==="yearly"?"selected":""}>yearly</option>
-          <option ${e.freq==="monthly"?"selected":""}>monthly</option>
-        </select>
-        <select onchange="state.expenses[${idx}].cat=this.value;renderAll()">
-          <option>housing</option>
-          <option>food</option>
-          <option>transport</option>
-          <option>insurance</option>
-          <option>lifestyle</option>
-        </select>
-      </div>
-    `;
-  });
+  expDiv.innerHTML = state.expenses.map((e,idx)=>`
+    <div class="row">
+      <input value="${e.amount}" oninput="state.expenses[${idx}].amount=+this.value;renderAll()">
+      <select oninput="state.expenses[${idx}].freq=this.value;renderAll()">
+        <option ${e.freq==="yearly"?"selected":""}>yearly</option>
+        <option ${e.freq==="monthly"?"selected":""}>monthly</option>
+      </select>
+      <select oninput="state.expenses[${idx}].cat=this.value;renderAll()">
+        <option ${e.cat==="housing"?"selected":""}>housing</option>
+        <option ${e.cat==="food"?"selected":""}>food</option>
+        <option ${e.cat==="transport"?"selected":""}>transport</option>
+        <option ${e.cat==="insurance"?"selected":""}>insurance</option>
+        <option ${e.cat==="lifestyle"?"selected":""}>lifestyle</option>
+      </select>
+    </div>
+  `).join("");
 
   /* ASSETS */
-  document.getElementById("cash").value = state.assets.cash || "";
-  document.getElementById("invest").value = state.assets.invest || "";
-  document.getElementById("debt").value = state.assets.debt || "";
+  const cash = document.getElementById("cash");
+  const invest = document.getElementById("invest");
+  const debt = document.getElementById("debt");
 
-  document.getElementById("cash").onchange = e=>{state.assets.cash=+e.target.value;renderAll()};
-  document.getElementById("invest").onchange = e=>{state.assets.invest=+e.target.value;renderAll()};
-  document.getElementById("debt").onchange = e=>{state.assets.debt=+e.target.value;renderAll()};
+  cash.value = state.assets.cash || "";
+  invest.value = state.assets.invest || "";
+  debt.value = state.assets.debt || "";
 
-  document.getElementById("filing").value = state.filing;
-  document.getElementById("filing").onchange = e=>{
+  cash.oninput = e => { state.assets.cash = +e.target.value; renderAll(); };
+  invest.oninput = e => { state.assets.invest = +e.target.value; renderAll(); };
+  debt.oninput = e => { state.assets.debt = +e.target.value; renderAll(); };
+
+  /* TAX */
+  const filing = document.getElementById("filing");
+
+  filing.value = state.filing;
+  filing.oninput = e => {
     state.filing = e.target.value;
     renderAll();
   };
