@@ -44,13 +44,13 @@ canvas{height:200px!important;}
 <div class="card">Net Worth<div id="netWorth"></div></div>
 <div class="card">Income<div id="income"></div></div>
 <div class="card">Expenses<div id="expensesOut"></div></div>
-<div class="card">Years<div id="years"></div></div>
+<div class="card">Years Funded<div id="years"></div></div>
 </div>
 
 <div class="grid">
 <div class="card">Savings Rate<div id="savingsRate"></div></div>
-<div class="card">Burn Rate<div id="burnRate"></div></div>
-<div class="card">Years Safe<div id="yearsSafe"></div></div>
+<div class="card">Monthly Burn<div id="burnRate"></div></div>
+<div class="card">Years Safe (Static)<div id="yearsSafe"></div></div>
 <div class="card">Decision<div id="decision"></div></div>
 </div>
 
@@ -60,9 +60,6 @@ canvas{height:200px!important;}
 
 <div class="chartGrid">
 <canvas id="c1"></canvas>
-<canvas id="c2"></canvas>
-<canvas id="c3"></canvas>
-<canvas id="c4"></canvas>
 </div>
 </div>
 
@@ -83,6 +80,12 @@ canvas{height:200px!important;}
 <h4>Assets</h4>
 <input id="cash" placeholder="Cash">
 <input id="invest" placeholder="Investments">
+
+<h4>Liabilities</h4>
+<input id="debt" placeholder="Total Debt">
+
+<h4>Contributions</h4>
+<input id="contribution" placeholder="Annual Investment Contribution">
 
 <h4>Expenses</h4>
 <input id="exp" placeholder="Annual Expenses">
@@ -129,23 +132,35 @@ el.classList.add("active");
 }
 
 /* MODEL */
-function buildModel(total,exp){
+function buildModel(){
 
-let r=((+returnRate.value||5)/100);
+let r=((+returnRate.value||5)/100)*0.8; // tax drag
 let inf=((+inflation.value||2.5)/100);
 
-let bal=total, arr=[];
+let cashVal=(+cash.value||0);
+let investVal=(+invest.value||0);
+let debtVal=(+debt.value||0);
+let contributionVal=(+contribution.value||0);
+
+let bal = cashVal + investVal - debtVal;
+let arr=[];
 
 for(let i=0;i<50;i++){
 
 let inc=(+incomeA.value||0)+(+incomeB.value||0);
 
+// retirement cutoff
 if(i>(+retA.value-(+ageA.value))) inc-= (+incomeA.value||0);
 if(i>(+retB.value-(+ageB.value))) inc-= (+incomeB.value||0);
 
-let expenses=exp*Math.pow(1+inf,i);
+// contributions only before retirement
+let contrib = inc > 0 ? contributionVal : 0;
 
-bal+=bal*r + inc - expenses;
+// expense growth
+let expenses=(+exp.value||0)*Math.pow(1+inf,i);
+
+// simulation
+bal += (bal * r) + inc - expenses + contrib;
 
 arr.push({year:i,bal,inc,exp:expenses});
 
@@ -158,11 +173,11 @@ return arr;
 /* UPDATE */
 function updateAll(){
 
-let total=(+cash.value||0)+(+invest.value||0);
+let m=buildModel();
+
 let incomeVal=(+incomeA.value||0)+(+incomeB.value||0);
 let expVal=(+exp.value||0);
-
-let m=buildModel(total,expVal);
+let total=(+cash.value||0)+(+invest.value||0)-(+debt.value||0);
 
 /* METRICS */
 let savingsRate = incomeVal ? ((incomeVal-expVal)/incomeVal) : 0;
@@ -171,8 +186,8 @@ let yearsSafe = total/(expVal||1);
 
 /* DECISION */
 let decision="SAFE";
-if(m.length<25) decision="RISK";
-if(m.length<15) decision="FAIL";
+if(m.length<30) decision="RISK";
+if(m.length<20) decision="FAIL";
 
 /* FAILURE AGE */
 let failAge=(+ageA.value||65)+m.length;
@@ -183,10 +198,10 @@ income.innerText="$"+incomeVal.toLocaleString();
 expensesOut.innerText="$"+expVal.toLocaleString();
 years.innerText=m.length;
 
-savingsRateEl.innerText=(savingsRate*100).toFixed(1)+"%";
-burnRateEl.innerText="$"+burnRate.toFixed(0);
-yearsSafeEl.innerText=yearsSafe.toFixed(1);
-decisionEl.innerText=decision;
+savingsRate.innerText=(savingsRate*100).toFixed(1)+"%";
+burnRate.innerText="$"+burnRate.toFixed(0);
+yearsSafe.innerText=yearsSafe.toFixed(1);
+decision.innerText=decision;
 
 /* SUMMARY */
 retirementSummary.innerHTML=`
@@ -195,16 +210,32 @@ retirementSummary.innerHTML=`
 <b>Failure Age:</b> ${failAge}
 `;
 
-/* MOCK AI */
+/* AI INSIGHT (UPGRADED) */
 let ai=[];
-if(decision==="FAIL") ai.push("🚨 Retirement not viable.");
-else if(decision==="RISK") ai.push("⚠️ Plan is fragile.");
-else ai.push("✅ Plan looks solid.");
 
-if(savingsRate<0.1) ai.push("Savings rate is too low.");
-if(yearsSafe<15) ai.push("Longevity risk present.");
+if(decision==="FAIL"){
+ai.push("🚨 Plan fails early — assets depleted too soon.");
+}else if(decision==="RISK"){
+ai.push("⚠️ Plan is fragile — sensitive to assumptions.");
+}else{
+ai.push("✅ Plan is stable under current assumptions.");
+}
 
-ai.push("Action: adjust spending or delay retirement.");
+if(savingsRate<0.1){
+ai.push("Savings rate is below 10% — major constraint.");
+}
+
+if(m.length<25){
+let needed = expVal * 25;
+ai.push(`Target assets ≈ $${needed.toLocaleString()} for stability.`);
+}
+
+if(contribution.value){
+let impact = (+contribution.value||0) * m.length;
+ai.push(`Contributions add ~$${impact.toLocaleString()} over time.`);
+}
+
+ai.push("Action: reduce expenses, increase contributions, or delay retirement.");
 
 aiOutput.innerHTML=ai.join("<br><br>");
 
@@ -225,7 +256,14 @@ let name=prompt("Profile name?");
 if(!name)return;
 
 let p=JSON.parse(localStorage.getItem("profiles")||"{}");
-p[name]={incomeA:incomeA.value,incomeB:incomeB.value,ageA:ageA.value,ageB:ageB.value,retA:retA.value,retB:retB.value,cash:cash.value,invest:invest.value,exp:exp.value};
+p[name]={
+incomeA:incomeA.value,incomeB:incomeB.value,
+ageA:ageA.value,ageB:ageB.value,
+retA:retA.value,retB:retB.value,
+cash:cash.value,invest:invest.value,
+debt:debt.value,contribution:contribution.value,
+exp:exp.value
+};
 localStorage.setItem("profiles",JSON.stringify(p));
 renderProfiles();
 }
@@ -241,14 +279,20 @@ Object.keys(d).forEach(k=>document.getElementById(k).value=d[k]);
 updateAll();
 }
 
-/* CHARTS */
+/* CHART */
 function renderCharts(m){
 let labels=m.map(x=>x.year);
 let bal=m.map(x=>x.bal);
 
 Object.values(charts).forEach(c=>c.destroy());
 
-charts.c1=new Chart(c1,{type:'line',data:{labels,datasets:[{data:bal}]}}); 
+charts.c1=new Chart(c1,{
+type:'line',
+data:{
+labels,
+datasets:[{label:"Portfolio Value",data:bal}]
+}
+});
 }
 
 /* INIT */
