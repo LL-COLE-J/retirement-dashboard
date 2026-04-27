@@ -135,11 +135,14 @@ let exp = getExpenses();
 let nw = getNetWorth();
 let tax = getTax();
 
-/* FIXED TARGETING */
+/* METRICS */
+let savingsRate = inc > 0 ? ((inc-exp)/inc)*100 : 0;
+
 document.getElementById("nw").innerText="$"+nw.toLocaleString();
 document.getElementById("inc").innerText="$"+(inc-tax).toLocaleString();
 document.getElementById("expOut").innerText="$"+exp.toLocaleString();
 document.getElementById("succ").innerText=(sim.success*100).toFixed(0)+"%";
+document.getElementById("saveRate").innerText=savingsRate.toFixed(1)+"%";
 
 /* INSIGHTS */
 milestonesOut.innerHTML = getInsights().join("<br>");
@@ -157,11 +160,13 @@ taxExplain.innerHTML=`Estimated Tax: $${tax.toLocaleString()}`;
 
 /* CHART */
 if(chart) chart.destroy();
-chart=new Chart(document.getElementById("chart"),{
+
+chart = new Chart(document.getElementById("chart"),{
 type:'line',
 data:{
 labels:sim.path.map((_,i)=>i),
 datasets:[{
+label:"Portfolio Value",
 data:sim.path,
 borderWidth:2,
 tension:0.3
@@ -171,7 +176,7 @@ tension:0.3
 }
 
 /* =========================
-   INPUT BUILDERS (RESTORED)
+   INPUT BUILDERS
 ========================= */
 
 function addIncome(){
