@@ -277,22 +277,31 @@ callAI({netWorth:total,income:incomeVal,expenses:expVal,years:m.length,savingsRa
 
 /* AI */
 async function callAI(model){
-try{
-aiOutput.innerHTML="Analyzing...";
-const res=await fetch(AI_URL,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify(model)
-});
-const data=await res.json();
-console.log(data);
-aiOutput.innerHTML=data.result || "No AI response";
-}catch(e){
-console.error(e);
-aiOutput.innerHTML="AI error";
-}
-}
 
+  // TEMP MOCK AI (until billing fixed)
+
+  let result = [];
+
+  if(model.years < 10){
+    result.push("🚨 You cannot retire — funds deplete too quickly.");
+  } else if(model.years < 25){
+    result.push("⚠️ Retirement is risky — you may run short.");
+  } else {
+    result.push("✅ You are on track for retirement under current assumptions.");
+  }
+
+  if(model.savingsRate < 0.1){
+    result.push("Biggest risk: low savings rate.");
+  } else if(model.yearsSafe < 15){
+    result.push("Biggest risk: longevity risk.");
+  } else {
+    result.push("Biggest risk: market volatility.");
+  }
+
+  result.push("Action: Reduce expenses or increase investment contributions.");
+
+  aiOutput.innerHTML = result.join("<br><br>");
+}
 /* STOCK */
 async function addStock(){
 const t=ticker.value.toUpperCase();
