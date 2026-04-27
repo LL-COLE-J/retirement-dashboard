@@ -12,45 +12,39 @@
 ========================= */
 body{
 margin:0;
-background:#0B0F1A;
-color:#E5E7EB;
-font-family:Inter, system-ui;
+background:#F8FAFC;
+color:#111827;
+font-family:Inter,system-ui;
 display:flex;
 }
 
-/* =========================
-   SIDEBAR
-========================= */
+/* SIDEBAR */
 .sidebar{
 width:220px;
-background:#0F172A;
-padding:24px 16px;
-border-right:1px solid #1F2937;
+background:#FFFFFF;
+border-right:1px solid #E5E7EB;
+padding:20px;
 }
 
 .logo{
-font-size:20px;
+font-size:18px;
 font-weight:600;
-margin-bottom:30px;
-color:#F9FAFB;
+margin-bottom:24px;
 }
 
 .nav-item{
-padding:12px 14px;
-border-radius:10px;
+padding:10px 12px;
+border-radius:8px;
 cursor:pointer;
-margin-bottom:6px;
-color:#9CA3AF;
+color:#6B7280;
 }
 
 .nav-item:hover{
-background:#1F2937;
-color:white;
+background:#F3F4F6;
+color:#111827;
 }
 
-/* =========================
-   MAIN
-========================= */
+/* MAIN */
 .main{
 flex:1;
 padding:28px;
@@ -58,20 +52,19 @@ max-width:1200px;
 margin:auto;
 }
 
-/* =========================
-   METRICS
-========================= */
+/* METRICS */
 .metrics{
 display:grid;
 grid-template-columns:repeat(5,1fr);
-gap:16px;
-margin-bottom:24px;
+gap:14px;
+margin-bottom:20px;
 }
 
 .metric{
-background:#111827;
-padding:18px;
-border-radius:16px;
+background:#FFFFFF;
+padding:16px;
+border-radius:12px;
+border:1px solid #E5E7EB;
 }
 
 .metric-label{
@@ -80,63 +73,49 @@ color:#6B7280;
 }
 
 .metric-value{
-font-size:22px;
+font-size:20px;
 margin-top:6px;
-font-weight:500;
-color:#F9FAFB;
+font-weight:600;
 }
 
-/* =========================
-   CARDS
-========================= */
+/* CARDS */
 .card{
-background:#111827;
-padding:20px;
-border-radius:16px;
+background:#FFFFFF;
+padding:18px;
+border-radius:12px;
+border:1px solid #E5E7EB;
+margin-bottom:16px;
+}
+
+/* CHART */
+.chart-card{
+background:#FFFFFF;
+padding:18px;
+border-radius:12px;
+border:1px solid #E5E7EB;
 margin-bottom:20px;
 }
 
-.card h3{
-margin-top:0;
-font-weight:500;
-}
-
-/* =========================
-   CHART
-========================= */
-.chart-card{
-background:#111827;
-padding:20px;
-border-radius:16px;
-margin-bottom:24px;
-}
-
-/* =========================
-   MODULE GRID
-========================= */
+/* MODULES */
 .modules{
 display:grid;
 grid-template-columns:repeat(3,1fr);
-gap:16px;
-margin-bottom:24px;
+gap:12px;
 }
 
 .module{
-background:#111827;
-padding:18px;
-border-radius:16px;
+background:#FFFFFF;
+padding:14px;
+border-radius:12px;
+border:1px solid #E5E7EB;
 cursor:pointer;
-transition:0.2s;
 }
 
 .module:hover{
-background:#1F2937;
-transform:translateY(-2px);
+background:#F9FAFB;
 }
 
-/* =========================
-   INPUTS
-========================= */
+/* INPUT ROW */
 .row{
 display:grid;
 grid-template-columns:1fr 140px 160px;
@@ -144,42 +123,32 @@ gap:10px;
 margin-bottom:10px;
 }
 
-input, select{
-width:100%;
-padding:12px;
-background:#0F172A;
-border:1px solid #1F2937;
-color:white;
-border-radius:10px;
+input,select{
+padding:10px;
+border:1px solid #E5E7EB;
+border-radius:8px;
+background:white;
+}
+
+input:focus,select:focus{
 outline:none;
+border-color:#2563EB;
 }
 
-input::placeholder{
-color:#6B7280;
-}
-
-input:focus, select:focus{
-border-color:#3B82F6;
-}
-
-/* =========================
-   BUTTON
-========================= */
+/* BUTTON */
 button{
 margin-top:10px;
 padding:10px 14px;
 background:#2563EB;
 color:white;
 border:none;
-border-radius:10px;
+border-radius:8px;
 cursor:pointer;
-font-weight:500;
 }
 
 button:hover{
 background:#1D4ED8;
 }
-
 </style>
 </head>
 
@@ -271,7 +240,6 @@ background:#1D4ED8;
 <script src="ui.js"></script>
 
 </body>
-</html><!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
