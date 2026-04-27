@@ -18,11 +18,11 @@ body{background:#0B0F1A;color:#E5E7EB;display:flex;height:100vh;}
 .content{flex:1;padding:20px;overflow:auto;}
 .card{background:#111827;padding:15px;border-radius:12px;margin-bottom:10px;}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-.chartGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 input{width:100%;padding:8px;margin-top:5px;background:#1F2937;border:none;color:white;border-radius:6px;}
 button{margin-top:8px;padding:6px 10px;border:none;border-radius:6px;background:#3B82F6;color:white;cursor:pointer;}
 .ai{width:260px;background:#0F172A;padding:15px;}
 canvas{height:200px!important;}
+.section{margin-bottom:15px;}
 </style>
 </head>
 
@@ -44,68 +44,73 @@ canvas{height:200px!important;}
 <div class="card">Net Worth<div id="netWorth"></div></div>
 <div class="card">Income<div id="income"></div></div>
 <div class="card">Expenses<div id="expensesOut"></div></div>
-<div class="card">Years Funded<div id="years"></div></div>
+<div class="card">Success %<div id="successRate"></div></div>
 </div>
 
 <div class="grid">
 <div class="card">Savings Rate<div id="savingsRate"></div></div>
-<div class="card">Monthly Burn<div id="burnRate"></div></div>
-<div class="card">Years Safe (Static)<div id="yearsSafe"></div></div>
+<div class="card">Years Funded<div id="years"></div></div>
+<div class="card">Failure Age<div id="failAge"></div></div>
 <div class="card">Decision<div id="decision"></div></div>
 </div>
 
-<div class="card">
-<div id="retirementSummary"></div>
-</div>
+<div class="card" id="summary"></div>
 
-<div class="chartGrid">
-<canvas id="c1"></canvas>
-</div>
+<canvas id="chart"></canvas>
 </div>
 
 <!-- FINANCIALS -->
 <div id="financials" style="display:none">
-<div class="card">
 
-<h4>Person A</h4>
-<input id="incomeA" placeholder="Income A">
-<input id="ageA" placeholder="Age A">
-<input id="retA" placeholder="Retirement Age A">
+<div class="card section">
+<h4>Household Members</h4>
+<input id="age" placeholder="Primary Age">
+<input id="retAge" placeholder="Retirement Age">
+<input id="incomeInput" placeholder="Annual Income">
+</div>
 
-<h4>Person B</h4>
-<input id="incomeB" placeholder="Income B">
-<input id="ageB" placeholder="Age B">
-<input id="retB" placeholder="Retirement Age B">
+<div class="card section">
+<h4>Dependents</h4>
+<input id="depCost" placeholder="Annual Dependent Cost">
+<input id="depYears" placeholder="Years Remaining">
+</div>
 
+<div class="card section">
 <h4>Assets</h4>
 <input id="cash" placeholder="Cash">
 <input id="invest" placeholder="Investments">
+</div>
 
+<div class="card section">
 <h4>Liabilities</h4>
 <input id="debt" placeholder="Total Debt">
+</div>
 
+<div class="card section">
 <h4>Contributions</h4>
-<input id="contribution" placeholder="Annual Investment Contribution">
+<input id="contrib" placeholder="Annual Contribution">
+</div>
 
+<div class="card section">
 <h4>Expenses</h4>
 <input id="exp" placeholder="Annual Expenses">
-
-<button onclick="saveProfile()">Save Profile</button>
-<div id="profileList"></div>
-
 </div>
+
+<div class="card section">
+<h4>Tax Profile</h4>
+<input id="taxRate" placeholder="Effective Tax Rate (0.22)">
+</div>
+
 </div>
 
 <!-- SCENARIOS -->
 <div id="scenarios" style="display:none">
 <div class="card">
-<h4>Quick Scenarios</h4>
 <button onclick="applyScenario('crash')">Market Crash</button>
 <button onclick="applyScenario('inflation')">High Inflation</button>
-<button onclick="applyScenario('longevity')">Live Longer</button>
+<button onclick="applyScenario('jobloss')">Job Loss</button>
 
-<h4>Assumptions</h4>
-<input id="returnRate" placeholder="Return % (default 5)">
+<input id="returnRate" placeholder="Return % (default 6)">
 <input id="inflation" placeholder="Inflation % (default 2.5)">
 </div>
 </div>
@@ -113,15 +118,15 @@ canvas{height:200px!important;}
 </div>
 
 <div class="ai">
-<h4>Advisor Insight</h4>
-<div id="aiOutput"></div>
+<h4>AI Advisor</h4>
+<div id="ai"></div>
 </div>
 
 </div>
 
 <script>
 
-let charts={};
+let chart;
 
 /* NAV */
 function showView(id,el){
@@ -131,173 +136,133 @@ document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
 el.classList.add("active");
 }
 
-/* MODEL */
-function buildModel(){
+/* RANDOM RETURN */
+function randReturn(mean,std){
+let u=Math.random(),v=Math.random();
+let z=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+return mean + z*std;
+}
 
-let r=((+returnRate.value||5)/100)*0.8; // tax drag
-let inf=((+inflation.value||2.5)/100);
+/* SIMULATION */
+function simulate(){
 
-let cashVal=(+cash.value||0);
-let investVal=(+invest.value||0);
-let debtVal=(+debt.value||0);
-let contributionVal=(+contribution.value||0);
+let runs=100;
+let results=[];
+let lastPath=[];
 
-let bal = cashVal + investVal - debtVal;
-let arr=[];
+for(let r=0;r<runs;r++){
 
-for(let i=0;i<50;i++){
+let bal=(+cash.value||0)+(+invest.value||0)-(+debt.value||0);
+let ageVal=(+age.value||40);
+let ret=(+retAge.value||65);
+let income=(+incomeInput.value||0);
+let contribVal=(+contrib.value||0);
+let expVal=(+exp.value||0);
+let depC=(+depCost.value||0);
+let depY=(+depYears.value||0);
+let tax=(+taxRate.value||0.22);
+let inf=(+inflation.value||2.5)/100;
+let baseReturn=(+returnRate.value||6)/100;
 
-let inc=(+incomeA.value||0)+(+incomeB.value||0);
+let path=[];
 
-// retirement cutoff
-if(i>(+retA.value-(+ageA.value))) inc-= (+incomeA.value||0);
-if(i>(+retB.value-(+ageB.value))) inc-= (+incomeB.value||0);
+for(let y=0;y<50;y++){
 
-// contributions only before retirement
-let contrib = inc > 0 ? contributionVal : 0;
+let ror=randReturn(baseReturn,0.12);
 
-// expense growth
-let expenses=(+exp.value||0)*Math.pow(1+inf,i);
+// income stops at retirement
+let inc = (ageVal+y < ret) ? income : 0;
+inc = inc*(1-tax);
 
-// simulation
-bal += (bal * r) + inc - expenses + contrib;
+// dependents
+let dep = y < depY ? depC*Math.pow(1+inf,y) : 0;
 
-arr.push({year:i,bal,inc,exp:expenses});
+// expenses
+let expenses = expVal*Math.pow(1+inf,y);
+
+// contributions stop at retirement
+let contrib = (ageVal+y < ret) ? contribVal : 0;
+
+bal += bal*ror + inc - expenses - dep + contrib;
+
+path.push(bal);
 
 if(bal<=0) break;
 }
 
-return arr;
+results.push(path.length);
+if(r===0) lastPath=path;
+}
+
+/* METRICS */
+let success = results.filter(x=>x>=30).length / runs;
+let median = results.sort()[Math.floor(results.length/2)];
+
+return {success,median,lastPath};
 }
 
 /* UPDATE */
-function updateAll(){
+function update(){
 
-let m=buildModel();
+let sim = simulate();
 
-let incomeVal=(+incomeA.value||0)+(+incomeB.value||0);
-let expVal=(+exp.value||0);
 let total=(+cash.value||0)+(+invest.value||0)-(+debt.value||0);
+let incomeVal=(+incomeInput.value||0);
+let expVal=(+exp.value||0);
 
-/* METRICS */
-let savingsRate = incomeVal ? ((incomeVal-expVal)/incomeVal) : 0;
-let burnRate = expVal/12;
-let yearsSafe = total/(expVal||1);
-
-/* DECISION */
-let decision="SAFE";
-if(m.length<30) decision="RISK";
-if(m.length<20) decision="FAIL";
-
-/* FAILURE AGE */
-let failAge=(+ageA.value||65)+m.length;
-
-/* OUTPUT */
 netWorth.innerText="$"+total.toLocaleString();
 income.innerText="$"+incomeVal.toLocaleString();
 expensesOut.innerText="$"+expVal.toLocaleString();
-years.innerText=m.length;
 
-savingsRate.innerText=(savingsRate*100).toFixed(1)+"%";
-burnRate.innerText="$"+burnRate.toFixed(0);
-yearsSafe.innerText=yearsSafe.toFixed(1);
-decision.innerText=decision;
+successRate.innerText=(sim.success*100).toFixed(0)+"%";
+years.innerText=sim.median;
 
-/* SUMMARY */
-retirementSummary.innerHTML=`
-<b>Status:</b> ${decision}<br>
-<b>Funds Last:</b> ${m.length} years<br>
-<b>Failure Age:</b> ${failAge}
+failAge.innerText=(+age.value||40)+sim.median;
+
+let decision="SAFE";
+if(sim.success<0.8) decision="RISK";
+if(sim.success<0.6) decision="FAIL";
+
+decisionEl.innerText=decision;
+
+/* AI */
+let aiText=[];
+if(decision==="FAIL") aiText.push("🚨 Plan fails in most scenarios.");
+if(decision==="RISK") aiText.push("⚠️ Plan is sensitive.");
+if(decision==="SAFE") aiText.push("✅ Plan is stable.");
+
+if(sim.success<0.8) aiText.push("Increase savings or delay retirement.");
+if((+contrib.value||0)<5000) aiText.push("Low contributions limiting growth.");
+
+ai.innerHTML=aiText.join("<br><br>");
+
+summary.innerHTML=`
+<b>Success:</b> ${(sim.success*100).toFixed(1)}%<br>
+<b>Median Years:</b> ${sim.median}
 `;
 
-/* AI INSIGHT (UPGRADED) */
-let ai=[];
-
-if(decision==="FAIL"){
-ai.push("🚨 Plan fails early — assets depleted too soon.");
-}else if(decision==="RISK"){
-ai.push("⚠️ Plan is fragile — sensitive to assumptions.");
-}else{
-ai.push("✅ Plan is stable under current assumptions.");
+/* CHART */
+if(chart) chart.destroy();
+chart=new Chart(chart,{
+type:'line',
+data:{
+labels:sim.lastPath.map((_,i)=>i),
+datasets:[{data:sim.lastPath}]
 }
-
-if(savingsRate<0.1){
-ai.push("Savings rate is below 10% — major constraint.");
-}
-
-if(m.length<25){
-let needed = expVal * 25;
-ai.push(`Target assets ≈ $${needed.toLocaleString()} for stability.`);
-}
-
-if(contribution.value){
-let impact = (+contribution.value||0) * m.length;
-ai.push(`Contributions add ~$${impact.toLocaleString()} over time.`);
-}
-
-ai.push("Action: reduce expenses, increase contributions, or delay retirement.");
-
-aiOutput.innerHTML=ai.join("<br><br>");
-
-renderCharts(m);
+});
 }
 
 /* SCENARIOS */
 function applyScenario(type){
 if(type==="crash") returnRate.value=2;
 if(type==="inflation") inflation.value=5;
-if(type==="longevity") ageA.value=(+ageA.value||65)-5;
-updateAll();
-}
-
-/* SAVE */
-function saveProfile(){
-let name=prompt("Profile name?");
-if(!name)return;
-
-let p=JSON.parse(localStorage.getItem("profiles")||"{}");
-p[name]={
-incomeA:incomeA.value,incomeB:incomeB.value,
-ageA:ageA.value,ageB:ageB.value,
-retA:retA.value,retB:retB.value,
-cash:cash.value,invest:invest.value,
-debt:debt.value,contribution:contribution.value,
-exp:exp.value
-};
-localStorage.setItem("profiles",JSON.stringify(p));
-renderProfiles();
-}
-
-function renderProfiles(){
-let p=JSON.parse(localStorage.getItem("profiles")||"{}");
-profileList.innerHTML=Object.keys(p).map(n=>`<div onclick="loadProfile('${n}')">${n}</div>`).join("");
-}
-
-function loadProfile(n){
-let d=JSON.parse(localStorage.getItem("profiles"))[n];
-Object.keys(d).forEach(k=>document.getElementById(k).value=d[k]);
-updateAll();
-}
-
-/* CHART */
-function renderCharts(m){
-let labels=m.map(x=>x.year);
-let bal=m.map(x=>x.bal);
-
-Object.values(charts).forEach(c=>c.destroy());
-
-charts.c1=new Chart(c1,{
-type:'line',
-data:{
-labels,
-datasets:[{label:"Portfolio Value",data:bal}]
-}
-});
+if(type==="jobloss") incomeInput.value=0;
+update();
 }
 
 /* INIT */
-document.querySelectorAll("input").forEach(i=>i.addEventListener("input",updateAll));
-window.onload=()=>{renderProfiles();updateAll();};
+document.querySelectorAll("input").forEach(i=>i.addEventListener("input",update));
+window.onload=update;
 
 </script>
 
