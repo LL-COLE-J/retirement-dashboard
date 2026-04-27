@@ -38,6 +38,10 @@ function manualLoad(){
   renderAll();
   alert("Profile Loaded");
 }
+function openModule(name){
+  document.getElementById("milestonesOut").innerText =
+    name + " coming soon";
+}
 
 /* =========================
    NAVIGATION
