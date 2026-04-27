@@ -1,240 +1,152 @@
-let chart;
+var chart;
 
-/* =========================
-   NAV
-========================= */
-function show(view){
-["dashboard","financials","moduleView"].forEach(id=>{
-  const el = document.getElementById(id);
-  if(el) el.style.display="none";
-});
-const target = document.getElementById(view);
-if(target) target.style.display="block";
+/* NAVIGATION (FIXES TAB RESET ISSUE) */
+function show(page){
+  localStorage.setItem("page",page);
+
+  document.getElementById("dashboard").style.display = page==="dashboard"?"block":"none";
+  document.getElementById("financials").style.display = page==="financials"?"block":"none";
 }
 
-/* =========================
-   HELPERS
-========================= */
-const el = id => document.getElementById(id);
+/* LOAD PAGE ON REFRESH */
+window.onload = () => {
 
-/* =========================
-   CORE CALCS
-========================= */
-function getIncome(){
-return incomes.reduce((t,i)=>t+norm(i.amount,i.freq),0);
-}
-function getExpenses(){
-return expenses.reduce((t,e)=>t+norm(e.amount,e.freq),0);
-}
-function getNetWorth(){
-return (+el("cash")?.value||0)+(+el("invest")?.value||0)-(+el("debt")?.value||0);
-}
-function getTax(){
-return calcTax(getIncome(), el("filing")?.value);
+  loadProfile();
+
+  let savedPage = localStorage.getItem("page") || "dashboard";
+  show(savedPage);
+
+  renderAll();
+};
+
+/* SAVE PROFILE */
+function saveProfile(){
+  localStorage.setItem("avora_profile", JSON.stringify(state));
 }
 
-/* =========================
-   MODULES
-========================= */
-function openModule(type){
-
-show("moduleView");
-
-el("moduleTitle").innerText = type;
-
-let inc = getIncome();
-let exp = getExpenses();
-let tax = getTax();
-let sim = simulate();
-
-switch(type){
-
-case "Chance of Success":
-el("moduleContent").innerHTML = `<h2>${(sim.success*100).toFixed(1)}%</h2>`;
-break;
-
-case "Cash Flow":
-el("moduleContent").innerHTML = `<h2>$${(inc-exp).toLocaleString()}</h2>`;
-break;
-
-case "Spending Breakdown":
-let cat = getCategoryBreakdown();
-el("moduleContent").innerHTML = Object.entries(cat)
-.map(([k,v])=>`${k}: $${v.toLocaleString()}`).join("<br>");
-break;
-
-case "Milestones":
-el("moduleContent").innerHTML = getMilestones().join("<br>");
-break;
-
-case "Tax Analytics":
-el("moduleContent").innerHTML = `<h2>$${tax.toLocaleString()}</h2>`;
-break;
-
-default:
-el("moduleContent").innerHTML = "Coming Soon";
-}
+/* LOAD PROFILE */
+function loadProfile(){
+  let data = localStorage.getItem("avora_profile");
+  if(data){
+    state = JSON.parse(data);
+  }
 }
 
-/* =========================
-   CATEGORY + MILESTONES
-========================= */
-function getCategoryBreakdown(){
-let cat={};
-expenses.forEach(e=>{
-let v=norm(e.amount,e.freq);
-cat[e.cat]=(cat[e.cat]||0)+v;
-});
-return cat;
+/* ADD FUNCTIONS */
+function addIncome(){
+  state.incomes.push({amount:0,freq:"yearly"});
+  renderAll();
 }
 
-function getMilestones(){
-let nw = getNetWorth();
-let exp = getExpenses();
-let list=[];
-if(nw>=exp*25) list.push("✔ Financial Independence");
-if(nw>=1000000) list.push("✔ Millionaire");
-if(!list.length) list.push("No milestones yet");
-return list;
+function addExpense(){
+  state.expenses.push({amount:0,freq:"yearly",cat:"housing"});
+  renderAll();
 }
 
-/* =========================
-   INSIGHTS
-========================= */
-function getInsights(){
-let inc=getIncome(),exp=getExpenses(),nw=getNetWorth(),tax=getTax();
-let i=[];
-if(exp>inc)i.push("🚨 Spending exceeds income");
-if(exp>inc*0.7)i.push("⚠️ High spending");
-if(nw<exp*5)i.push("⚠️ Low buffer");
-if(nw>exp*25)i.push("✅ Financial independence");
-if(tax>inc*0.25)i.push("💡 High tax load");
-if(!events.length)i.push("📌 No future events");
-return i;
+function addEvent(){
+  state.events.push({year:5,type:"expense",value:10000});
+  renderAll();
 }
 
-/* =========================
-   UPDATE
-========================= */
-function update(){
-
-let sim = simulate();
-let inc = getIncome();
-let exp = getExpenses();
-let nw = getNetWorth();
-let tax = getTax();
-
-let savingsRate = inc>0?((inc-exp)/inc)*100:0;
-
-const set=(id,val)=>{ if(el(id)) el(id).innerText=val };
-
-set("nw","$"+nw.toLocaleString());
-set("inc","$"+(inc-tax).toLocaleString());
-set("expOut","$"+exp.toLocaleString());
-set("succ",(sim.success*100).toFixed(0)+"%");
-set("saveRate",savingsRate.toFixed(1)+"%");
-
-if(el("milestonesOut"))
-el("milestonesOut").innerHTML=getInsights().join("<br>");
-
-if(el("categoryOut")){
-let cat=getCategoryBreakdown();
-el("categoryOut").innerHTML=Object.entries(cat)
-.sort((a,b)=>b[1]-a[1])
-.slice(0,3)
-.map(([k,v])=>`${k}: $${v.toLocaleString()}`)
-.join("<br>");
+/* DEPENDENTS */
+function addDependent(){
+  state.dependents.push({age:5,cost:10000});
+  renderAll();
 }
 
-if(el("taxExplain"))
-el("taxExplain").innerHTML=`Estimated Tax: $${tax.toLocaleString()}`;
-
-const chartEl=el("chart");
-if(chartEl){
-if(chart)chart.destroy();
-chart=new Chart(chartEl,{
-type:'line',
-data:{
-labels:sim.path.map((_,i)=>i),
-datasets:[{label:"Portfolio",data:sim.path}]
-}
-});
-}
+/* ACCOUNTS */
+function addAccount(){
+  state.accounts.push({type:"401k",balance:0});
+  renderAll();
 }
 
-/* =========================
-   INPUTS
-========================= */
-function addIncome(){incomes.push({id:Date.now(),amount:0,freq:"yearly"});renderIncome();}
-function addExpense(){expenses.push({id:Date.now(),amount:0,freq:"yearly",cat:"housing"});renderExpense();}
-function addEvent(){events.push({id:Date.now(),year:5,type:"expense",value:10000});renderEvents();}
-
-function renderIncome(){
-el("incomeList").innerHTML=incomes.map(i=>`
-<div class="row">
-<input value="${i.amount}" oninput="iUpdate(${i.id},this.value)">
-<select onchange="iFreq(${i.id},this.value)">
-<option ${i.freq==="yearly"?"selected":""}>yearly</option>
-<option ${i.freq==="monthly"?"selected":""}>monthly</option>
-<option ${i.freq==="biweekly"?"selected":""}>biweekly</option>
-</select>
-</div>`).join("");
-update();
+/* RENDER */
+function renderAll(){
+  renderDashboard();
+  renderFinancials();
+  saveProfile();
 }
 
-function renderExpense(){
-el("expenseList").innerHTML=expenses.map(e=>`
-<div class="row">
-<input value="${e.amount}" oninput="eUpdate(${e.id},this.value)">
-<select onchange="eFreq(${e.id},this.value)">
-<option ${e.freq==="yearly"?"selected":""}>yearly</option>
-<option ${e.freq==="monthly"?"selected":""}>monthly</option>
-<option ${e.freq==="biweekly"?"selected":""}>biweekly</option>
-</select>
-<select onchange="eCat(${e.id},this.value)">
-<option ${e.cat==="housing"?"selected":""}>housing</option>
-<option ${e.cat==="food"?"selected":""}>food</option>
-<option ${e.cat==="transport"?"selected":""}>transport</option>
-<option ${e.cat==="insurance"?"selected":""}>insurance</option>
-<option ${e.cat==="other"?"selected":""}>other</option>
-</select>
-</div>`).join("");
-update();
+/* DASHBOARD */
+function renderDashboard(){
+
+  let d = calculate();
+
+  document.getElementById("nw").innerText = "$"+Math.round(d.netWorth);
+  document.getElementById("inc").innerText = "$"+Math.round(d.income);
+  document.getElementById("expOut").innerText = "$"+Math.round(d.expenses);
+  document.getElementById("saveRate").innerText = d.savingsRate.toFixed(1)+"%";
+  document.getElementById("succ").innerText = d.net>0?"Good":"Risk";
+
+  let ctx = document.getElementById("chart").getContext("2d");
+
+  if(chart) chart.destroy();
+
+  chart = new Chart(ctx,{
+    type:"line",
+    data:{
+      labels:[...Array(30).keys()],
+      datasets:[{
+        label:"Projection",
+        data:[...Array(30).keys()].map(i=>d.netWorth+i*d.net),
+        borderWidth:2
+      }]
+    }
+  });
 }
 
-function renderEvents(){
-el("eventList").innerHTML=events.map(e=>`
-<div class="row">
-<input value="${e.year}" oninput="evYear(${e.id},this.value)">
-<select onchange="evType(${e.id},this.value)">
-<option ${e.type==="expense"?"selected":""}>expense</option>
-<option ${e.type==="income"?"selected":""}>income</option>
-</select>
-<input value="${e.value}" oninput="evVal(${e.id},this.value)">
-</div>`).join("");
-update();
+/* FINANCIALS */
+function renderFinancials(){
+
+  let incDiv = document.getElementById("incomeList");
+  incDiv.innerHTML = "";
+
+  state.incomes.forEach((i,idx)=>{
+    incDiv.innerHTML += `
+      <div class="row">
+        <input value="${i.amount}" onchange="state.incomes[${idx}].amount=+this.value;renderAll()">
+        <select onchange="state.incomes[${idx}].freq=this.value;renderAll()">
+          <option ${i.freq==="yearly"?"selected":""}>yearly</option>
+          <option ${i.freq==="monthly"?"selected":""}>monthly</option>
+        </select>
+      </div>
+    `;
+  });
+
+  let expDiv = document.getElementById("expenseList");
+  expDiv.innerHTML = "";
+
+  state.expenses.forEach((e,idx)=>{
+    expDiv.innerHTML += `
+      <div class="row">
+        <input value="${e.amount}" onchange="state.expenses[${idx}].amount=+this.value;renderAll()">
+        <select onchange="state.expenses[${idx}].freq=this.value;renderAll()">
+          <option ${e.freq==="yearly"?"selected":""}>yearly</option>
+          <option ${e.freq==="monthly"?"selected":""}>monthly</option>
+        </select>
+        <select onchange="state.expenses[${idx}].cat=this.value;renderAll()">
+          <option>housing</option>
+          <option>food</option>
+          <option>transport</option>
+          <option>insurance</option>
+          <option>lifestyle</option>
+        </select>
+      </div>
+    `;
+  });
+
+  /* ASSETS */
+  document.getElementById("cash").value = state.assets.cash || "";
+  document.getElementById("invest").value = state.assets.invest || "";
+  document.getElementById("debt").value = state.assets.debt || "";
+
+  document.getElementById("cash").onchange = e=>{state.assets.cash=+e.target.value;renderAll()};
+  document.getElementById("invest").onchange = e=>{state.assets.invest=+e.target.value;renderAll()};
+  document.getElementById("debt").onchange = e=>{state.assets.debt=+e.target.value;renderAll()};
+
+  document.getElementById("filing").value = state.filing;
+  document.getElementById("filing").onchange = e=>{
+    state.filing = e.target.value;
+    renderAll();
+  };
 }
-
-/* =========================
-   UPDATE HANDLERS
-========================= */
-function iUpdate(id,val){incomes.find(x=>x.id===id).amount=+val;update();}
-function iFreq(id,val){incomes.find(x=>x.id===id).freq=val;update();}
-function eUpdate(id,val){expenses.find(x=>x.id===id).amount=+val;update();}
-function eFreq(id,val){expenses.find(x=>x.id===id).freq=val;update();}
-function eCat(id,val){expenses.find(x=>x.id===id).cat=val;}
-function evYear(id,val){events.find(x=>x.id===id).year=+val;}
-function evType(id,val){events.find(x=>x.id===id).type=val;}
-function evVal(id,val){events.find(x=>x.id===id).value=+val;}
-
-/* =========================
-   INIT
-========================= */
-addIncome();
-addExpense();
-addEvent();
-
-["cash","invest","debt","filing"].forEach(id=>{
-const input=el(id);
-if(input) input.addEventListener("input",update);
-});
