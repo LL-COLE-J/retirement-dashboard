@@ -228,18 +228,21 @@ button{
     <h3>Income</h3>
     <div id="incomeList"></div>
     <button onclick="addIncome()">+ Add Income</button>
+    <button onclick="clearIncome()">Clear Income</button>
   </div>
 
   <div class="card">
     <h3>Expenses</h3>
     <div id="expenseList"></div>
     <button onclick="addExpense()">+ Add Expense</button>
+    <button onclick="clearExpenses()">Clear Expenses</button>
   </div>
 
   <div class="card">
     <h3>Events</h3>
     <div id="eventList"></div>
     <button onclick="addEvent()">+ Add Event</button>
+    <button onclick="clearEvents()">Clear Events</button>
   </div>
 
   <div class="card">
@@ -264,16 +267,23 @@ button{
     <h3>Accounts</h3>
     <div id="accountList"></div>
     <button onclick="addAccount()">+ Add Account</button>
+    <button onclick="clearAccounts()">Clear Accounts</button>
   </div>
 
   <div class="card">
     <h3>Dependents</h3>
     <div id="dependentList"></div>
     <button onclick="addDependent()">+ Add Dependent</button>
+    <button onclick="clearDependents()">Clear Dependents</button>
+  </div>
+
+  <div class="card">
+    <h3>Profile</h3>
+    <button onclick="manualSave()">Save Profile</button>
+    <button onclick="manualLoad()">Load Profile</button>
   </div>
 
 </div>
-
 </div>
 
 <script src="modules.js"></script>
