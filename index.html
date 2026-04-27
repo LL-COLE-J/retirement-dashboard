@@ -120,7 +120,6 @@ canvas { width:100% !important; height:200px !important; }
 
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
   <div class="logo">AVORA</div>
   <div class="nav-item active" onclick="showView('dashboard',this)">Dashboard</div>
@@ -128,12 +127,10 @@ canvas { width:100% !important; height:200px !important; }
   <div class="nav-item" onclick="showView('scenarios',this)">Scenarios</div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
 
 <div class="content">
 
-<!-- DASHBOARD -->
 <div id="dashboard">
 
 <div class="grid">
@@ -152,7 +149,6 @@ canvas { width:100% !important; height:200px !important; }
 
 </div>
 
-<!-- FINANCIALS -->
 <div id="financials" style="display:none">
 
 <div class="card">
@@ -177,7 +173,6 @@ canvas { width:100% !important; height:200px !important; }
 
 </div>
 
-<!-- SCENARIOS -->
 <div id="scenarios" style="display:none">
 
 <div class="card">
@@ -190,7 +185,6 @@ canvas { width:100% !important; height:200px !important; }
 
 </div>
 
-<!-- AI PANEL -->
 <div class="ai" id="aiPanel">
   <div style="display:flex;justify-content:space-between;">
     <h4>AI Advisor</h4>
@@ -203,10 +197,11 @@ canvas { width:100% !important; height:200px !important; }
 
 <script>
 
+const AI_URL = "https://summer-boat-369f.llcolej8.workers.dev";
+
 let charts={};
 let aiOpen=true;
 
-/* NAV */
 function showView(id,el){
   ["dashboard","financials","scenarios"].forEach(v=>{
     document.getElementById(v).style.display="none";
@@ -217,7 +212,6 @@ function showView(id,el){
   el.classList.add("active");
 }
 
-/* MODEL */
 function buildModel(total,exp){
 
 let r=((+returnRate.value||5)/100);
@@ -245,7 +239,6 @@ if(bal<=0) break;
 return arr;
 }
 
-/* UPDATE */
 function updateAll(){
 
 let total=(+cash.value||0)+(+invest.value||0);
@@ -261,15 +254,35 @@ years.innerText=m.length;
 
 renderCharts(m);
 
-/* SIMPLE AI */
-let ai=[];
-if(m.length<20) ai.push("⚠️ Risk of running out");
-else ai.push("✅ Sustainable");
-
-aiOutput.innerHTML=ai.join("<br>");
+callAI({
+  netWorth: total,
+  income: income,
+  expenses: exp,
+  years: m.length
+});
 }
 
-/* CHARTS */
+async function callAI(model){
+
+  try{
+
+    aiOutput.innerHTML="Analyzing...";
+
+    const res=await fetch(AI_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(model)
+    });
+
+    const data=await res.json();
+
+    aiOutput.innerHTML=data.result;
+
+  }catch(e){
+    aiOutput.innerHTML="AI error";
+  }
+}
+
 function renderCharts(m){
 
 let labels=m.map(x=>x.year);
@@ -280,19 +293,24 @@ let exp=m.map(x=>x.exp);
 Object.values(charts).forEach(c=>c.destroy());
 
 charts.c1=new Chart(c1,{type:'line',data:{labels,datasets:[{label:'Net Worth',data:bal}]}});
-charts.c2=new Chart(c2,{type:'line',data:{labels,datasets:[{label:'Income',data:inc},{label:'Expenses',data:exp}]}});
+
+charts.c2=new Chart(c2,{type:'line',data:{labels,datasets:[
+{label:'Income',data:inc},
+{label:'Expenses',data:exp}
+]}});
+
 charts.c3=new Chart(c3,{type:'bar',data:{labels,datasets:[{label:'Balance',data:bal}]}});
+
 charts.c4=new Chart(c4,{type:'line',data:{labels,datasets:[{label:'Expenses',data:exp}]}});
+
 }
 
-/* AI TOGGLE */
 function toggleAI(){
   let panel=document.getElementById("aiPanel");
   panel.style.height=aiOpen?"40px":"140px";
   aiOpen=!aiOpen;
 }
 
-/* LISTEN */
 document.querySelectorAll("input").forEach(i=>{
   i.addEventListener("input",updateAll);
 });
