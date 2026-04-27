@@ -43,7 +43,6 @@ body { background:var(--bg); color:var(--text-primary); display:flex; height:100
 .nav-item.active { background:var(--gradient); color:white; }
 
 .main { flex:1; display:flex; }
-
 .content { flex:1; padding:20px; overflow:auto; }
 
 .ai {
@@ -134,6 +133,13 @@ canvas { width:100% !important; height:200px !important; }
   <div class="card">Years<div id="years">0</div></div>
 </div>
 
+<div class="grid" style="margin-top:10px;">
+  <div class="card">Savings Rate<div id="savingsRate"></div></div>
+  <div class="card">Monthly Burn<div id="burnRate"></div></div>
+  <div class="card">Years Safe<div id="yearsSafe"></div></div>
+  <div class="card">Status<div id="status"></div></div>
+</div>
+
 <div class="chartGrid">
   <div class="card"><canvas id="c1"></canvas></div>
   <div class="card"><canvas id="c2"></canvas></div>
@@ -175,8 +181,7 @@ canvas { width:100% !important; height:200px !important; }
 <hr style="margin:15px 0;border-color:rgba(255,255,255,0.05);">
 
 <button onclick="saveProfile()">Save Profile</button>
-<button onclick="loadProfile()">Load Profile</button>
-  <div id="profileList" style="margin-top:10px;"></div>
+<div id="profileList" style="margin-top:10px;"></div>
 
 </div>
 </div>
@@ -194,10 +199,7 @@ canvas { width:100% !important; height:200px !important; }
 
 <!-- AI PANEL -->
 <div class="ai" id="aiPanel">
-  <div style="display:flex;justify-content:space-between;">
-    <h4>AI Advisor</h4>
-    <button onclick="toggleAI()">▼</button>
-  </div>
+  <h4>AI Advisor</h4>
   <div id="aiOutput">Ready...</div>
 </div>
 
@@ -207,9 +209,39 @@ canvas { width:100% !important; height:200px !important; }
 
 const AI_URL = "https://summer-boat-369f.llcolej8.workers.dev";
 
-let charts={}, portfolio=[], aiOpen=true;
+let portfolio=[], charts={};
 
-/* FIXED UPDATE */
+/* NAV */
+function showView(id,el){
+  ["dashboard","financials","scenarios"].forEach(v=>{
+    document.getElementById(v).style.display="none";
+  });
+  document.getElementById(id).style.display="block";
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+  el.classList.add("active");
+}
+
+/* MODEL */
+function buildModel(total,exp){
+let r=((+returnRate.value||5)/100);
+let inf=((+inflation.value||2.5)/100);
+let bal=total, arr=[];
+
+for(let i=0;i<40;i++){
+let inc=(+incomeA.value||0)+(+incomeB.value||0);
+if(i>(+retA.value||65)-(+ageA.value||65)) inc-= (+incomeA.value||0);
+if(i>(+retB.value||65)-(+ageB.value||65)) inc-= (+incomeB.value||0);
+
+let expenses=exp*Math.pow(1+inf,i);
+bal+=bal*r + inc - expenses;
+
+arr.push({year:i,bal,inc,exp:expenses});
+if(bal<=0) break;
+}
+return arr;
+}
+
+/* UPDATE */
 function updateAll(){
 
 let stockValue = portfolio.reduce((s,p)=>s+(p.price*p.shares),0);
@@ -218,63 +250,50 @@ let total=(+cash.value||0)+(+invest.value||0)+stockValue;
 let incomeVal=(+incomeA.value||0)+(+incomeB.value||0);
 let expVal=(+exp.value||0);
 
-/* RATIOS */
 let savingsRate = incomeVal ? ((incomeVal-expVal)/incomeVal) : 0;
 let burnRate = expVal/12;
 let yearsSafe = total / (expVal || 1);
 
 let m=buildModel(total,expVal);
 
-/* DASHBOARD */
 netWorth.innerText="$"+total.toLocaleString();
 document.getElementById("income").innerText="$"+incomeVal.toLocaleString();
 expensesOut.innerText="$"+expVal.toLocaleString();
 years.innerText=m.length;
 
-/* ADD NEW METRICS (create divs later if needed) */
-console.log({
-  savingsRate,
-  burnRate,
-  yearsSafe
-});
+document.getElementById("savingsRate").innerText=(savingsRate*100).toFixed(1)+"%";
+document.getElementById("burnRate").innerText="$"+burnRate.toFixed(0);
+document.getElementById("yearsSafe").innerText=yearsSafe.toFixed(1);
+
+let status="Stable";
+if(m.length<20) status="⚠️ Risk";
+if(m.length<10) status="🚨 High Risk";
+document.getElementById("status").innerText=status;
 
 renderCharts(m);
 
-/* REAL AI CALL */
-callAI({
-  netWorth: total,
-  income: incomeVal,
-  expenses: expVal,
-  years: m.length,
-  savingsRate,
-  burnRate,
-  yearsSafe,
-  portfolio
-});
+callAI({netWorth:total,income:incomeVal,expenses:expVal,years:m.length,savingsRate,burnRate,yearsSafe});
 }
 
 /* AI */
 async function callAI(model){
-  try{
-    aiOutput.innerHTML="Analyzing...";
-
-    const res=await fetch(AI_URL,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(model)
-    });
-
-    const data=await res.json();
-
-    aiOutput.innerHTML=data.result || "No response";
-
-  }catch(e){
-    console.error(e);
-    aiOutput.innerHTML="AI error";
-  }
+try{
+aiOutput.innerHTML="Analyzing...";
+const res=await fetch(AI_URL,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(model)
+});
+const data=await res.json();
+console.log(data);
+aiOutput.innerHTML=data.result || "No AI response";
+}catch(e){
+console.error(e);
+aiOutput.innerHTML="AI error";
+}
 }
 
-/* STOCKS */
+/* STOCK */
 async function addStock(){
 const t=ticker.value.toUpperCase();
 const s=+shares.value||0;
@@ -288,81 +307,65 @@ renderPortfolio(); updateAll();
 }
 
 function renderPortfolio(){
-stockList.innerHTML=portfolio.map(p=>
-`${p.ticker} - ${p.shares} ($${(p.price*p.shares).toFixed(0)})`
-).join("<br>");
+stockList.innerHTML=portfolio.map(p=>`${p.ticker} - ${p.shares} ($${(p.price*p.shares).toFixed(0)})`).join("<br>");
 }
 
-/* ===== PROFILES (REAL SYSTEM) ===== */
-
+/* PROFILES */
 function saveProfile(){
+let name=prompt("Profile name?");
+if(!name)return;
 
-let name = prompt("Name this profile:");
-if(!name) return;
+let profiles=JSON.parse(localStorage.getItem("avoraProfiles")||"{}");
+profiles[name]={incomeA:incomeA.value,incomeB:incomeB.value,ageA:ageA.value,ageB:ageB.value,retA:retA.value,retB:retB.value,cash:cash.value,invest:invest.value,exp:exp.value,portfolio};
 
-let profiles = JSON.parse(localStorage.getItem("avoraProfiles")||"{}");
-
-profiles[name] = {
-incomeA:incomeA.value,
-incomeB:incomeB.value,
-ageA:ageA.value,
-ageB:ageB.value,
-retA:retA.value,
-retB:retB.value,
-cash:cash.value,
-invest:invest.value,
-exp:exp.value,
-portfolio
-};
-
-localStorage.setItem("avoraProfiles", JSON.stringify(profiles));
-
+localStorage.setItem("avoraProfiles",JSON.stringify(profiles));
 renderProfiles();
 }
 
 function loadProfile(name){
+let profiles=JSON.parse(localStorage.getItem("avoraProfiles")||"{}");
+let d=profiles[name];
+if(!d)return;
 
-let profiles = JSON.parse(localStorage.getItem("avoraProfiles")||"{}");
-let d = profiles[name];
-if(!d) return;
-
-incomeA.value=d.incomeA;
-incomeB.value=d.incomeB;
-ageA.value=d.ageA;
-ageB.value=d.ageB;
-retA.value=d.retA;
-retB.value=d.retB;
-cash.value=d.cash;
-invest.value=d.invest;
-exp.value=d.exp;
-
+Object.keys(d).forEach(k=>{
+if(document.getElementById(k)) document.getElementById(k).value=d[k];
+});
 portfolio=d.portfolio||[];
 
-renderPortfolio();
-updateAll();
+renderPortfolio(); updateAll();
 }
 
 function renderProfiles(){
+let profiles=JSON.parse(localStorage.getItem("avoraProfiles")||"{}");
+profileList.innerHTML=Object.keys(profiles).map(name=>`<div onclick="loadProfile('${name}')" style="cursor:pointer">📁 ${name}</div>`).join("");
+}
 
-let profiles = JSON.parse(localStorage.getItem("avoraProfiles")||"{}");
+/* CHARTS */
+function renderCharts(m){
+let labels=m.map(x=>x.year);
+let bal=m.map(x=>x.bal);
+let inc=m.map(x=>x.inc);
+let exp=m.map(x=>x.exp);
 
-profileList.innerHTML = Object.keys(profiles).map(name=>
-`<div style="margin-top:6px;cursor:pointer" onclick="loadProfile('${name}')">
-📁 ${name}
-</div>`
-).join("");
+Object.values(charts).forEach(c=>c.destroy());
+
+charts.c1=new Chart(c1,{type:'line',data:{labels,datasets:[{label:'Net Worth',data:bal}]}});
+charts.c2=new Chart(c2,{type:'line',data:{labels,datasets:[{label:'Income',data:inc},{label:'Expenses',data:exp}]}});
+charts.c3=new Chart(c3,{type:'bar',data:{labels,datasets:[{label:'Balance',data:bal}]}});
+charts.c4=new Chart(c4,{type:'line',data:{labels,datasets:[{label:'Expenses',data:exp}]}});
 }
 
 /* INIT */
 window.onload=()=>{
-  renderProfiles();
-  updateAll();
+renderProfiles();
+updateAll();
 };
 
 document.querySelectorAll("input").forEach(i=>{
-  i.addEventListener("input",updateAll);
+i.addEventListener("input",updateAll);
 });
 
 </script>
+
 </body>
 </html>
