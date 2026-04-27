@@ -1,40 +1,54 @@
-function simulate(){
-
-let runs=100,results=[],path=[];
-
-for(let r=0;r<runs;r++){
-
-let bal=(+cash.value||0)+(+invest.value||0)-(+debt.value||0);
-
-let incRaw=incomes.reduce((t,i)=>t+norm(i.amount,i.freq),0);
-let tax=calcTax(incRaw,filing.value);
-let inc=incRaw-tax;
-
-let exp=expenses.reduce((t,e)=>t+norm(e.amount,e.freq),0);
-
-let arr=[];
-
-for(let y=0;y<50;y++){
-
-let ret=0.06+(Math.random()-0.5)*0.2;
-
-/* EVENTS INJECTION */
-events.forEach(ev=>{
-if(ev.year===y){
-bal += (ev.type==="income"?ev.value:-ev.value);
-}
-});
-
-bal+=bal*ret + inc - exp;
-
-arr.push(bal);
-if(bal<=0) break;
+function norm(a,f){
+  return a*(f==="monthly"?12:f==="biweekly"?26:1);
 }
 
-results.push(arr.length);
-if(r===0) path=arr;
+/* TAX */
+function calcTax(income, filing){
+  let brackets={
+    single:[[10000,0.1],[40000,0.12],[85000,0.22]],
+    married_joint:[[20000,0.1],[80000,0.12],[170000,0.22]],
+    head:[[15000,0.1],[55000,0.12],[90000,0.22]]
+  };
+
+  let tax=0,prev=0;
+  for(let [limit,rate] of brackets[filing]){
+    if(income>limit){
+      tax+=(limit-prev)*rate;
+      prev=limit;
+    }else{
+      tax+=(income-prev)*rate;
+      break;
+    }
+  }
+  return tax;
 }
 
-let success=results.filter(x=>x>=30).length/runs;
-return {success,path};
+/* CORE CALC */
+function calculate(){
+
+  let income = state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0);
+
+  let expenses = state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0);
+
+  // dependents cost
+  let depCost = state.dependents.reduce((s,d)=>s+d.cost,0);
+
+  expenses += depCost;
+
+  let net = income - expenses;
+
+  let netWorth =
+    (state.assets.cash||0) +
+    (state.assets.invest||0) -
+    (state.assets.debt||0);
+
+  let savingsRate = income>0 ? (net/income)*100 : 0;
+
+  return {
+    income,
+    expenses,
+    net,
+    netWorth,
+    savingsRate
+  };
 }
