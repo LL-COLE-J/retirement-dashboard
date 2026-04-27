@@ -4,10 +4,16 @@ let chart;
    NAV
 ========================= */
 function show(view){
-document.getElementById("dashboard").style.display="none";
-document.getElementById("financials").style.display="none";
-document.getElementById("moduleView").style.display="none";
-document.getElementById(view).style.display="block";
+
+const sections = ["dashboard","financials","moduleView"];
+
+sections.forEach(id=>{
+  const el = document.getElementById(id);
+  if(el) el.style.display = "none";
+});
+
+const target = document.getElementById(view);
+if(target) target.style.display = "block";
 }
 
 /* =========================
@@ -138,43 +144,53 @@ let tax = getTax();
 /* METRICS */
 let savingsRate = inc > 0 ? ((inc-exp)/inc)*100 : 0;
 
-document.getElementById("nw").innerText="$"+nw.toLocaleString();
-document.getElementById("inc").innerText="$"+(inc-tax).toLocaleString();
-document.getElementById("expOut").innerText="$"+exp.toLocaleString();
-document.getElementById("succ").innerText=(sim.success*100).toFixed(0)+"%";
-document.getElementById("saveRate").innerText=savingsRate.toFixed(1)+"%";
+const set = (id,val)=>{
+  const el = document.getElementById(id);
+  if(el) el.innerText = val;
+};
+
+set("nw","$"+nw.toLocaleString());
+set("inc","$"+(inc-tax).toLocaleString());
+set("expOut","$"+exp.toLocaleString());
+set("succ",(sim.success*100).toFixed(0)+"%");
+set("saveRate",savingsRate.toFixed(1)+"%");
 
 /* INSIGHTS */
+if(window.milestonesOut)
 milestonesOut.innerHTML = getInsights().join("<br>");
 
 /* CATEGORY */
+if(window.categoryOut){
 let cat = getCategoryBreakdown();
 categoryOut.innerHTML = Object.entries(cat)
 .sort((a,b)=>b[1]-a[1])
 .slice(0,3)
 .map(([k,v])=>`${k}: $${v.toLocaleString()}`)
 .join("<br>");
+}
 
 /* TAX */
+if(window.taxExplain)
 taxExplain.innerHTML=`Estimated Tax: $${tax.toLocaleString()}`;
 
 /* CHART */
-if(chart) chart.destroy();
-
-chart = new Chart(document.getElementById("chart"),{
-type:'line',
-data:{
-labels:sim.path.map((_,i)=>i),
-datasets:[{
-label:"Portfolio Value",
-data:sim.path,
-borderWidth:2,
-tension:0.3
-}]
+const chartEl = document.getElementById("chart");
+if(chartEl){
+  if(chart) chart.destroy();
+  chart = new Chart(chartEl,{
+    type:'line',
+    data:{
+      labels:sim.path.map((_,i)=>i),
+      datasets:[{
+        label:"Portfolio Value",
+        data:sim.path,
+        borderWidth:2,
+        tension:0.3
+      }]
+    }
+  });
 }
-});
 }
-
 /* =========================
    INPUT BUILDERS
 ========================= */
@@ -185,15 +201,17 @@ renderIncome();
 }
 
 function renderIncome(){
-incomeList.innerHTML=incomes.map(i=>`
+incomeList.innerHTML = incomes.map(i=>`
 <div class="row">
 <input value="${i.amount}" oninput="iUpdate(${i.id},this.value)">
 <select onchange="iFreq(${i.id},this.value)">
-<option>yearly</option>
-<option>monthly</option>
-<option>biweekly</option>
+<option value="yearly" ${i.freq==="yearly"?"selected":""}>yearly</option>
+<option value="monthly" ${i.freq==="monthly"?"selected":""}>monthly</option>
+<option value="biweekly" ${i.freq==="biweekly"?"selected":""}>biweekly</option>
 </select>
 </div>`).join("");
+
+update(); // 🔥 critical
 }
 
 function addExpense(){
@@ -202,22 +220,24 @@ renderExpense();
 }
 
 function renderExpense(){
-expenseList.innerHTML=expenses.map(e=>`
+expenseList.innerHTML = expenses.map(e=>`
 <div class="row">
 <input value="${e.amount}" oninput="eUpdate(${e.id},this.value)">
 <select onchange="eFreq(${e.id},this.value)">
-<option>yearly</option>
-<option>monthly</option>
-<option>biweekly</option>
+<option value="yearly" ${e.freq==="yearly"?"selected":""}>yearly</option>
+<option value="monthly" ${e.freq==="monthly"?"selected":""}>monthly</option>
+<option value="biweekly" ${e.freq==="biweekly"?"selected":""}>biweekly</option>
 </select>
 <select onchange="eCat(${e.id},this.value)">
-<option>housing</option>
-<option>food</option>
-<option>transport</option>
-<option>insurance</option>
-<option>other</option>
+<option ${e.cat==="housing"?"selected":""}>housing</option>
+<option ${e.cat==="food"?"selected":""}>food</option>
+<option ${e.cat==="transport"?"selected":""}>transport</option>
+<option ${e.cat==="insurance"?"selected":""}>insurance</option>
+<option ${e.cat==="other"?"selected":""}>other</option>
 </select>
 </div>`).join("");
+
+update(); // 🔥 critical
 }
 
 function addEvent(){
@@ -226,15 +246,17 @@ renderEvents();
 }
 
 function renderEvents(){
-eventList.innerHTML=events.map(e=>`
+eventList.innerHTML = events.map(e=>`
 <div class="row">
 <input value="${e.year}" oninput="evYear(${e.id},this.value)">
 <select onchange="evType(${e.id},this.value)">
-<option>expense</option>
-<option>income</option>
+<option value="expense" ${e.type==="expense"?"selected":""}>expense</option>
+<option value="income" ${e.type==="income"?"selected":""}>income</option>
 </select>
 <input value="${e.value}" oninput="evVal(${e.id},this.value)">
 </div>`).join("");
+
+update(); // 🔥 critical
 }
 
 /* =========================
