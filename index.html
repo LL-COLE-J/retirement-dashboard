@@ -149,6 +149,18 @@ canvas { width:100% !important; height:200px !important; }
 
 </div>
 
+  <h4>Stocks</h4>
+<input id="ticker" placeholder="Ticker (AAPL)">
+<input id="shares" placeholder="Shares">
+<button onclick="addStock()">Add Stock</button>
+
+<div id="stockList"></div>
+
+<br>
+
+<button onclick="saveProfile()">Save Profile</button>
+<button onclick="loadProfile()">Load Profile</button>
+
 <div id="financials" style="display:none">
 
 <div class="card">
