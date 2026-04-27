@@ -6,86 +6,16 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{
-  background:#0B0F1A;
-  color:white;
-  font-family:Inter,Arial;
-  display:flex;
-  margin:0;
-}
-
-/* SIDEBAR */
-.sidebar{
-  width:220px;
-  background:#0F172A;
-  padding:20px;
-}
-
-.nav-item{
-  padding:12px;
-  border-radius:8px;
-  cursor:pointer;
-  margin-bottom:6px;
-}
-
-.nav-item:hover{
-  background:#1E293B;
-}
-
-/* MAIN */
-.main{
-  flex:1;
-  padding:20px;
-}
-
-/* CARDS */
-.card{
-  background:#111827;
-  padding:16px;
-  margin-bottom:14px;
-  border-radius:14px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.35);
-}
-
-/* GRID */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:12px;
-}
-
-/* INPUTS */
-input,select{
-  width:100%;
-  margin-top:5px;
-  padding:8px;
-  background:#1F2937;
-  color:white;
-  border:none;
-  border-radius:6px;
-}
-
-/* BUTTON */
-button{
-  margin-top:10px;
-  padding:8px;
-  background:#3B82F6;
-  color:white;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-.row{
-  display:flex;
-  gap:6px;
-  margin-top:6px;
-}
-
-.small{
-  font-size:12px;
-  color:#9CA3AF;
-}
+body{margin:0;background:#0B0F1A;color:white;font-family:Inter,Arial;display:flex}
+.sidebar{width:220px;background:#0F172A;padding:20px}
+.nav-item{padding:12px;border-radius:8px;cursor:pointer;margin-bottom:6px}
+.nav-item:hover{background:#1E293B}
+.main{flex:1;padding:20px}
+.card{background:#111827;padding:16px;margin-bottom:14px;border-radius:14px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+input,select{width:100%;margin-top:5px;padding:8px;background:#1F2937;color:white;border:none;border-radius:6px}
+button{margin-top:10px;padding:8px;background:#3B82F6;color:white;border:none;border-radius:6px}
+.row{display:flex;gap:6px;margin-top:6px}
 </style>
 </head>
 
@@ -94,12 +24,10 @@ button{
 <div class="sidebar">
 <div class="nav-item" onclick="show('dashboard')">Dashboard</div>
 <div class="nav-item" onclick="show('financials')">Financials</div>
-<div class="nav-item" onclick="show('compare')">Compare</div>
 </div>
 
 <div class="main">
 
-<!-- DASHBOARD -->
 <div id="dashboard">
 
 <div class="grid">
@@ -109,9 +37,7 @@ button{
 <div class="card">Success %<div id="succ"></div></div>
 </div>
 
-<div class="card">
-<canvas id="chart"></canvas>
-</div>
+<div class="card"><canvas id="chart"></canvas></div>
 
 <div class="card">
 <h4>Milestones</h4>
@@ -119,7 +45,7 @@ button{
 </div>
 
 <div class="card">
-<h4>Top Spending Categories</h4>
+<h4>Top Spending</h4>
 <div id="categoryOut"></div>
 </div>
 
@@ -127,312 +53,47 @@ button{
 
 </div>
 
-<!-- FINANCIALS -->
 <div id="financials" style="display:none">
 
 <div class="card">
-<h3>Profile</h3>
-<input id="profileName" placeholder="Profile Name">
-<button onclick="saveProfile()">Save</button>
-<button onclick="loadProfile()">Load</button>
-</div>
-
-<div class="card">
-<h3>Income Streams</h3>
+<h3>Income</h3>
 <div id="incomeList"></div>
-<button onclick="addIncome()">+ Add Income</button>
+<button onclick="addIncome()">+ Add</button>
 </div>
 
 <div class="card">
 <h3>Expenses</h3>
 <div id="expenseList"></div>
-<button onclick="addExpense()">+ Add Expense</button>
+<button onclick="addExpense()">+ Add</button>
 </div>
 
 <div class="card">
-<h3>Timeline Events</h3>
+<h3>Events</h3>
 <div id="eventList"></div>
 <button onclick="addEvent()">+ Add Event</button>
 </div>
 
 <div class="card">
-<h3>Assets</h3>
 <input id="cash" placeholder="Cash">
 <input id="invest" placeholder="Investments">
 <input id="debt" placeholder="Debt">
 </div>
 
 <div class="card">
-<h3>Tax</h3>
 <select id="filing">
 <option value="single">Single</option>
 <option value="married_joint">Married Joint</option>
-<option value="married_separate">Married Separate</option>
-<option value="head">Head of Household</option>
+<option value="head">Head</option>
 </select>
 </div>
 
 </div>
 
-<!-- COMPARE -->
-<div id="compare" style="display:none">
-<div class="card">
-<button onclick="saveScenario()">Save Scenario</button>
-<div id="scenarios"></div>
-<div id="delta"></div>
-</div>
 </div>
 
-</div>
-
-<script>
-
-/* ===== STATE ===== */
-let incomes=[],expenses=[],events=[],scenarios=[],chart;
-
-/* ===== NAV ===== */
-function show(v){
-["dashboard","financials","compare"].forEach(x=>document.getElementById(x).style.display="none");
-document.getElementById(v).style.display="block";
-}
-
-/* ===== NORMALIZE ===== */
-function norm(a,f){
-return a*(f==="monthly"?12:f==="biweekly"?26:1);
-}
-
-/* ===== TAX ===== */
-function calcTax(income, filing){
-let brackets={
-single:[[10000,0.1],[40000,0.12],[85000,0.22],[160000,0.24]],
-married_joint:[[20000,0.1],[80000,0.12],[170000,0.22],[320000,0.24]],
-married_separate:[[10000,0.1],[40000,0.12],[85000,0.22],[160000,0.24]],
-head:[[15000,0.1],[55000,0.12],[90000,0.22],[170000,0.24]]
-};
-
-let b=brackets[filing];
-let tax=0,prev=0;
-
-for(let [limit,rate] of b){
-if(income>limit){
-tax+=(limit-prev)*rate;
-prev=limit;
-}else{
-tax+=(income-prev)*rate;
-break;
-}
-}
-return tax;
-}
-
-/* ===== INCOME ===== */
-function addIncome(){
-incomes.push({id:Date.now(),amount:0,freq:"yearly"});
-renderIncome();
-}
-
-function renderIncome(){
-incomeList.innerHTML=incomes.map(i=>`
-<div class="row">
-<input value="${i.amount}" placeholder="Amount" oninput="iUpdate(${i.id},this.value)">
-<select onchange="iFreq(${i.id},this.value)">
-<option ${i.freq==="yearly"?"selected":""}>yearly</option>
-<option ${i.freq==="monthly"?"selected":""}>monthly</option>
-<option ${i.freq==="biweekly"?"selected":""}>biweekly</option>
-</select>
-</div>`).join("");
-}
-
-/* ===== EXPENSE ===== */
-function addExpense(){
-expenses.push({id:Date.now(),amount:0,freq:"yearly",cat:"housing"});
-renderExpense();
-}
-
-function renderExpense(){
-expenseList.innerHTML=expenses.map(e=>`
-<div class="row">
-<input value="${e.amount}" oninput="eUpdate(${e.id},this.value)">
-<select onchange="eFreq(${e.id},this.value)">
-<option>yearly</option>
-<option>monthly</option>
-<option>biweekly</option>
-</select>
-<select onchange="eCat(${e.id},this.value)">
-<option>housing</option>
-<option>food</option>
-<option>transport</option>
-<option>insurance</option>
-<option>healthcare</option>
-<option>debt</option>
-<option>entertainment</option>
-<option>travel</option>
-<option>kids</option>
-<option>other</option>
-</select>
-</div>`).join("");
-}
-
-/* ===== EVENTS ===== */
-function addEvent(){
-events.push({id:Date.now(),year:5,type:"expense",value:10000});
-renderEvents();
-}
-
-function renderEvents(){
-eventList.innerHTML=events.map(e=>`
-<div class="row">
-<input value="${e.year}" oninput="evYear(${e.id},this.value)">
-<select onchange="evType(${e.id},this.value)">
-<option>expense</option>
-<option>income</option>
-</select>
-<input value="${e.value}" oninput="evVal(${e.id},this.value)">
-</div>`).join("");
-}
-
-/* ===== UPDATES ===== */
-function iUpdate(id,val){incomes.find(x=>x.id===id).amount=+val;update();}
-function iFreq(id,val){incomes.find(x=>x.id===id).freq=val;update();}
-function eUpdate(id,val){expenses.find(x=>x.id===id).amount=+val;update();}
-function eFreq(id,val){expenses.find(x=>x.id===id).freq=val;update();}
-function eCat(id,val){expenses.find(x=>x.id===id).cat=val;}
-function evYear(id,val){events.find(x=>x.id===id).year=+val;}
-function evType(id,val){events.find(x=>x.id===id).type=val;}
-function evVal(id,val){events.find(x=>x.id===id).value=+val;}
-
-/* ===== SIM ===== */
-function simulate(){
-
-let runs=100,results=[],path=[];
-
-for(let r=0;r<runs;r++){
-
-let bal=(+cash.value||0)+(+invest.value||0)-(+debt.value||0);
-
-let incRaw=incomes.reduce((t,i)=>t+norm(i.amount,i.freq),0);
-let tax=calcTax(incRaw,filing.value);
-let inc=incRaw-tax;
-
-let exp=expenses.reduce((t,e)=>t+norm(e.amount,e.freq),0);
-
-let arr=[];
-
-for(let y=0;y<50;y++){
-
-let ret=0.06+(Math.random()-0.5)*0.2;
-
-events.forEach(ev=>{
-if(ev.year===y){
-if(ev.type==="expense") bal-=ev.value;
-if(ev.type==="income") bal+=ev.value;
-}
-});
-
-bal+=bal*ret + inc - exp;
-
-arr.push(bal);
-if(bal<=0) break;
-}
-
-results.push(arr.length);
-if(r===0) path=arr;
-}
-
-let success=results.filter(x=>x>=30).length/runs;
-return {success,path};
-}
-
-/* ===== UPDATE ===== */
-function update(){
-
-let sim=simulate();
-
-let incRaw=incomes.reduce((t,i)=>t+norm(i.amount,i.freq),0);
-let tax=calcTax(incRaw,filing.value);
-let inc=incRaw-tax;
-
-let exp=expenses.reduce((t,e)=>t+norm(e.amount,e.freq),0);
-
-let nwVal=(+cash.value||0)+(+invest.value||0)-(+debt.value||0);
-
-nw.innerText="$"+nwVal.toLocaleString();
-inc.innerText="$"+inc.toLocaleString();
-expOut.innerText="$"+exp.toLocaleString();
-succ.innerText=(sim.success*100).toFixed(0)+"%";
-
-/* MILESTONES */
-let ms=[];
-if(nwVal>=exp*25) ms.push("Financial Independence");
-if(nwVal>=1000000) ms.push("Millionaire");
-
-milestonesOut.innerHTML=ms.join("<br>")||"None yet";
-
-/* CATEGORY BREAKDOWN */
-let cat={};
-expenses.forEach(e=>{
-let val=norm(e.amount,e.freq);
-cat[e.cat]=(cat[e.cat]||0)+val;
-});
-
-categoryOut.innerHTML=Object.entries(cat)
-.sort((a,b)=>b[1]-a[1])
-.slice(0,3)
-.map(([k,v])=>`${k}: $${v.toLocaleString()}`)
-.join("<br>");
-
-taxExplain.innerHTML=`Estimated Tax: $${tax.toLocaleString()}`;
-
-if(chart) chart.destroy();
-chart=new Chart(chart,{
-type:'line',
-data:{labels:sim.path.map((_,i)=>i),datasets:[{data:sim.path}]}
-});
-}
-
-/* ===== PROFILE ===== */
-function saveProfile(){
-localStorage.setItem(profileName.value,JSON.stringify({incomes,expenses,events}));
-}
-
-function loadProfile(){
-let data=JSON.parse(localStorage.getItem(profileName.value)||"{}");
-incomes=data.incomes||[];
-expenses=data.expenses||[];
-events=data.events||[];
-renderIncome();
-renderExpense();
-renderEvents();
-update();
-}
-
-/* ===== SCENARIO ===== */
-function saveScenario(){
-let sim=simulate();
-scenarios.push({success:sim.success});
-renderScenarios();
-}
-
-function renderScenarios(){
-scenarios.innerHTML=scenarios.map((s,i)=>`
-<div>Scenario ${i+1}: ${(s.success*100).toFixed(1)}%</div>
-`).join("");
-
-if(scenarios.length>=2){
-let base=scenarios[0].success;
-let last=scenarios[scenarios.length-1].success;
-delta.innerHTML=`Δ ${(last-base)*100}%`;
-}
-}
-
-/* ===== INIT ===== */
-addIncome();
-addExpense();
-addEvent();
-
-document.querySelectorAll("input,select").forEach(i=>i.addEventListener("input",update));
-
-</script>
+<script src="modules.js"></script>
+<script src="engine.js"></script>
+<script src="ui.js"></script>
 
 </body>
 </html>
