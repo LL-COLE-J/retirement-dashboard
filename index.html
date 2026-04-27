@@ -206,65 +206,74 @@ canvas { width:100% !important; height:200px !important; }
 
 const AI_URL = "https://summer-boat-369f.llcolej8.workers.dev";
 
-let charts={}, aiOpen=true, portfolio=[];
+let charts={}, portfolio=[], aiOpen=true;
 
-function showView(id,el){
-  ["dashboard","financials","scenarios"].forEach(v=>{
-    document.getElementById(v).style.display="none";
-  });
-  document.getElementById(id).style.display="block";
-  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
-  el.classList.add("active");
-}
-
-function buildModel(total,exp){
-let r=((+returnRate.value||5)/100);
-let inf=((+inflation.value||2.5)/100);
-let bal=total, arr=[];
-
-for(let i=0;i<40;i++){
-let inc=(+incomeA.value||0)+(+incomeB.value||0);
-
-if(i>(+retA.value||65)-(+ageA.value||65)) inc-= (+incomeA.value||0);
-if(i>(+retB.value||65)-(+ageB.value||65)) inc-= (+incomeB.value||0);
-
-let expenses=exp*Math.pow(1+inf,i);
-bal+=bal*r + inc - expenses;
-
-arr.push({year:i,bal,inc,exp:expenses});
-if(bal<=0) break;
-}
-return arr;
-}
-
+/* FIXED UPDATE */
 function updateAll(){
+
 let stockValue = portfolio.reduce((s,p)=>s+(p.price*p.shares),0);
 
 let total=(+cash.value||0)+(+invest.value||0)+stockValue;
-let income=(+incomeA.value||0)+(+incomeB.value||0);
-let exp=(+document.getElementById("exp").value||0);
+let incomeVal=(+incomeA.value||0)+(+incomeB.value||0);
+let expVal=(+exp.value||0);
 
-let m=buildModel(total,exp);
+/* RATIOS */
+let savingsRate = incomeVal ? ((incomeVal-expVal)/incomeVal) : 0;
+let burnRate = expVal/12;
+let yearsSafe = total / (expVal || 1);
 
+let m=buildModel(total,expVal);
+
+/* DASHBOARD */
 netWorth.innerText="$"+total.toLocaleString();
-income.innerText="$"+income.toLocaleString();
-expensesOut.innerText="$"+exp.toLocaleString();
+document.getElementById("income").innerText="$"+incomeVal.toLocaleString();
+expensesOut.innerText="$"+expVal.toLocaleString();
 years.innerText=m.length;
+
+/* ADD NEW METRICS (create divs later if needed) */
+console.log({
+  savingsRate,
+  burnRate,
+  yearsSafe
+});
 
 renderCharts(m);
 
-callAI({netWorth:total,income,expenses:exp,years:m.length,portfolio});
+/* REAL AI CALL */
+callAI({
+  netWorth: total,
+  income: incomeVal,
+  expenses: expVal,
+  years: m.length,
+  savingsRate,
+  burnRate,
+  yearsSafe,
+  portfolio
+});
 }
 
+/* AI */
 async function callAI(model){
-try{
-aiOutput.innerHTML="Analyzing...";
-const res=await fetch(AI_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(model)});
-const data=await res.json();
-aiOutput.innerHTML=data.result;
-}catch{aiOutput.innerHTML="AI error";}
+  try{
+    aiOutput.innerHTML="Analyzing...";
+
+    const res=await fetch(AI_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(model)
+    });
+
+    const data=await res.json();
+
+    aiOutput.innerHTML=data.result || "No response";
+
+  }catch(e){
+    console.error(e);
+    aiOutput.innerHTML="AI error";
+  }
 }
 
+/* STOCKS */
 async function addStock(){
 const t=ticker.value.toUpperCase();
 const s=+shares.value||0;
@@ -278,26 +287,43 @@ renderPortfolio(); updateAll();
 }
 
 function renderPortfolio(){
-stockList.innerHTML=portfolio.map(p=>`${p.ticker} - ${p.shares} ($${(p.price*p.shares).toFixed(0)})`).join("<br>");
+stockList.innerHTML=portfolio.map(p=>
+`${p.ticker} - ${p.shares} ($${(p.price*p.shares).toFixed(0)})`
+).join("<br>");
 }
+
+/* ===== PROFILES (REAL SYSTEM) ===== */
 
 function saveProfile(){
-localStorage.setItem("avoraProfile",JSON.stringify({
-incomeA:incomeA.value,incomeB:incomeB.value,ageA:ageA.value,ageB:ageB.value,
-retA:retA.value,retB:retB.value,cash:cash.value,invest:invest.value,exp:exp.value,portfolio
-}));
+
+let name = prompt("Name this profile:");
+if(!name) return;
+
+let profiles = JSON.parse(localStorage.getItem("avoraProfiles")||"{}");
+
+profiles[name] = {
+incomeA:incomeA.value,
+incomeB:incomeB.value,
+ageA:ageA.value,
+ageB:ageB.value,
+retA:retA.value,
+retB:retB.value,
+cash:cash.value,
+invest:invest.value,
+exp:exp.value,
+portfolio
+};
+
+localStorage.setItem("avoraProfiles", JSON.stringify(profiles));
+
+renderProfiles();
 }
 
-function loadProfile(){
-const d=JSON.parse(localStorage.getItem("avoraProfile"));
-if(!d)return;
+function loadProfile(name){
 
-Object.assign(window,{
-incomeA:{value:d.incomeA},incomeB:{value:d.incomeB},
-ageA:{value:d.ageA},ageB:{value:d.ageB},
-retA:{value:d.retA},retB:{value:d.retB},
-cash:{value:d.cash},invest:{value:d.invest},exp:{value:d.exp}
-});
+let profiles = JSON.parse(localStorage.getItem("avoraProfiles")||"{}");
+let d = profiles[name];
+if(!d) return;
 
 incomeA.value=d.incomeA;
 incomeB.value=d.incomeB;
@@ -310,32 +336,32 @@ invest.value=d.invest;
 exp.value=d.exp;
 
 portfolio=d.portfolio||[];
-renderPortfolio(); updateAll();
+
+renderPortfolio();
+updateAll();
 }
 
-function renderCharts(m){
-let labels=m.map(x=>x.year);
-let bal=m.map(x=>x.bal);
-let inc=m.map(x=>x.inc);
-let exp=m.map(x=>x.exp);
+function renderProfiles(){
 
-Object.values(charts).forEach(c=>c.destroy());
+let profiles = JSON.parse(localStorage.getItem("avoraProfiles")||"{}");
 
-charts.c1=new Chart(c1,{type:'line',data:{labels,datasets:[{label:'Net Worth',data:bal}]}});
-charts.c2=new Chart(c2,{type:'line',data:{labels,datasets:[{label:'Income',data:inc},{label:'Expenses',data:exp}]}});
-charts.c3=new Chart(c3,{type:'bar',data:{labels,datasets:[{label:'Balance',data:bal}]}});
-charts.c4=new Chart(c4,{type:'line',data:{labels,datasets:[{label:'Expenses',data:exp}]}});
+profileList.innerHTML = Object.keys(profiles).map(name=>
+`<div style="margin-top:6px;cursor:pointer" onclick="loadProfile('${name}')">
+📁 ${name}
+</div>`
+).join("");
 }
 
-function toggleAI(){
-aiPanel.style.height=aiOpen?"40px":"140px";
-aiOpen=!aiOpen;
-}
+/* INIT */
+window.onload=()=>{
+  renderProfiles();
+  updateAll();
+};
 
-document.querySelectorAll("input").forEach(i=>i.addEventListener("input",updateAll));
-window.onload=updateAll;
+document.querySelectorAll("input").forEach(i=>{
+  i.addEventListener("input",updateAll);
+});
 
 </script>
-
 </body>
 </html>
