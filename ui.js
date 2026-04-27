@@ -1,7 +1,7 @@
 let chart;
 
 /* =========================
-   NAVIGATION
+   NAV
 ========================= */
 function show(view){
 document.getElementById("dashboard").style.display="none";
@@ -12,7 +12,7 @@ document.getElementById(view).style.display="block";
 }
 
 /* =========================
-   MODULE NAV
+   MODULE ROUTING
 ========================= */
 function openModule(type){
 
@@ -26,46 +26,56 @@ title.innerText = type;
 let inc = getIncome();
 let exp = getExpenses();
 let nw = getNetWorth();
+let tax = getTax();
+let sim = simulate();
 
-if(type==="Cash Flow"){
+switch(type){
+
+case "Chance of Success":
 content.innerHTML = `
-<h3>$${(inc-exp).toLocaleString()}</h3>
+<h2>${(sim.success*100).toFixed(1)}%</h2>
+<p>Probability your plan succeeds over time</p>
+`;
+break;
+
+case "Cash Flow":
+content.innerHTML = `
+<h2>$${(inc-exp).toLocaleString()}</h2>
 <p>Net yearly cash flow</p>
 `;
-}
+break;
 
-if(type==="Spending Breakdown"){
+case "Spending Breakdown":
 let cat = getCategoryBreakdown();
 content.innerHTML = Object.entries(cat)
 .map(([k,v])=>`${k}: $${v.toLocaleString()}`)
 .join("<br>");
-}
+break;
 
-if(type==="Milestones"){
+case "Milestones":
 content.innerHTML = getMilestones().join("<br>");
-}
+break;
 
-if(type==="Tax Analytics"){
-content.innerHTML = `Estimated Tax: $${getTax().toLocaleString()}`;
-}
+case "Tax Analytics":
+content.innerHTML = `
+<h3>$${tax.toLocaleString()}</h3>
+<p>Estimated annual tax</p>
+`;
+break;
 
-if(type==="Chance of Success"){
-let sim = simulate();
-content.innerHTML = `<h2>${(sim.success*100).toFixed(1)}%</h2>`;
-}
+case "Scenario Compare":
+content.innerHTML = `
+<p>Scenario comparison module coming next</p>
+`;
+break;
 
-if(type==="Scenario Compare"){
-content.innerHTML = "Compare scenarios coming next layer";
-}
-
-/* coming soon */
-if(content.innerHTML===""){
+default:
 content.innerHTML = "<p>Coming Soon</p>";
 }
 }
 
 /* =========================
-   CORE CALCULATORS
+   CORE CALCS
 ========================= */
 
 function getIncome(){
@@ -108,13 +118,14 @@ let list=[];
 
 if(nw>=exp*25) list.push("✔ Financial Independence");
 if(nw>=1000000) list.push("✔ Millionaire");
+
 if(list.length===0) list.push("No milestones reached yet");
 
 return list;
 }
 
 /* =========================
-   AI INSIGHTS (UPGRADED)
+   AI INSIGHTS (CORE FEATURE)
 ========================= */
 function getInsights(){
 
@@ -126,15 +137,15 @@ let tax = getTax();
 let insights=[];
 
 if(exp > inc){
-insights.push("🚨 Spending exceeds income — plan will fail");
+insights.push("🚨 Spending exceeds income — unsustainable");
 }
 
 if(exp > inc*0.7){
-insights.push("⚠️ High spending ratio — limited savings ability");
+insights.push("⚠️ High spending relative to income");
 }
 
 if(nw < exp*5){
-insights.push("⚠️ Low financial buffer — risk is elevated");
+insights.push("⚠️ Low financial buffer");
 }
 
 if(nw > exp*25){
@@ -142,11 +153,11 @@ insights.push("✅ Financial independence achieved");
 }
 
 if(tax > inc*0.25){
-insights.push("💡 Taxes are significant — optimization opportunity");
+insights.push("💡 High tax load — optimization opportunity");
 }
 
 if(events.length===0){
-insights.push("📌 No future events planned — projections may be unrealistic");
+insights.push("📌 No future events planned");
 }
 
 return insights;
@@ -164,12 +175,13 @@ let exp = getExpenses();
 let nw = getNetWorth();
 let tax = getTax();
 
-nwEl.innerText="$"+nw.toLocaleString();
+/* METRICS */
+nw.innerText="$"+nw.toLocaleString();
 incEl.innerText="$"+(inc-tax).toLocaleString();
 expOut.innerText="$"+exp.toLocaleString();
 succ.innerText=(sim.success*100).toFixed(0)+"%";
 
-/* INSIGHTS */
+/* AI INSIGHTS (VISIBLE AGAIN) */
 let insights = getInsights();
 milestonesOut.innerHTML = insights.join("<br>");
 
@@ -181,15 +193,92 @@ categoryOut.innerHTML = Object.entries(cat)
 .map(([k,v])=>`${k}: $${v.toLocaleString()}`)
 .join("<br>");
 
+/* TAX */
 taxExplain.innerHTML=`Estimated Tax: $${tax.toLocaleString()}`;
 
 /* CHART */
 if(chart) chart.destroy();
 chart=new Chart(chart,{
 type:'line',
-data:{labels:sim.path.map((_,i)=>i),datasets:[{data:sim.path}]}
+data:{
+labels:sim.path.map((_,i)=>i),
+datasets:[{
+data:sim.path,
+borderWidth:2,
+tension:0.3
+}]
+}
 });
 }
+
+/* =========================
+   INPUT BUILDERS
+========================= */
+
+function addIncome(){
+incomes.push({id:Date.now(),amount:0,freq:"yearly"});
+renderIncome();
+}
+
+function renderIncome(){
+incomeList.innerHTML=incomes.map(i=>`
+<div class="row">
+<input value="${i.amount}" oninput="iUpdate(${i.id},this.value)">
+<select onchange="iFreq(${i.id},this.value)">
+<option>yearly</option>
+<option>monthly</option>
+<option>biweekly</option>
+</select>
+</div>`).join("");
+}
+
+function addExpense(){
+expenses.push({id:Date.now(),amount:0,freq:"yearly",cat:"housing"});
+renderExpense();
+}
+
+function renderExpense(){
+expenseList.innerHTML=expenses.map(e=>`
+<div class="row">
+<input value="${e.amount}" oninput="eUpdate(${e.id},this.value)">
+<select onchange="eFreq(${e.id},this.value)">
+<option>yearly</option>
+<option>monthly</option>
+<option>biweekly</option>
+</select>
+<select onchange="eCat(${e.id},this.value)">
+<option>housing</option>
+<option>food</option>
+<option>transport</option>
+<option>insurance</option>
+<option>other</option>
+</select>
+</div>`).join("");
+}
+
+function renderEvents(){
+eventList.innerHTML=events.map(e=>`
+<div class="row">
+<input value="${e.year}" oninput="evYear(${e.id},this.value)">
+<select onchange="evType(${e.id},this.value)">
+<option>expense</option>
+<option>income</option>
+</select>
+<input value="${e.value}" oninput="evVal(${e.id},this.value)">
+</div>`).join("");
+}
+
+/* =========================
+   UPDATERS
+========================= */
+function iUpdate(id,val){incomes.find(x=>x.id===id).amount=+val;update();}
+function iFreq(id,val){incomes.find(x=>x.id===id).freq=val;update();}
+function eUpdate(id,val){expenses.find(x=>x.id===id).amount=+val;update();}
+function eFreq(id,val){expenses.find(x=>x.id===id).freq=val;update();}
+function eCat(id,val){expenses.find(x=>x.id===id).cat=val;}
+function evYear(id,val){events.find(x=>x.id===id).year=+val;}
+function evType(id,val){events.find(x=>x.id===id).type=val;}
+function evVal(id,val){events.find(x=>x.id===id).value=+val;}
 
 /* =========================
    INIT
