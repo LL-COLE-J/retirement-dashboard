@@ -110,7 +110,11 @@ function money(n){
 function renderAll(){
   renderDashboard();
   renderFinancials();
+}
+
+function commit(){
   saveProfile();
+  renderAll();
 }
 
 /* =========================
@@ -165,11 +169,10 @@ function renderFinancials(){
   document.getElementById("incomeList").innerHTML =
     state.incomes.map((i,idx)=>`
       <div class="row">
-        <input value="${i.amount}"
-          oninput="state.incomes[${idx}].amount=this.value"
-          onblur="state.incomes[${idx}].amount=+this.value;renderAll()">
+        <input value="${i.amount || ""}"
+          onblur="state.incomes[${idx}].amount=+this.value||0;commit()">
 
-        <select onchange="state.incomes[${idx}].freq=this.value;renderAll()">
+        <select onchange="state.incomes[${idx}].freq=this.value;commit()">
           <option ${i.freq==="yearly"?"selected":""}>yearly</option>
           <option ${i.freq==="monthly"?"selected":""}>monthly</option>
         </select>
@@ -180,16 +183,15 @@ function renderFinancials(){
   document.getElementById("expenseList").innerHTML =
     state.expenses.map((e,idx)=>`
       <div class="row">
-        <input value="${e.amount}"
-          oninput="state.expenses[${idx}].amount=this.value"
-          onblur="state.expenses[${idx}].amount=+this.value;renderAll()">
+        <input value="${e.amount || ""}"
+          onblur="state.expenses[${idx}].amount=+this.value||0;commit()">
 
-        <select onchange="state.expenses[${idx}].freq=this.value;renderAll()">
+        <select onchange="state.expenses[${idx}].freq=this.value;commit()">
           <option ${e.freq==="yearly"?"selected":""}>yearly</option>
           <option ${e.freq==="monthly"?"selected":""}>monthly</option>
         </select>
 
-        <select onchange="state.expenses[${idx}].cat=this.value;renderAll()">
+        <select onchange="state.expenses[${idx}].cat=this.value;commit()">
           <option ${e.cat==="housing"?"selected":""}>housing</option>
           <option ${e.cat==="food"?"selected":""}>food</option>
           <option ${e.cat==="transport"?"selected":""}>transport</option>
@@ -203,16 +205,14 @@ function renderFinancials(){
   document.getElementById("accountList").innerHTML =
     state.accounts.map((a,idx)=>`
       <div class="row">
-        <input value="${a.type}"
-          oninput="state.accounts[${idx}].type=this.value">
+        <input value="${a.type || ""}"
+          onblur="state.accounts[${idx}].type=this.value;commit()">
 
-        <input value="${a.balance}"
-          oninput="state.accounts[${idx}].balance=this.value"
-          onblur="state.accounts[${idx}].balance=+this.value;renderAll()">
+        <input value="${a.balance || ""}"
+          onblur="state.accounts[${idx}].balance=+this.value||0;commit()">
 
-        <input value="${a.contrib||0}"
-          oninput="state.accounts[${idx}].contrib=this.value"
-          onblur="state.accounts[${idx}].contrib=+this.value;renderAll()">
+        <input value="${a.contrib || ""}"
+          onblur="state.accounts[${idx}].contrib=+this.value||0;commit()">
       </div>
     `).join("");
 
@@ -220,12 +220,11 @@ function renderFinancials(){
   document.getElementById("dependentList").innerHTML =
     state.dependents.map((d,idx)=>`
       <div class="row">
-        <input value="${d.age}"
-          oninput="state.dependents[${idx}].age=this.value">
+        <input value="${d.age || ""}"
+          onblur="state.dependents[${idx}].age=+this.value||0">
 
-        <input value="${d.cost}"
-          oninput="state.dependents[${idx}].cost=this.value"
-          onblur="state.dependents[${idx}].cost=+this.value;renderAll()">
+        <input value="${d.cost || ""}"
+          onblur="state.dependents[${idx}].cost=+this.value||0;commit()">
       </div>
     `).join("");
 
@@ -238,12 +237,7 @@ function renderFinancials(){
   invest.value = state.assets.invest || "";
   debt.value = state.assets.debt || "";
 
-  cash.oninput = e => state.assets.cash = e.target.value;
-  cash.onblur = e => { state.assets.cash = +e.target.value; renderAll(); };
-
-  invest.oninput = e => state.assets.invest = e.target.value;
-  invest.onblur = e => { state.assets.invest = +e.target.value; renderAll(); };
-
-  debt.oninput = e => state.assets.debt = e.target.value;
-  debt.onblur = e => { state.assets.debt = +e.target.value; renderAll(); };
+  cash.onblur = e => { state.assets.cash = +e.target.value || 0; commit(); };
+  invest.onblur = e => { state.assets.invest = +e.target.value || 0; commit(); };
+  debt.onblur = e => { state.assets.debt = +e.target.value || 0; commit(); };
 }
