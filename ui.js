@@ -1,38 +1,65 @@
-function runCalculations() {
+// ui.js
+let chart;
+
+function updateAll() {
     const income = parseFloat(document.getElementById('income-input').value) || 0;
     const status = document.getElementById('filing-status').value;
+    const res = BASTION_ENGINE.calculateTax(income, status);
+
+    // Update Advisor Lab
+    document.getElementById('tax-display').innerText = `$${Math.round(res.total).toLocaleString()}`;
+    document.getElementById('rate-display').innerText = `${res.rate.toFixed(1)}% Effective`;
     
-    const taxTotal = calculateTaxes(income, status);
-    
-    document.getElementById('tax-estimate-display').innerText = 
-        `Tax Estimate: $${Math.round(taxTotal).toLocaleString()} /yr`;
-        
-    const taxableIncome = income - (status === 'married' ? 29200 : 14600);
-    document.getElementById('advisor-insight').innerHTML = 
-        `Your <strong>${status}</strong> filing in <strong>TN</strong> results in a liability including FICA. <br><br>` +
-        `Strategy: Since your taxable income is $${taxableIncome.toLocaleString()}, contributing to a 401k is highly recommended.`;
+    document.getElementById('ai-insight').innerHTML = `
+        Your <strong>2026 strategy</strong> shows a taxable base of $${Math.round(res.taxable).toLocaleString()}. 
+        <br><br><strong>Pro Tip:</strong> At your current bracket, a $10k 401k contribution would reduce your tax bill by ~$2,500.
+    `;
+
+    renderChart(income, res.total);
 }
 
-async function fetchPrice() {
-    const sym = document.getElementById('ticker-input').value || 'BTC';
+function renderChart(income, tax) {
+    const ctx = document.getElementById('mainChart').getContext('2d');
+    const net = income - tax;
+    const data = [];
+    let wealth = 0;
+
+    for (let i = 0; i <= 20; i++) {
+        wealth = (wealth + (net * 0.2)) * 1.07; // 20% savings rate @ 7% return
+        data.push(wealth);
+    }
+
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array.from({length: 21}, (_, i) => 2026 + i),
+            datasets: [{ label: 'Wealth Path', data: data, borderColor: '#1e293b', fill: true, tension: 0.4 }]
+        },
+        options: { plugins: { legend: { display: false } } }
+    });
+}
+
+async function refreshTicker() {
+    const id = document.getElementById('ticker-input').value;
     const out = document.getElementById('ticker-output');
-    out.innerText = "REFRESHING...";
+    out.innerText = "LOADING...";
     
-    const price = await getMarketData(sym);
+    const price = await BASTION_ENGINE.fetchPrice(id);
     if (price) {
-        out.innerHTML = `$${price.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        out.innerText = `$${price.toLocaleString()}`;
     } else {
-        out.innerText = "TICKER NOT FOUND";
+        out.innerText = "ASSET NOT FOUND";
     }
 }
 
-function switchTab(tabId) {
-    document.querySelectorAll('.tab-pane').forEach(t => t.style.display = 'none');
+function switchTab(tabId, el) {
+    ['dashboard', 'financials', 'markets'].forEach(t => {
+        document.getElementById(t + '-tab').style.display = (t === tabId) ? 'block' : 'none';
+    });
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    
-    document.getElementById(tabId + '-tab').style.display = 'block';
-    event.currentTarget.classList.add('active');
+    el.classList.add('active');
 }
 
-// Run on load
-window.onload = runCalculations;
+// Startup
+window.onload = updateAll;
