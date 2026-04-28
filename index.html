@@ -306,15 +306,57 @@ function addAsset(){state.assets.push({type:"Cash",value:0});render();}
 function addLiability(){state.liabilities.push({type:"Mortgage",balance:0});render();}
 
 function render(){
-  stateSelect.innerHTML=states.map(s=>`<option>${s}</option>`).join("");
-  incomeList.innerHTML=state.incomes.map((i,idx)=>`<input value="${i.amount||""}" onblur="state.incomes[${idx}].amount=this.value;updateAll()">`).join("");
-  expenseList.innerHTML=state.expenses.map((e,idx)=>`<input value="${e.amount||""}" onblur="state.expenses[${idx}].amount=this.value;updateAll()">`).join("");
-  accountList.innerHTML=state.accounts.map((a,idx)=>`<input value="${a.balance||""}" onblur="state.accounts[${idx}].balance=this.value;updateAll()">`).join("");
-  assetList.innerHTML=state.assets.map((a,idx)=>`<input value="${a.value||""}" onblur="state.assets[${idx}].value=this.value;updateAll()">`).join("");
-  liabilityList.innerHTML=state.liabilities.map((l,idx)=>`<input value="${l.balance||""}" onblur="state.liabilities[${idx}].balance=this.value;updateAll()">`).join("");
+
+  const stateSelectEl = document.getElementById("stateSelect");
+  const incomeListEl = document.getElementById("incomeList");
+  const expenseListEl = document.getElementById("expenseList");
+  const accountListEl = document.getElementById("accountList");
+  const assetListEl = document.getElementById("assetList");
+  const liabilityListEl = document.getElementById("liabilityList");
+
+  if(stateSelectEl){
+    stateSelectEl.innerHTML = states.map(s=>`
+      <option ${state.taxState===s?"selected":""}>${s}</option>
+    `).join("");
+  }
+
+  if(incomeListEl){
+    incomeListEl.innerHTML = state.incomes.map((i,idx)=>`
+      <input value="${i.amount||""}" 
+      onblur="state.incomes[${idx}].amount=this.value;updateAll()">
+    `).join("");
+  }
+
+  if(expenseListEl){
+    expenseListEl.innerHTML = state.expenses.map((e,idx)=>`
+      <input value="${e.amount||""}" 
+      onblur="state.expenses[${idx}].amount=this.value;updateAll()">
+    `).join("");
+  }
+
+  if(accountListEl){
+    accountListEl.innerHTML = state.accounts.map((a,idx)=>`
+      <input value="${a.balance||""}" 
+      onblur="state.accounts[${idx}].balance=this.value;updateAll()">
+    `).join("");
+  }
+
+  if(assetListEl){
+    assetListEl.innerHTML = state.assets.map((a,idx)=>`
+      <input value="${a.value||""}" 
+      onblur="state.assets[${idx}].value=this.value;updateAll()">
+    `).join("");
+  }
+
+  if(liabilityListEl){
+    liabilityListEl.innerHTML = state.liabilities.map((l,idx)=>`
+      <input value="${l.balance||""}" 
+      onblur="state.liabilities[${idx}].balance=this.value;updateAll()">
+    `).join("");
+  }
+
   updateAll();
 }
-
 function showView(v,e){
   ["dashboard","financials","scenarios","markets"].forEach(id=>{
     document.getElementById(id).style.display="none";
