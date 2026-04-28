@@ -227,48 +227,138 @@ function calcTax(income, filing, dependents){
 }
 
 // CORE
+/* =========================
+   CORE CALC (REPLACED)
+========================= */
 function calculate(){
-  let income = state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0);
-  let expenses = state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0);
-  let tax = calcTax(income,state.filing,state.dependents);
-  let net = income-expenses-tax;
-  let accountValue = state.accounts.reduce((s,a)=>s+(a.balance||0),0);
 
-  let netWorth = accountValue + state.assets.cash + state.assets.invest - state.assets.debt;
+  // ===== SAFE INCOME =====
+  let income = (state.incomes || []).reduce((s,i)=>{
+    let amt = +i.amount || 0;
+    let freq = i.freq || "yearly";
+    return s + norm(amt,freq);
+  },0);
 
-  let savingsRate = income>0?((income-expenses)/income)*100:0;
+  // ===== SAFE EXPENSES =====
+  let expenses = (state.expenses || []).reduce((s,e)=>{
+    let amt = +e.amount || 0;
+    let freq = e.freq || "yearly";
+    return s + norm(amt,freq);
+  },0);
 
-  return {income,expenses,net,netWorth,savingsRate};
+  // ===== DEPENDENTS =====
+  let depCost = (state.dependents || []).reduce((s,d)=>{
+    return s + (+d.cost || 0);
+  },0);
+
+  expenses += depCost;
+
+  // ===== CONTRIBUTIONS =====
+  let contrib = (state.accounts || []).reduce((s,a)=>{
+    return s + (+a.contrib || 0);
+  },0);
+
+  // ===== MATCH =====
+  let match = (state.accounts || []).reduce((s,a)=>{
+    if(a.match){
+      return s + ((+a.contrib || 0) * (+a.match || 0) / 100);
+    }
+    return s;
+  },0);
+
+  let totalSavings = contrib + match;
+
+  let net = income - expenses - contrib;
+
+  // ===== NET WORTH =====
+  let accountValue = (state.accounts || []).reduce((s,a)=>{
+    return s + (+a.balance || 0);
+  },0);
+
+  let netWorth =
+    accountValue +
+    (+state.assets.cash || 0) +
+    (+state.assets.invest || 0) -
+    (+state.assets.debt || 0);
+
+  let savingsRate = income > 0
+    ? ((income - expenses) / income) * 100
+    : 0;
+
+  return {
+    income,
+    expenses,
+    net,
+    netWorth,
+    savingsRate,
+    contrib,
+    match,
+    totalSavings
+  };
 }
 
-// AGE ENGINE
-function projection(d){
 
-  let age=+currentAge.value||40;
-  let retire=+retirementAge.value||65;
-  let end=+lifeExpectancy.value||90;
+/* =========================
+   ENGINE PIPELINE (NEW)
+========================= */
 
-  let incomeAdj=(+incomeAdjust.value||0)/100;
-  let expenseAdj=(+expenseAdjust.value||0)/100;
-  let returnAdj=(+returnAdjust.value||0)/100;
+function runEngine(){
 
-  let nw=d.netWorth;
+  const base = calculate();
+  const timeline = runTimeline(base);
 
-  for(let a=age;a<=end;a++){
+  return {
+    ...base,
+    ...timeline
+  };
+}
 
-    let r=0.06+returnAdj;
 
-    let inc=d.income*(1+incomeAdj);
-    let exp=d.expenses*(1+expenseAdj);
+/* =========================
+   TIMELINE ENGINE (NEW)
+========================= */
 
-    let flow=a>=retire?-exp:(inc-exp);
+function runTimeline(d){
 
-    nw=nw*(1+r)+flow;
+  let age = state.timeline?.currentAge || 40;
+  let retire = state.timeline?.retirementAge || 65;
+  let end = state.timeline?.lifeExpectancy || 90;
 
-    if(nw<=0) return {success:false,failAge:a};
+  let nw = d.netWorth;
+  let failAge = null;
+
+  for(let a = age; a <= end; a++){
+
+    // income stops at retirement
+    let working = a < retire;
+
+    let income = working ? d.income : 0;
+
+    // inflation on expenses
+    let expenses = d.expenses * Math.pow(1.03, a - age);
+
+    // event system (you already had this)
+    (state.events || []).forEach(ev=>{
+      if(ev.year === (a - age)){
+        if(ev.type === "expense") expenses += (+ev.value || 0);
+        if(ev.type === "income") income += (+ev.value || 0);
+      }
+    });
+
+    let flow = income - expenses;
+
+    // simple growth
+    nw = nw * 1.06 + flow;
+
+    if(nw <= 0 && failAge === null){
+      failAge = a;
+    }
   }
 
-  return {success:true};
+  return {
+    projectionSuccess: failAge === null,
+    failureAge: failAge
+  };
 }
 
 // UPDATE
