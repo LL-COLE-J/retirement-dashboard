@@ -1,4 +1,185 @@
-<!-- ONLY SHOWING UPDATED SCRIPT + RENDER PARTS -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bastion Insights</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+
+:root{
+  --bg:#f8fafc;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --text:#0f172a;
+  --sub:#64748b;
+  --accent:#0f172a;
+}
+
+body{background:var(--bg);display:flex;height:100vh;color:var(--text);}
+
+.sidebar{width:240px;background:#fff;border-right:1px solid var(--border);padding:20px;}
+.logo img{width:100%;margin-bottom:20px;}
+
+.nav-item{padding:10px;border-radius:8px;cursor:pointer;color:var(--sub);margin-bottom:6px;}
+.nav-item.active{background:var(--accent);color:#fff;}
+
+.main{flex:1;display:flex;justify-content:center;}
+.wrapper{width:1200px;display:flex;gap:20px;padding:20px;}
+.content{flex:2;}
+.side{flex:1;}
+
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+
+input, select{
+  width:100%;
+  padding:8px;
+  margin-top:6px;
+  border:1px solid var(--border);
+  border-radius:8px;
+}
+
+button{
+  margin-top:10px;
+  padding:8px 12px;
+  border:none;
+  border-radius:8px;
+  background:var(--accent);
+  color:#fff;
+  cursor:pointer;
+}
+
+.row{margin-bottom:10px;}
+.label{font-size:12px;color:var(--sub);}
+.value{font-weight:600;margin-top:4px;}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+<div class="logo">
+  <img src="./logo-full.png" onerror="this.style.display='none'">
+</div>
+
+<div class="nav-item active" onclick="showView('dashboard',this)">Dashboard</div>
+<div class="nav-item" onclick="showView('financials',this)">Financials</div>
+<div class="nav-item" onclick="showView('scenarios',this)">Scenarios</div>
+<div class="nav-item" onclick="showView('markets',this)">Markets</div>
+</div>
+
+<div class="main">
+<div class="wrapper">
+
+<div class="content">
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+<div class="grid">
+<div class="card"><div class="label">Net Worth</div><div id="netWorth" class="value"></div></div>
+<div class="card"><div class="label">Income</div><div id="income" class="value"></div></div>
+<div class="card"><div class="label">Expenses</div><div id="expensesOut" class="value"></div></div>
+<div class="card"><div class="label">Savings Rate</div><div id="savingsRate" class="value"></div></div>
+</div>
+</div>
+
+<!-- FINANCIALS -->
+<div id="financials" style="display:none">
+<div class="grid">
+
+<div class="card">
+<h4>Income</h4>
+<div id="incomeList"></div>
+<button onclick="addIncome()">Add Income</button>
+</div>
+
+<div class="card">
+<h4>Expenses</h4>
+<div id="expenseList"></div>
+<button onclick="addExpense()">Add Expense</button>
+</div>
+
+<div class="card">
+<h4>Tax Profile</h4>
+<select id="stateSelect"></select>
+<select onchange="state.filing=this.value">
+<option value="single">Single</option>
+<option value="married_joint">Married</option>
+<option value="head">Head</option>
+</select>
+</div>
+
+<div class="card">
+<h4>Accounts</h4>
+<div id="accountList"></div>
+<button onclick="addAccount()">Add Account</button>
+</div>
+
+<div class="card">
+<h4>Assets</h4>
+<div id="assetList"></div>
+<button onclick="addAsset()">Add Asset</button>
+</div>
+
+<div class="card">
+<h4>Liabilities</h4>
+<div id="liabilityList"></div>
+<button onclick="addLiability()">Add Liability</button>
+</div>
+
+</div>
+</div>
+
+<!-- SCENARIOS -->
+<div id="scenarios" style="display:none">
+<div class="grid">
+<div class="card">
+<h4>Age & Retirement</h4>
+<input id="currentAge" value="40">
+<input id="retirementAge" value="65">
+<input id="lifeExpectancy" value="90">
+</div>
+</div>
+</div>
+
+<!-- MARKETS -->
+<div id="markets" style="display:none">
+<div class="grid">
+
+<div class="card">
+<h4>Your Tickers</h4>
+<div id="tickerList"></div>
+<input id="newTicker" placeholder="AAPL">
+<button onclick="addTicker()">Add</button>
+</div>
+
+</div>
+</div>
+
+</div>
+
+<div class="side">
+
+<div class="card"><h4>Status</h4><div id="status"></div></div>
+<div class="card"><h4>Failure</h4><div id="failure"></div></div>
+<div class="card"><h4>Action</h4><div id="action"></div></div>
+
+<div class="card">
+<h4>Market</h4>
+<div id="marketOverview"></div>
+</div>
+
+<div class="card"><h4>AI</h4><div id="aiOutput"></div></div>
+
+</div>
+
+</div>
+</div>
+
 <script>
 
 let state = {
@@ -9,47 +190,34 @@ let state = {
   liabilities: [],
   filing:"single",
   taxState:"TN",
+  markets:{indices:{},userTickers:[]},
   timeline:{currentAge:40,retirementAge:65,lifeExpectancy:90},
   settings:{inflation:0.03}
 };
 
-const accountTypes = ["401k","Roth IRA","Traditional IRA","Brokerage","HSA","529","Cash","Pension"];
-
-const expenseTypes = [
-  "Housing","Utilities","Food","Transportation",
-  "Insurance","Healthcare","Debt Payments",
-  "Entertainment","Subscriptions","Other"
-];
-
-const assetTypes = ["Cash","Investments","Real Estate","Business","Other"];
-
-const liabilityTypes = ["Mortgage","Credit Card","Student Loan","Auto Loan","Other"];
-
 const states = ["TN","CA","NY","TX","FL"];
+const accountTypes = ["401k","Roth IRA","Brokerage","HSA"];
+const expenseTypes = ["Housing","Food","Transport","Other"];
+const assetTypes = ["Cash","Investments","Real Estate"];
+const liabilityTypes = ["Mortgage","Credit Card","Loan"];
 
 function norm(a,f){ return (+a||0)*(f==="monthly"?12:1); }
 
-/* ===== ENGINE (UNCHANGED) ===== */
+/* ENGINE SAME */
 function calculate(){
   let income = state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0);
   let expenses = state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0);
-
   let net = income - expenses;
-
   let netWorth =
     state.accounts.reduce((s,a)=>s+(a.balance||0),0) +
     state.assets.reduce((s,a)=>s+(a.value||0),0) -
     state.liabilities.reduce((s,l)=>s+(l.balance||0),0);
-
   let savingsRate = income>0 ? ((income-expenses)/income)*100 : 0;
-
   return {income,expenses,net,netWorth,savingsRate};
 }
 
-/* ===== SAME ENGINE BELOW ===== */
-
 function runTimeline(d){
-  let nw=d.netWorth, fail=null;
+  let nw=d.netWorth,fail=null;
   for(let a=state.timeline.currentAge;a<=state.timeline.lifeExpectancy;a++){
     let income=a<state.timeline.retirementAge?d.income:0;
     let expenses=d.expenses*Math.pow(1.03,a-state.timeline.currentAge);
@@ -84,107 +252,74 @@ function runEngine(){
 
 function updateAll(){
   let d=runEngine();
+
   netWorth.innerText="$"+Math.round(d.netWorth);
   income.innerText="$"+Math.round(d.income);
   expensesOut.innerText="$"+Math.round(d.expenses);
   savingsRate.innerText=d.savingsRate.toFixed(1)+"%";
+
   status.innerText=d.success?"On Track":"Fails at "+d.failureAge;
   failure.innerText="MC Success: "+d.mc+"%";
   action.innerText=d.mc>70?"Good":"Risk";
-  aiOutput.innerText="Advisor layer next";
+
+  aiOutput.innerText="AI ready for next phase";
+
+  renderMarkets();
 }
 
-/* ===== ADDERS ===== */
+/* MARKETS */
+async function fetchMarkets(){
+  try{
+    let spy = await fetch("https://finnhub.io/api/v1/quote?symbol=SPY&token=demo").then(r=>r.json());
+    let qqq = await fetch("https://finnhub.io/api/v1/quote?symbol=QQQ&token=demo").then(r=>r.json());
 
-function addIncome(){ state.incomes.push({amount:0,freq:"yearly"}); render(); }
-
-function addExpense(){
-  state.expenses.push({amount:0,freq:"yearly",type:"Housing",essential:true});
-  render();
+    state.markets.indices = {SPY:spy.c, QQQ:qqq.c};
+    renderMarkets();
+  }catch{}
 }
 
-function addAccount(){
-  state.accounts.push({type:"401k",balance:0,contrib:0,return:0.07});
-  render();
+function renderMarkets(){
+  marketOverview.innerHTML = `
+    <div>SPY: ${state.markets.indices.SPY||"--"}</div>
+    <div>QQQ: ${state.markets.indices.QQQ||"--"}</div>
+  `;
+
+  tickerList.innerHTML = state.markets.userTickers.map(t=>`<div>${t}</div>`).join("");
 }
 
-function addAsset(){
-  state.assets.push({type:"Cash",value:0});
-  render();
+function addTicker(){
+  let t=newTicker.value.toUpperCase();
+  if(!t) return;
+  state.markets.userTickers.push(t);
+  newTicker.value="";
+  renderMarkets();
 }
 
-function addLiability(){
-  state.liabilities.push({type:"Mortgage",balance:0});
-  render();
-}
+setInterval(fetchMarkets,60000);
+fetchMarkets();
 
-/* ===== RENDER ===== */
+/* BASIC INPUT */
+function addIncome(){state.incomes.push({amount:0,freq:"yearly"});render();}
+function addExpense(){state.expenses.push({amount:0,freq:"yearly"});render();}
+function addAccount(){state.accounts.push({type:"401k",balance:0});render();}
+function addAsset(){state.assets.push({type:"Cash",value:0});render();}
+function addLiability(){state.liabilities.push({type:"Mortgage",balance:0});render();}
 
 function render(){
-
-  stateSelect.innerHTML = states.map(s=>`
-    <option ${state.taxState===s?"selected":""}>${s}</option>
-  `).join("");
-
-  incomeList.innerHTML = state.incomes.map((i,idx)=>`
-    <input value="${i.amount||""}" onblur="state.incomes[${idx}].amount=this.value;updateAll()">
-  `).join("");
-
-  expenseList.innerHTML = state.expenses.map((e,idx)=>`
-    <div class="row">
-      <select onchange="state.expenses[${idx}].type=this.value">
-        ${expenseTypes.map(t=>`<option ${e.type===t?"selected":""}>${t}</option>`)}
-      </select>
-      <input placeholder="Amount" value="${e.amount||""}" 
-        onblur="state.expenses[${idx}].amount=this.value;updateAll()">
-      <select onchange="state.expenses[${idx}].essential=this.value==='true'">
-        <option value="true" ${e.essential?"selected":""}>Essential</option>
-        <option value="false" ${!e.essential?"selected":""}>Discretionary</option>
-      </select>
-    </div>
-  `).join("");
-
-  accountList.innerHTML = state.accounts.map((a,idx)=>`
-    <div class="row">
-      <select onchange="state.accounts[${idx}].type=this.value">
-        ${accountTypes.map(t=>`<option ${a.type===t?"selected":""}>${t}</option>`)}
-      </select>
-      <input placeholder="Balance" value="${a.balance||""}" 
-        onblur="state.accounts[${idx}].balance=this.value;updateAll()">
-      <input placeholder="Contribution" value="${a.contrib||""}" 
-        onblur="state.accounts[${idx}].contrib=this.value;updateAll()">
-    </div>
-  `).join("");
-
-  assetList.innerHTML = state.assets.map((a,idx)=>`
-    <div class="row">
-      <select onchange="state.assets[${idx}].type=this.value">
-        ${assetTypes.map(t=>`<option ${a.type===t?"selected":""}>${t}</option>`)}
-      </select>
-      <input placeholder="Value" value="${a.value||""}" 
-        onblur="state.assets[${idx}].value=this.value;updateAll()">
-    </div>
-  `).join("");
-
-  liabilityList.innerHTML = state.liabilities.map((l,idx)=>`
-    <div class="row">
-      <select onchange="state.liabilities[${idx}].type=this.value">
-        ${liabilityTypes.map(t=>`<option ${l.type===t?"selected":""}>${t}</option>`)}
-      </select>
-      <input placeholder="Balance" value="${l.balance||""}" 
-        onblur="state.liabilities[${idx}].balance=this.value;updateAll()">
-    </div>
-  `).join("");
-
+  stateSelect.innerHTML=states.map(s=>`<option>${s}</option>`).join("");
+  incomeList.innerHTML=state.incomes.map((i,idx)=>`<input value="${i.amount||""}" onblur="state.incomes[${idx}].amount=this.value;updateAll()">`).join("");
+  expenseList.innerHTML=state.expenses.map((e,idx)=>`<input value="${e.amount||""}" onblur="state.expenses[${idx}].amount=this.value;updateAll()">`).join("");
+  accountList.innerHTML=state.accounts.map((a,idx)=>`<input value="${a.balance||""}" onblur="state.accounts[${idx}].balance=this.value;updateAll()">`).join("");
+  assetList.innerHTML=state.assets.map((a,idx)=>`<input value="${a.value||""}" onblur="state.assets[${idx}].value=this.value;updateAll()">`).join("");
+  liabilityList.innerHTML=state.liabilities.map((l,idx)=>`<input value="${l.balance||""}" onblur="state.liabilities[${idx}].balance=this.value;updateAll()">`).join("");
   updateAll();
 }
 
 function showView(v,e){
-  ["dashboard","financials","scenarios"].forEach(id=>{
+  ["dashboard","financials","scenarios","markets"].forEach(id=>{
     document.getElementById(id).style.display="none";
   });
   document.getElementById(v).style.display="block";
-
   document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
   e.classList.add("active");
 }
@@ -192,3 +327,6 @@ function showView(v,e){
 window.onload=render;
 
 </script>
+
+</body>
+</html>
