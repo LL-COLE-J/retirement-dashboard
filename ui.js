@@ -1,44 +1,72 @@
-const BASTION_ENGINE = {
-    getTaxWork(income, state, status) {
-        let work = `[2026 TAX DERIVATION REPORT]\n\n`;
-        const deduction = status === 'married' ? 32200 : 16100;
-        const taxableFed = Math.max(0, income - deduction);
-        const fica = (Math.min(income, 184500) * 0.062) + (income * 0.0145);
-        
-        // 2026 Marginal Layer Logic
-        let fedTax = taxableFed > 0 ? taxableFed * 0.22 : 0; 
-        
-        work += `<span>FEDERAL CALCULATION:</span>\nGross: $${income.toLocaleString()}\n- Deduction: $${deduction.toLocaleString()}\n+ FICA: $${Math.round(fica).toLocaleString()}\n= Est Fed: $${Math.round(fedTax + fica).toLocaleString()}\n\n`;
+let wealthChart;
+let activeStressors = { market: false, medical: false, layoff: false };
 
-        let stateTax = 0;
-        if (state === 'CA') {
-            stateTax = income * 0.06;
-            work += `<span>STATE CALCULATION (CA):</span>\nEst. Progressive: $${Math.round(stateTax).toLocaleString()}`;
-        } else {
-            work += `<span>STATE CALCULATION (${state}):</span>\nJurisdiction Tax Exempt.`;
-        }
-        
-        const total = fedTax + fica + stateTax;
-        return { total, effRate: (total / income) * 100, work };
-    },
+function switchTab(tabId) {
+    document.getElementById('financials-tab').style.display = 'none';
+    document.getElementById('analytics-tab').style.display = 'none';
+    document.getElementById(tabId + '-tab').style.display = 'block';
+    
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.toggle('active', item.innerText.toLowerCase().includes(tabId.split('-')[0]));
+    });
+    if (tabId === 'analytics') recalc();
+}
 
-    runProjection(params) {
-        let current = 150000; // Baseline Starting Assets
-        const timeline = [];
-        const realRate = (7 - 3) / 100; // 7% return minus 3% inflation
-        
-        for (let i = 0; i <= 30; i++) {
-            let yearReturn = realRate;
-            let yearSavings = params.income * 0.15;
+function toggleStress(key) {
+    activeStressors[key] = !activeStressors[key];
+    document.getElementById(`stress-${key}`).classList.toggle('active');
+    recalc();
+}
 
-            // Apply Discrete Stressors
-            if (params.stressors.market && i === 1) yearReturn = -0.25;
-            if (params.stressors.medical && i === 5) current -= 50000;
-            if (params.stressors.layoff && i === 10) yearSavings = -(params.income * 0.20); 
+function recalc() {
+    const inc = parseFloat(document.getElementById('inc-gross').value) || 0;
+    const state = document.getElementById('state-select').value;
+    const status = document.getElementById('filing-status').value;
+    
+    const taxData = BASTION_ENGINE.getTaxWork(inc, state, status);
+    const projection = BASTION_ENGINE.runProjection({ income: inc, stressors: activeStressors });
+    const terminal = projection[projection.length - 1].wealth;
+    
+    document.getElementById('val-eff-rate').innerText = `${taxData.effRate.toFixed(1)}%`;
+    document.getElementById('val-terminal').innerText = `$${terminal.toLocaleString()}`;
+    document.getElementById('logic-content').innerHTML = taxData.work;
 
-            current = (current + yearSavings) * (1 + yearReturn);
-            timeline.push({ year: 2026 + i, wealth: Math.max(0, Math.round(current)) });
-        }
-        return timeline;
+    if (document.getElementById('analytics-tab').style.display !== 'none') {
+        renderChart(projection);
     }
-};
+    
+    let insight = "Baseline strategy is functional.";
+    if (terminal < 400000) insight = "WARNING: Plan failure likely under stress. Current liquidity cannot absorb concurrent shocks.";
+    if (activeStressors.market && terminal > 1000000) insight = "RESILIENCE: Portfolio shows high recovery capacity despite market shocks.";
+    
+    document.getElementById('pro-insight').innerText = insight;
+}
+
+function renderChart(data) {
+    const ctx = document.getElementById('wealthChart').getContext('2d');
+    if (wealthChart) wealthChart.destroy();
+    wealthChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.map(d => d.year),
+            datasets: [{
+                label: 'Wealth Projection',
+                data: data.map(d => d.wealth),
+                borderColor: '#38bdf8',
+                backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            scales: {
+                y: { grid: { color: '#f1f5f9' }, ticks: { callback: v => '$' + v.toLocaleString() } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+}
+
+window.onload = recalc;
