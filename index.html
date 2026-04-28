@@ -113,6 +113,23 @@ button{
 </div>
 </div>
 
+  <div class="card">
+<h4>Projection</h4>
+<div id="projectionOutput"></div>
+</div>
+
+<div class="card">
+<h4>Monte Carlo</h4>
+<div id="monteCarloOutput"></div>
+</div>
+
+<div class="card">
+<h4>Scenarios</h4>
+<label><input type="checkbox" id="jobLoss"> Job Loss</label><br>
+<label><input type="checkbox" id="marketCrash"> Market Crash</label><br>
+<label><input type="checkbox" id="expenseSpike"> Expense Spike</label>
+</div>
+
 <div id="financials" style="display:none">
 
 <div class="grid">
@@ -424,6 +441,146 @@ window.onload = () => {
   updateAll();
 
 };
+
+  // =========================
+// ADVANCED ACCOUNTS (SAFE EXTENSION)
+// =========================
+if(!state.accounts || typeof state.accounts !== "object"){
+  state.accounts = [];
+}
+
+function addAdvancedAccount(){
+
+  state.accounts.push({
+    type:"401k",
+    balance:0,
+    contrib:0,
+    match:0
+  });
+
+  updateAll();
+}
+
+// =========================
+// SCENARIO ENGINE
+// =========================
+function applyScenarios(base){
+
+  let adjusted = {...base};
+
+  if(document.getElementById("jobLoss")?.checked){
+    adjusted.income *= 0.5;
+  }
+
+  if(document.getElementById("expenseSpike")?.checked){
+    adjusted.expenses *= 1.25;
+  }
+
+  if(document.getElementById("marketCrash")?.checked){
+    adjusted.netWorth *= 0.75;
+  }
+
+  return adjusted;
+}
+
+// =========================
+// MONTE CARLO
+// =========================
+function runMonteCarlo(data){
+
+  let simulations = 200;
+  let success = 0;
+
+  for(let i=0;i<simulations;i++){
+
+    let nw = data.netWorth;
+    let yearly = data.income - data.expenses;
+
+    for(let y=0;y<30;y++){
+
+      let returnRate = (Math.random()*0.12) - 0.02; // -2% to +10%
+      nw = nw * (1 + returnRate) + yearly;
+
+      if(nw <= 0) break;
+    }
+
+    if(nw > 0) success++;
+  }
+
+  return (success / simulations) * 100;
+}
+
+// =========================
+// RETIREMENT PROJECTION
+// =========================
+function calcRetirement(data){
+
+  let target = data.expenses * 25;
+  let nw = data.netWorth;
+  let yearly = data.income - data.expenses;
+
+  let years = 0;
+
+  while(nw < target && years < 50){
+    nw = nw * 1.06 + yearly;
+    years++;
+  }
+
+  return years;
+}
+
+// =========================
+// OVERRIDE UPDATE (EXTEND ONLY)
+// =========================
+const originalUpdate = updateAll;
+
+updateAll = function(){
+
+  originalUpdate();
+
+  let base = calculate();
+  let data = applyScenarios(base);
+
+  // MONTE CARLO
+  let mc = runMonteCarlo(data);
+  document.getElementById("monteCarloOutput").innerText =
+    mc.toFixed(1) + "% success rate";
+
+  // PROJECTION
+  let years = calcRetirement(data);
+
+  document.getElementById("projectionOutput").innerText =
+    years < 50
+    ? "Retirement in ~" + years + " yrs"
+    : "Not on track";
+
+  // AI UPGRADE
+  let msg = "";
+
+  if(mc < 50){
+    msg = "High risk: plan likely to fail. Reduce expenses or increase savings.";
+  }
+  else if(mc < 75){
+    msg = "Moderate risk: tighten plan or boost contributions.";
+  }
+  else{
+    msg = "Strong plan: high probability of success.";
+  }
+
+  document.getElementById("aiOutput").innerText = msg;
+};
+
+// =========================
+// SCENARIO HOOKS
+// =========================
+["jobLoss","marketCrash","expenseSpike"].forEach(id=>{
+  let el = document.getElementById(id);
+  if(el){
+    el.addEventListener("change", updateAll);
+  }
+});
+
+</script>
 
 </script>
 </body>
