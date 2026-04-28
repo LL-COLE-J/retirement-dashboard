@@ -92,7 +92,7 @@ button{
 
 <div class="sidebar">
 <div class="logo">
-  <img src="./logo.png" onerror="this.style.display='none'">
+  <img src="./logo-full.png" onerror="this.style.display='none'">
 </div>
 
 <div class="nav-item active" onclick="showView('dashboard',this)">Dashboard</div>
@@ -133,26 +133,30 @@ button{
 
 <div class="card">
 <h4>Tax Profile</h4>
+<select id="stateSelect"></select>
 <select id="filing" onchange="state.filing=this.value;updateAll()">
 <option value="single">Single</option>
 <option value="married_joint">Married</option>
 <option value="head">Head</option>
 </select>
-<input id="stateTax" placeholder="State Tax %" oninput="state.tax.state=+this.value||0;updateAll()">
-<input id="fedAdj" placeholder="Federal Adj %" oninput="state.tax.fedAdj=+this.value||0;updateAll()">
 </div>
 
 <div class="card">
-<h4>Accounts (Advisor Level)</h4>
+<h4>Accounts</h4>
 <div id="accountList"></div>
 <button onclick="addAccount()">Add Account</button>
 </div>
 
 <div class="card">
-<h4>Assets / Liabilities</h4>
-<input id="cash" placeholder="Cash">
-<input id="invest" placeholder="Investments">
-<input id="debt" placeholder="Debt">
+<h4>Assets</h4>
+<div id="assetList"></div>
+<button onclick="addAsset()">Add Asset</button>
+</div>
+
+<div class="card">
+<h4>Liabilities</h4>
+<div id="liabilityList"></div>
+<button onclick="addLiability()">Add Liability</button>
 </div>
 
 </div>
@@ -161,14 +165,12 @@ button{
 <!-- SCENARIOS -->
 <div id="scenarios" style="display:none">
 <div class="grid">
-
 <div class="card">
 <h4>Age & Retirement</h4>
 <input id="currentAge" value="40">
 <input id="retirementAge" value="65">
 <input id="lifeExpectancy" value="90">
 </div>
-
 </div>
 </div>
 
@@ -186,111 +188,66 @@ button{
 
 <script>
 
-/* =========================
-STATE (EXTENDED ONLY)
-========================= */
 let state = {
   incomes: [],
   expenses: [],
   accounts: [],
-  dependents: [],
-  assets:{cash:0,invest:0,debt:0},
+  assets: [],
+  liabilities: [],
   filing:"single",
-  tax:{state:0,fedAdj:0},
   timeline:{currentAge:40,retirementAge:65,lifeExpectancy:90},
   settings:{inflation:0.03}
 };
 
-/* =========================
-HELPERS
-========================= */
-function norm(a,f){
-  return (+a||0)*(f==="monthly"?12:1);
-}
+const accountTypes = ["401k","Roth IRA","Traditional IRA","Brokerage","HSA","529","Cash","Pension"];
 
-/* =========================
-CALC (EXTENDED, NOT REPLACED)
-========================= */
+const states = ["TN","CA","NY","TX","FL"];
+
+function norm(a,f){ return (+a||0)*(f==="monthly"?12:1); }
+
 function calculate(){
+  let income = state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0);
+  let expenses = state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0);
 
-  let income = state.incomes.reduce((s,i)=>{
-    let val = norm(i.amount,i.freq);
-    if(i.type==="bonus") val*=0.7;
-    if(i.type==="passive") val*=0.95;
-    return s+val;
-  },0);
-
-  let expenses = state.expenses.reduce((s,e)=>{
-    let val = norm(e.amount,e.freq);
-    if(e.essential===false) val*=1.1;
-    return s+val;
-  },0);
-
-  let taxDrag = income * ((state.tax.state||0)/100 + (state.tax.fedAdj||0)/100);
-
-  let net = income - expenses - taxDrag;
+  let net = income - expenses;
 
   let netWorth =
     state.accounts.reduce((s,a)=>s+(a.balance||0),0) +
-    state.assets.cash + state.assets.invest - state.assets.debt;
+    state.assets.reduce((s,a)=>s+(a.value||0),0) -
+    state.liabilities.reduce((s,l)=>s+(l.balance||0),0);
 
   let savingsRate = income>0 ? ((income-expenses)/income)*100 : 0;
 
   return {income,expenses,net,netWorth,savingsRate};
 }
 
-/* =========================
-TIMELINE
-========================= */
 function runTimeline(d){
-
-  let nw=d.netWorth;
-  let fail=null;
-
-  let avgReturn =
-    state.accounts.reduce((s,a)=>s+(a.return||0.06),0) /
-    (state.accounts.length||1);
-
+  let nw=d.netWorth, fail=null;
   for(let a=state.timeline.currentAge;a<=state.timeline.lifeExpectancy;a++){
-
     let income=a<state.timeline.retirementAge?d.income:0;
-    let expenses=d.expenses*Math.pow(1+state.settings.inflation,a-state.timeline.currentAge);
-
-    nw=nw*(1+avgReturn)+(income-expenses);
-
+    let expenses=d.expenses*Math.pow(1.03,a-state.timeline.currentAge);
+    nw=nw*1.06+(income-expenses);
     if(nw<=0 && fail===null) fail=a;
   }
-
   return {success:fail===null,failureAge:fail};
 }
 
-/* =========================
-MC
-========================= */
 function runMonteCarlo(d){
   let success=0;
-
   for(let i=0;i<100;i++){
     let nw=d.netWorth;
-
     for(let a=state.timeline.currentAge;a<=state.timeline.lifeExpectancy;a++){
       let r=(Math.random()*0.12)-0.02;
       let income=a<state.timeline.retirementAge?d.income:0;
       let expenses=d.expenses*Math.pow(1.03,a-state.timeline.currentAge);
-
       nw=nw*(1+r)+(income-expenses);
       if(nw<=0) break;
     }
-
     if(nw>0) success++;
   }
-
   return success;
 }
 
-/* =========================
-ENGINE
-========================= */
 function runEngine(){
   let d=calculate();
   let t=runTimeline(d);
@@ -298,81 +255,66 @@ function runEngine(){
   return {...d,...t,mc};
 }
 
-/* =========================
-ADVISOR
-========================= */
-function advice(d){
-  if(d.savingsRate<15) return "Increase savings rate.";
-  if(!d.success) return "Delay retirement or reduce expenses.";
-  return "Plan stable.";
-}
-
-/* =========================
-UI
-========================= */
 function updateAll(){
-
   let d=runEngine();
-
   netWorth.innerText="$"+Math.round(d.netWorth);
   income.innerText="$"+Math.round(d.income);
   expensesOut.innerText="$"+Math.round(d.expenses);
   savingsRate.innerText=d.savingsRate.toFixed(1)+"%";
-
   status.innerText=d.success?"On Track":"Fails at "+d.failureAge;
   failure.innerText="MC Success: "+d.mc+"%";
   action.innerText=d.mc>70?"Good":"Risk";
-  aiOutput.innerText=advice(d);
+  aiOutput.innerText="Advisor logic coming next";
 }
 
-/* =========================
-ADDERS
-========================= */
-function addIncome(){
-  state.incomes.push({amount:0,freq:"yearly",type:"salary"});
-  render();
-}
-
-function addExpense(){
-  state.expenses.push({amount:0,freq:"yearly",essential:true});
-  render();
-}
+function addIncome(){ state.incomes.push({amount:0,freq:"yearly"}); render(); }
+function addExpense(){ state.expenses.push({amount:0,freq:"yearly"}); render(); }
 
 function addAccount(){
-  state.accounts.push({type:"401k",balance:0,return:0.07});
+  state.accounts.push({type:"401k",balance:0});
   render();
 }
 
-/* =========================
-RENDER
-========================= */
+function addAsset(){
+  state.assets.push({type:"cash",value:0});
+  render();
+}
+
+function addLiability(){
+  state.liabilities.push({type:"debt",balance:0});
+  render();
+}
+
 function render(){
 
-  incomeList.innerHTML=state.incomes.map((i,idx)=>`
-    <input placeholder="Amount" value="${i.amount||""}" onblur="state.incomes[${idx}].amount=this.value;updateAll()">
+  stateSelect.innerHTML = states.map(s=>`<option>${s}</option>`).join("");
+
+  incomeList.innerHTML = state.incomes.map((i,idx)=>`
+    <input value="${i.amount||""}" onblur="state.incomes[${idx}].amount=this.value;updateAll()">
   `).join("");
 
-  expenseList.innerHTML=state.expenses.map((e,idx)=>`
-    <input placeholder="Amount" value="${e.amount||""}" onblur="state.expenses[${idx}].amount=this.value;updateAll()">
+  expenseList.innerHTML = state.expenses.map((e,idx)=>`
+    <input value="${e.amount||""}" onblur="state.expenses[${idx}].amount=this.value;updateAll()">
   `).join("");
 
-  accountList.innerHTML=state.accounts.map((a,idx)=>`
+  accountList.innerHTML = state.accounts.map((a,idx)=>`
+    <select onchange="state.accounts[${idx}].type=this.value">
+      ${accountTypes.map(t=>`<option ${a.type===t?"selected":""}>${t}</option>`)}
+    </select>
     <input placeholder="Balance" value="${a.balance||""}" onblur="state.accounts[${idx}].balance=this.value;updateAll()">
   `).join("");
 
-  ["cash","invest","debt"].forEach(id=>{
-    document.getElementById(id).oninput = ()=>{
-      state.assets[id] = +document.getElementById(id).value||0;
-      updateAll();
-    };
-  });
+  assetList.innerHTML = state.assets.map((a,idx)=>`
+    <input placeholder="Value" value="${a.value||""}" onblur="state.assets[${idx}].value=this.value;updateAll()">
+  `).join("");
+
+  liabilityList.innerHTML = state.liabilities.map((l,idx)=>`
+    <input placeholder="Balance" value="${l.balance||""}" onblur="state.liabilities[${idx}].balance=this.value;updateAll()">
+  `).join("");
 
   updateAll();
 }
 
-/* =========================
-NAV
-========================= */
 function showView(v,e){
   ["dashboard","financials","scenarios"].forEach(id=>{
     document.getElementById(id).style.display="none";
@@ -383,9 +325,6 @@ function showView(v,e){
   e.classList.add("active");
 }
 
-/* =========================
-INIT
-========================= */
 window.onload=render;
 
 </script>
