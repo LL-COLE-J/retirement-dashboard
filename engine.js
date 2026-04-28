@@ -1,10 +1,9 @@
-// engine.js
 const BASTION_ENGINE = {
     // 2026 Brackets (Projected after TCJA sunset)
     brackets: {
         single: [
             { threshold: 0, rate: 0.10 },
-            { threshold: 11600, rate: 0.15 }, // Rate jump in 2026
+            { threshold: 11600, rate: 0.15 }, 
             { threshold: 47150, rate: 0.25 },
             { threshold: 100525, rate: 0.28 }
         ],
@@ -31,7 +30,6 @@ const BASTION_ENGINE = {
             }
         }
         
-        // Add FICA (Social Security 6.2% + Medicare 1.45%)
         const fica = income * 0.0765;
         return {
             total: totalTax + fica,
@@ -40,27 +38,24 @@ const BASTION_ENGINE = {
         };
     },
 
-    async fetchPrice(id) {
+    // FIXED: Removed nested function syntax error and switched to CoinLore for CORS stability
+    async fetchPrice(ticker) {
         try {
-            // CoinGecko allows browser-side fetching without CORS blocks for simple price checks
-            const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id.toLowerCase()}&vs_currencies=usd`);
-            const data = await res.json();
-            return data[id.toLowerCase()].usd;
+            // CoinLore is more reliable for "no-budget" GitHub Pages deployments
+            const response = await fetch(`https://api.coinlore.net/api/tickers/`);
+            const data = await response.json();
+            
+            // Find the asset by symbol (e.g., BTC, ETH)
+            const asset = data.data.find(c => c.symbol === ticker.toUpperCase());
+            
+            if (asset) {
+                return parseFloat(asset.price_usd);
+            } else {
+                throw new Error("Asset not found in top 100");
+            }
         } catch (e) {
-            console.error("Engine Error: Ticker Fetch Failed", e);
+            console.error("Ticker Fetch Failed:", e);
             return null;
         }
     }
-
-    async function fetchPrice(coinId) {
-    try {
-        // Use the coin ID (e.g., 'bitcoin' or 'ethereum') rather than the symbol
-        const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId.toLowerCase()}&vs_currencies=usd`);
-        const data = await response.json();
-        return data[coinId.toLowerCase()].usd;
-    } catch (error) {
-        console.error("Ticker Fetch Failed:", error);
-        return null;
-    }
-}
 };
