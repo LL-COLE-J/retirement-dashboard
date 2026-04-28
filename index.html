@@ -118,144 +118,150 @@ canvas{height:200px!important;}
 
 <script>
 
-let charts={};
+/* =========================
+   GLOBAL STATE
+========================= */
+let state = {
+  incomes: [],
+  expenses: [],
+  accounts: [],
+  dependents: [],
+  assets: { cash:0, invest:0, debt:0 },
+  filing:"single"
+};
 
-/* NAV */
-function showView(id,el){
-["dashboard","financials","scenarios"].forEach(v=>document.getElementById(v).style.display="none");
-document.getElementById(id).style.display="block";
-document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
-el.classList.add("active");
+/* =========================
+   HELPERS
+========================= */
+function norm(a,f){
+  return a*(f==="monthly"?12:f==="biweekly"?26:1);
 }
 
-/* MODEL */
-function buildModel(total,exp){
-
-let r=((+returnRate.value||5)/100);
-let inf=((+inflation.value||2.5)/100);
-
-let bal=total, arr=[];
-
-for(let i=0;i<50;i++){
-
-let inc=(+incomeA.value||0)+(+incomeB.value||0);
-
-if(i>(+retA.value-(+ageA.value))) inc-= (+incomeA.value||0);
-if(i>(+retB.value-(+ageB.value))) inc-= (+incomeB.value||0);
-
-let expenses=exp*Math.pow(1+inf,i);
-
-bal+=bal*r + inc - expenses;
-
-arr.push({year:i,bal,inc,exp:expenses});
-
-if(bal<=0) break;
+function money(n){
+  return "$"+Number(n||0).toLocaleString();
 }
 
-return arr;
+/* =========================
+   TAX
+========================= */
+function calcTax(income){
+  return income*0.2; // simple placeholder
 }
 
-/* UPDATE */
+/* =========================
+   CORE CALC
+========================= */
+function calculate(){
+
+  let income = state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0);
+
+  let expenses = state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0);
+
+  let depCost = state.dependents.reduce((s,d)=>s+d.cost,0);
+  expenses += depCost;
+
+  let contrib = state.accounts.reduce((s,a)=>s+(a.contrib||0),0);
+
+  let net = income - expenses - contrib;
+
+  let accountValue = state.accounts.reduce((s,a)=>s+(a.balance||0),0);
+
+  let netWorth =
+    accountValue +
+    state.assets.cash +
+    state.assets.invest -
+    state.assets.debt;
+
+  let savingsRate = income>0 ? ((income-expenses)/income)*100 : 0;
+
+  return { income, expenses, net, netWorth, savingsRate };
+}
+
+/* =========================
+   UPDATE
+========================= */
 function updateAll(){
 
-let total=(+cash.value||0)+(+invest.value||0);
-let incomeVal=(+incomeA.value||0)+(+incomeB.value||0);
-let expVal=(+exp.value||0);
+  let d = calculate();
 
-let m=buildModel(total,expVal);
+  /* DECISION ENGINE */
+  let yearsSafe = d.net > 0 ? (d.netWorth / (d.expenses||1)) : 0;
 
-/* METRICS */
-let savingsRate = incomeVal ? ((incomeVal-expVal)/incomeVal) : 0;
-let burnRate = expVal/12;
-let yearsSafe = total/(expVal||1);
+  let decision = "SAFE";
+  if(yearsSafe < 25) decision="RISK";
+  if(yearsSafe < 10) decision="FAIL";
 
-/* DECISION */
-let decision="SAFE";
-if(m.length<25) decision="RISK";
-if(m.length<15) decision="FAIL";
+  /* OUTPUT */
+  document.getElementById("netWorth").innerText = money(d.netWorth);
+  document.getElementById("income").innerText = money(d.income);
+  document.getElementById("expensesOut").innerText = money(d.expenses);
+  document.getElementById("years").innerText = yearsSafe.toFixed(1);
 
-/* FAILURE AGE */
-let failAge=(+ageA.value||65)+m.length;
+  document.getElementById("savingsRate").innerText = d.savingsRate.toFixed(1)+"%";
+  document.getElementById("burnRate").innerText = money(d.expenses/12);
+  document.getElementById("yearsSafe").innerText = yearsSafe.toFixed(1);
+  document.getElementById("decision").innerText = decision;
 
-/* OUTPUT */
-netWorth.innerText="$"+total.toLocaleString();
-income.innerText="$"+incomeVal.toLocaleString();
-expensesOut.innerText="$"+expVal.toLocaleString();
-years.innerText=m.length;
+  document.getElementById("retirementSummary").innerHTML = `
+    Status: ${decision}<br>
+    Net: ${money(d.net)}<br>
+    Years Safe: ${yearsSafe.toFixed(1)}
+  `;
 
-savingsRateEl.innerText=(savingsRate*100).toFixed(1)+"%";
-burnRateEl.innerText="$"+burnRate.toFixed(0);
-yearsSafeEl.innerText=yearsSafe.toFixed(1);
-decisionEl.innerText=decision;
+  /* MOCK AI */
+  let ai=[];
+  if(decision==="FAIL") ai.push("🚨 Retirement not viable.");
+  else if(decision==="RISK") ai.push("⚠️ Plan fragile.");
+  else ai.push("✅ Plan solid.");
 
-/* SUMMARY */
-retirementSummary.innerHTML=`
-<b>Status:</b> ${decision}<br>
-<b>Funds Last:</b> ${m.length} years<br>
-<b>Failure Age:</b> ${failAge}
-`;
+  if(d.savingsRate < 10) ai.push("Low savings rate.");
+  if(d.net < 0) ai.push("Spending exceeds income.");
 
-/* MOCK AI */
-let ai=[];
-if(decision==="FAIL") ai.push("🚨 Retirement not viable.");
-else if(decision==="RISK") ai.push("⚠️ Plan is fragile.");
-else ai.push("✅ Plan looks solid.");
+  ai.push("Action: increase savings or reduce expenses.");
 
-if(savingsRate<0.1) ai.push("Savings rate is too low.");
-if(yearsSafe<15) ai.push("Longevity risk present.");
-
-ai.push("Action: adjust spending or delay retirement.");
-
-aiOutput.innerHTML=ai.join("<br><br>");
-
-renderCharts(m);
+  document.getElementById("aiOutput").innerHTML = ai.join("<br><br>");
 }
 
-/* SCENARIOS */
-function applyScenario(type){
-if(type==="crash") returnRate.value=2;
-if(type==="inflation") inflation.value=5;
-if(type==="longevity") ageA.value=(+ageA.value||65)-5;
-updateAll();
+/* =========================
+   ADDERS (UI)
+========================= */
+function addIncome(){
+  state.incomes.push({amount:0,freq:"yearly"});
+  renderAll();
 }
 
-/* SAVE */
-function saveProfile(){
-let name=prompt("Profile name?");
-if(!name)return;
-
-let p=JSON.parse(localStorage.getItem("profiles")||"{}");
-p[name]={incomeA:incomeA.value,incomeB:incomeB.value,ageA:ageA.value,ageB:ageB.value,retA:retA.value,retB:retB.value,cash:cash.value,invest:invest.value,exp:exp.value};
-localStorage.setItem("profiles",JSON.stringify(p));
-renderProfiles();
+function addExpense(){
+  state.expenses.push({amount:0,freq:"yearly"});
+  renderAll();
 }
 
-function renderProfiles(){
-let p=JSON.parse(localStorage.getItem("profiles")||"{}");
-profileList.innerHTML=Object.keys(p).map(n=>`<div onclick="loadProfile('${n}')">${n}</div>`).join("");
-}
+/* =========================
+   RENDER
+========================= */
+function renderAll(){
 
-function loadProfile(n){
-let d=JSON.parse(localStorage.getItem("profiles"))[n];
-Object.keys(d).forEach(k=>document.getElementById(k).value=d[k]);
-updateAll();
-}
+  document.getElementById("incomeList").innerHTML =
+    state.incomes.map((i,idx)=>`
+      <input value="${i.amount||""}"
+        onblur="state.incomes[${idx}].amount=+this.value||0;updateAll()">
+    `).join("");
 
-/* CHARTS */
-function renderCharts(m){
-let labels=m.map(x=>x.year);
-let bal=m.map(x=>x.bal);
+  document.getElementById("expenseList").innerHTML =
+    state.expenses.map((e,idx)=>`
+      <input value="${e.amount||""}"
+        onblur="state.expenses[${idx}].amount=+this.value||0;updateAll()">
+    `).join("");
 
-Object.values(charts).forEach(c=>c.destroy());
-
-charts.c1=new Chart(c1,{type:'line',data:{labels,datasets:[{data:bal}]}}); 
+  updateAll();
 }
 
 /* INIT */
-document.querySelectorAll("input").forEach(i=>i.addEventListener("input",updateAll));
-window.onload=()=>{renderProfiles();updateAll();};
+window.onload = () => {
+  state.incomes.push({amount:80000,freq:"yearly"});
+  state.expenses.push({amount:40000,freq:"yearly"});
+  renderAll();
+};
 
 </script>
-
 </body>
 </html>
