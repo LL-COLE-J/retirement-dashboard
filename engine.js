@@ -1,5 +1,4 @@
 const BASTION_ENGINE = {
-    // 2026 Brackets (Projected after TCJA sunset)
     brackets: {
         single: [
             { threshold: 0, rate: 0.10 },
@@ -20,7 +19,6 @@ const BASTION_ENGINE = {
         const taxable = Math.max(0, income - deduction);
         const activeBrackets = this.brackets[status];
         let totalTax = 0;
-
         for (let i = 0; i < activeBrackets.length; i++) {
             const b = activeBrackets[i];
             const nextThreshold = activeBrackets[i + 1] ? activeBrackets[i + 1].threshold : Infinity;
@@ -29,32 +27,18 @@ const BASTION_ENGINE = {
                 totalTax += taxableInBracket * b.rate;
             }
         }
-        
         const fica = income * 0.0765;
-        return {
-            total: totalTax + fica,
-            taxable: taxable,
-            rate: ((totalTax + fica) / income) * 100
-        };
+        return { total: totalTax + fica, taxable: taxable };
     },
 
-    // FIXED: Removed nested function syntax error and switched to CoinLore for CORS stability
     async fetchPrice(ticker) {
         try {
-            // CoinLore is more reliable for "no-budget" GitHub Pages deployments
             const response = await fetch(`https://api.coinlore.net/api/tickers/`);
             const data = await response.json();
-            
-            // Find the asset by symbol (e.g., BTC, ETH)
             const asset = data.data.find(c => c.symbol === ticker.toUpperCase());
-            
-            if (asset) {
-                return parseFloat(asset.price_usd);
-            } else {
-                throw new Error("Asset not found in top 100");
-            }
+            return asset ? parseFloat(asset.price_usd) : null;
         } catch (e) {
-            console.error("Ticker Fetch Failed:", e);
+            console.error("Ticker fetch error", e);
             return null;
         }
     }
