@@ -1,55 +1,48 @@
-const STATE_DB = {
-    "TN": { name: "Tennessee", rate: 0, type: "none" },
-    "TX": { name: "Texas", rate: 0, type: "none" },
-    "CA": { name: "California", type: "graduated", brackets: [{t:0, r:0.01}, {t:10412, r:0.02}, {t:24684, r:0.04}] },
-    "NY": { name: "New York", type: "graduated", brackets: [{t:0, r:0.04}, {t:8500, r:0.045}] }
-};
-
-const FED_2026 = {
-    single: [{t: 0, r: 0.10}, {t: 11600, r: 0.12}, {t: 47150, r: 0.22}, {t: 100525, r: 0.24}],
-    married: [{t: 0, r: 0.10}, {t: 23200, r: 0.12}, {t: 94300, r: 0.22}, {t: 201050, r: 0.24}]
-};
-
-let bastionState = {
-    income: 120000,
-    filing: 'single',
-    residence: 'TN',
-    accounts: [{name: 'Brokerage', bal: 50000}]
-};
-
-function calculateRobustTaxes() {
-    const gross = bastionState.income;
-    const deduction = bastionState.filing === 'married' ? 29200 : 14600;
-    const taxable = Math.max(0, gross - deduction);
-
-    // 1. Federal Calculation
-    let fedTax = 0;
-    const brackets = FED_2026[bastionState.filing];
-    brackets.forEach((b, i) => {
-        const next = brackets[i+1] ? brackets[i+1].t : Infinity;
-        if (taxable > b.t) fedTax += (Math.min(taxable, next) - b.t) * b.r;
-    });
-
-    // 2. FICA (Social Security + Medicare)
-    const fica = Math.min(gross, 168600) * 0.0765;
-
-    // 3. State Calculation
-    let stateTax = 0;
-    const sInfo = STATE_DB[bastionState.residence];
-    if (sInfo.type === 'graduated') {
-        sInfo.brackets.forEach(b => { if (taxable > b.t) stateTax += (taxable - b.t) * b.r; });
+const TAX_DB = {
+    fed_2026: {
+        single: [
+            { limit: 11600, rate: 0.10 },
+            { limit: 47150, rate: 0.12 },
+            { limit: 100525, rate: 0.22 }
+        ],
+        married: [
+            { limit: 23200, rate: 0.10 },
+            { limit: 94300, rate: 0.12 },
+            { limit: 201050, rate: 0.22 }
+        ]
     }
+};
 
-    return { fed: fedTax, fica: fica, state: stateTax, total: fedTax + fica + stateTax };
+function calculateTaxes(income, status) {
+    const brackets = TAX_DB.fed_2026[status];
+    let tax = 0;
+    let remaining = Math.max(0, income - (status === 'married' ? 29200 : 14600)); // Standard Deduction
+
+    for (let i = 0; i < brackets.length; i++) {
+        const currentBracket = brackets[i];
+        const prevLimit = i === 0 ? 0 : brackets[i-1].limit;
+        const taxableInBracket = Math.min(remaining, currentBracket.limit - prevLimit);
+        
+        if (taxableInBracket <= 0) break;
+        
+        tax += taxableInBracket * currentBracket.rate;
+        if (remaining <= (currentBracket.limit - prevLimit)) break;
+    }
+    
+    // Add FICA (7.65%)
+    tax += income * 0.0765;
+    return tax;
 }
 
-async function getTickerData(symbol) {
-    // Using a public proxy to avoid the CORS error from your screenshot
+// Fixed Ticker using a CORS-friendly API
+async function getMarketData(symbol) {
     try {
-        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol.toUpperCase()}USDT`);
-        const data = await response.json();
-        return parseFloat(data.price);
-    } catch (e) {
+        // Switching to CryptoCompare or similar which permits browser-side fetches
+        const res = await fetch(`https://min-api.cryptocompare.com/data/price?fsym=${symbol.toUpperCase()}&tsyms=USD`);
+        const data = await res.json();
+        return data.USD || null;
+    } catch (err) {
+        console.error("Ticker Error:", err);
         return null;
     }
 }
