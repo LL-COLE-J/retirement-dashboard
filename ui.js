@@ -162,20 +162,29 @@ function renderDashboard(){
 
 /* =========================
    FINANCIALS
-========================= */
 function renderFinancials(){
 
   /* INCOME */
   document.getElementById("incomeList").innerHTML =
     state.incomes.map((i,idx)=>`
       <div class="row">
+
+        <select onchange="state.incomes[${idx}].type=this.value;commit()">
+          <option ${i.type==="salary"?"selected":""}>salary</option>
+          <option ${i.type==="bonus"?"selected":""}>bonus</option>
+          <option ${i.type==="side"?"selected":""}>side</option>
+          <option ${i.type==="passive"?"selected":""}>passive</option>
+        </select>
+
         <input value="${i.amount || ""}"
           onblur="state.incomes[${idx}].amount=+this.value||0;commit()">
 
         <select onchange="state.incomes[${idx}].freq=this.value;commit()">
           <option ${i.freq==="yearly"?"selected":""}>yearly</option>
           <option ${i.freq==="monthly"?"selected":""}>monthly</option>
+          <option ${i.freq==="biweekly"?"selected":""}>biweekly</option>
         </select>
+
       </div>
     `).join("");
 
@@ -183,6 +192,7 @@ function renderFinancials(){
   document.getElementById("expenseList").innerHTML =
     state.expenses.map((e,idx)=>`
       <div class="row">
+
         <input value="${e.amount || ""}"
           onblur="state.expenses[${idx}].amount=+this.value||0;commit()">
 
@@ -196,27 +206,42 @@ function renderFinancials(){
           <option ${e.cat==="food"?"selected":""}>food</option>
           <option ${e.cat==="transport"?"selected":""}>transport</option>
           <option ${e.cat==="insurance"?"selected":""}>insurance</option>
-          <option ${e.cat==="lifestyle"?"selected":""}>lifestyle</option>
+          <option ${e.cat==="utilities"?"selected":""}>utilities</option>
+          <option ${e.cat==="healthcare"?"selected":""}>healthcare</option>
+          <option ${e.cat==="debt"?"selected":""}>debt</option>
+          <option ${e.cat==="entertainment"?"selected":""}>entertainment</option>
+          <option ${e.cat==="other"?"selected":""}>other</option>
         </select>
+
       </div>
     `).join("");
 
-  /* ACCOUNTS */
+  /* ACCOUNTS (FIXED — DROPDOWN) */
   document.getElementById("accountList").innerHTML =
     state.accounts.map((a,idx)=>`
       <div class="row">
-        <input value="${a.type || ""}"
-          onblur="state.accounts[${idx}].type=this.value;commit()">
+
+        <select onchange="state.accounts[${idx}].type=this.value;commit()">
+          <option ${a.type==="checking"?"selected":""}>checking</option>
+          <option ${a.type==="401k"?"selected":""}>401k</option>
+          <option ${a.type==="roth"?"selected":""}>roth</option>
+          <option ${a.type==="brokerage"?"selected":""}>brokerage</option>
+          <option ${a.type==="hsa"?"selected":""}>hsa</option>
+        </select>
 
         <input value="${a.balance || ""}"
           onblur="state.accounts[${idx}].balance=+this.value||0;commit()">
 
         <input value="${a.contrib || ""}"
           onblur="state.accounts[${idx}].contrib=+this.value||0;commit()">
+
+        <input value="${a.match || ""}"
+          onblur="state.accounts[${idx}].match=+this.value||0;commit()">
+
       </div>
     `).join("");
 
-  /* DEPENDENTS */
+  /* DEPENDENTS (UNCHANGED) */
   document.getElementById("dependentList").innerHTML =
     state.dependents.map((d,idx)=>`
       <div class="row">
@@ -228,7 +253,7 @@ function renderFinancials(){
       </div>
     `).join("");
 
-  /* ASSETS */
+  /* ASSETS (UNCHANGED STRUCTURE) */
   const cash = document.getElementById("cash");
   const invest = document.getElementById("invest");
   const debt = document.getElementById("debt");
