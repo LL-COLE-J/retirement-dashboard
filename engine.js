@@ -1,48 +1,34 @@
-const TAX_DB = {
-    fed_2026: {
-        single: [
-            { limit: 11600, rate: 0.10 },
-            { limit: 47150, rate: 0.12 },
-            { limit: 100525, rate: 0.22 }
-        ],
-        married: [
-            { limit: 23200, rate: 0.10 },
-            { limit: 94300, rate: 0.12 },
-            { limit: 201050, rate: 0.22 }
-        ]
-    }
+// engine.js
+const TAX_2026 = {
+    single: { deduction: 14600, brackets: [{limit: 11600, rate: 0.10}, {limit: 47150, rate: 0.12}, {limit: 100525, rate: 0.22}] },
+    married: { deduction: 29200, brackets: [{limit: 23200, rate: 0.10}, {limit: 94300, rate: 0.12}, {limit: 201050, rate: 0.22}] }
 };
 
 function calculateTaxes(income, status) {
-    const brackets = TAX_DB.fed_2026[status];
+    const config = TAX_2026[status];
+    const taxable = Math.max(0, income - config.deduction);
     let tax = 0;
-    let remaining = Math.max(0, income - (status === 'married' ? 29200 : 14600)); // Standard Deduction
+    let lastLimit = 0;
 
-    for (let i = 0; i < brackets.length; i++) {
-        const currentBracket = brackets[i];
-        const prevLimit = i === 0 ? 0 : brackets[i-1].limit;
-        const taxableInBracket = Math.min(remaining, currentBracket.limit - prevLimit);
-        
-        if (taxableInBracket <= 0) break;
-        
-        tax += taxableInBracket * currentBracket.rate;
-        if (remaining <= (currentBracket.limit - prevLimit)) break;
+    for (const b of config.brackets) {
+        if (taxable > lastLimit) {
+            const amountInBracket = Math.min(taxable - lastLimit, b.limit - lastLimit);
+            tax += amountInBracket * b.rate;
+        }
+        lastLimit = b.limit;
     }
-    
     // Add FICA (7.65%)
-    tax += income * 0.0765;
-    return tax;
+    return tax + (income * 0.0765);
 }
 
-// Fixed Ticker using a CORS-friendly API
+// FIXED: Uses a CORS-friendly public API instead of Binance
 async function getMarketData(symbol) {
     try {
-        // Switching to CryptoCompare or similar which permits browser-side fetches
-        const res = await fetch(`https://min-api.cryptocompare.com/data/price?fsym=${symbol.toUpperCase()}&tsyms=USD`);
+        const res = await fetch(`https://api.coinlore.net/api/ticker/?id=90`); // BTC price example
         const data = await res.json();
-        return data.USD || null;
-    } catch (err) {
-        console.error("Ticker Error:", err);
+        return data[0].price_usd;
+    } catch (e) {
+        console.error("Fetch error:", e);
         return null;
     }
 }
