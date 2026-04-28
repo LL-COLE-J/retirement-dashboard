@@ -2,108 +2,106 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bastion Insights | Executive Suite</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { 
-            --bg: #f8fbfd; 
-            --sidebar: #ffffff; 
-            --card: #ffffff; 
-            --text: #0a1f44; /* Navy from logo */
-            --sub: #6c7a97; 
-            --accent: #d4af37; /* Gold from logo */
-            --border: #e6ebf1; 
-            --success: #20c997;
-        }
+        :root { --bg: #f4f7fa; --sidebar: #ffffff; --navy: #0a1f44; --gold: #d4af37; --border: #e2e8f0; --text: #1e293b; --sub: #64748b; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
-        
-        /* Branded Sidebar with logo.png */
-        .sidebar { width: 260px; background: var(--sidebar); padding: 32px 20px; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
-        .logo-box { margin-bottom: 40px; text-align: center; }
-        .logo-box img { width: 100%; max-width: 180px; height: auto; }
-        
-        .nav-item { padding: 12px 16px; border-radius: 8px; cursor: pointer; color: var(--sub); margin-bottom: 6px; font-size: 13px; font-weight: 600; }
-        .nav-item.active { background: #edf2ff; color: #4c6ef5; }
+        body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; flex-direction: row; }
 
-        .main-stage { flex: 1; overflow-y: auto; padding: 40px; }
-        .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
-        
-        /* Smart KPI Cards */
-        .kpi-card { grid-column: span 4; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .kpi-label { font-size: 11px; font-weight: 800; color: var(--sub); text-transform: uppercase; margin-bottom: 8px; }
-        .kpi-val { font-size: 28px; font-weight: 800; color: var(--text); }
+        /* Mobile Responsive Sidebar */
+        .sidebar { width: 280px; background: var(--sidebar); padding: 30px 20px; display: flex; flex-direction: column; border-right: 1px solid var(--border); transition: 0.3s; }
+        .logo-box { margin-bottom: 40px; }
+        .logo-box img { width: 100%; mix-blend-mode: multiply; }
+        .nav-item { padding: 12px 16px; border-radius: 10px; cursor: pointer; color: var(--sub); margin-bottom: 4px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
+        .nav-item.active { background: var(--navy); color: white; }
 
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
-        .chart-module { grid-column: span 8; }
-        .compliance-module { grid-column: span 4; background: #0a1f44; color: white; border: none; }
-        
-        /* Logic Explorer Styling */
-        .logic-panel { font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.8; color: #38bdf8; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; }
+        .main-stage { flex: 1; overflow-y: auto; padding: 40px; -webkit-overflow-scrolling: touch; }
+        .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
 
-        /* Drawer for Inputs */
-        .drawer { position: fixed; right: -450px; top: 0; width: 450px; height: 100vh; background: white; border-left: 1px solid var(--border); padding: 40px; transition: 0.4s; z-index: 100; box-shadow: -10px 0 30px rgba(0,0,0,0.05); }
+        /* KPI & Cards */
+        .card { background: #fff; border-radius: 16px; border: 1px solid var(--border); padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .kpi-card { grid-column: span 4; }
+        .chart-area { grid-column: span 8; min-height: 400px; }
+        .engine-area { grid-column: span 4; background: var(--navy); color: white; }
+        
+        .audit-trail { font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.6; color: #94a3b8; margin-top: 15px; }
+        .audit-trail b { color: #38bdf8; }
+
+        /* Drawer */
+        .drawer { position: fixed; right: -100%; top: 0; width: 100%; max-width: 500px; height: 100vh; background: white; padding: 40px; transition: 0.4s; z-index: 1000; overflow-y: auto; box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
         .drawer.open { right: 0; }
-        .section-sub { font-size: 10px; font-weight: 800; color: var(--sub); text-transform: uppercase; margin: 20px 0 10px 0; display: block; }
-        input, select { background: #f1f5f9; border: 1px solid var(--border); padding: 12px; border-radius: 8px; font-size: 13px; width: 100%; margin-bottom: 10px; }
+        .section-header { font-size: 11px; font-weight: 800; color: #3b82f6; text-transform: uppercase; margin: 20px 0 10px; display: block; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: #f8fafc; margin-bottom: 12px; font-size: 14px; }
+        .btn-add { color: #3b82f6; background: none; border: none; font-weight: 700; font-size: 11px; cursor: pointer; text-transform: uppercase; margin-bottom: 20px; display: block; }
+
+        /* Mobile Breakpoints */
+        @media (max-width: 1024px) {
+            .kpi-card { grid-column: span 6; }
+            .chart-area, .engine-area { grid-column: span 12; }
+        }
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; padding: 15px; border-right: none; border-bottom: 1px solid var(--border); }
+            .logo-box { margin-bottom: 10px; width: 150px; }
+            .sidebar nav { display: none; } /* Simplified for mobile example */
+            .main-stage { padding: 20px; }
+            .kpi-card { grid-column: span 12; }
+        }
     </style>
 </head>
 <body>
+    <nav class="sidebar">
+        <div class="logo-box"><img src="logo.png" alt="Bastion Insights"></div>
+        <nav>
+            <div class="nav-item active">Executive Overview</div>
+            <div class="nav-item" onclick="toggleDrawer()">Planning Lab</div>
+            <div class="nav-item">Tax Strategies</div>
+        </nav>
+    </nav>
 
-<nav class="sidebar">
-    <div class="logo-box">
-        <img src="logo.png" alt="Bastion Insights">
+    <main class="main-stage">
+        <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 30px;">
+            <h1>Executive Overview</h1>
+            <button onclick="toggleDrawer()" style="background:var(--navy); color:white; padding:10px 20px; border:none; border-radius:8px; font-weight:700;">Edit Scenario</button>
+        </div>
+        <div class="grid">
+            <div class="card kpi-card"><div>Terminal Wealth</div><div class="kpi-val" id="res-wealth" style="font-size:28px; font-weight:800;">$0</div></div>
+            <div class="card kpi-card"><div>Lifetime Tax</div><div class="kpi-val" id="res-tax" style="font-size:28px; font-weight:800; color:#ef4444;">$0</div></div>
+            <div class="card kpi-card"><div>Success Rate</div><div style="font-size:28px; font-weight:800;">94%</div></div>
+            <div class="card chart-area"><canvas id="mainChart"></canvas></div>
+            <div class="card engine-area">
+                <div style="color:var(--gold); font-weight:800; font-size:12px; text-transform:uppercase;">Compliance & Tax Engine</div>
+                <div id="logic-content" class="audit-trail"></div>
+            </div>
+        </div>
+    </main>
+
+    <div id="drawer" class="drawer">
+        <h2 style="color: #3b82f6; font-size: 14px; margin-bottom: 20px;">SCENARIO A: PRIMARY</h2>
+        
+        <span class="section-header">HOUSEHOLD & DEPENDENTS</span>
+        <select id="status" onchange="recalc()"><option value="married">Married Filing Jointly</option><option value="single">Single</option></select>
+        <div style="display: flex; gap: 10px;">
+            <input type="number" id="deps" value="0" oninput="recalc()">
+            <input type="number" id="age-now" value="35" oninput="recalc()">
+            <input type="number" id="age-ret" value="65" oninput="recalc()">
+        </div>
+
+        <span class="section-header">INCOME STREAMS</span>
+        <div id="income-cont"></div>
+        <button class="btn-add" onclick="addRow('income')">+ ADD INCOME</button>
+
+        <span class="section-header">ASSET INVENTORY</span>
+        <div id="asset-cont"></div>
+        <button class="btn-add" onclick="addRow('asset')">+ ADD ASSET</button>
+        
+        <button onclick="toggleDrawer()" style="width:100%; background:var(--navy); color:white; padding:15px; border:none; border-radius:10px; font-weight:800; margin-top:20px;">UPDATE AUDIT</button>
     </div>
-    <div class="nav-item active">Executive Overview</div>
-    <div class="nav-item" onclick="toggleDrawer()">Planning Lab</div>
-    <div class="nav-item">Tax Strategies</div>
-</nav>
 
-<main class="main-stage">
-    <div class="dashboard-grid">
-        <div class="kpi-card">
-            <div class="kpi-label">Terminal Wealth (Age 90)</div>
-            <div class="kpi-val" id="res-wealth">$0</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-label">Tax Liability (Life)</div>
-            <div class="kpi-val" id="res-tax" style="color: #ef4444;">$0</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-label">Probability of Success</div>
-            <div class="kpi-val">94%</div>
-        </div>
-
-        <div class="card chart-module">
-            <h3>Wealth Trajectory</h3>
-            <div style="height: 350px;"><canvas id="mainChart"></canvas></div>
-        </div>
-
-        <div class="card compliance-module">
-            <h3 style="color: var(--accent); margin-bottom: 15px;">Compliance & Tax Engine</h3>
-            <div id="logic-content" class="logic-panel"></div>
-        </div>
-    </div>
-</main>
-
-<div id="drawer" class="drawer">
-    <h2>Planning Lab</h2>
-    <span class="section-sub">Household Info</span>
-    <select id="status" onchange="recalc()"><option value="single">Single</option><option value="married">Married Filing Jointly</option></select>
-    <div style="display: flex; gap: 10px;">
-        <input type="number" id="age-now" value="35" oninput="recalc()" placeholder="Age Now">
-        <input type="number" id="age-ret" value="65" oninput="recalc()" placeholder="Retire Age">
-    </div>
-    
-    <span class="section-sub">Asset Inventory</span>
-    <div id="asset-cont"></div>
-    <button onclick="addRow('asset')" style="background: none; border: 1px dashed var(--accent); color: var(--accent); padding: 10px; width: 100%; cursor: pointer; font-weight: 700;">+ ADD ASSET BUCKET</button>
-    
-    <button onclick="toggleDrawer()" style="margin-top: 40px; width: 100%; background: var(--text); color: white; padding: 15px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">Save & Close</button>
-</div>
-
-<script src="engine.js"></script>
-<script src="ui.js"></script>
+    <script src="engine.js"></script>
+    <script src="ui.js"></script>
 </body>
 </html>
