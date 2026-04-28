@@ -1,67 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><title>Bastion | Planning Lab Pro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bastion | Planning Lab Pro</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="sidebar">
-        <div class="logo">BASTION <small>PRO</small></div>
-        <div class="nav-item active" onclick="switchTab('dashboard')">Dashboard</div>
-        <div class="nav-item" onclick="switchTab('financials')">Financials</div>
-        <div class="nav-item" onclick="switchTab('markets')">Markets</div>
+        <div class="logo">
+            <img src="logo.png" alt="Bastion Logo" style="width: 140px;">
+        </div>
+        <nav>
+            <div class="nav-item" onclick="switchTab('dashboard')">Dashboard</div>
+            <div class="nav-item active" onclick="switchTab('financials')">Financials</div>
+            <div class="nav-item" onclick="switchTab('scenarios')">Scenarios</div>
+            <div class="nav-item" onclick="switchTab('markets')">Markets</div>
+        </nav>
     </div>
 
     <main class="main-content">
-        <div id="financials-tab" class="tab-content" style="display:none;">
-            <div class="grid-2">
-                <div class="col">
-                    <div class="card">
-                        <h3>Tax Accountant</h3>
+        <section id="financials-tab" class="tab-pane active">
+            <div class="grid-container">
+                <div class="card">
+                    <h3>Tax Accountant (2026 Brackets)</h3>
+                    <div class="input-group">
                         <label>Filing Status</label>
-                        <select id="filing" onchange="updateTaxProfile('filing', this.value)">
+                        <select id="filing-status" onchange="runCalculations()">
                             <option value="single">Single</option>
                             <option value="married">Married Filing Jointly</option>
                         </select>
-                        <label>State of Residence</label>
-                        <select id="residence" onchange="updateTaxProfile('residence', this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>State</label>
+                        <select id="state-res" onchange="runCalculations()">
                             <option value="TN">Tennessee (0%)</option>
-                            <option value="TX">Texas (0%)</option>
-                            <option value="CA">California (Graduated)</option>
-                            <option value="NY">New York (Graduated)</option>
+                            <option value="CA">California</option>
                         </select>
                     </div>
-                    <div class="card">
-                        <h3>Income Streams</h3>
-                        <div id="income-list"></div>
-                        <button onclick="addIncomeLine()">+ Add Income</button>
+                    <div class="input-group">
+                        <label>Yearly Income</label>
+                        <input type="number" id="income-input" value="120000" oninput="runCalculations()">
                     </div>
                 </div>
-                <div class="col">
-                    <div class="card planning-report">
-                        <h3>Financial Planner Report</h3>
-                        <div id="tax-report-ui"></div>
-                    </div>
-                    <div class="card">
-                        <h3>Banker (Assets & Liabilities)</h3>
-                        <div id="account-list"></div>
-                        <button onclick="addAccountLine()">+ Add Account</button>
+
+                <div class="card advisor-lab">
+                    <h3>Advisor Lab</h3>
+                    <div id="status-badge" class="badge optimal">OPTIMAL</div>
+                    <div class="insight-box">
+                        <p id="tax-estimate-display">Tax Estimate: $0/yr</p>
+                        <p id="advisor-insight">Your strategy is currently aligned with your goals.</p>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div id="markets-tab" class="tab-content" style="display:none;">
-            <div class="card ticker-card">
-                <h3>Live Market Pulse</h3>
+        <section id="markets-tab" class="tab-pane" style="display:none;">
+            <div class="card">
+                <h3>Live Market Ticker</h3>
                 <div class="input-group">
-                    <input type="text" id="ticker-input" placeholder="Symbol (e.g. AAPL)">
-                    <button onclick="refreshTicker()">Update Price</button>
+                    <input type="text" id="ticker-input" placeholder="Enter Ticker (e.g., BTC)">
+                    <button onclick="fetchPrice()">Update Price</button>
                 </div>
                 <div id="ticker-output" class="big-price">--</div>
             </div>
-        </div>
+        </section>
     </main>
 
     <script src="engine.js"></script>
