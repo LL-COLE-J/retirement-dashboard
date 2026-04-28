@@ -7,96 +7,129 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* LIGHT THEME LOCKED */
         :root { --bg: #f8fafc; --sidebar: #0f172a; --card: #ffffff; --text: #0f172a; --sub: #64748b; --accent: #38bdf8; --border: #e2e8f0; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: 240px; background: var(--sidebar); padding: 32px 20px; color: white; display: flex; flex-direction: column; }
-        .logo { font-weight: 800; font-size: 18px; letter-spacing: 2px; margin-bottom: 40px; color: var(--accent); }
-        .nav-item { padding: 12px 16px; border-radius: 8px; cursor: pointer; color: #94a3b8; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+        
+        .sidebar { width: 260px; background: var(--sidebar); padding: 32px 20px; color: white; display: flex; flex-direction: column; }
+        .logo { font-weight: 800; font-size: 18px; letter-spacing: 2px; margin-bottom: 30px; color: var(--accent); }
+        
+        /* Scenario Manager Styles */
+        .scenario-manager { margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; }
+        .scenario-list { margin-top: 10px; max-height: 200px; overflow-y: auto; }
+        .scenario-item { padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; margin-bottom: 5px; background: rgba(255,255,255,0.05); display: flex; justify-content: space-between; }
+        .scenario-item:hover { background: rgba(255,255,255,0.1); }
+        .scenario-item.active { border-left: 3px solid var(--accent); background: rgba(56, 189, 248, 0.2); }
+        .save-btn { width: 100%; padding: 8px; background: var(--accent); color: var(--sidebar); border: none; border-radius: 6px; font-weight: 800; font-size: 10px; cursor: pointer; text-transform: uppercase; }
+
+        .nav-item { padding: 12px 16px; border-radius: 8px; cursor: pointer; color: #94a3b8; margin-bottom: 8px; font-size: 14px; font-weight: 600; transition: 0.2s; }
         .nav-item.active { background: rgba(255,255,255,0.1); color: white; border-left: 3px solid var(--accent); }
+
         .main { flex: 1; overflow-y: auto; padding: 40px; }
         .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 360px; gap: 32px; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        
         h3 { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--sub); margin-bottom: 16px; letter-spacing: 1px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 15px; }
         label { display: block; font-size: 10px; font-weight: 700; color: var(--sub); text-transform: uppercase; margin-bottom: 4px; }
         input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; outline: none; background: #fcfdfe; }
+
         .logic-panel { background: #1e293b; border-radius: 8px; padding: 20px; font-family: 'Courier New', monospace; font-size: 12px; color: #94a3b8; line-height: 1.6; white-space: pre-wrap; }
         .logic-panel span { color: #38bdf8; font-weight: bold; }
+        
         .metric-val { font-size: 28px; font-weight: 800; color: var(--text); margin-bottom: 2px; }
         .advisor-box { background: #f1f5f9; border-left: 4px solid var(--sidebar); padding: 16px; font-size: 12px; line-height: 1.6; border-radius: 0 8px 8px 0; }
-        .toggle-btn { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center; background: #fff; transition: 0.2s; }
-        .toggle-btn.active { background: #ef4444; color: #fff; border-color: #ef4444; }
+        
+        .entry-row { display: grid; grid-template-columns: 1fr 1.5fr 40px; gap: 12px; margin-bottom: 10px; align-items: end; }
+        .add-btn { padding: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; border: 1px dashed var(--border); cursor: pointer; text-align: center; border-radius: 6px; }
+        .del-btn { color: #ef4444; cursor: pointer; font-weight: 800; text-align: center; }
     </style>
 </head>
 <body>
+
 <nav class="sidebar">
     <div class="logo">BASTION</div>
-    <div class="nav-item active" onclick="switchTab('financials')">Planning Lab</div>
-    <div class="nav-item" onclick="switchTab('analytics')">Analytics</div>
+    
+    <div class="scenario-manager">
+        <button class="save-btn" onclick="saveScenario()">Save Current Model</button>
+        <div class="scenario-list" id="scenario-list">
+            </div>
+    </div>
+
+    <div class="nav-item active" id="nav-financials" onclick="switchTab('financials')">Planning Lab</div>
+    <div class="nav-item" id="nav-analytics" onclick="switchTab('analytics')">Analytics</div>
 </nav>
+
 <main class="main">
     <div class="container">
         <div class="lab-content">
             <section id="analytics-tab" style="display:none">
                 <div class="card">
-                    <h3>Wealth Projection (Real Dollars)</h3>
-                    <div style="height: 400px;"><canvas id="wealthChart"></canvas></div>
+                    <h3>Net Worth & Cash Flow Over Time</h3>
+                    <div style="height: 350px;"><canvas id="wealthChart"></canvas></div>
                 </div>
             </section>
+
             <section id="financials-tab">
                 <div class="card">
-                    <h3>Core Variables</h3>
+                    <h3>Life Cycle Chronology</h3>
                     <div class="grid-3">
-                        <div class="input-group">
-                            <label>Jurisdiction</label>
-                            <select id="state-select" onchange="recalc()">
-                                <option value="TN">Tennessee (0%)</option>
-                                <option value="CA">California</option>
-                                <option value="NY">New York</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label>Annual Gross</label>
-                            <input type="number" id="inc-gross" value="125000" oninput="recalc()">
-                        </div>
-                        <div class="input-group">
-                            <label>Filing Status</label>
-                            <select id="filing-status" onchange="recalc()">
-                                <option value="single">Single</option>
-                                <option value="married">Married</option>
-                            </select>
-                        </div>
+                        <div class="input-group"><label>Current Age</label><input type="number" id="age-now" value="35" oninput="recalc()"></div>
+                        <div class="input-group"><label>Retirement Age</label><input type="number" id="age-retire" value="65" oninput="recalc()"></div>
+                        <div class="input-group"><label>Expectancy</label><input type="number" id="age-end" value="90" oninput="recalc()"></div>
+                    </div>
+                    <div class="grid-3">
+                        <div class="input-group"><label>Jurisdiction</label><select id="state-select" onchange="recalc()"><option value="TN">Tennessee (0%)</option><option value="CA">California</option></select></div>
+                        <div class="input-group"><label>Filing Status</label><select id="filing-status" onchange="recalc()"><option value="single">Single</option><option value="married">Married</option></select></div>
+                        <div class="input-group"><label>Dependents</label><input type="number" id="dependents" value="0" oninput="recalc()"></div>
                     </div>
                 </div>
 
                 <div class="card">
-                    <h3>Scenario Stressors</h3>
-                    <div class="grid-3">
-                        <div id="stress-market" class="toggle-btn" onclick="toggleStress('market')">Market Crash (-25%)</div>
-                        <div id="stress-medical" class="toggle-btn" onclick="toggleStress('medical')">Medical Event ($50k)</div>
-                        <div id="stress-layoff" class="toggle-btn" onclick="toggleStress('layoff')">6-Mo Layoff</div>
+                    <h3>Income Streams</h3>
+                    <div id="income-list">
+                        <div class="entry-row">
+                            <select><option>Primary Salary</option><option>Side Income</option></select>
+                            <input type="number" value="125000" class="inc-val" oninput="recalc()">
+                            <div class="del-btn" onclick="this.parentElement.remove(); recalc();">×</div>
+                        </div>
                     </div>
+                    <div class="add-btn" onclick="addRow('income-list', 'inc-val')">+ Add Income Stream</div>
+                </div>
+
+                <div class="card">
+                    <h3>Asset Inventory</h3>
+                    <div id="asset-list">
+                        <div class="entry-row">
+                            <select><option>Brokerage</option><option>Qualified</option></select>
+                            <input type="number" value="150000" class="asset-val" oninput="recalc()">
+                            <div class="del-btn" onclick="this.parentElement.remove(); recalc();">×</div>
+                        </div>
+                    </div>
+                    <div class="add-btn" onclick="addRow('asset-list', 'asset-val')">+ Add Asset</div>
                 </div>
 
                 <div class="card">
                     <h3>Logic Explorer (Show Your Work)</h3>
-                    <div id="logic-content" class="logic-panel">Deriving 2026 data...</div>
+                    <div id="logic-content" class="logic-panel">Deriving derivation...</div>
                 </div>
             </section>
         </div>
+
         <aside class="advisor-lab">
             <h3>Advisor Intelligence</h3>
             <div class="card">
+                <label>Terminal Wealth (Age 90)</label>
+                <div class="metric-val" id="val-terminal">$0</div>
                 <label>Effective Tax Rate</label>
                 <div class="metric-val" id="val-eff-rate">0%</div>
-                <label>Terminal Wealth (30yr)</label>
-                <div class="metric-val" id="val-terminal">$0</div>
                 <div class="advisor-box" id="pro-insight">Awaiting inputs...</div>
             </div>
         </aside>
     </div>
 </main>
+
 <script src="engine.js"></script>
 <script src="ui.js"></script>
 </body>
