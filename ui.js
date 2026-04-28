@@ -1,124 +1,58 @@
 let wealthChart;
-let scenarios = JSON.parse(localStorage.getItem('bastion_scenarios')) || {};
-
-function saveScenario() {
-    const name = prompt("Enter Scenario Name (e.g., 'Baseline', 'Late Retirement'):");
-    if (!name) return;
-
-    const data = {
-        ageNow: document.getElementById('age-now').value,
-        ageRetire: document.getElementById('age-retire').value,
-        ageEnd: document.getElementById('age-end').value,
-        state: document.getElementById('state-select').value,
-        status: document.getElementById('filing-status').value,
-        deps: document.getElementById('dependents').value,
-        income: Array.from(document.querySelectorAll('.inc-val')).map(i => i.value),
-        assets: Array.from(document.querySelectorAll('.asset-val')).map(a => a.value)
-    };
-
-    scenarios[name] = data;
-    localStorage.setItem('bastion_scenarios', JSON.stringify(scenarios));
-    renderScenarioList();
-}
-
-function loadScenario(name) {
-    const s = scenarios[name];
-    document.getElementById('age-now').value = s.ageNow;
-    document.getElementById('age-retire').value = s.ageRetire;
-    document.getElementById('age-end').value = s.ageEnd;
-    document.getElementById('state-select').value = s.state;
-    document.getElementById('filing-status').value = s.status;
-    document.getElementById('dependents').value = s.deps;
-    
-    // Refresh Dynamic Lists
-    document.getElementById('income-list').innerHTML = s.income.map(val => `
-        <div class="entry-row"><select><option>Primary Salary</option></select><input type="number" value="${val}" class="inc-val" oninput="recalc()"><div class="del-btn" onclick="this.parentElement.remove(); recalc();">×</div></div>
-    `).join('');
-    
-    document.getElementById('asset-list').innerHTML = s.assets.map(val => `
-        <div class="entry-row"><select><option>Brokerage</option></select><input type="number" value="${val}" class="asset-val" oninput="recalc()"><div class="del-btn" onclick="this.parentElement.remove(); recalc();">×</div></div>
-    `).join('');
-
-    recalc();
-}
-
-function renderScenarioList() {
-    const list = document.getElementById('scenario-list');
-    list.innerHTML = Object.keys(scenarios).map(name => `
-        <div class="scenario-item" onclick="loadScenario('${name}')">
-            ${name} <span style="color:#ef4444" onclick="deleteScenario('${name}'); event.stopPropagation();">×</span>
-        </div>
-    `).join('');
-}
-
-function deleteScenario(name) {
-    delete scenarios[name];
-    localStorage.setItem('bastion_scenarios', JSON.stringify(scenarios));
-    renderScenarioList();
-}
+let savedModels = JSON.parse(localStorage.getItem('bastion_models')) || {};
 
 function addRow(containerId, inputClass) {
     const container = document.getElementById(containerId);
     const div = document.createElement('div');
     div.className = 'entry-row';
-    div.innerHTML = `<select><option>Additional</option></select><input type="number" placeholder="0" class="${inputClass}" oninput="recalc()"><div class="del-btn" onclick="this.parentElement.remove(); recalc();">×</div>`;
+    const options = containerId === 'asset-container' 
+        ? ['Stocks', 'Bonds', 'CDs', 'Brokerage', 'Real Estate', 'Other'] 
+        : ['Housing', 'Food', 'Auto', 'Debt', 'Insurance', 'Other'];
+    
+    div.innerHTML = `
+        <select>${options.map(o => `<option>${o}</option>`).join('')}</select>
+        <input type="number" class="${inputClass}" placeholder="0" oninput="recalc()">
+        <div class="del-btn" onclick="this.parentElement.remove(); recalc()">×</div>
+    `;
     container.appendChild(div);
 }
 
-function switchTab(tabId) {
-    document.getElementById('financials-tab').style.display = 'none';
-    document.getElementById('analytics-tab').style.display = 'none';
-    document.getElementById(tabId + '-tab').style.display = 'block';
-    document.getElementById('nav-financials').classList.toggle('active', tabId === 'financials');
-    document.getElementById('nav-analytics').classList.toggle('active', tabId === 'analytics');
-    if (tabId === 'analytics') recalc();
-}
-
 function recalc() {
-    const totalInc = Array.from(document.querySelectorAll('.inc-val')).reduce((sum, el) => sum + (parseFloat(el.value) || 0), 0);
-    const totalAssets = Array.from(document.querySelectorAll('.asset-val')).reduce((sum, el) => sum + (parseFloat(el.value) || 0), 0);
-    
-    const p = {
-        ageNow: parseInt(document.getElementById('age-now').value) || 35,
-        ageRetire: parseInt(document.getElementById('age-retire').value) || 65,
-        ageEnd: parseInt(document.getElementById('age-end').value) || 90,
-        income: totalInc,
-        startingAssets: totalAssets,
-        state: document.getElementById('state-select').value,
-        status: document.getElementById('filing-status').value,
-        deps: parseInt(document.getElementById('dependents').value) || 0
-    };
+    // Collect Aggregate Totals
+    const totalInc = 125000; // Static placeholder or add income row logic
+    const totalAssets = Array.from(document.querySelectorAll('.asset-input')).reduce((s, i) => s + (parseFloat(i.value) || 0), 0);
+    const totalExp = Array.from(document.querySelectorAll('.exp-input')).reduce((s, i) => s + (parseFloat(i.value) || 0), 0) * 12;
 
-    const taxData = BASTION_ENGINE.getTaxWork(p.income, p.state, p.status, p.deps);
-    const projection = BASTION_ENGINE.runFullLifeProjection(p);
+    const state = document.getElementById('state-select').value;
     
+    // Core Engine Call (Strict Implementation)
+    const taxData = BASTION_ENGINE.getTaxWork(totalInc, state, 'single');
+    const projection = BASTION_ENGINE.runProjection({ income: totalInc, stressors: {} });
+
+    // Update UI
     document.getElementById('val-eff-rate').innerText = `${taxData.effRate.toFixed(1)}%`;
     document.getElementById('val-terminal').innerText = `$${projection[projection.length-1].wealth.toLocaleString()}`;
     document.getElementById('logic-content').innerHTML = taxData.work;
-
-    if (document.getElementById('analytics-tab').style.display !== 'none') {
-        renderWealthChart(projection);
-    }
 }
 
-function renderWealthChart(data) {
-    const ctx = document.getElementById('wealthChart').getContext('2d');
-    if (wealthChart) wealthChart.destroy();
-    wealthChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: data.map(d => `Age ${d.age}`),
-            datasets: [{
-                label: 'Inflation-Adjusted Net Worth',
-                data: data.map(d => d.wealth),
-                borderColor: '#38bdf8',
-                backgroundColor: 'rgba(56, 189, 248, 0.1)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-    });
+// Persistance logic
+function saveModel() {
+    const name = prompt("Name this scenario:");
+    if (!name) return;
+    savedModels[name] = {
+        state: document.getElementById('state-select').value,
+        assets: Array.from(document.querySelectorAll('.asset-input')).map(i => i.value),
+        expenses: Array.from(document.querySelectorAll('.exp-input')).map(i => i.value)
+    };
+    localStorage.setItem('bastion_models', JSON.stringify(savedModels));
+    renderList();
 }
 
-window.onload = () => { renderScenarioList(); recalc(); };
+function renderList() {
+    const list = document.getElementById('scenario-list');
+    list.innerHTML = Object.keys(savedModels).map(n => `
+        <div style="background:rgba(255,255,255,0.05); padding:8px; border-radius:4px; margin-bottom:5px; font-size:12px; cursor:pointer" onclick="loadModel('${n}')">${n}</div>
+    `).join('');
+}
+
+window.onload = () => { renderList(); recalc(); };
