@@ -1,79 +1,72 @@
-let charts = {};
+let currentMode = 'solo';
+let mainChart;
+
+function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('btn-solo').classList.toggle('active', mode === 'solo');
+    document.getElementById('btn-compare').classList.toggle('active', mode === 'compare');
+    document.getElementById('card-b').style.opacity = mode === 'compare' ? '1' : '0.5';
+    document.getElementById('card-b').style.pointer_events = mode === 'compare' ? 'auto' : 'none';
+    recalc();
+}
 
 function switchTab(tabId) {
     document.getElementById('lab-tab').style.display = tabId === 'lab' ? 'block' : 'none';
     document.getElementById('analytics-tab').style.display = tabId === 'analytics' ? 'block' : 'none';
-    
-    // Update active state in sidebar
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-    
     recalc();
 }
 
-function addAssetRow() {
-    const container = document.getElementById('asset-container');
-    const div = document.createElement('div');
-    div.className = 'entry-row';
-    div.style.gridTemplateColumns = "1.2fr 1fr 40px";
-    div.innerHTML = `
-        <select class="asset-type"><option value="deferred">401k/IRA</option><option value="taxable">Brokerage</option><option value="taxfree">Roth</option></select>
-        <input type="number" class="asset-input" placeholder="0" oninput="recalc()">
-        <div class="del-btn" onclick="this.parentElement.remove(); recalc()">×</div>`;
-    container.appendChild(div);
-}
-
 function recalc() {
-    const p = {
-        ageNow: parseInt(document.getElementById('age-now').value) || 35,
-        ageRetire: parseInt(document.getElementById('age-retire').value) || 65,
-        filingStatus: document.getElementById('filing-status').value,
-        assets: Array.from(document.querySelectorAll('#asset-container .entry-row')).map(row => ({
-            type: row.querySelector('.asset-type').value,
-            value: parseFloat(row.querySelector('.asset-input').value) || 0
-        })),
-        income: 125000,
-        expenses: 36000 // Monthly $3k base
+    const vol = parseInt(document.getElementById('volatility').value) / 100;
+
+    const paramsA = {
+        age: parseInt(document.getElementById('age-now-a').value),
+        status: document.getElementById('status-a').value,
+        expenses: parseInt(document.getElementById('exp-a').value),
+        volatility: vol
     };
 
-    const projection = BASTION_ENGINE.runLifeCycleProjection(p);
-    
-    // Update Stats
-    const final = projection[projection.length-1];
-    document.getElementById('val-terminal').innerText = `$${final.total.toLocaleString()}`;
-    document.getElementById('val-tax').innerText = `$${Math.round(projection.reduce((s, d) => s + d.taxPaid, 0)).toLocaleString()}`;
-    
-    const crossover = projection.find(d => d.passiveIncome > d.expenses);
-    document.getElementById('val-crossover').innerText = crossover ? crossover.age : "Never";
+    const paramsB = {
+        age: parseInt(document.getElementById('age-now-b').value),
+        status: document.getElementById('status-b').value,
+        expenses: parseInt(document.getElementById('exp-b').value),
+        volatility: vol
+    };
 
-    if(document.getElementById('analytics-tab').style.display !== 'none') {
-        renderCharts(projection);
+    const dataA = BASTION_ENGINE.runProjection(paramsA);
+    const dataB = BASTION_ENGINE.runProjection(paramsB);
+
+    document.getElementById('res-a').innerText = `$${dataA[dataA.length-1].total.toLocaleString()}`;
+    document.getElementById('res-b').innerText = `$${dataB[dataB.length-1].total.toLocaleString()}`;
+
+    if (document.getElementById('analytics-tab').style.display !== 'none') {
+        renderChart(dataA, dataB);
     }
 }
 
-function renderCharts(data) {
-    // Wealth Chart
-    if(charts.wealth) charts.wealth.destroy();
-    charts.wealth = new Chart(document.getElementById('wealthChart'), {
-        type: 'line',
-        data: {
-            labels: data.map(d => d.age),
-            datasets: [{ label: 'Net Worth', data: data.map(d => d.total), borderColor: '#0ea5e9', fill: true, backgroundColor: 'rgba(14, 165, 233, 0.1)', tension: 0.3 }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-    });
+function renderChart(a, b) {
+    const ctx = document.getElementById('mainChart').getContext('2d');
+    if (mainChart) mainChart.destroy();
+    
+    const datasets = [{
+        label: 'Scenario A',
+        data: a.map(d => d.total),
+        borderColor: '#38bdf8',
+        tension: 0.3
+    }];
 
-    // Income vs Expense Chart
-    if(charts.income) charts.income.destroy();
-    charts.income = new Chart(document.getElementById('incomeChart'), {
-        type: 'bar',
-        data: {
-            labels: data.filter(d => d.age % 5 === 0).map(d => d.age),
-            datasets: [
-                { label: 'Expenses', data: data.filter(d => d.age % 5 === 0).map(d => d.expenses), backgroundColor: '#ef4444' },
-                { label: 'Passive Income', data: data.filter(d => d.age % 5 === 0).map(d => d.passiveIncome), backgroundColor: '#16a34a' }
-            ]
-        },
+    if (currentMode === 'compare') {
+        datasets.push({
+            label: 'Scenario B',
+            data: b.map(d => d.total),
+            borderColor: '#f43f5e',
+            tension: 0.3
+        });
+    }
+
+    mainChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: a.map(d => d.age), datasets },
         options: { responsive: true, maintainAspectRatio: false }
     });
 }
