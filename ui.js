@@ -1,56 +1,115 @@
 let wealthChart;
-let activeStressors = { market: false, medical: false, layoff: false };
+let scenarios = JSON.parse(localStorage.getItem('bastion_scenarios')) || {};
+
+function saveScenario() {
+    const name = prompt("Enter Scenario Name (e.g., 'Baseline', 'Late Retirement'):");
+    if (!name) return;
+
+    const data = {
+        ageNow: document.getElementById('age-now').value,
+        ageRetire: document.getElementById('age-retire').value,
+        ageEnd: document.getElementById('age-end').value,
+        state: document.getElementById('state-select').value,
+        status: document.getElementById('filing-status').value,
+        deps: document.getElementById('dependents').value,
+        income: Array.from(document.querySelectorAll('.inc-val')).map(i => i.value),
+        assets: Array.from(document.querySelectorAll('.asset-val')).map(a => a.value)
+    };
+
+    scenarios[name] = data;
+    localStorage.setItem('bastion_scenarios', JSON.stringify(scenarios));
+    renderScenarioList();
+}
+
+function loadScenario(name) {
+    const s = scenarios[name];
+    document.getElementById('age-now').value = s.ageNow;
+    document.getElementById('age-retire').value = s.ageRetire;
+    document.getElementById('age-end').value = s.ageEnd;
+    document.getElementById('state-select').value = s.state;
+    document.getElementById('filing-status').value = s.status;
+    document.getElementById('dependents').value = s.deps;
+    
+    // Refresh Dynamic Lists
+    document.getElementById('income-list').innerHTML = s.income.map(val => `
+        <div class="entry-row"><select><option>Primary Salary</option></select><input type="number" value="${val}" class="inc-val" oninput="recalc()"><div class="del-btn" onclick="this.parentElement.remove(); recalc();">×</div></div>
+    `).join('');
+    
+    document.getElementById('asset-list').innerHTML = s.assets.map(val => `
+        <div class="entry-row"><select><option>Brokerage</option></select><input type="number" value="${val}" class="asset-val" oninput="recalc()"><div class="del-btn" onclick="this.parentElement.remove(); recalc();">×</div></div>
+    `).join('');
+
+    recalc();
+}
+
+function renderScenarioList() {
+    const list = document.getElementById('scenario-list');
+    list.innerHTML = Object.keys(scenarios).map(name => `
+        <div class="scenario-item" onclick="loadScenario('${name}')">
+            ${name} <span style="color:#ef4444" onclick="deleteScenario('${name}'); event.stopPropagation();">×</span>
+        </div>
+    `).join('');
+}
+
+function deleteScenario(name) {
+    delete scenarios[name];
+    localStorage.setItem('bastion_scenarios', JSON.stringify(scenarios));
+    renderScenarioList();
+}
+
+function addRow(containerId, inputClass) {
+    const container = document.getElementById(containerId);
+    const div = document.createElement('div');
+    div.className = 'entry-row';
+    div.innerHTML = `<select><option>Additional</option></select><input type="number" placeholder="0" class="${inputClass}" oninput="recalc()"><div class="del-btn" onclick="this.parentElement.remove(); recalc();">×</div>`;
+    container.appendChild(div);
+}
 
 function switchTab(tabId) {
     document.getElementById('financials-tab').style.display = 'none';
     document.getElementById('analytics-tab').style.display = 'none';
     document.getElementById(tabId + '-tab').style.display = 'block';
-    
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.toggle('active', item.innerText.toLowerCase().includes(tabId.split('-')[0]));
-    });
+    document.getElementById('nav-financials').classList.toggle('active', tabId === 'financials');
+    document.getElementById('nav-analytics').classList.toggle('active', tabId === 'analytics');
     if (tabId === 'analytics') recalc();
 }
 
-function toggleStress(key) {
-    activeStressors[key] = !activeStressors[key];
-    document.getElementById(`stress-${key}`).classList.toggle('active');
-    recalc();
-}
-
 function recalc() {
-    const inc = parseFloat(document.getElementById('inc-gross').value) || 0;
-    const state = document.getElementById('state-select').value;
-    const status = document.getElementById('filing-status').value;
+    const totalInc = Array.from(document.querySelectorAll('.inc-val')).reduce((sum, el) => sum + (parseFloat(el.value) || 0), 0);
+    const totalAssets = Array.from(document.querySelectorAll('.asset-val')).reduce((sum, el) => sum + (parseFloat(el.value) || 0), 0);
     
-    const taxData = BASTION_ENGINE.getTaxWork(inc, state, status);
-    const projection = BASTION_ENGINE.runProjection({ income: inc, stressors: activeStressors });
-    const terminal = projection[projection.length - 1].wealth;
+    const p = {
+        ageNow: parseInt(document.getElementById('age-now').value) || 35,
+        ageRetire: parseInt(document.getElementById('age-retire').value) || 65,
+        ageEnd: parseInt(document.getElementById('age-end').value) || 90,
+        income: totalInc,
+        startingAssets: totalAssets,
+        state: document.getElementById('state-select').value,
+        status: document.getElementById('filing-status').value,
+        deps: parseInt(document.getElementById('dependents').value) || 0
+    };
+
+    const taxData = BASTION_ENGINE.getTaxWork(p.income, p.state, p.status, p.deps);
+    const projection = BASTION_ENGINE.runFullLifeProjection(p);
     
     document.getElementById('val-eff-rate').innerText = `${taxData.effRate.toFixed(1)}%`;
-    document.getElementById('val-terminal').innerText = `$${terminal.toLocaleString()}`;
+    document.getElementById('val-terminal').innerText = `$${projection[projection.length-1].wealth.toLocaleString()}`;
     document.getElementById('logic-content').innerHTML = taxData.work;
 
     if (document.getElementById('analytics-tab').style.display !== 'none') {
-        renderChart(projection);
+        renderWealthChart(projection);
     }
-    
-    let insight = "Baseline strategy is functional.";
-    if (terminal < 400000) insight = "WARNING: Plan failure likely under stress. Current liquidity cannot absorb concurrent shocks.";
-    if (activeStressors.market && terminal > 1000000) insight = "RESILIENCE: Portfolio shows high recovery capacity despite market shocks.";
-    
-    document.getElementById('pro-insight').innerText = insight;
 }
 
-function renderChart(data) {
+function renderWealthChart(data) {
     const ctx = document.getElementById('wealthChart').getContext('2d');
     if (wealthChart) wealthChart.destroy();
     wealthChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: data.map(d => d.year),
+            labels: data.map(d => `Age ${d.age}`),
             datasets: [{
-                label: 'Wealth Projection',
+                label: 'Inflation-Adjusted Net Worth',
                 data: data.map(d => d.wealth),
                 borderColor: '#38bdf8',
                 backgroundColor: 'rgba(56, 189, 248, 0.1)',
@@ -58,15 +117,8 @@ function renderChart(data) {
                 tension: 0.4
             }]
         },
-        options: { 
-            responsive: true, 
-            maintainAspectRatio: false,
-            scales: {
-                y: { grid: { color: '#f1f5f9' }, ticks: { callback: v => '$' + v.toLocaleString() } },
-                x: { grid: { display: false } }
-            }
-        }
+        options: { responsive: true, maintainAspectRatio: false }
     });
 }
 
-window.onload = recalc;
+window.onload = () => { renderScenarioList(); recalc(); };
