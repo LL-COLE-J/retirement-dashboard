@@ -113,11 +113,7 @@ button{
 </div>
 </div>
 
-  <div class="card">
-<h4>Projection</h4>
-<div id="projectionOutput"></div>
-</div>
-
+ 
 <div class="card">
 <h4>Monte Carlo</h4>
 <div id="monteCarloOutput"></div>
@@ -204,6 +200,23 @@ button{
 <div class="card">
 <h4>AI Advisor</h4>
 <div id="aiOutput">Waiting for analysis...</div>
+</div>
+
+  <div class="card">
+<h4>Projection</h4>
+<div id="projectionOutput"></div>
+</div>
+
+<div class="card">
+<h4>Monte Carlo</h4>
+<div id="monteCarloOutput"></div>
+</div>
+
+<div class="card">
+<h4>Scenarios</h4>
+<label><input type="checkbox" id="jobLoss"> Job Loss</label><br>
+<label><input type="checkbox" id="marketCrash"> Market Crash</label><br>
+<label><input type="checkbox" id="expenseSpike"> Expense Spike</label>
 </div>
 
 </div>
@@ -373,9 +386,9 @@ document.getElementById("dependents").addEventListener("input", function(){
 document.getElementById("accBalance").addEventListener("input", function(){
 
   state.accounts = [{
-    type:"generic",
-    balance:+this.value||0
-  }];
+  type:"checking",
+  balance:+this.value||0
+}];
 
   updateAll();
 });
@@ -582,6 +595,6 @@ updateAll = function(){
 
 </script>
 
-</script>
+
 </body>
 </html>
