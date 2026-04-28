@@ -1,464 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bastion Insights</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-
-:root{
-  --bg:#f8fafc;
-  --card:#ffffff;
-  --border:#e5e7eb;
-  --text:#0f172a;
-  --sub:#64748b;
-  --accent:#0f172a;
-}
-
-body{background:var(--bg);display:flex;height:100vh;color:var(--text);}
-
-.sidebar{width:240px;background:#fff;border-right:1px solid var(--border);padding:20px;}
-.logo img{width:100%;margin-bottom:20px;}
-
-.nav-item{padding:10px;border-radius:8px;cursor:pointer;color:var(--sub);margin-bottom:6px;}
-.nav-item.active{background:var(--accent);color:#fff;}
-
-.main{flex:1;display:flex;justify-content:center;}
-.wrapper{width:1200px;display:flex;gap:20px;padding:20px;}
-.content{flex:2;}
-.side{flex:1;}
-
-.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
-
-input, select{
-  width:100%;
-  padding:8px;
-  margin-top:6px;
-  border:1px solid var(--border);
-  border-radius:8px;
-}
-
-button{
-  margin-top:10px;
-  padding:8px 12px;
-  border:none;
-  border-radius:8px;
-  background:var(--accent);
-  color:#fff;
-  cursor:pointer;
-}
-
-.row{margin-bottom:12px;}
-.label{font-size:12px;color:var(--sub);}
-.value{font-weight:600;margin-top:4px;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bastion Insights | Advisor Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+        :root{ --bg:#f8fafc; --card:#ffffff; --border:#e5e7eb; --text:#0f172a; --sub:#64748b; --accent:#0f172a; }
+        body{background:var(--bg);display:flex;height:100vh;color:var(--text);overflow:hidden;}
+        .sidebar{width:240px;background:#fff;border-right:1px solid var(--border);padding:20px;display:flex;flex-direction:column;}
+        .logo{font-weight:700; font-size:20px; margin-bottom:30px; letter-spacing:-1px;}
+        .nav-item{padding:12px;border-radius:8px;cursor:pointer;color:var(--sub);margin-bottom:6px;transition:0.2s;}
+        .nav-item:hover{background:#f1f5f9;}
+        .nav-item.active{background:var(--accent);color:#fff;}
+        .main{flex:1;display:flex;justify-content:center;overflow-y:auto;}
+        .wrapper{width:100%; max-width:1200px; display:flex; gap:20px; padding:20px;}
+        .content{flex:2;}
+        .side{flex:1;}
+        .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px;}
+        .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+        h4{font-size:14px; text-transform:uppercase; letter-spacing:0.05em; color:var(--sub); margin-bottom:15px;}
+        input, select{ width:100%; padding:10px; margin-top:6px; border:1px solid var(--border); border-radius:8px; font-size:14px;}
+        button{ margin-top:10px; padding:10px 15px; border:none; border-radius:8px; background:var(--accent); color:#fff; cursor:pointer; font-weight:500; width:100%;}
+        .row{display:flex; gap:8px; margin-bottom:12px; align-items:center;}
+        .label{font-size:12px;color:var(--sub); margin-bottom:4px;}
+        .value{font-weight:700; font-size:24px; margin-top:4px;}
+        .insight-box{padding:10px; border-left:4px solid #0f172a; background:#f1f5f9; margin-top:10px; font-size:14px;}
+        .fail-text{color:#e11d48; font-weight:600;}
+    </style>
 </head>
-
 <body>
 
 <div class="sidebar">
-<div class="logo">
-  <img src="./logo-full.png" onerror="this.style.display='none'">
-</div>
-
-<div class="nav-item active" onclick="showView('dashboard',this)">Dashboard</div>
-<div class="nav-item" onclick="showView('financials',this)">Financials</div>
-<div class="nav-item" onclick="showView('scenarios',this)">Scenarios</div>
-<div class="nav-item" onclick="showView('markets',this)">Markets</div>
+    <div class="logo">BASTION</div>
+    <div class="nav-item active" onclick="showView('dashboard',this)">Dashboard</div>
+    <div class="nav-item" onclick="showView('financials',this)">Financials</div>
+    <div class="nav-item" onclick="showView('scenarios',this)">Scenarios</div>
 </div>
 
 <div class="main">
-<div class="wrapper">
+    <div class="wrapper">
+        <div class="content">
+            <div id="dashboard">
+                <div class="grid">
+                    <div class="card"><div class="label">Net Worth</div><div id="netWorth" class="value">$0</div></div>
+                    <div class="card"><div class="label">Savings Rate</div><div id="savingsRate" class="value">0%</div></div>
+                    <div class="card"><div class="label">Annual Income</div><div id="income" class="value">$0</div></div>
+                    <div class="card"><div class="label">Annual Expenses</div><div id="expensesOut" class="value">$0</div></div>
+                </div>
+                <div class="card">
+                    <h4>Wealth Projection</h4>
+                    <canvas id="chart" height="150"></canvas>
+                </div>
+            </div>
 
-<div class="content">
+            <div id="financials" style="display:none">
+                <div class="card">
+                    <h4>Income Streams</h4>
+                    <div id="incomeList"></div>
+                    <button onclick="addIncome()">+ Add Income</button>
+                </div>
+                <div class="card">
+                    <h4>Accounts & Contributions</h4>
+                    <div id="accountList"></div>
+                </div>
+                <div class="card">
+                    <h4>Base Assets & Debt</h4>
+                    <div class="grid">
+                        <div><label class="label">Cash</label><input id="cash" type="number" onblur="updateAsset('cash',this.value)"></div>
+                        <div><label class="label">Debt</label><input id="debt" type="number" onblur="updateAsset('debt',this.value)"></div>
+                    </div>
+                </div>
+            </div>
 
-<!-- DASHBOARD -->
-<div id="dashboard">
-<div class="grid">
-<div class="card"><div class="label">Net Worth</div><div id="netWorth" class="value"></div></div>
-<div class="card"><div class="label">Income</div><div id="income" class="value"></div></div>
-<div class="card"><div class="label">Expenses</div><div id="expensesOut" class="value"></div></div>
-<div class="card"><div class="label">Savings Rate</div><div id="savingsRate" class="value"></div></div>
-</div>
-</div>
+            <div id="scenarios" style="display:none">
+                <div class="card">
+                    <h4>Global Assumptions</h4>
+                    <div class="grid">
+                        <div><label class="label">Current Age</label><input type="number" id="currentAge" onblur="updateAssumption('currentAge',this.value)"></div>
+                        <div><label class="label">Retirement Age</label><input type="number" id="retirementAge" onblur="updateAssumption('retirementAge',this.value)"></div>
+                        <div><label class="label">Inflation %</label><input type="number" id="inflation" onblur="updateAssumption('inflation',this.value)"></div>
+                        <div><label class="label">Life Expectancy</label><input type="number" id="lifeExpectancy" onblur="updateAssumption('lifeExpectancy',this.value)"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<!-- FINANCIALS -->
-<div id="financials" style="display:none">
-<div class="grid">
-
-<div class="card">
-<h4>Income</h4>
-<div id="incomeList"></div>
-<button onclick="addIncome()">Add Income</button>
-</div>
-
-<div class="card">
-<h4>Expenses</h4>
-<div id="expenseList"></div>
-<button onclick="addExpense()">Add Expense</button>
-</div>
-
-<div class="card">
-<h4>Tax Profile</h4>
-<select id="stateSelect"></select>
-<select onchange="state.filing=this.value">
-<option value="single">Single</option>
-<option value="married_joint">Married</option>
-<option value="head">Head</option>
-</select>
-</div>
-
-<div class="card">
-<h4>Accounts</h4>
-<div id="accountList"></div>
-<button onclick="addAccount()">Add Account</button>
-</div>
-
-<div class="card">
-<h4>Assets</h4>
-<div id="assetList"></div>
-<button onclick="addAsset()">Add Asset</button>
-</div>
-
-<div class="card">
-<h4>Liabilities</h4>
-<div id="liabilityList"></div>
-<button onclick="addLiability()">Add Liability</button>
-</div>
-
-</div>
-</div>
-
-<!-- SCENARIOS -->
-<div id="scenarios" style="display:none">
-<div class="grid">
-<div class="card">
-<h4>Age & Retirement</h4>
-<input id="currentAge" value="40">
-<input id="retirementAge" value="65">
-<input id="lifeExpectancy" value="90">
-</div>
-</div>
-</div>
-
-<!-- MARKETS -->
-<div id="markets" style="display:none">
-<div class="grid">
-
-<div class="card">
-<h4>Your Tickers</h4>
-<div id="tickerList"></div>
-<input id="newTicker" placeholder="AAPL">
-<button onclick="addTicker()">Add</button>
-</div>
-
-</div>
-</div>
-
-</div>
-
-<div class="side">
-
-<div class="card"><h4>Status</h4><div id="status"></div></div>
-<div class="card"><h4>Failure</h4><div id="failure"></div></div>
-<div class="card"><h4>Action</h4><div id="action"></div></div>
-
-<div class="card">
-<h4>Market</h4>
-<div id="marketOverview"></div>
-</div>
-
-<div class="card"><h4>AI</h4><div id="aiOutput"></div></div>
-
-</div>
-
-</div>
+        <div class="side">
+            <div class="card">
+                <h4>Advisor Status</h4>
+                <div id="status" style="font-weight:600;">--</div>
+                <div id="failure" class="fail-text" style="margin-top:8px; font-size:14px;"></div>
+            </div>
+            <div class="card">
+                <h4>Recommended Actions</h4>
+                <div id="action" class="insight-box">No data yet.</div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-
 /* =========================
-   SAFE NUMBER
+   STATE & STORAGE
 ========================= */
-function cleanNumber(val){
-  if(!val) return 0;
-  return parseFloat(val.toString().replace(/[^0-9.-]/g,'')) || 0;
-}
-
-function money(n){
-  return "$" + Number(n || 0).toLocaleString();
-}
-
-/* =========================
-   STATE (LOCKED STRUCTURE)
-========================= */
-
 let state = {
-  incomes: [],
-  expenses: [],
-  accounts: [
-    {type:"checking", balance:0},
-    {type:"401k", balance:0, contrib:0, match:0},
-    {type:"roth", balance:0, contrib:0},
-    {type:"brokerage", balance:0},
-    {type:"hsa", balance:0}
-  ],
-  dependents: [],
-  assets: {
-    cash: 0,
-    invest: 0,
-    debt: 0
-  },
-  filing: "single"
+    incomes: [{type:"salary", amount:100000, freq:"yearly", growth:3}],
+    expenses: [{cat:"housing", amount:2500, freq:"monthly"}],
+    accounts: [
+        {type:"401k", balance:50000, contrib:500, match:3},
+        {type:"roth", balance:10000, contrib:500, match:0},
+        {type:"brokerage", balance:5000, contrib:1000, match:0}
+    ],
+    assets: { cash: 10000, invest: 0, debt: 0 },
+    assumptions: { inflation: 2.5, currentAge: 30, retirementAge: 65, lifeExpectancy: 90 }
 };
 
-/* =========================
-   ENGINE (UNCHANGED LOGIC)
-========================= */
+let chart;
 
-function norm(a,f){
-  return cleanNumber(a)*(f==="monthly"?12:f==="biweekly"?26:1);
+function save(){ localStorage.setItem("bastion_v2", JSON.stringify(state)); }
+function load(){ 
+    const data = localStorage.getItem("bastion_v2");
+    if(data) state = JSON.parse(data);
 }
+
+/* =========================
+   CORE ENGINE
+========================= */
+function norm(a, f){ return (parseFloat(a)||0) * (f === "monthly" ? 12 : f === "biweekly" ? 26 : 1); }
 
 function calculate(){
+    let income = state.incomes.reduce((s, i) => s + norm(i.amount, i.freq), 0);
+    let expenses = state.expenses.reduce((s, e) => s + norm(e.amount, e.freq), 0);
+    let contribs = state.accounts.reduce((s, a) => s + (a.contrib * 12), 0); // Monthly contrib assumed
+    let match = state.accounts.reduce((s, a) => s + (a.match ? (norm(income/12, "monthly") * a.match/100) : 0), 0);
+    
+    let accountValue = state.accounts.reduce((s, a) => s + (a.balance || 0), 0);
+    let netWorth = accountValue + state.assets.cash - state.assets.debt;
+    let savingsRate = income > 0 ? ((contribs + match) / income) * 100 : 0;
 
-  let income = state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0);
-  let expenses = state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0);
+    return { income, expenses, netWorth, savingsRate, net: income - expenses - contribs };
+}
 
-  let depCost = state.dependents.reduce((s,d)=>s+d.cost,0);
-  expenses += depCost;
+function runProjection(){
+    const d = calculate();
+    let timeline = [];
+    let nw = d.netWorth;
+    let inc = d.income;
+    let exp = d.expenses;
 
-  let contrib = state.accounts.reduce((s,a)=>s + (a.contrib || 0),0);
-
-  let match = state.accounts.reduce((s,a)=>{
-    if(a.match) return s + (a.contrib * a.match / 100);
-    return s;
-  },0);
-
-  let totalSavings = contrib + match;
-
-  let net = income - expenses - contrib;
-
-  let accountValue = state.accounts.reduce((s,a)=>s + (a.balance || 0),0);
-
-  let netWorth =
-    accountValue +
-    (state.assets.cash||0) +
-    (state.assets.invest||0) -
-    (state.assets.debt||0);
-
-  let savingsRate = income > 0 ? ((income - expenses) / income) * 100 : 0;
-
-  return {
-    income,expenses,net,netWorth,savingsRate,contrib,match,totalSavings
-  };
+    for(let i=0; i <= (state.assumptions.lifeExpectancy - state.assumptions.currentAge); i++){
+        let age = state.assumptions.currentAge + i;
+        if(age < state.assumptions.retirementAge) inc *= 1.03; else inc = d.income * 0.15;
+        exp *= (1 + (state.assumptions.inflation/100));
+        nw = (nw + (inc - exp)) * (age < state.assumptions.retirementAge ? 1.07 : 1.04);
+        timeline.push({age, nw});
+        if(nw < -1000000) break;
+    }
+    return timeline;
 }
 
 /* =========================
-   ADVISOR (NEW)
+   UI RENDERING
 ========================= */
-
-function runAdvisor(d){
-
-  let insights = [];
-  let actions = [];
-
-  if(d.savingsRate < 10){
-    insights.push("Savings rate is critically low");
-    actions.push("Increase savings to 15%+");
-  }
-
-  if(d.net <= 0){
-    insights.push("You are running a deficit");
-    actions.push("Reduce expenses or increase income");
-  }
-
-  let housing = state.expenses
-    .filter(e=>e.cat==="housing")
-    .reduce((s,e)=>s+norm(e.amount,e.freq),0);
-
-  if(housing > d.income * 0.35){
-    insights.push("Housing exceeds 35% of income");
-    actions.push("Reduce housing cost");
-  }
-
-  return {insights,actions};
-}
-
-/* =========================
-   NAVIGATION (UNCHANGED)
-========================= */
-
-function showView(v,e){
-  ["dashboard","financials","scenarios","markets"].forEach(id=>{
-    let el = document.getElementById(id);
-    if(el) el.style.display="none";
-  });
-
-  document.getElementById(v).style.display="block";
-
-  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
-  if(e) e.classList.add("active");
-}
-
-/* =========================
-   RENDER ALL (LOCKED)
-========================= */
-
 function renderAll(){
-  renderDashboard();
-  renderFinancials();
+    const d = calculate();
+    const timeline = runProjection();
+
+    // Dashboard
+    document.getElementById("netWorth").innerText = "$" + Math.round(d.netWorth).toLocaleString();
+    document.getElementById("income").innerText = "$" + Math.round(d.income).toLocaleString();
+    document.getElementById("expensesOut").innerText = "$" + Math.round(d.expenses).toLocaleString();
+    document.getElementById("savingsRate").innerText = d.savingsRate.toFixed(1) + "%";
+
+    // Advisor Logic
+    const death = timeline[timeline.length - 1];
+    const statusEl = document.getElementById("status");
+    const failEl = document.getElementById("failure");
+    const actionEl = document.getElementById("action");
+
+    if(death.nw < 0){
+        statusEl.innerText = "AT RISK"; statusEl.style.color = "#e11d48";
+        failEl.innerText = "Depletion at age " + timeline.find(t=>t.nw < 0).age;
+        actionEl.innerText = "Increase savings by $" + Math.round(Math.abs(death.nw)/300) + "/mo to survive.";
+    } else {
+        statusEl.innerText = "ON TRACK"; statusEl.style.color = "#10b981";
+        failEl.innerText = "";
+        actionEl.innerText = "Maintain current trajectory. Portfolio is healthy.";
+    }
+
+    // Chart
+    updateChart(timeline);
+    renderFinancials();
+    save();
 }
 
-/* =========================
-   COMMIT (LOCKED)
-========================= */
+function updateChart(timeline){
+    const ctx = document.getElementById("chart").getContext("2d");
+    const labels = timeline.map(t => t.age);
+    const data = timeline.map(t => t.nw);
 
-function commit(){
-  renderAll();
+    if(chart){
+        chart.data.labels = labels; chart.data.datasets[0].data = data; chart.update();
+    } else {
+        chart = new Chart(ctx, {
+            type:'line',
+            data: { labels, datasets: [{ label:'Wealth', data, borderColor:'#0f172a', tension:0.3, fill:true, backgroundColor:'rgba(15,23,42,0.1)' }]},
+            options: { responsive: true, scales: { y: { ticks: { callback: v => '$' + v/1000 + 'k' }}}}
+        });
+    }
 }
-
-/* =========================
-   DASHBOARD
-========================= */
-
-function renderDashboard(){
-
-  let d = calculate();
-  let adv = runAdvisor(d);
-
-  netWorth.innerText = money(d.netWorth);
-  income.innerText = money(d.income);
-  expensesOut.innerText = money(d.expenses);
-  savingsRate.innerText = d.savingsRate.toFixed(1)+"%";
-
-  status.innerText = d.net > 0 ? "Surplus" : "Deficit";
-  failure.innerText = "";
-  action.innerText = "";
-
-  aiOutput.innerText =
-    adv.insights.concat(adv.actions).join("\n");
-}
-
-/* =========================
-   FINANCIALS (PATCHED ONLY)
-========================= */
 
 function renderFinancials(){
-
-  document.getElementById("incomeList").innerHTML =
-    state.incomes.map((i,idx)=>`
-      <div class="row">
-        <select onchange="state.incomes[${idx}].type=this.value;commit()">
-          <option>salary</option>
-          <option>bonus</option>
-          <option>side</option>
-          <option>passive</option>
-        </select>
-
-        <input value="${i.amount||""}"
-          onblur="state.incomes[${idx}].amount=+this.value||0;commit()">
-
-        <select onchange="state.incomes[${idx}].freq=this.value;commit()">
-          <option>yearly</option>
-          <option>monthly</option>
-          <option>biweekly</option>
-        </select>
-      </div>
+    document.getElementById("incomeList").innerHTML = state.incomes.map((i,idx)=>`
+        <div class="row">
+            <input value="${i.amount}" onblur="state.incomes[${idx}].amount=+this.value;renderAll()">
+            <select onchange="state.incomes[${idx}].freq=this.value;renderAll()">
+                <option value="yearly" ${i.freq==='yearly'?'selected':''}>Yearly</option>
+                <option value="monthly" ${i.freq==='monthly'?'selected':''}>Monthly</option>
+            </select>
+        </div>
     `).join("");
 
-  document.getElementById("expenseList").innerHTML =
-    state.expenses.map((e,idx)=>`
-      <div class="row">
-        <input value="${e.amount||""}"
-          onblur="state.expenses[${idx}].amount=+this.value||0;commit()">
-
-        <select onchange="state.expenses[${idx}].freq=this.value;commit()">
-          <option>yearly</option>
-          <option>monthly</option>
-        </select>
-
-        <select onchange="state.expenses[${idx}].cat=this.value;commit()">
-          <option>housing</option>
-          <option>food</option>
-          <option>transport</option>
-          <option>insurance</option>
-          <option>utilities</option>
-          <option>healthcare</option>
-          <option>debt</option>
-          <option>entertainment</option>
-          <option>other</option>
-        </select>
-      </div>
+    document.getElementById("accountList").innerHTML = state.accounts.map((a,idx)=>`
+        <div class="row">
+            <div style="flex:1; font-size:12px;">${a.type}</div>
+            <input style="flex:2" placeholder="Bal" value="${a.balance}" onblur="state.accounts[${idx}].balance=+this.value;renderAll()">
+            <input style="flex:2" placeholder="Contrib" value="${a.contrib}" onblur="state.accounts[${idx}].contrib=+this.value;renderAll()">
+        </div>
     `).join("");
+    
+    document.getElementById("cash").value = state.assets.cash;
+    document.getElementById("debt").value = state.assets.debt;
 }
 
 /* =========================
-   ADDERS
+   CONTROLS
 ========================= */
-
-function addIncome(){state.incomes.push({amount:0,freq:"yearly"});renderAll();}
-function addExpense(){state.expenses.push({amount:0,freq:"monthly",cat:"housing"});renderAll();}
-
-/* =========================
-   INIT
-========================= */
-/* =========================
-   FIX: ADD FUNCTIONS (MISSING)
-========================= */
-
-function addAccount(){
-  state.accounts.push({type:"401k",balance:0,contrib:0,match:0});
-  render();
+function showView(v, btn){
+    ['dashboard','financials','scenarios'].forEach(id => document.getElementById(id).style.display = (id===v?'block':'none'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    btn.classList.add('active');
 }
 
-function addAsset(){
-  state.assets.cash += 0; // keeps structure intact
-  render();
-}
+function updateAsset(key, val){ state.assets[key] = parseFloat(val)||0; renderAll(); }
+function updateAssumption(key, val){ state.assumptions[key] = parseFloat(val)||0; renderAll(); }
+function addIncome(){ state.incomes.push({type:"salary", amount:0, freq:"yearly"}); renderAll(); }
 
-function addLiability(){
-  state.assets.debt += 0;
-  render();
-}
-
-/* =========================
-   FIX: TAX STATE DROPDOWN
-========================= */
-
-const states = [
-  "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
-  "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD",
-  "MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
-  "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC",
-  "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
-];
-
-function initStateSelect(){
-  const el = document.getElementById("stateSelect");
-  if(!el) return;
-
-  el.innerHTML = states.map(s=>`<option>${s}</option>`).join("");
-
-  el.onchange = function(){
-    state.taxState = this.value;
-  };
-}
-
-/* =========================
-   FIX: CAPITALIZE DROPDOWNS
-========================= */
-
-function cap(str){
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-window.onload = renderAll;
-
+window.onload = () => { load(); renderAll(); };
 </script>
 </body>
 </html>
