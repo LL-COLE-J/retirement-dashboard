@@ -259,6 +259,43 @@ let savingsRate=income>0?((income-expenses)/income)*100:0;
 return{income,expenses,net,netWorth,savingsRate};
 }
 
+  let aiTimer;
+let lastPayload = null;
+
+function shouldCallAI(payload){
+  const str = JSON.stringify(payload);
+  if(str === lastPayload) return false;
+  lastPayload = str;
+  return true;
+}
+
+function triggerAI(data){
+
+  if(!shouldCallAI(data)) return;
+
+  clearTimeout(aiTimer);
+
+  aiTimer = setTimeout(async () => {
+
+    try {
+
+      const res = await fetch("YOUR_WORKER_URL_HERE", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(data)
+      });
+
+      const json = await res.json();
+
+      document.getElementById("aiOutput").innerText = json.result;
+
+    } catch(e){
+      document.getElementById("aiOutput").innerText = "AI unavailable";
+    }
+
+  }, 2000); // debounce = cost control
+}
+
 /* UPDATE */
 function updateAll(){
 
