@@ -1,19 +1,4 @@
 const BASTION_ENGINE = {
-    // Uniform Lifetime Table (Divisors) starting at age 72
-    irsDivisors: {
-        72: 27.4, 73: 26.5, 74: 25.5, 75: 24.6, 76: 23.7, 77: 22.9, 78: 22.0, 79: 21.1, 80: 20.2,
-        81: 19.4, 82: 18.5, 83: 17.7, 84: 16.8, 85: 16.0, 86: 15.2, 87: 14.4, 88: 13.7, 89: 12.9,
-        90: 12.2, 91: 11.5, 92: 10.8, 93: 10.1, 94: 9.5, 95: 8.9, 96: 8.4, 97: 7.8, 98: 7.3, 99: 6.8, 100: 6.4
-    },
-
-    getTaxWork(income, state, status) {
-        const deduction = status === 'married' ? 32200 : 16100;
-        const taxableFed = Math.max(0, income - deduction);
-        let fedTax = taxableFed > 0 ? taxableFed * 0.22 : 0; 
-        let work = `Standard Ded: -$${deduction.toLocaleString()}\nEst. Federal Tax: $${Math.round(fedTax).toLocaleString()}`;
-        return { total: fedTax, work };
-    },
-
     runLifeCycleProjection(p) {
         let buckets = {
             deferred: p.assets.filter(a => a.type === 'deferred').reduce((s, a) => s + a.value, 0),
@@ -23,61 +8,40 @@ const BASTION_ENGINE = {
 
         const timeline = [];
         const growth = 0.07;
-        const taxDrag = 0.012; 
+        const inflation = 0.03;
 
-        for (let age = p.ageNow; age <= p.ageEnd; age++) {
+        for (let age = p.ageNow; age <= 90; age++) {
             const isRetired = age >= p.ageRetire;
-            const yearsIn = age - p.ageNow;
+            const currentExpenses = p.expenses * Math.pow(1 + inflation, age - p.ageNow);
+            let taxPaid = 0;
+            let passive = (buckets.taxable + buckets.taxfree) * 0.04; // 4% Rule simulation
 
-            // 1. Inflation
-            let yearExpenses = p.expenses.reduce((sum, exp) => sum + (exp.amount * Math.pow(1 + exp.inflation, yearsIn)), 0);
-
-            // 2. RMD Check (Uses dynamic divisor or defaults to 10 if age > 100)
-            let rmdAmount = 0;
-            if (age >= p.rmdAge) {
-                let divisor = this.irsDivisors[age] || 10;
-                rmdAmount = buckets.deferred / divisor;
-            }
-
-            // 3. Flow Logic
             if (!isRetired) {
-                buckets.deferred += (125000 * 0.15); // Pre-tax savings phase
+                buckets.deferred += (p.income * 0.15);
             } else {
-                let ssIncome = (age >= p.ssAge) ? p.ssBenefit : 0;
-                let gap = yearExpenses - ssIncome;
-
-                // Handle forced RMD first
-                if (rmdAmount > 0) {
-                    let rmdNet = rmdAmount * 0.80; // 20% flat tax simulation
-                    if (rmdNet >= gap) {
-                        buckets.taxable += (rmdNet - gap);
-                        buckets.deferred -= rmdAmount;
-                        gap = 0;
-                    } else {
-                        gap -= rmdNet;
-                        buckets.deferred -= rmdAmount;
-                    }
-                }
-
-                // If gap remains, drain taxable -> deferred -> taxfree
-                if (gap > 0) {
-                    let fromTaxable = Math.min(buckets.taxable, gap);
-                    buckets.taxable -= fromTaxable;
-                    gap -= fromTaxable;
-                }
-                if (gap > 0) {
-                    let fromDef = Math.min(buckets.deferred, gap / 0.8);
-                    buckets.deferred -= fromDef;
-                    gap = 0;
+                let draw = currentExpenses;
+                // Simple Tax logic for withdrawals
+                if(buckets.taxable > draw) {
+                    buckets.taxable -= draw;
+                } else {
+                    let rem = draw - buckets.taxable;
+                    buckets.taxable = 0;
+                    taxPaid = rem * 0.20;
+                    buckets.deferred -= (rem + taxPaid);
                 }
             }
 
-            // 4. Compounding
             buckets.deferred *= (1 + growth);
-            buckets.taxable *= (1 + (growth - taxDrag));
+            buckets.taxable *= (1 + (growth - 0.01)); // Tax drag
             buckets.taxfree *= (1 + growth);
 
-            timeline.push({ age, total: Math.round(buckets.deferred + buckets.taxable + buckets.taxfree) });
+            timeline.push({
+                age,
+                total: Math.round(buckets.deferred + buckets.taxable + buckets.taxfree),
+                expenses: Math.round(currentExpenses),
+                passiveIncome: Math.round(passive),
+                taxPaid: taxPaid
+            });
         }
         return timeline;
     }
