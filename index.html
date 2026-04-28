@@ -196,16 +196,29 @@ button{
 
 <script>
 
+// =========================
+// STATE
+// =========================
+
 let state={
   incomes:[],
   expenses:[],
   filing:"single",
   dependents:0,
-  accounts:0
+  accounts:[], // FIXED
+  assets:{cash:0,invest:0,debt:0}
 };
+
+// =========================
+// HELPERS
+// =========================
 
 function norm(a,f){return a*(f==="monthly"?12:f==="biweekly"?26:1);}
 function money(n){return "$"+Number(n||0).toLocaleString();}
+
+// =========================
+// TAX
+// =========================
 
 function calcTax(income, filing, dependents){
 
@@ -240,6 +253,10 @@ function calcTax(income, filing, dependents){
   return Math.max(0,tax);
 }
 
+// =========================
+// CORE CALC
+// =========================
+
 function calculate(){
 
 let income=state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0);
@@ -248,16 +265,86 @@ let expenses=state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0);
 let tax=calcTax(income,state.filing,state.dependents);
 let net=income-expenses-tax;
 
-let netWorth=
+// FIXED accounts sum
+let accountValue = state.accounts.reduce((s,a)=>s+(a.balance||0),0);
+
+let netWorth =
 (+cash.value||0)+
 (+invest.value||0)-
 (+debt.value||0)+
-(state.accounts||0);
+accountValue;
 
 let savingsRate=income>0?((income-expenses)/income)*100:0;
 
 return{income,expenses,net,netWorth,savingsRate};
 }
+
+// =========================
+// PROJECTION (FIXED)
+// =========================
+
+function runProjection(){
+
+  let base = calculate();
+
+  let years = 40;
+  let growth = 0.07;
+  let inflation = 0.03;
+
+  let balance = base.netWorth;
+
+  for(let i = 0; i < years; i++){
+
+    let expenses = base.expenses * Math.pow(1 + inflation, i);
+
+    balance = (balance - expenses) * (1 + growth);
+
+    if(balance <= 0){
+      return {
+        success:false,
+        failureYear:i
+      };
+    }
+  }
+
+  return {success:true};
+}
+
+// =========================
+// MONTE CARLO (FIXED)
+// =========================
+
+function runMonteCarlo(){
+
+  let sims = 50;
+  let success = 0;
+
+  let base = calculate();
+
+  for(let i = 0; i < sims; i++){
+
+    let balance = base.netWorth;
+
+    for(let y = 0; y < 40; y++){
+
+      let r = (Math.random()*0.15)-0.05;
+
+      let expenses = base.expenses * Math.pow(1+0.03,y);
+
+      balance = (balance - expenses)*(1+r);
+
+      if(balance<=0) break;
+    }
+
+    if(balance>0) success++;
+  }
+
+  return (success/sims)*100;
+}
+
+// =========================
+// AI
+// =========================
 
 let aiTimer;
 let lastPayload=null;
@@ -292,6 +379,10 @@ aiOutput.innerText="AI unavailable";
 },2000);
 }
 
+// =========================
+// UPDATE ALL (SAFE)
+// =========================
+
 function updateAll(){
 
 let d=calculate();
@@ -301,11 +392,22 @@ income.innerText=money(d.income);
 expensesOut.innerText=money(d.expenses);
 savingsRate.innerText=d.savingsRate.toFixed(1)+"%";
 
+// ORIGINAL LOGIC
 let yearsSafe=d.net>0?(d.netWorth/(d.expenses||1)):0;
 
-status.innerText=yearsSafe>25?"Stable":yearsSafe>15?"Moderate":"At Risk";
-failure.innerText=yearsSafe>0?"Runs out in "+yearsSafe.toFixed(1)+" yrs":"Already negative";
-action.innerText=d.net<0?"Reduce expenses":d.savingsRate<15?"Increase savings":"Maintain course";
+// NEW ENGINE
+let proj = runProjection();
+let mc = runMonteCarlo();
+
+status.innerText=
+  proj.success ? "On Track" : "Fails in "+proj.failureYear+" yrs";
+
+failure.innerText="Monte Carlo: "+mc.toFixed(1)+"%";
+
+action.innerText=
+  mc>80?"Strong plan":
+  mc>60?"Moderate risk":
+  "High risk — adjust savings";
 
 triggerAI({
 netWorth:d.netWorth,
@@ -315,6 +417,10 @@ savingsRate:d.savingsRate,
 yearsSafe:yearsSafe
 });
 }
+
+// =========================
+// UI FUNCTIONS
+// =========================
 
 function addIncome(){state.incomes.push({amount:0,freq:"yearly"});renderStreams();}
 function addExpense(){state.expenses.push({amount:0,freq:"yearly"});renderStreams();}
@@ -357,6 +463,10 @@ document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
 el.classList.add("active");
 }
 
+// =========================
+// INIT
+// =========================
+
 window.onload=()=>{
 state.incomes.push({amount:80000,freq:"yearly"});
 state.expenses.push({amount:40000,freq:"yearly"});
@@ -364,150 +474,7 @@ renderStreams();
 updateAll();
 };
 
-  <script>
-
-// =========================
-// PROJECTION ENGINE (ADDITIVE)
-// =========================
-
-function runProjection(){
-
-  let base = calculate();
-
-  let years = 40;
-  let growth = 0.07;
-  let inflation = 0.03;
-
-  let balance = base.netWorth;
-  let yearlyData = [];
-
-  for(let i = 0; i < years; i++){
-
-    let expenses = base.expenses * Math.pow(1 + inflation, i);
-    let contributions = base.contrib;
-
-    balance = (balance + contributions - expenses) * (1 + growth);
-
-    yearlyData.push({
-      year: i,
-      balance: balance,
-      expenses: expenses
-    });
-
-    if(balance <= 0){
-      return {
-        success: false,
-        failureYear: i,
-        data: yearlyData
-      };
-    }
-  }
-
-  return {
-    success: true,
-    data: yearlyData
-  };
-}
-
-
-// =========================
-// MONTE CARLO ENGINE (ADDITIVE)
-// =========================
-
-function runMonteCarlo(){
-
-  let sims = 100;
-  let success = 0;
-
-  let base = calculate();
-
-  for(let i = 0; i < sims; i++){
-
-    let balance = base.netWorth;
-
-    for(let y = 0; y < 40; y++){
-
-      let randomReturn = (Math.random() * 0.15) - 0.05; // -5% to +10%
-
-      let expenses = base.expenses * Math.pow(1 + 0.03, y);
-      let contrib = base.contrib;
-
-      balance = (balance + contrib - expenses) * (1 + randomReturn);
-
-      if(balance <= 0) break;
-    }
-
-    if(balance > 0) success++;
-  }
-
-  return (success / sims) * 100;
-}
-
-
-// =========================
-// SAFE INJECTION INTO updateAll()
-// (DOES NOT BREAK EXISTING)
-// =========================
-
-(function(){
-
-  // Wait until updateAll exists
-  const waitForUpdate = setInterval(() => {
-
-    if(typeof updateAll === "function"){
-
-      clearInterval(waitForUpdate);
-
-      const originalUpdate = updateAll;
-
-      window.updateAll = function(){
-
-        // run your original logic FIRST
-        originalUpdate();
-
-        try {
-
-          let proj = runProjection();
-          let mc = runMonteCarlo();
-
-          // Safe DOM writes (only if elements exist)
-          let statusEl = document.getElementById("status");
-          let failureEl = document.getElementById("failure");
-          let actionEl = document.getElementById("action");
-
-          if(statusEl){
-            statusEl.innerText =
-              proj.success
-                ? "On Track"
-                : "Fails at year " + proj.failureYear;
-          }
-
-          if(failureEl){
-            failureEl.innerText =
-              "Monte Carlo Success: " + mc.toFixed(1) + "%";
-          }
-
-          if(actionEl){
-            actionEl.innerText =
-              mc > 80 ? "Strong plan" :
-              mc > 60 ? "Moderate risk" :
-              "High risk — adjust savings or expenses";
-          }
-
-        } catch(e){
-          console.log("Projection engine error:", e);
-        }
-
-      };
-
-    }
-
-  }, 100);
-
-})(); 
-
 </script>
-
 
 </body>
 </html>
