@@ -5,7 +5,6 @@ const BASTION_ENGINE = {
         const taxableFed = Math.max(0, income - deduction);
         const fica = (Math.min(income, 184500) * 0.062) + (income * 0.0145);
         
-        // 2026 Marginal Layer Logic
         let fedTax = taxableFed > 0 ? taxableFed * 0.22 : 0; 
         
         work += `<span>FEDERAL CALCULATION:</span>\nGross: $${income.toLocaleString()}\n- Deduction: $${deduction.toLocaleString()}\n+ FICA: $${Math.round(fica).toLocaleString()}\n= Est Fed: $${Math.round(fedTax + fica).toLocaleString()}\n\n`;
@@ -23,19 +22,13 @@ const BASTION_ENGINE = {
     },
 
     runProjection(params) {
-        let current = 150000; // Baseline Starting Assets
+        let current = 150000; 
         const timeline = [];
-        const realRate = (7 - 3) / 100; // 7% return minus 3% inflation
+        const realRate = (7 - 3) / 100; 
         
         for (let i = 0; i <= 30; i++) {
             let yearReturn = realRate;
             let yearSavings = params.income * 0.15;
-
-            // Apply Discrete Stressors
-            if (params.stressors.market && i === 1) yearReturn = -0.25;
-            if (params.stressors.medical && i === 5) current -= 50000;
-            if (params.stressors.layoff && i === 10) yearSavings = -(params.income * 0.20); 
-
             current = (current + yearSavings) * (1 + yearReturn);
             timeline.push({ year: 2026 + i, wealth: Math.max(0, Math.round(current)) });
         }
