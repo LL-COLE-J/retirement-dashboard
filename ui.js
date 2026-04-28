@@ -122,7 +122,7 @@ function commit(){
 ========================= */
 function renderDashboard(){
 
-  const d = calculate();
+  const d = runEngine();
 
   document.getElementById("nw").innerText = money(d.netWorth);
   document.getElementById("inc").innerText = money(d.income);
