@@ -192,11 +192,14 @@ function cleanNumber(val){
 }
 
 function formatMoney(n){
-  return "$" + Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  return "$" + Number(n).toLocaleString(undefined,{
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  });
 }
 
 /* =========================
-   FIXED NORM (CRITICAL)
+   NORMALIZATION
 ========================= */
 
 function norm(a,f){
@@ -205,13 +208,12 @@ function norm(a,f){
 }
 
 /* =========================
-   ENGINE (UNCHANGED LOGIC)
+   ENGINE (UNCHANGED)
 ========================= */
 
 function calculate(){
 
   let income = state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0);
-
   let expenses = state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0);
 
   let net = income - expenses;
@@ -227,7 +229,45 @@ function calculate(){
 }
 
 /* =========================
-   UPDATE DISPLAY (FORMATTED)
+   TIMELINE + MC (UNCHANGED)
+========================= */
+
+function runTimeline(d){
+  let nw=d.netWorth,fail=null;
+  for(let a=state.timeline.currentAge;a<=state.timeline.lifeExpectancy;a++){
+    let income=a<state.timeline.retirementAge?d.income:0;
+    let expenses=d.expenses*Math.pow(1.03,a-state.timeline.currentAge);
+    nw=nw*1.06+(income-expenses);
+    if(nw<=0 && fail===null) fail=a;
+  }
+  return {success:fail===null,failureAge:fail};
+}
+
+function runMonteCarlo(d){
+  let success=0;
+  for(let i=0;i<100;i++){
+    let nw=d.netWorth;
+    for(let a=state.timeline.currentAge;a<=state.timeline.lifeExpectancy;a++){
+      let r=(Math.random()*0.12)-0.02;
+      let income=a<state.timeline.retirementAge?d.income:0;
+      let expenses=d.expenses*Math.pow(1.03,a-state.timeline.currentAge);
+      nw=nw*(1+r)+(income-expenses);
+      if(nw<=0) break;
+    }
+    if(nw>0) success++;
+  }
+  return success;
+}
+
+function runEngine(){
+  let d=calculate();
+  let t=runTimeline(d);
+  let mc=runMonteCarlo(d);
+  return {...d,...t,mc};
+}
+
+/* =========================
+   UPDATE DISPLAY
 ========================= */
 
 function updateAll(){
@@ -242,13 +282,23 @@ function updateAll(){
   failure.innerText="MC Success: "+d.mc+"%";
   action.innerText=d.mc>70?"Good":"Risk";
 
-  aiOutput.innerText="AI ready for next phase";
+  aiOutput.innerText="AI ready";
 
   renderMarkets();
 }
 
 /* =========================
-   RENDER (RESTORED DROPDOWNS)
+   CATEGORY OPTIONS (NEW)
+========================= */
+
+const incomeTypes = ["Salary","Bonus","Side Income","Passive"];
+const expenseTypes = ["Housing","Food","Transport","Insurance","Utilities","Entertainment","Other"];
+const accountTypes = ["401k","Roth IRA","Brokerage","HSA","Checking","Savings"];
+const assetTypes = ["Cash","Investments","Real Estate","Other"];
+const liabilityTypes = ["Mortgage","Credit Card","Auto Loan","Student Loan","Other"];
+
+/* =========================
+   RENDER (FULL + SAFE)
 ========================= */
 
 function render(){
@@ -262,6 +312,11 @@ function render(){
   /* INCOME */
   incomeListEl.innerHTML = state.incomes.map((i,idx)=>`
     <div class="row">
+
+      <select onchange="state.incomes[${idx}].type=this.value">
+        ${incomeTypes.map(t=>`<option ${i.type===t?"selected":""}>${t}</option>`).join("")}
+      </select>
+
       <input value="${i.amount||""}" 
         onblur="state.incomes[${idx}].amount=this.value;updateAll()">
 
@@ -270,17 +325,16 @@ function render(){
         <option ${i.freq==="monthly"?"selected":""}>monthly</option>
         <option ${i.freq==="biweekly"?"selected":""}>biweekly</option>
       </select>
+
     </div>
   `).join("");
 
-  /* EXPENSES (RESTORED DROPDOWN) */
+  /* EXPENSES */
   expenseListEl.innerHTML = state.expenses.map((e,idx)=>`
     <div class="row">
+
       <select onchange="state.expenses[${idx}].type=this.value">
-        <option ${e.type==="Housing"?"selected":""}>Housing</option>
-        <option ${e.type==="Food"?"selected":""}>Food</option>
-        <option ${e.type==="Transport"?"selected":""}>Transport</option>
-        <option ${e.type==="Other"?"selected":""}>Other</option>
+        ${expenseTypes.map(t=>`<option ${e.type===t?"selected":""}>${t}</option>`).join("")}
       </select>
 
       <input value="${e.amount||""}" 
@@ -290,55 +344,88 @@ function render(){
         <option ${e.freq==="monthly"?"selected":""}>monthly</option>
         <option ${e.freq==="yearly"?"selected":""}>yearly</option>
       </select>
+
     </div>
   `).join("");
 
-  /* ACCOUNTS (RESTORED TYPE) */
+  /* ACCOUNTS */
   accountListEl.innerHTML = state.accounts.map((a,idx)=>`
     <div class="row">
+
       <select onchange="state.accounts[${idx}].type=this.value">
-        <option ${a.type==="401k"?"selected":""}>401k</option>
-        <option ${a.type==="Roth IRA"?"selected":""}>Roth IRA</option>
-        <option ${a.type==="Brokerage"?"selected":""}>Brokerage</option>
+        ${accountTypes.map(t=>`<option ${a.type===t?"selected":""}>${t}</option>`).join("")}
       </select>
 
       <input value="${a.balance||""}" 
         onblur="state.accounts[${idx}].balance=this.value;updateAll()">
+
     </div>
   `).join("");
 
   /* ASSETS */
   assetListEl.innerHTML = state.assets.map((a,idx)=>`
     <div class="row">
+
       <select onchange="state.assets[${idx}].type=this.value">
-        <option ${a.type==="Cash"?"selected":""}>Cash</option>
-        <option ${a.type==="Investments"?"selected":""}>Investments</option>
-        <option ${a.type==="Real Estate"?"selected":""}>Real Estate</option>
+        ${assetTypes.map(t=>`<option ${a.type===t?"selected":""}>${t}</option>`).join("")}
       </select>
 
       <input value="${a.value||""}" 
         onblur="state.assets[${idx}].value=this.value;updateAll()">
+
     </div>
   `).join("");
 
   /* LIABILITIES */
   liabilityListEl.innerHTML = state.liabilities.map((l,idx)=>`
     <div class="row">
+
       <select onchange="state.liabilities[${idx}].type=this.value">
-        <option ${l.type==="Mortgage"?"selected":""}>Mortgage</option>
-        <option ${l.type==="Credit Card"?"selected":""}>Credit Card</option>
-        <option ${l.type==="Loan"?"selected":""}>Loan</option>
+        ${liabilityTypes.map(t=>`<option ${l.type===t?"selected":""}>${t}</option>`).join("")}
       </select>
 
       <input value="${l.balance||""}" 
         onblur="state.liabilities[${idx}].balance=this.value;updateAll()">
+
     </div>
   `).join("");
 
   updateAll();
 }
 
-</script>
+/* =========================
+   NAV FIX (CRITICAL RESTORE)
+========================= */
 
+function showView(v,e){
+
+  ["dashboard","financials","scenarios","markets"].forEach(id=>{
+    let el = document.getElementById(id);
+    if(el) el.style.display="none";
+  });
+
+  document.getElementById(v).style.display="block";
+
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+  if(e) e.classList.add("active");
+}
+
+/* =========================
+   ADD FUNCTIONS (UNCHANGED)
+========================= */
+
+function addIncome(){state.incomes.push({amount:0,freq:"yearly",type:"Salary"});render();}
+function addExpense(){state.expenses.push({amount:0,freq:"monthly",type:"Housing"});render();}
+function addAccount(){state.accounts.push({type:"401k",balance:0});render();}
+function addAsset(){state.assets.push({type:"Cash",value:0});render();}
+function addLiability(){state.liabilities.push({type:"Mortgage",balance:0});render();}
+
+/* =========================
+   INIT
+========================= */
+
+window.onload = render;
+
+</script>
 </body>
 </html>
