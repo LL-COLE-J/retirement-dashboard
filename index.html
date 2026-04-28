@@ -16,15 +16,10 @@
   --border:#e5e7eb;
   --text:#0f172a;
   --sub:#64748b;
-  --accent:#1e293b;
+  --accent:#0f172a;
 }
 
-body{
-  background:var(--bg);
-  color:var(--text);
-  display:flex;
-  height:100vh;
-}
+body{background:var(--bg);display:flex;height:100vh;color:var(--text);}
 
 /* SIDEBAR */
 .sidebar{
@@ -34,24 +29,16 @@ body{
   padding:20px;
 }
 
-.logo{
-  font-weight:600;
-  font-size:18px;
-  margin-bottom:20px;
-}
+.logo img{width:100%;margin-bottom:20px;}
 
 .nav-item{
   padding:10px;
   border-radius:8px;
   cursor:pointer;
-  margin-bottom:6px;
   color:var(--sub);
+  margin-bottom:6px;
 }
-
-.nav-item.active{
-  background:#0f172a;
-  color:#fff;
-}
+.nav-item.active{background:var(--accent);color:#fff;}
 
 /* MAIN */
 .main{
@@ -67,19 +54,15 @@ body{
   padding:20px;
 }
 
-/* LEFT CONTENT */
-.content{
-  flex:2;
-}
+/* LEFT */
+.content{flex:2;}
 
-/* RIGHT PANEL */
-.sidepanel{
-  flex:1;
-}
+/* RIGHT */
+.side{flex:1;}
 
 /* CARDS */
 .card{
-  background:var(--card);
+  background:#fff;
   border:1px solid var(--border);
   border-radius:12px;
   padding:16px;
@@ -89,15 +72,14 @@ body{
 /* GRID */
 .grid{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:12px;
-  margin-bottom:16px;
+  grid-template-columns:repeat(2,1fr);
+  gap:16px;
 }
 
-/* INPUTS */
-input{
+/* INPUT */
+input, select{
   width:100%;
-  padding:10px;
+  padding:8px;
   margin-top:6px;
   border:1px solid var(--border);
   border-radius:8px;
@@ -109,36 +91,25 @@ button{
   padding:8px 12px;
   border:none;
   border-radius:8px;
-  background:#0f172a;
-  color:white;
+  background:var(--accent);
+  color:#fff;
   cursor:pointer;
 }
 
-/* SMALL TEXT */
-.label{
-  font-size:12px;
-  color:var(--sub);
-}
-
-.value{
-  font-weight:600;
-  margin-top:4px;
-}
-
+.label{font-size:12px;color:var(--sub);}
+.value{font-weight:600;margin-top:4px;}
 </style>
 </head>
 
 <body>
 
 <div class="sidebar">
-
 <div class="logo">
-  <img src="logo.png" style="width:100%;margin-bottom:10px;">
+  <img src="logo.png">
 </div>
 
 <div class="nav-item active" onclick="showView('dashboard',this)">Dashboard</div>
 <div class="nav-item" onclick="showView('financials',this)">Financials</div>
-
 </div>
 
 <div class="main">
@@ -154,29 +125,59 @@ button{
 <div class="card"><div class="label">Net Worth</div><div id="netWorth" class="value"></div></div>
 <div class="card"><div class="label">Income</div><div id="income" class="value"></div></div>
 <div class="card"><div class="label">Expenses</div><div id="expensesOut" class="value"></div></div>
-<div class="card"><div class="label">Years Safe</div><div id="years" class="value"></div></div>
+<div class="card"><div class="label">Savings Rate</div><div id="savingsRate" class="value"></div></div>
 </div>
-
-<div class="card" id="retirementSummary"></div>
 
 </div>
 
 <!-- FINANCIALS -->
 <div id="financials" style="display:none">
 
-<div class="card">
+<div class="grid">
 
+<!-- INCOME -->
+<div class="card">
 <h4>Income</h4>
 <div id="incomeList"></div>
 <button onclick="addIncome()">Add Income</button>
+</div>
 
+<!-- EXPENSE -->
+<div class="card">
 <h4>Expenses</h4>
 <div id="expenseList"></div>
 <button onclick="addExpense()">Add Expense</button>
+</div>
 
+<!-- TAX -->
+<div class="card">
+<h4>Tax</h4>
+<select id="filing" onchange="state.filing=this.value;updateAll()">
+<option value="single">Single</option>
+<option value="married_joint">Married</option>
+<option value="head">Head</option>
+</select>
+</div>
+
+<!-- DEPENDENTS -->
+<div class="card">
+<h4>Dependents</h4>
+<input id="dependents" placeholder="Monthly cost" onblur="state.depCost=+this.value||0;updateAll()">
+</div>
+
+<!-- ACCOUNTS -->
+<div class="card">
+<h4>Accounts</h4>
+<input id="accBalance" placeholder="Balance" onblur="state.accounts=+this.value||0;updateAll()">
+</div>
+
+<!-- ASSETS -->
+<div class="card">
 <h4>Assets</h4>
-<input id="cash" placeholder="Cash">
-<input id="invest" placeholder="Investments">
+<input id="cash" placeholder="Cash" onblur="updateAll()">
+<input id="invest" placeholder="Investments" onblur="updateAll()">
+<input id="debt" placeholder="Debt" onblur="updateAll()">
+</div>
 
 </div>
 
@@ -185,25 +186,21 @@ button{
 </div>
 
 <!-- RIGHT PANEL -->
-<div class="sidepanel">
+<div class="side">
 
 <div class="card">
-<h4>Plan Summary</h4>
-<div class="label">Savings Rate</div>
-<div id="savingsRate" class="value"></div>
-
-<div class="label">Monthly Burn</div>
-<div id="burnRate" class="value"></div>
+<h4>Status</h4>
+<div id="status"></div>
 </div>
 
 <div class="card">
-<h4>Risk Signals</h4>
-<div id="riskSignals"></div>
+<h4>Failure Point</h4>
+<div id="failure"></div>
 </div>
 
 <div class="card">
-<h4>Next Action</h4>
-<div id="aiOutput"></div>
+<h4>Action</h4>
+<div id="action"></div>
 </div>
 
 </div>
@@ -217,11 +214,28 @@ button{
 let state={
   incomes:[],
   expenses:[],
-  assets:{cash:0,invest:0,debt:0}
+  filing:"single",
+  depCost:0,
+  accounts:0
 };
 
 function norm(a,f){return a*(f==="monthly"?12:f==="biweekly"?26:1);}
 function money(n){return "$"+Number(n||0).toLocaleString();}
+
+/* TAX */
+function calcTax(income, filing){
+  let brackets={
+    single:[[10000,0.1],[40000,0.12],[85000,0.22]],
+    married_joint:[[20000,0.1],[80000,0.12],[170000,0.22]],
+    head:[[15000,0.1],[55000,0.12],[90000,0.22]]
+  };
+  let tax=0,prev=0;
+  for(let [limit,rate] of brackets[filing]){
+    if(income>limit){tax+=(limit-prev)*rate;prev=limit;}
+    else{tax+=(income-prev)*rate;break;}
+  }
+  return tax;
+}
 
 /* CALC */
 function calculate(){
@@ -229,11 +243,16 @@ function calculate(){
 let income=state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0);
 let expenses=state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0);
 
-let net=income-expenses;
+expenses+=state.depCost||0;
+
+let tax=calcTax(income,state.filing);
+let net=income-expenses-tax;
 
 let netWorth=
 (+cash.value||0)+
-(+invest.value||0);
+(+invest.value||0)-
+(+debt.value||0)+
+(state.accounts||0);
 
 let savingsRate=income>0?((income-expenses)/income)*100:0;
 
@@ -245,35 +264,33 @@ function updateAll(){
 
 let d=calculate();
 
-let yearsSafe=d.net>0?(d.netWorth/(d.expenses||1)):0;
-
 netWorth.innerText=money(d.netWorth);
 income.innerText=money(d.income);
 expensesOut.innerText=money(d.expenses);
-years.innerText=yearsSafe.toFixed(1);
-
 savingsRate.innerText=d.savingsRate.toFixed(1)+"%";
-burnRate.innerText=money(d.expenses/12);
 
-/* RISK */
-let risks=[];
-if(d.net<0) risks.push("Spending exceeds income");
-if(d.savingsRate<10) risks.push("Low savings rate");
-if(yearsSafe<15) risks.push("Short runway");
+/* STATUS */
+let yearsSafe=d.net>0?(d.netWorth/(d.expenses||1)):0;
 
-riskSignals.innerHTML=risks.join("<br>")||"No major risks";
+status.innerText=
+yearsSafe>25?"Stable":
+yearsSafe>15?"Moderate":
+"At Risk";
 
-/* AI */
-aiOutput.innerHTML="Adjust savings or reduce expenses to improve runway";
+failure.innerText=yearsSafe>0?"Runs out in "+yearsSafe.toFixed(1)+" yrs":"Already negative";
+
+action.innerText=
+d.net<0?"Reduce expenses":
+d.savingsRate<15?"Increase savings":
+"Maintain course";
 
 }
 
-/* STREAM INPUTS */
+/* STREAMS */
 function addIncome(){
 state.incomes.push({amount:0,freq:"yearly"});
 renderStreams();
 }
-
 function addExpense(){
 state.expenses.push({amount:0,freq:"yearly"});
 renderStreams();
