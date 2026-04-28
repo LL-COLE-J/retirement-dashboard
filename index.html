@@ -2,35 +2,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bastion | Command Center</title>
+    <title>Bastion | Command Center v3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --bg: #f8fafc; --sidebar: #0f172a; --card: #ffffff; --text: #0f172a; --sub: #64748b; --accent: #0ea5e9; --border: #e2e8f0; --success: #16a34a; --warning: #f59e0b; }
+        :root { --bg: #0f172a; --sidebar: #1e293b; --card: #1e293b; --text: #f8fafc; --sub: #94a3b8; --accent: #38bdf8; --border: #334155; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
         
-        .sidebar { width: 260px; background: var(--sidebar); padding: 32px 20px; color: white; display: flex; flex-direction: column; }
-        .logo { font-weight: 800; font-size: 18px; letter-spacing: 2px; margin-bottom: 40px; color: var(--accent); }
-        .nav-group { margin-bottom: 24px; }
-        .nav-label { font-size: 10px; color: #475569; text-transform: uppercase; font-weight: 800; margin-bottom: 12px; display: block; }
-        .nav-item { padding: 12px 16px; border-radius: 8px; cursor: pointer; color: #94a3b8; margin-bottom: 4px; font-size: 13px; font-weight: 600; transition: 0.2s; }
+        .sidebar { width: 280px; background: var(--sidebar); padding: 32px 20px; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+        .logo { font-weight: 800; font-size: 18px; color: var(--accent); margin-bottom: 40px; letter-spacing: 2px; }
+        .nav-label { font-size: 10px; color: var(--sub); text-transform: uppercase; font-weight: 800; margin-bottom: 12px; display: block; }
+        .nav-item { padding: 12px 16px; border-radius: 8px; cursor: pointer; color: var(--sub); margin-bottom: 8px; font-size: 13px; font-weight: 600; transition: 0.2s; }
         .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
-        .nav-item.active { background: var(--accent); color: white; }
+        .nav-item.active { background: var(--accent); color: var(--bg); }
 
         .main { flex: 1; overflow-y: auto; padding: 40px; }
-        .dashboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
-        .stat-card { background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border); }
-        .stat-label { font-size: 11px; font-weight: 700; color: var(--sub); text-transform: uppercase; margin-bottom: 8px; }
-        .stat-value { font-size: 24px; font-weight: 800; color: var(--sidebar); }
-
         .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
-        .chart-container { height: 350px; position: relative; }
+        h3 { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--sub); margin-bottom: 16px; }
         
-        .entry-row { display: grid; grid-template-columns: 1.2fr 1fr 60px 40px; gap: 12px; margin-bottom: 10px; align-items: end; }
-        .add-btn { padding: 10px; font-size: 10px; font-weight: 800; text-transform: uppercase; border: 1px dashed var(--border); cursor: pointer; text-align: center; border-radius: 6px; color: var(--sub); margin-top: 10px; }
-        .del-btn { color: #ef4444; cursor: pointer; font-weight: 800; text-align: center; }
+        .grid-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        label { display: block; font-size: 10px; font-weight: 700; color: var(--sub); text-transform: uppercase; margin-bottom: 6px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; background: #0f172a; color: white; outline: none; }
+        
+        .stat-value { font-size: 24px; font-weight: 800; color: white; }
+        .chart-box { height: 300px; }
+        .compare-toggle { background: #334155; padding: 4px; border-radius: 8px; display: flex; margin-bottom: 20px; }
+        .toggle-btn { flex: 1; text-align: center; padding: 8px; font-size: 11px; font-weight: 700; cursor: pointer; border-radius: 6px; }
+        .toggle-btn.active { background: var(--accent); color: var(--bg); }
     </style>
 </head>
 <body>
@@ -38,97 +37,69 @@
 <nav class="sidebar">
     <div class="logo">BASTION</div>
     
-    <div class="nav-group">
-        <span class="nav-label">Core Engine</span>
-        <div class="nav-item active" onclick="switchTab('lab')">Planning Lab</div>
-        <div class="nav-item" onclick="switchTab('analytics')">Dashboard</div>
+    <span class="nav-label">Mode Selection</span>
+    <div class="compare-toggle">
+        <div class="toggle-btn active" id="btn-solo" onclick="setMode('solo')">Single Plan</div>
+        <div class="toggle-btn" id="btn-compare" onclick="setMode('compare')">Comparison</div>
     </div>
 
-    <div class="nav-group">
-        <span class="nav-label">Optimizers</span>
-        <div class="nav-item">Roth Conversion</div>
-        <div class="nav-item">Estate & Legacy</div>
-        <div class="nav-item">Healthcare Buffer</div>
-    </div>
-
-    <div class="nav-group" style="margin-top:auto;">
-        <div class="nav-item">Settings</div>
+    <div class="nav-item active" onclick="switchTab('lab')">Planning Lab</div>
+    <div class="nav-item" onclick="switchTab('analytics')">Visual Dashboard</div>
+    
+    <div style="margin-top: auto;">
+        <span class="nav-label">Stress Tests</span>
+        <label>Market Volatility</label>
+        <input type="range" id="volatility" min="0" max="25" value="0" oninput="recalc()">
     </div>
 </nav>
 
 <main class="main">
     <div id="lab-tab">
-        <div class="dashboard-grid">
-            <div class="stat-card">
-                <div class="stat-label">Terminal Wealth</div>
-                <div class="stat-value" id="val-terminal">$0</div>
+        <div class="grid-compare">
+            <div class="card">
+                <h3>Scenario A (Primary)</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
+                    <div><label>Current Age</label><input type="number" id="age-now-a" value="35" oninput="recalc()"></div>
+                    <div><label>Filing Status</label>
+                        <select id="status-a" onchange="recalc()">
+                            <option value="single">Single</option>
+                            <option value="married">Married</option>
+                        </select>
+                    </div>
+                </div>
+                <label>Base Monthly Expense</label>
+                <input type="number" id="exp-a" value="3000" oninput="recalc()">
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Cross-Over Age</div>
-                <div class="stat-value" id="val-crossover">--</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Tax Liability (Life)</div>
-                <div class="stat-value" id="val-tax" style="color:#ef4444">$0</div>
+
+            <div class="card" id="card-b" style="opacity: 0.5; pointer-events: none;">
+                <h3>Scenario B (Comparison)</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
+                    <div><label>Current Age</label><input type="number" id="age-now-b" value="35" oninput="recalc()"></div>
+                    <div><label>Filing Status</label>
+                        <select id="status-b" onchange="recalc()">
+                            <option value="single">Single</option>
+                            <option value="married">Married</option>
+                        </select>
+                    </div>
+                </div>
+                <label>Base Monthly Expense</label>
+                <input type="number" id="exp-b" value="4500" oninput="recalc()">
             </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 350px; gap: 24px;">
-            <div class="inputs">
-                <div class="card">
-                    <h3>Life Cycle Chronology</h3>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
-                        <div><label>Current Age</label><input type="number" id="age-now" value="35" oninput="recalc()"></div>
-                        <div><label>Retire Age</label><input type="number" id="age-retire" value="65" oninput="recalc()"></div>
-                        <div><label>Filing Status</label>
-                            <select id="filing-status" onchange="recalc()">
-                                <option value="single">Single</option>
-                                <option value="married">Married Filing Jointly</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3>Asset Inventory</h3>
-                    <div id="asset-container">
-                        <div class="entry-row" style="grid-template-columns: 1.2fr 1fr 40px;">
-                            <select class="asset-type">
-                                <option value="deferred">Deferred (401k/IRA)</option>
-                                <option value="taxable">Taxable (Brokerage)</option>
-                                <option value="taxfree">Tax-Free (Roth)</option>
-                            </select>
-                            <input type="number" value="150000" class="asset-input" oninput="recalc()">
-                            <div class="del-btn" onclick="this.parentElement.remove(); recalc()">×</div>
-                        </div>
-                    </div>
-                    <div class="add-btn" onclick="addAssetRow()">+ Add Asset Bucket</div>
-                </div>
-            </div>
-
-            <div class="sidebar-intel">
-                <div class="card" style="background: #1e293b; color: white; border: none;">
-                    <h3 style="color: #94a3b8;">Logic Explorer</h3>
-                    <div id="logic-content" style="font-family: monospace; font-size: 11px; white-space: pre-wrap;"></div>
-                </div>
+        <div class="card">
+            <h3>Terminal Wealth Comparison</h3>
+            <div class="grid-compare">
+                <div><label>Scenario A Result</label><div class="stat-value" id="res-a">$0</div></div>
+                <div><label>Scenario B Result</label><div class="stat-value" id="res-b">$0</div></div>
             </div>
         </div>
     </div>
 
     <div id="analytics-tab" style="display:none">
         <div class="card">
-            <h3>Net Worth Trajectory</h3>
-            <div class="chart-container"><canvas id="wealthChart"></canvas></div>
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-            <div class="card">
-                <h3>Income vs. Expenses</h3>
-                <div class="chart-container" style="height:250px;"><canvas id="incomeChart"></canvas></div>
-            </div>
-            <div class="card">
-                <h3>Portfolio Composition @ 90</h3>
-                <div class="chart-container" style="height:250px;"><canvas id="pieChart"></canvas></div>
-            </div>
+            <h3>Net Worth Comparison Trajectory</h3>
+            <div class="chart-box"><canvas id="mainChart"></canvas></div>
         </div>
     </div>
 </main>
