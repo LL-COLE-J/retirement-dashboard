@@ -28,8 +28,6 @@ body{background:var(--bg);display:flex;height:100vh;color:var(--text);}
   padding:20px;
 }
 
-.logo img{width:100%;margin-bottom:20px;}
-
 .nav-item{
   padding:10px;
   border-radius:8px;
@@ -91,10 +89,6 @@ button{
 <body>
 
 <div class="sidebar">
-<div class="logo">
-  <img src="./logo.png" onerror="this.style.display='none'">
-</div>
-
 <div class="nav-item active" onclick="showView('dashboard',this)">Dashboard</div>
 <div class="nav-item" onclick="showView('financials',this)">Financials</div>
 <div class="nav-item" onclick="showView('scenarios',this)">Scenarios</div>
@@ -105,7 +99,6 @@ button{
 
 <div class="content">
 
-<!-- DASHBOARD -->
 <div id="dashboard">
 <div class="grid">
 <div class="card"><div class="label">Net Worth</div><div id="netWorth" class="value"></div></div>
@@ -115,7 +108,6 @@ button{
 </div>
 </div>
 
-<!-- FINANCIALS -->
 <div id="financials" style="display:none">
 <div class="grid">
 
@@ -131,65 +123,27 @@ button{
 <button onclick="addExpense()">Add Expense</button>
 </div>
 
-<div class="card">
-<h4>Tax</h4>
-<select id="filing" onchange="state.filing=this.value;updateAll()">
-<option value="single">Single</option>
-<option value="married_joint">Married</option>
-<option value="head">Head</option>
-</select>
-</div>
-
-<div class="card">
-<h4>Dependents</h4>
-<input id="dependents" type="number">
-</div>
-
-<div class="card">
-<h4>Accounts</h4>
-<input id="accBalance" placeholder="Balance">
-</div>
-
-<div class="card">
-<h4>Assets</h4>
-<input id="cash" placeholder="Cash">
-<input id="invest" placeholder="Investments">
-<input id="debt" placeholder="Debt">
-</div>
-
 </div>
 </div>
 
-<!-- SCENARIOS -->
 <div id="scenarios" style="display:none">
 <div class="grid">
-
 <div class="card">
-<h4>Age & Retirement</h4>
-<input id="currentAge" placeholder="Current Age" value="40">
-<input id="retirementAge" placeholder="Retirement Age" value="65">
-<input id="lifeExpectancy" placeholder="Life Expectancy" value="90">
+<h4>Age</h4>
+<input id="currentAge" value="40">
+<input id="retirementAge" value="65">
+<input id="lifeExpectancy" value="90">
 </div>
-
-<div class="card">
-<h4>Adjustments</h4>
-<input id="incomeAdjust" placeholder="Income Change (%)">
-<input id="expenseAdjust" placeholder="Expense Change (%)">
-<input id="returnAdjust" placeholder="Return Change (%)">
-</div>
-
 </div>
 </div>
 
 </div>
 
 <div class="side">
-
 <div class="card"><h4>Status</h4><div id="status"></div></div>
 <div class="card"><h4>Failure</h4><div id="failure"></div></div>
 <div class="card"><h4>Action</h4><div id="action"></div></div>
 <div class="card"><h4>AI</h4><div id="aiOutput"></div></div>
-
 </div>
 
 </div>
@@ -198,130 +152,176 @@ button{
 <script>
 
 /* =========================
-SAFE EXTENSION SETTINGS
+CORE STATE
 ========================= */
-if(!state?.settings){
-  state.settings = {
-    inflation:0.03,
-    marketReturn:0.06
-  };
+let state = {
+  incomes: [],
+  expenses: [],
+  accounts: [],
+  dependents: [],
+  assets:{cash:0,invest:0,debt:0},
+  filing:"single",
+  timeline:{currentAge:40,retirementAge:65,lifeExpectancy:90},
+  settings:{inflation:0.03}
+};
+
+/* =========================
+HELPERS
+========================= */
+function norm(a,f){
+  return (+a||0)*(f==="monthly"?12:1);
 }
 
 /* =========================
-EXTEND ADDERS (NO BREAK)
+CORE CALC (UNCHANGED)
 ========================= */
-const originalAddIncome = addIncome;
-addIncome = function(){
-  originalAddIncome();
-  let i = state.incomes[state.incomes.length-1];
-  i.type = "salary";
-  i.growth = 0.03;
-};
+function calculate(){
 
-const originalAddExpense = addExpense;
-addExpense = function(){
-  originalAddExpense();
-  let e = state.expenses[state.expenses.length-1];
-  e.essential = true;
-  e.inflation = 0.03;
-};
+  let income = state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0);
+  let expenses = state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0);
+
+  let net = income - expenses;
+
+  let netWorth =
+    state.accounts.reduce((s,a)=>s+(a.balance||0),0) +
+    state.assets.cash + state.assets.invest - state.assets.debt;
+
+  let savingsRate = income>0 ? ((income-expenses)/income)*100 : 0;
+
+  return {income,expenses,net,netWorth,savingsRate};
+}
 
 /* =========================
-ENHANCED CALC WRAPPER
+TIMELINE
 ========================= */
-const originalCalculate = calculate;
-calculate = function(){
+function runTimeline(d){
 
-  let d = originalCalculate();
+  let age=state.timeline.currentAge;
+  let end=state.timeline.lifeExpectancy;
 
-  // adjust income realism
-  let adjustedIncome = (state.incomes||[]).reduce((s,i)=>{
-    let base = norm(i.amount,i.freq);
-    if(i.type==="bonus") base *= 0.7;
-    if(i.type==="passive") base *= 0.95;
-    return s + base;
-  },0);
-
-  // adjust expenses realism
-  let adjustedExpenses = (state.expenses||[]).reduce((s,e)=>{
-    let val = norm(e.amount,e.freq);
-    if(e.essential === false) val *= 1.1;
-    return s + val;
-  },0);
-
-  d.income = adjustedIncome;
-  d.expenses = adjustedExpenses;
-
-  return d;
-};
-
-/* =========================
-TIMELINE ENHANCEMENT
-========================= */
-const originalTimeline = runTimeline;
-runTimeline = function(d){
-
-  let result = originalTimeline(d);
-
-  // re-run with improved returns (no break)
-  let age = state.timeline.currentAge;
-  let end = state.timeline.lifeExpectancy;
-
-  let nw = d.netWorth;
-  let fail = null;
-
-  let avgReturn =
-    (state.accounts||[]).reduce((s,a)=>s+(a.return||0.06),0) /
-    (state.accounts.length||1);
+  let nw=d.netWorth;
+  let fail=null;
 
   for(let a=age;a<=end;a++){
 
-    let income = a<state.timeline.retirementAge ? d.income : 0;
-    let expenses = d.expenses * Math.pow(1+state.settings.inflation,a-age);
+    let income=a<state.timeline.retirementAge?d.income:0;
+    let expenses=d.expenses*Math.pow(1+state.settings.inflation,a-age);
 
-    nw = nw*(1+avgReturn) + (income-expenses);
+    nw=nw*1.06+(income-expenses);
 
-    if(nw<=0 && fail===null) fail = a;
+    if(nw<=0 && fail===null) fail=a;
   }
 
   return {success:fail===null,failureAge:fail};
-};
-
-/* =========================
-ADVISOR ENGINE
-========================= */
-function generateAdvice(d){
-
-  let out = [];
-
-  if(d.monteCarlo < 70)
-    out.push("Failure risk driven by low savings.");
-
-  if(d.savingsRate < 15)
-    out.push("Savings rate below 15% target.");
-
-  if(d.net < 0)
-    out.push("Cash flow negative.");
-
-  if(!d.success)
-    out.push("Delay retirement or reduce expenses.");
-
-  if(out.length === 0)
-    return "Plan looks strong.";
-
-  return out.join(" ");
 }
 
 /* =========================
-UPDATE EXTENSION
+MC
 ========================= */
-const originalUpdate = updateAll;
-updateAll = function(){
-  originalUpdate();
+function runMonteCarlo(d){
 
-  let d = runEngine();
-  aiOutput.innerText = generateAdvice(d);
-};
+  let success=0;
+
+  for(let i=0;i<100;i++){
+
+    let nw=d.netWorth;
+
+    for(let a=state.timeline.currentAge;a<=state.timeline.lifeExpectancy;a++){
+
+      let r=(Math.random()*0.12)-0.02;
+      let income=a<state.timeline.retirementAge?d.income:0;
+      let expenses=d.expenses*Math.pow(1.03,a-state.timeline.currentAge);
+
+      nw=nw*(1+r)+(income-expenses);
+      if(nw<=0) break;
+    }
+
+    if(nw>0) success++;
+  }
+
+  return success;
+}
+
+/* =========================
+ENGINE
+========================= */
+function runEngine(){
+  let d=calculate();
+  let t=runTimeline(d);
+  let mc=runMonteCarlo(d);
+  return {...d,...t,mc};
+}
+
+/* =========================
+ADVISOR (CLEAN ADDITION)
+========================= */
+function generateAdvice(d){
+  if(d.savingsRate < 15) return "Increase savings rate.";
+  if(!d.success) return "Delay retirement or reduce expenses.";
+  return "Plan stable.";
+}
+
+/* =========================
+UI
+========================= */
+function updateAll(){
+
+  let d=runEngine();
+
+  netWorth.innerText="$"+Math.round(d.netWorth);
+  income.innerText="$"+Math.round(d.income);
+  expensesOut.innerText="$"+Math.round(d.expenses);
+  savingsRate.innerText=d.savingsRate.toFixed(1)+"%";
+
+  status.innerText=d.success?"On Track":"Fails at "+d.failureAge;
+  failure.innerText="MC Success: "+d.mc+"%";
+  action.innerText=d.mc>70?"Good":"Risk";
+  aiOutput.innerText=generateAdvice(d);
+}
+
+/* =========================
+BASIC INPUTS
+========================= */
+function addIncome(){
+  state.incomes.push({amount:0,freq:"yearly",type:"salary"});
+  render();
+}
+
+function addExpense(){
+  state.expenses.push({amount:0,freq:"yearly",essential:true});
+  render();
+}
+
+/* =========================
+RENDER
+========================= */
+function render(){
+
+  incomeList.innerHTML=state.incomes.map((i,idx)=>`
+    <input value="${i.amount||""}" onblur="state.incomes[${idx}].amount=this.value;updateAll()">
+  `).join("");
+
+  expenseList.innerHTML=state.expenses.map((e,idx)=>`
+    <input value="${e.amount||""}" onblur="state.expenses[${idx}].amount=this.value;updateAll()">
+  `).join("");
+
+  updateAll();
+}
+
+/* =========================
+NAV
+========================= */
+function showView(v,e){
+  ["dashboard","financials","scenarios"].forEach(id=>{
+    document.getElementById(id).style.display="none";
+  });
+  document.getElementById(v).style.display="block";
+}
+
+/* =========================
+INIT
+========================= */
+window.onload=render;
 
 </script>
 
