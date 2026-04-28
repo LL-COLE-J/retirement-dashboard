@@ -1,62 +1,83 @@
 const BASTION_ENGINE = {
+    // Uniform Lifetime Table (Divisors) starting at age 72
+    irsDivisors: {
+        72: 27.4, 73: 26.5, 74: 25.5, 75: 24.6, 76: 23.7, 77: 22.9, 78: 22.0, 79: 21.1, 80: 20.2,
+        81: 19.4, 82: 18.5, 83: 17.7, 84: 16.8, 85: 16.0, 86: 15.2, 87: 14.4, 88: 13.7, 89: 12.9,
+        90: 12.2, 91: 11.5, 92: 10.8, 93: 10.1, 94: 9.5, 95: 8.9, 96: 8.4, 97: 7.8, 98: 7.3, 99: 6.8, 100: 6.4
+    },
+
     getTaxWork(income, state, status) {
-        let work = `[2026 TAX DERIVATION REPORT]\n\n`;
         const deduction = status === 'married' ? 32200 : 16100;
         const taxableFed = Math.max(0, income - deduction);
-        const fica = (Math.min(income, 184500) * 0.062) + (income * 0.0145);
         let fedTax = taxableFed > 0 ? taxableFed * 0.22 : 0; 
-        
-        work += `FILING STATUS: ${status.toUpperCase()}\nGross: $${income.toLocaleString()}\nStandard Deduction: -$${deduction.toLocaleString()}\nFICA Tax: $${Math.round(fica).toLocaleString()}\nEst. Federal: $${Math.round(fedTax).toLocaleString()}\n\nSTATE: ${state} (Tax Exempt)`;
-        
-        const total = fedTax + fica;
-        return { total, effRate: (total / income) * 100, work };
+        let work = `Standard Ded: -$${deduction.toLocaleString()}\nEst. Federal Tax: $${Math.round(fedTax).toLocaleString()}`;
+        return { total: fedTax, work };
     },
 
     runLifeCycleProjection(p) {
-        // Initialize asset buckets
         let buckets = {
-            taxable: p.assets.filter(a => a.type === 'taxable').reduce((s, a) => s + a.value, 0),
             deferred: p.assets.filter(a => a.type === 'deferred').reduce((s, a) => s + a.value, 0),
+            taxable: p.assets.filter(a => a.type === 'taxable').reduce((s, a) => s + a.value, 0),
             taxfree: p.assets.filter(a => a.type === 'taxfree').reduce((s, a) => s + a.value, 0)
         };
 
         const timeline = [];
-        const baseGrowth = 0.07;
-        const taxDrag = 0.015; // 1.5% annual drag on taxable accounts
+        const growth = 0.07;
+        const taxDrag = 0.012; 
 
         for (let age = p.ageNow; age <= p.ageEnd; age++) {
             const isRetired = age >= p.ageRetire;
-            const hasSS = age >= p.ssAge;
+            const yearsIn = age - p.ageNow;
 
-            let yearExpenses = p.expenses.reduce((sum, exp) => {
-                return sum + (exp.amount * Math.pow(1 + exp.inflation, age - p.ageNow));
-            }, 0);
+            // 1. Inflation
+            let yearExpenses = p.expenses.reduce((sum, exp) => sum + (exp.amount * Math.pow(1 + exp.inflation, yearsIn)), 0);
 
-            let flow = 0;
+            // 2. RMD Check (Uses dynamic divisor or defaults to 10 if age > 100)
+            let rmdAmount = 0;
+            if (age >= p.rmdAge) {
+                let divisor = this.irsDivisors[age] || 10;
+                rmdAmount = buckets.deferred / divisor;
+            }
+
+            // 3. Flow Logic
             if (!isRetired) {
-                flow = 125000 * 0.15; // Saving into deferred
-                buckets.deferred += flow;
+                buckets.deferred += (125000 * 0.15); // Pre-tax savings phase
             } else {
-                let ssIncome = hasSS ? p.ssBenefit : 0;
-                let needed = yearExpenses - ssIncome;
-                
-                // Withdrawal Priority: Taxable -> Deferred -> TaxFree
-                if (buckets.taxable >= needed) {
-                    buckets.taxable -= needed;
-                } else {
-                    needed -= buckets.taxable;
-                    buckets.taxable = 0;
-                    buckets.deferred = Math.max(0, buckets.deferred - needed);
+                let ssIncome = (age >= p.ssAge) ? p.ssBenefit : 0;
+                let gap = yearExpenses - ssIncome;
+
+                // Handle forced RMD first
+                if (rmdAmount > 0) {
+                    let rmdNet = rmdAmount * 0.80; // 20% flat tax simulation
+                    if (rmdNet >= gap) {
+                        buckets.taxable += (rmdNet - gap);
+                        buckets.deferred -= rmdAmount;
+                        gap = 0;
+                    } else {
+                        gap -= rmdNet;
+                        buckets.deferred -= rmdAmount;
+                    }
+                }
+
+                // If gap remains, drain taxable -> deferred -> taxfree
+                if (gap > 0) {
+                    let fromTaxable = Math.min(buckets.taxable, gap);
+                    buckets.taxable -= fromTaxable;
+                    gap -= fromTaxable;
+                }
+                if (gap > 0) {
+                    let fromDef = Math.min(buckets.deferred, gap / 0.8);
+                    buckets.deferred -= fromDef;
+                    gap = 0;
                 }
             }
 
-            // Apply Growth with Specific Tax Rules
-            buckets.taxable *= (1 + (baseGrowth - taxDrag));
-            buckets.deferred *= (1 + baseGrowth);
-            buckets.taxfree *= (1 + baseGrowth);
+            // 4. Compounding
+            buckets.deferred *= (1 + growth);
+            buckets.taxable *= (1 + (growth - taxDrag));
+            buckets.taxfree *= (1 + growth);
 
-            const total = buckets.taxable + buckets.deferred + buckets.taxfree;
-            timeline.push({ age, totalWealth: Math.round(total), expenses: yearExpenses });
+            timeline.push({ age, total: Math.round(buckets.deferred + buckets.taxable + buckets.taxfree) });
         }
         return timeline;
     }
