@@ -97,6 +97,7 @@ button{
 
 <div class="nav-item active" onclick="showView('dashboard',this)">Dashboard</div>
 <div class="nav-item" onclick="showView('financials',this)">Financials</div>
+<div class="nav-item" onclick="showView('scenarios',this)">Scenarios</div>
 </div>
 
 <div class="main">
@@ -104,6 +105,7 @@ button{
 
 <div class="content">
 
+<!-- DASHBOARD -->
 <div id="dashboard">
 <div class="grid">
 <div class="card"><div class="label">Net Worth</div><div id="netWorth" class="value"></div></div>
@@ -113,6 +115,7 @@ button{
 </div>
 </div>
 
+<!-- FINANCIALS -->
 <div id="financials" style="display:none">
 <div class="grid">
 
@@ -157,6 +160,27 @@ button{
 </div>
 </div>
 
+<!-- SCENARIOS -->
+<div id="scenarios" style="display:none">
+<div class="grid">
+
+<div class="card">
+<h4>Age & Retirement</h4>
+<input id="currentAge" placeholder="Current Age" value="40">
+<input id="retirementAge" placeholder="Retirement Age" value="65">
+<input id="lifeExpectancy" placeholder="Life Expectancy" value="90">
+</div>
+
+<div class="card">
+<h4>Adjustments</h4>
+<input id="incomeAdjust" placeholder="Income Change (%)">
+<input id="expenseAdjust" placeholder="Expense Change (%)">
+<input id="returnAdjust" placeholder="Return Change (%)">
+</div>
+
+</div>
+</div>
+
 </div>
 
 <div class="side">
@@ -165,16 +189,6 @@ button{
 <div class="card"><h4>Failure</h4><div id="failure"></div></div>
 <div class="card"><h4>Action</h4><div id="action"></div></div>
 <div class="card"><h4>AI</h4><div id="aiOutput"></div></div>
-
-<div class="card"><h4>Projection</h4><div id="projectionOutput"></div></div>
-<div class="card"><h4>Monte Carlo</h4><div id="monteCarloOutput"></div></div>
-
-<div class="card">
-<h4>Scenarios</h4>
-<label><input type="checkbox" id="jobLoss"> Job Loss</label><br>
-<label><input type="checkbox" id="marketCrash"> Market Crash</label><br>
-<label><input type="checkbox" id="expenseSpike"> Expense Spike</label>
-</div>
 
 </div>
 
@@ -190,7 +204,8 @@ let state = {
   accounts: [],
   dependents: 0,
   assets: { cash:0, invest:0, debt:0 },
-  filing: "single"
+  filing: "single",
+  timeline:{currentAge:40,retirementAge:65,lifeExpectancy:90}
 };
 
 function norm(a,f){return a*(f==="monthly"?12:f==="biweekly"?26:1);}
@@ -226,76 +241,55 @@ function calculate(){
   return {income,expenses,net,netWorth,savingsRate};
 }
 
-// SCENARIOS
-function applyScenarios(d){
-  let x={...d};
-  if(jobLoss.checked)x.income*=0.5;
-  if(expenseSpike.checked)x.expenses*=1.25;
-  if(marketCrash.checked)x.netWorth*=0.75;
-  return x;
-}
+// AGE ENGINE
+function projection(d){
 
-// MONTE CARLO
-function monte(d){
-  let s=100,ok=0;
-  for(let i=0;i<s;i++){
-    let nw=d.netWorth;
-    let flow=d.income-d.expenses;
-    for(let y=0;y<30;y++){
-      let r=(Math.random()*0.12)-0.02;
-      nw=nw*(1+r)+flow;
-      if(nw<=0)break;
-    }
-    if(nw>0)ok++;
-  }
-  return (ok/s)*100;
-}
+  let age=+currentAge.value||40;
+  let retire=+retirementAge.value||65;
+  let end=+lifeExpectancy.value||90;
 
-// PROJECTION
-function proj(d){
-  let target=d.expenses*25;
+  let incomeAdj=(+incomeAdjust.value||0)/100;
+  let expenseAdj=(+expenseAdjust.value||0)/100;
+  let returnAdj=(+returnAdjust.value||0)/100;
+
   let nw=d.netWorth;
-  let flow=d.income-d.expenses;
-  let y=0;
-  while(nw<target && y<50){nw=nw*1.06+flow;y++;}
-  return y;
+
+  for(let a=age;a<=end;a++){
+
+    let r=0.06+returnAdj;
+
+    let inc=d.income*(1+incomeAdj);
+    let exp=d.expenses*(1+expenseAdj);
+
+    let flow=a>=retire?-exp:(inc-exp);
+
+    nw=nw*(1+r)+flow;
+
+    if(nw<=0) return {success:false,failAge:a};
+  }
+
+  return {success:true};
 }
 
 // UPDATE
 function updateAll(){
+
   let d=calculate();
-  let adj=applyScenarios(d);
+  let p=projection(d);
 
-  netWorth.innerText="$"+Math.round(adj.netWorth);
-  income.innerText="$"+Math.round(adj.income);
-  expensesOut.innerText="$"+Math.round(adj.expenses);
-  savingsRate.innerText=adj.savingsRate.toFixed(1)+"%";
+  netWorth.innerText="$"+Math.round(d.netWorth);
+  income.innerText="$"+Math.round(d.income);
+  expensesOut.innerText="$"+Math.round(d.expenses);
+  savingsRate.innerText=d.savingsRate.toFixed(1)+"%";
 
-  status.innerText=adj.net>0?"Positive":"Negative";
-  failure.innerText="MC: "+monte(adj).toFixed(1)+"%";
-  action.innerText=adj.savingsRate<10?"Increase savings":"Maintain";
+  status.innerText=p.success?"On Track":"Fails at "+p.failAge;
+  failure.innerText=p.success?"Stable":"Plan failure";
+  action.innerText=d.savingsRate<10?"Increase savings":"Maintain";
 
-  projectionOutput.innerText="Retire ~"+proj(adj)+" yrs";
-  monteCarloOutput.innerText="Success: "+monte(adj).toFixed(1)+"%";
-
-  aiOutput.innerText=adj.net<0?"Spending too high":
-    adj.savingsRate<10?"Save more":"Solid position";
+  aiOutput.innerText=p.success?"Strong plan":"Adjust plan";
 }
 
-// RENDER
-function renderIncome(){
-  incomeList.innerHTML=state.incomes.map((i,idx)=>`
-  <input value="${i.amount}" onblur="state.incomes[${idx}].amount=+this.value||0;updateAll()">`).join("");
-}
-function renderExpenses(){
-  expenseList.innerHTML=state.expenses.map((e,idx)=>`
-  <input value="${e.amount}" onblur="state.expenses[${idx}].amount=+this.value||0;updateAll()">`).join("");
-}
-
-function addIncome(){state.incomes.push({amount:0,freq:"yearly"});renderIncome();}
-function addExpense(){state.expenses.push({amount:0,freq:"yearly"});renderExpenses();}
-
-// INPUT HOOKS
+// INPUTS
 dependents.oninput=()=>{state.dependents=+dependents.value||0;updateAll();}
 accBalance.oninput=()=>{
   if(state.accounts.length===0)state.accounts.push({balance:0});
@@ -308,14 +302,16 @@ accBalance.oninput=()=>{
     updateAll();
   };
 });
-["jobLoss","marketCrash","expenseSpike"].forEach(id=>{
-  document.getElementById(id).onchange=updateAll;
+["currentAge","retirementAge","lifeExpectancy","incomeAdjust","expenseAdjust","returnAdjust"]
+.forEach(id=>{
+  document.getElementById(id).oninput=updateAll;
 });
 
 // NAV
 function showView(v,e){
-  dashboard.style.display="none";
-  financials.style.display="none";
+  ["dashboard","financials","scenarios"].forEach(id=>{
+    document.getElementById(id).style.display="none";
+  });
   document.getElementById(v).style.display="block";
   document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
   e.classList.add("active");
@@ -325,8 +321,6 @@ function showView(v,e){
 window.onload=()=>{
   state.incomes.push({amount:80000,freq:"yearly"});
   state.expenses.push({amount:40000,freq:"yearly"});
-  renderIncome();
-  renderExpenses();
   updateAll();
 };
 
