@@ -1,50 +1,44 @@
-let wealthChart;
+const BASTION_ENGINE = {
+    getTaxWork(income, state, status) {
+        let work = `[2026 TAX DERIVATION REPORT]\n\n`;
+        const deduction = status === 'married' ? 32200 : 16100;
+        const taxableFed = Math.max(0, income - deduction);
+        const fica = (Math.min(income, 184500) * 0.062) + (income * 0.0145);
+        
+        // 2026 Marginal Layer Logic
+        let fedTax = taxableFed > 0 ? taxableFed * 0.22 : 0; 
+        
+        work += `<span>FEDERAL CALCULATION:</span>\nGross: $${income.toLocaleString()}\n- Deduction: $${deduction.toLocaleString()}\n+ FICA: $${Math.round(fica).toLocaleString()}\n= Est Fed: $${Math.round(fedTax + fica).toLocaleString()}\n\n`;
 
-function switchTab(tabId) {
-    document.getElementById('financials-tab').style.display = 'none';
-    document.getElementById('analytics-tab').style.display = 'none';
-    document.getElementById(tabId + '-tab').style.display = 'block';
-    if (tabId === 'analytics') recalc();
-}
+        let stateTax = 0;
+        if (state === 'CA') {
+            stateTax = income * 0.06;
+            work += `<span>STATE CALCULATION (CA):</span>\nEst. Progressive: $${Math.round(stateTax).toLocaleString()}`;
+        } else {
+            work += `<span>STATE CALCULATION (${state}):</span>\nJurisdiction Tax Exempt.`;
+        }
+        
+        const total = fedTax + fica + stateTax;
+        return { total, effRate: (total / income) * 100, work };
+    },
 
-function recalc() {
-    const inc = parseFloat(document.getElementById('inc-gross').value) || 0;
-    const state = document.getElementById('state-select').value;
-    const status = document.getElementById('filing-status').value;
-    
-    const taxData = BASTION_ENGINE.getTaxWork(inc, state, status);
-    
-    document.getElementById('val-eff-rate').innerText = `${taxData.effRate.toFixed(1)}%`;
-    document.getElementById('val-tax-total').innerText = `$${Math.round(taxData.total).toLocaleString()}`;
-    document.getElementById('logic-content').innerHTML = taxData.work;
+    runProjection(params) {
+        let current = 150000; // Baseline Starting Assets
+        const timeline = [];
+        const realRate = (7 - 3) / 100; // 7% return minus 3% inflation
+        
+        for (let i = 0; i <= 30; i++) {
+            let yearReturn = realRate;
+            let yearSavings = params.income * 0.15;
 
-    if (document.getElementById('analytics-tab').style.display !== 'none') {
-        const projection = BASTION_ENGINE.runProjection(inc, 150000, 7, 3);
-        renderChart(projection);
+            // Apply Discrete Stressors
+            if (params.stressors.market && i === 1) yearReturn = -0.25;
+            if (params.stressors.medical && i === 5) current -= 50000;
+            if (params.stressors.layoff && i === 10) yearSavings = -(params.income * 0.20); 
+
+            current = (current + yearSavings) * (1 + yearReturn);
+            timeline.push({ year: 2026 + i, wealth: Math.max(0, Math.round(current)) });
+        }
+        return timeline;
     }
-    
-    document.getElementById('pro-insight').innerText = taxData.effRate > 25 
-        ? "High tax drag detected. Pro Suite's tax-loss harvesting module recommended."
-        : "Efficient tax profile. Consider increasing contribution to qualified accounts.";
-}
-
-function renderChart(data) {
-    const ctx = document.getElementById('wealthChart').getContext('2d');
-    if (wealthChart) wealthChart.destroy();
-    wealthChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: Array.from({length: 31}, (_, i) => 2026 + i),
-            datasets: [{
-                label: 'Real Wealth',
-                data: data,
-                borderColor: '#38bdf8',
-                backgroundColor: 'rgba(56, 189, 248, 0.1)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-    });
-}
-window.onload = recalc;
+};
