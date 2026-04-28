@@ -1,73 +1,46 @@
-function norm(a,f){
-  return a*(f==="monthly"?12:f==="biweekly"?26:1);
-}
+/* ==========================================================================
+   ENGINE.JS - The Mathematical Core
+   ========================================================================== */
+let state = {
+    incomes: [],   
+    expenses: [],  
+    accounts: [
+        {type: "401k", balance: 0, contrib: 0, match: 3},
+        {type: "Roth IRA", balance: 0, contrib: 0, match: 0},
+        {type: "Brokerage", balance: 0, contrib: 0, match: 0}
+    ],
+    assets: { cash: 0, invest: 0, debt: 0 },
+    filing: "single",
+    assumptions: {
+        inflation: 2.5,
+        currentAge: 40,
+        retirementAge: 65,
+        lifeExpectancy: 90
+    },
+    tickers: ["AAPL"]
+};
 
-/* TAX */
-function calcTax(income, filing){
-  let brackets={
-    single:[[10000,0.1],[40000,0.12],[85000,0.22]],
-    married_joint:[[20000,0.1],[80000,0.12],[170000,0.22]],
-    head:[[15000,0.1],[55000,0.12],[90000,0.22]]
-  };
+const norm = (a, f) => (parseFloat(a) || 0) * (f === "monthly" ? 12 : f === "biweekly" ? 26 : 1);
 
-  let tax=0,prev=0;
-  for(let [limit,rate] of brackets[filing]){
-    if(income>limit){
-      tax+=(limit-prev)*rate;
-      prev=limit;
-    }else{
-      tax+=(income-prev)*rate;
-      break;
-    }
-  }
-  return tax;
-}
+function calculateBase() {
+    let income = state.incomes.reduce((s, i) => s + norm(i.amount, i.freq), 0);
+    let expenses = state.expenses.reduce((s, e) => s + norm(e.amount, e.freq), 0);
+    let totalSavings = state.accounts.reduce((s, a) => s + (parseFloat(a.contrib) * 12 || 0), 0);
+    
+    // Simple Tax Pro Logic (Estimating 22% effective for planning)
+    let taxableIncome = Math.max(0, income - 14600); // Standard deduction proxy
+    let estTax = taxableIncome * 0.22; 
 
-/* CORE CALC */
-function calculate(){
+    let netWorth = (parseFloat(state.assets.cash) || 0) + 
+                   state.accounts.reduce((s, a) => s + (parseFloat(a.balance) || 0), 0) - 
+                   (parseFloat(state.assets.debt) || 0);
 
-  let income = state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0);
-
-  let expenses = state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0);
-
-  /* DEPENDENTS */
-  let depCost = state.dependents.reduce((s,d)=>s+d.cost,0);
-  expenses += depCost;
-
-  /* ACCOUNT CONTRIBUTIONS */
-  let contrib = state.accounts.reduce((s,a)=>{
-    return s + (a.contrib || 0);
-  },0);
-
-  /* MATCH */
-  let match = state.accounts.reduce((s,a)=>{
-    if(a.match) return s + (a.contrib * a.match / 100);
-    return s;
-  },0);
-
-  let totalSavings = contrib + match;
-
-  let net = income - expenses - contrib;
-
-  /* NET WORTH */
-  let accountValue = state.accounts.reduce((s,a)=>s + (a.balance || 0),0);
-
-  let netWorth =
-    accountValue +
-    (state.assets.cash||0) +
-    (state.assets.invest||0) -
-    (state.assets.debt||0);
-
-  let savingsRate = income > 0 ? ((income - expenses) / income) * 100 : 0;
-
-  return {
-    income,
-    expenses,
-    net,
-    netWorth,
-    savingsRate,
-    contrib,
-    match,
-    totalSavings
-  };
+    return { 
+        grossIncome: income, 
+        netIncome: income - estTax,
+        expenses, 
+        netWorth, 
+        savingsRate: income > 0 ? (totalSavings / income) * 100 : 0,
+        surplus: (income - estTax) - expenses - totalSavings
+    };
 }
