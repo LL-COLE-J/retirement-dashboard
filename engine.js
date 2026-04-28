@@ -51,4 +51,16 @@ const BASTION_ENGINE = {
             return null;
         }
     }
+
+    async function fetchPrice(coinId) {
+    try {
+        // Use the coin ID (e.g., 'bitcoin' or 'ethereum') rather than the symbol
+        const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId.toLowerCase()}&vs_currencies=usd`);
+        const data = await response.json();
+        return data[coinId.toLowerCase()].usd;
+    } catch (error) {
+        console.error("Ticker Fetch Failed:", error);
+        return null;
+    }
+}
 };
