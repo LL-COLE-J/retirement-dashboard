@@ -1,380 +1,261 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Avora</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-
-/* BASE */
-/* BASE */
-body{
-margin:0;
-background:#F6F8FB;
-color:#111827;
-font-family:Inter, system-ui, -apple-system;
-display:flex;
--webkit-font-smoothing:antialiased;
-}
-
-/* SIDEBAR */
-.sidebar{
-width:230px;
-background:#ffffff;
-border-right:1px solid #E6EAF0;
-padding:20px;
-display:flex;
-flex-direction:column;
-}
-
-.logo{
-font-size:20px;
-font-weight:700;
-margin-bottom:30px;
-}
-
-.nav-item{
-padding:10px 12px;
-border-radius:8px;
-cursor:pointer;
-color:#6B7280;
-margin-bottom:6px;
-transition:.15s;
-}
-
-.nav-item:hover{
-background:#F3F4F6;
-color:#111827;
-}
-
-/* MAIN */
-.main{
-flex:1;
-padding:32px;
-max-width:1300px;
-margin:auto;
-width:100%;
-}
-
-/* START CARD */
-.start-card{
-background:#ffffff;
-padding:16px;
-border-radius:14px;
-border:1px solid #E6EAF0;
-margin-bottom:18px;
-font-size:14px;
-line-height:1.5;
-}
-
-/* METRICS */
-.metrics{
-display:flex;
-gap:14px;
-margin-bottom:22px;
-}
-
-.metric{
-flex:1;
-background:#fff;
-padding:16px;
-border-radius:14px;
-border:1px solid #E6EAF0;
-}
-
-.metric-label{
-font-size:12px;
-color:#6B7280;
-}
-
-.metric-value{
-font-size:22px;
-font-weight:600;
-margin-top:6px;
-}
-
-/* GRID */
-.main-grid{
-display:grid;
-grid-template-columns:2fr 1fr;
-gap:22px;
-margin-bottom:22px;
-}
-
-/* CHART */
-.chart-card{
-background:#fff;
-padding:22px;
-border-radius:18px;
-border:1px solid #E6EAF0;
-min-height:300px;
-}
-
-canvas{
-width:100% !important;
-height:auto !important;
-}
-
-/* RIGHT PANEL */
-.side-panel{
-display:flex;
-flex-direction:column;
-gap:14px;
-}
-
-.panel-card{
-background:#fff;
-padding:16px;
-border-radius:14px;
-border:1px solid #E6EAF0;
-font-size:14px;
-}
-
-/* MODULES */
-.modules{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:14px;
-}
-
-.module{
-background:#fff;
-padding:16px;
-border-radius:14px;
-border:1px solid #E6EAF0;
-cursor:pointer;
-transition:.15s;
-}
-
-.module:hover{
-background:#F3F4F6;
-transform:translateY(-2px);
-}
-
-/* FORM */
-.card{
-background:#fff;
-padding:18px;
-border-radius:14px;
-border:1px solid #E6EAF0;
-margin-bottom:16px;
-}
-
-.row{
-display:grid;
-grid-template-columns:1fr 140px 160px;
-gap:10px;
-margin-bottom:10px;
-}
-
-input,select{
-padding:10px;
-border:1px solid #E6EAF0;
-border-radius:8px;
-width:100%;
-font-size:14px;
-}
-
-input:focus,select:focus{
-outline:none;
-border-color:#5B8DEF;
-box-shadow:0 0 0 2px rgba(91,141,239,.15);
-}
-
-/* BUTTONS */
-button{
-margin-top:8px;
-margin-right:6px;
-padding:8px 12px;
-background:#5B8DEF;
-color:white;
-border:none;
-border-radius:6px;
-cursor:pointer;
-font-size:13px;
-transition:.15s;
-}
-
-button:hover{
-background:#4A7DE0;
-}
-
-/* =========================
-   MOBILE OPTIMIZATION
-========================= */
-@media (max-width: 900px){
-
-  body{
-    flex-direction:column;
-  }
-
-  /* TOP NAV */
-  .sidebar{
-    width:100%;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    border-right:none;
-    border-bottom:1px solid #E6EAF0;
-    padding:12px 16px;
-  }
-
-  .logo{
-    margin-bottom:0;
-  }
-
-  .nav-item{
-    margin:0;
-    margin-left:8px;
-    padding:8px 10px;
-    font-size:14px;
-  }
-
-  .main{
-    padding:16px;
-  }
-
-  .metrics{
-    flex-direction:column;
-  }
-
-  .main-grid{
-    grid-template-columns:1fr;
-  }
-
-  .modules{
-    grid-template-columns:1fr;
-  }
-
-  .row{
-    grid-template-columns:1fr;
-  }
-
-  button{
-    width:100%;
-    margin-top:10px;
-  }
-
-  .chart-card{
-    padding:12px;
-  }
-
-}
-
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+body{background:#0B0F1A;color:#E5E7EB;display:flex;height:100vh;}
+.sidebar{width:220px;background:#0F172A;padding:20px;}
+.nav-item{padding:10px;border-radius:8px;cursor:pointer;margin-bottom:6px;}
+.nav-item.active{background:linear-gradient(135deg,#3B82F6,#6366F1);}
+.main{flex:1;display:flex;}
+.content{flex:1;padding:20px;overflow:auto;}
+.card{background:#111827;padding:15px;border-radius:12px;margin-bottom:10px;}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.chartGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+input{width:100%;padding:8px;margin-top:5px;background:#1F2937;border:none;color:white;border-radius:6px;}
+button{margin-top:8px;padding:6px 10px;border:none;border-radius:6px;background:#3B82F6;color:white;cursor:pointer;}
+.ai{width:260px;background:#0F172A;padding:15px;}
+canvas{height:200px!important;}
 </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
-<div class="logo">AVORA</div>
-<div class="nav-item" onclick="show('dashboard')">Dashboard</div>
-<div class="nav-item" onclick="show('financials')">Financials</div>
+<div class="nav-item active" onclick="showView('dashboard',this)">Dashboard</div>
+<div class="nav-item" onclick="showView('financials',this)">Financials</div>
+<div class="nav-item" onclick="showView('scenarios',this)">Scenarios</div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
+
+<div class="content">
 
 <!-- DASHBOARD -->
 <div id="dashboard">
-
-<div class="start-card">
-<strong>Start Here:</strong><br>
-1. Go to <b>Financials</b><br>
-2. Enter income, expenses, and accounts<br>
-3. Return here to view your financial outlook
+<div class="grid">
+<div class="card">Net Worth<div id="netWorth"></div></div>
+<div class="card">Income<div id="income"></div></div>
+<div class="card">Expenses<div id="expensesOut"></div></div>
+<div class="card">Years<div id="years"></div></div>
 </div>
 
-<div class="metrics">
-<div class="metric"><div class="metric-label">Net Worth</div><div id="nw" class="metric-value"></div></div>
-<div class="metric"><div class="metric-label">Income</div><div id="inc" class="metric-value"></div></div>
-<div class="metric"><div class="metric-label">Expenses</div><div id="expOut" class="metric-value"></div></div>
-<div class="metric"><div class="metric-label">Savings Rate</div><div id="saveRate" class="metric-value"></div></div>
-<div class="metric"><div class="metric-label">Status</div><div id="succ" class="metric-value"></div></div>
+<div class="grid">
+<div class="card">Savings Rate<div id="savingsRate"></div></div>
+<div class="card">Burn Rate<div id="burnRate"></div></div>
+<div class="card">Years Safe<div id="yearsSafe"></div></div>
+<div class="card">Decision<div id="decision"></div></div>
 </div>
 
-<div class="main-grid">
-
-<div class="chart-card">
-<canvas id="chart"></canvas>
+<div class="card">
+<div id="retirementSummary"></div>
 </div>
 
-<div class="side-panel">
-<div class="panel-card"><b>Savings</b><br><div id="savingsOut"></div></div>
-<div class="panel-card"><b>Insights</b><br><div id="milestonesOut"></div></div>
-<div class="panel-card"><b>Spending</b><br><div id="categoryOut"></div></div>
-<div class="panel-card"><b>Tax</b><br><div id="taxExplain"></div></div>
+<div class="chartGrid">
+<canvas id="c1"></canvas>
+<canvas id="c2"></canvas>
+<canvas id="c3"></canvas>
+<canvas id="c4"></canvas>
 </div>
-
-</div>
-
-<div class="modules">
-<div class="module" onclick="openModule('Chance of Success')">Chance of Success</div>
-<div class="module" onclick="openModule('Cash Flow')">Cash Flow</div>
-<div class="module" onclick="openModule('Spending Breakdown')">Spending Breakdown</div>
-<div class="module" onclick="openModule('Milestones')">Milestones</div>
-<div class="module" onclick="openModule('Tax Analytics')">Tax Analytics</div>
-<div class="module" onclick="openModule('Scenario Compare')">Scenario Compare</div>
-</div>
-
 </div>
 
 <!-- FINANCIALS -->
 <div id="financials" style="display:none">
-
 <div class="card">
-<h3>Income</h3>
-<div id="incomeList"></div>
-<button onclick="addIncome()">+ Add</button>
-<button onclick="clearIncome()">Clear</button>
-</div>
 
-<div class="card">
-<h3>Expenses</h3>
-<div id="expenseList"></div>
-<button onclick="addExpense()">+ Add</button>
-<button onclick="clearExpenses()">Clear</button>
-</div>
+<h4>Person A</h4>
+<input id="incomeA" placeholder="Income A">
+<input id="ageA" placeholder="Age A">
+<input id="retA" placeholder="Retirement Age A">
 
-<div class="card">
-<h3>Accounts</h3>
-<div id="accountList"></div>
-<button onclick="addAccount()">+ Add</button>
-<button onclick="clearAccounts()">Clear</button>
-</div>
+<h4>Person B</h4>
+<input id="incomeB" placeholder="Income B">
+<input id="ageB" placeholder="Age B">
+<input id="retB" placeholder="Retirement Age B">
 
-<div class="card">
-<h3>Dependents</h3>
-<div id="dependentList"></div>
-<button onclick="addDependent()">+ Add</button>
-<button onclick="clearDependents()">Clear</button>
-</div>
-
-<div class="card">
-<h3>Assets</h3>
-<div class="row">
+<h4>Assets</h4>
 <input id="cash" placeholder="Cash">
 <input id="invest" placeholder="Investments">
-<input id="debt" placeholder="Debt">
+
+<h4>Expenses</h4>
+<input id="exp" placeholder="Annual Expenses">
+
+<button onclick="saveProfile()">Save Profile</button>
+<div id="profileList"></div>
+
 </div>
 </div>
 
+<!-- SCENARIOS -->
+<div id="scenarios" style="display:none">
 <div class="card">
-<h3>Profile</h3>
-<button onclick="manualSave()">Save</button>
-<button onclick="manualLoad()">Load</button>
+<h4>Quick Scenarios</h4>
+<button onclick="applyScenario('crash')">Market Crash</button>
+<button onclick="applyScenario('inflation')">High Inflation</button>
+<button onclick="applyScenario('longevity')">Live Longer</button>
+
+<h4>Assumptions</h4>
+<input id="returnRate" placeholder="Return % (default 5)">
+<input id="inflation" placeholder="Inflation % (default 2.5)">
+</div>
 </div>
 
 </div>
 
+<div class="ai">
+<h4>Advisor Insight</h4>
+<div id="aiOutput"></div>
 </div>
 
-<script src="modules.js"></script>
-<script src="engine.js"></script>
-<script src="ui.js"></script>
+</div>
+
+<script>
+
+let charts={};
+
+/* NAV */
+function showView(id,el){
+["dashboard","financials","scenarios"].forEach(v=>document.getElementById(v).style.display="none");
+document.getElementById(id).style.display="block";
+document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+el.classList.add("active");
+}
+
+/* MODEL */
+function buildModel(total,exp){
+
+let r=((+returnRate.value||5)/100);
+let inf=((+inflation.value||2.5)/100);
+
+let bal=total, arr=[];
+
+for(let i=0;i<50;i++){
+
+let inc=(+incomeA.value||0)+(+incomeB.value||0);
+
+if(i>(+retA.value-(+ageA.value))) inc-= (+incomeA.value||0);
+if(i>(+retB.value-(+ageB.value))) inc-= (+incomeB.value||0);
+
+let expenses=exp*Math.pow(1+inf,i);
+
+bal+=bal*r + inc - expenses;
+
+arr.push({year:i,bal,inc,exp:expenses});
+
+if(bal<=0) break;
+}
+
+return arr;
+}
+
+/* UPDATE */
+function updateAll(){
+
+let total=(+cash.value||0)+(+invest.value||0);
+let incomeVal=(+incomeA.value||0)+(+incomeB.value||0);
+let expVal=(+exp.value||0);
+
+let m=buildModel(total,expVal);
+
+/* METRICS */
+let savingsRate = incomeVal ? ((incomeVal-expVal)/incomeVal) : 0;
+let burnRate = expVal/12;
+let yearsSafe = total/(expVal||1);
+
+/* DECISION */
+let decision="SAFE";
+if(m.length<25) decision="RISK";
+if(m.length<15) decision="FAIL";
+
+/* FAILURE AGE */
+let failAge=(+ageA.value||65)+m.length;
+
+/* OUTPUT */
+netWorth.innerText="$"+total.toLocaleString();
+income.innerText="$"+incomeVal.toLocaleString();
+expensesOut.innerText="$"+expVal.toLocaleString();
+years.innerText=m.length;
+
+savingsRateEl.innerText=(savingsRate*100).toFixed(1)+"%";
+burnRateEl.innerText="$"+burnRate.toFixed(0);
+yearsSafeEl.innerText=yearsSafe.toFixed(1);
+decisionEl.innerText=decision;
+
+/* SUMMARY */
+retirementSummary.innerHTML=`
+<b>Status:</b> ${decision}<br>
+<b>Funds Last:</b> ${m.length} years<br>
+<b>Failure Age:</b> ${failAge}
+`;
+
+/* MOCK AI */
+let ai=[];
+if(decision==="FAIL") ai.push("🚨 Retirement not viable.");
+else if(decision==="RISK") ai.push("⚠️ Plan is fragile.");
+else ai.push("✅ Plan looks solid.");
+
+if(savingsRate<0.1) ai.push("Savings rate is too low.");
+if(yearsSafe<15) ai.push("Longevity risk present.");
+
+ai.push("Action: adjust spending or delay retirement.");
+
+aiOutput.innerHTML=ai.join("<br><br>");
+
+renderCharts(m);
+}
+
+/* SCENARIOS */
+function applyScenario(type){
+if(type==="crash") returnRate.value=2;
+if(type==="inflation") inflation.value=5;
+if(type==="longevity") ageA.value=(+ageA.value||65)-5;
+updateAll();
+}
+
+/* SAVE */
+function saveProfile(){
+let name=prompt("Profile name?");
+if(!name)return;
+
+let p=JSON.parse(localStorage.getItem("profiles")||"{}");
+p[name]={incomeA:incomeA.value,incomeB:incomeB.value,ageA:ageA.value,ageB:ageB.value,retA:retA.value,retB:retB.value,cash:cash.value,invest:invest.value,exp:exp.value};
+localStorage.setItem("profiles",JSON.stringify(p));
+renderProfiles();
+}
+
+function renderProfiles(){
+let p=JSON.parse(localStorage.getItem("profiles")||"{}");
+profileList.innerHTML=Object.keys(p).map(n=>`<div onclick="loadProfile('${n}')">${n}</div>`).join("");
+}
+
+function loadProfile(n){
+let d=JSON.parse(localStorage.getItem("profiles"))[n];
+Object.keys(d).forEach(k=>document.getElementById(k).value=d[k]);
+updateAll();
+}
+
+/* CHARTS */
+function renderCharts(m){
+let labels=m.map(x=>x.year);
+let bal=m.map(x=>x.bal);
+
+Object.values(charts).forEach(c=>c.destroy());
+
+charts.c1=new Chart(c1,{type:'line',data:{labels,datasets:[{data:bal}]}}); 
+}
+
+/* INIT */
+document.querySelectorAll("input").forEach(i=>i.addEventListener("input",updateAll));
+window.onload=()=>{renderProfiles();updateAll();};
+
+</script>
 
 </body>
 </html>
