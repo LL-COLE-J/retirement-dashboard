@@ -25,6 +25,8 @@
         .logic-panel span { color: #38bdf8; font-weight: bold; }
         .metric-val { font-size: 28px; font-weight: 800; color: var(--text); margin-bottom: 2px; }
         .advisor-box { background: #f1f5f9; border-left: 4px solid var(--sidebar); padding: 16px; font-size: 12px; line-height: 1.6; border-radius: 0 8px 8px 0; }
+        .toggle-btn { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center; background: #fff; transition: 0.2s; }
+        .toggle-btn.active { background: #ef4444; color: #fff; border-color: #ef4444; }
     </style>
 </head>
 <body>
@@ -38,13 +40,13 @@
         <div class="lab-content">
             <section id="analytics-tab" style="display:none">
                 <div class="card">
-                    <h3>30-Year Wealth Projection (Real Dollars)</h3>
+                    <h3>Wealth Projection (Real Dollars)</h3>
                     <div style="height: 400px;"><canvas id="wealthChart"></canvas></div>
                 </div>
             </section>
             <section id="financials-tab">
                 <div class="card">
-                    <h3>Income & Jurisdiction</h3>
+                    <h3>Core Variables</h3>
                     <div class="grid-3">
                         <div class="input-group">
                             <label>Jurisdiction</label>
@@ -52,7 +54,6 @@
                                 <option value="TN">Tennessee (0%)</option>
                                 <option value="CA">California</option>
                                 <option value="NY">New York</option>
-                                <option value="FL">Florida (0%)</option>
                             </select>
                         </div>
                         <div class="input-group">
@@ -63,11 +64,21 @@
                             <label>Filing Status</label>
                             <select id="filing-status" onchange="recalc()">
                                 <option value="single">Single</option>
-                                <option value="married">Married Filing Jointly</option>
+                                <option value="married">Married</option>
                             </select>
                         </div>
                     </div>
                 </div>
+
+                <div class="card">
+                    <h3>Scenario Stressors</h3>
+                    <div class="grid-3">
+                        <div id="stress-market" class="toggle-btn" onclick="toggleStress('market')">Market Crash (-25%)</div>
+                        <div id="stress-medical" class="toggle-btn" onclick="toggleStress('medical')">Medical Event ($50k)</div>
+                        <div id="stress-layoff" class="toggle-btn" onclick="toggleStress('layoff')">6-Mo Layoff</div>
+                    </div>
+                </div>
+
                 <div class="card">
                     <h3>Logic Explorer (Show Your Work)</h3>
                     <div id="logic-content" class="logic-panel">Deriving 2026 data...</div>
@@ -79,8 +90,8 @@
             <div class="card">
                 <label>Effective Tax Rate</label>
                 <div class="metric-val" id="val-eff-rate">0%</div>
-                <label>Total Annual Liability</label>
-                <div class="metric-val" id="val-tax-total">$0</div>
+                <label>Terminal Wealth (30yr)</label>
+                <div class="metric-val" id="val-terminal">$0</div>
                 <div class="advisor-box" id="pro-insight">Awaiting inputs...</div>
             </div>
         </aside>
