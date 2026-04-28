@@ -1,30 +1,32 @@
 const BASTION_ENGINE = {
-    runProjection(p) {
-        let total = 250000; // Baseline starting assets
+    run(p) {
+        let assets = { 
+            def: p.assets.filter(a=>a.type==='def').reduce((s,a)=>s+a.val,0), 
+            tax: p.assets.filter(a=>a.type==='tax').reduce((s,a)=>s+a.val,0),
+            roth: p.assets.filter(a=>a.type==='roth').reduce((s,a)=>s+a.val,0)
+        };
         const timeline = [];
-        const baseGrowth = 0.07;
-        const inflation = 0.03;
-
-        for (let age = p.age; age <= 90; age++) {
-            const isRetired = age >= 65;
-            
-            // Apply volatility (random variance if vol > 0)
-            const randomShock = (Math.random() - 0.5) * p.volatility;
-            const actualGrowth = baseGrowth + randomShock;
-
-            const yearlyExp = (p.expenses * 12) * Math.pow(1 + inflation, age - p.age);
-
-            if (!isRetired) {
-                total += (125000 * 0.15); // Savings
+        const totalInc = p.incomes.reduce((s,i)=>s+i.val,0);
+        
+        for (let age = p.ageNow; age <= 90; age++) {
+            const isRet = age >= p.ageRet;
+            if (!isRet) {
+                assets.def += (totalInc * 0.10); // Standard savings
             } else {
-                total -= yearlyExp;
+                assets.tax -= 60000; // Standard $5k/mo draw
+                if (assets.tax < 0) { assets.def += assets.tax; assets.tax = 0; }
             }
-
-            total *= (1 + actualGrowth);
-            if (total < 0) total = 0;
-
-            timeline.push({ age, total: Math.round(total) });
+            assets.def *= 1.07;
+            assets.tax *= 1.058; // Tax drag applied
+            assets.roth *= 1.07;
+            timeline.push({ age, v: Math.round(assets.def + assets.tax + assets.roth) });
         }
-        return timeline;
+        return { timeline, totalInc };
+    },
+    getAudit(p, res) {
+        const ded = p.status === 'married' ? 32200 : 16100;
+        const taxInc = Math.max(0, res.totalInc - ded);
+        const credit = p.deps * 2000;
+        return `<b>[HOUSEHOLD AUDIT]</b>\nFiling Status: ${p.status.toUpperCase()}\nDependents: ${p.deps} (Credit: $${credit.toLocaleString()})\nStandard Deduction: -$${ded.toLocaleString()}\nTaxable Base: $${taxInc.toLocaleString()}\nEst. Federal Liability: $${Math.round(taxInc * 0.22 - credit).toLocaleString()}`;
     }
 };
