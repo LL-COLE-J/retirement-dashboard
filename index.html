@@ -3,220 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bastion Insights | Advisor Platform</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>Bastion Insights | Advanced Planning Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-        :root{ --bg:#f8fafc; --card:#ffffff; --border:#e5e7eb; --text:#0f172a; --sub:#64748b; --accent:#0f172a; }
-        body{background:var(--bg);display:flex;height:100vh;color:var(--text);overflow:hidden;}
-        .sidebar{width:240px;background:#fff;border-right:1px solid var(--border);padding:20px;display:flex;flex-direction:column;}
-        .logo{font-weight:700; font-size:20px; margin-bottom:30px; letter-spacing:-1px;}
-        .nav-item{padding:12px;border-radius:8px;cursor:pointer;color:var(--sub);margin-bottom:6px;transition:0.2s;}
-        .nav-item:hover{background:#f1f5f9;}
-        .nav-item.active{background:var(--accent);color:#fff;}
-        .main{flex:1;display:flex;justify-content:center;overflow-y:auto;}
-        .wrapper{width:100%; max-width:1200px; display:flex; gap:20px; padding:20px;}
-        .content{flex:2;}
-        .side{flex:1;}
-        .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px;}
-        .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
-        h4{font-size:14px; text-transform:uppercase; letter-spacing:0.05em; color:var(--sub); margin-bottom:15px;}
-        input, select{ width:100%; padding:10px; margin-top:6px; border:1px solid var(--border); border-radius:8px; font-size:14px;}
-        button{ margin-top:10px; padding:10px 15px; border:none; border-radius:8px; background:var(--accent); color:#fff; cursor:pointer; font-weight:500; width:100%;}
-        .row{display:flex; gap:8px; margin-bottom:12px; align-items:center;}
-        .label{font-size:12px;color:var(--sub); margin-bottom:4px;}
-        .value{font-weight:700; font-size:24px; margin-top:4px;}
-        .insight-box{padding:10px; border-left:4px solid #0f172a; background:#f1f5f9; margin-top:10px; font-size:14px;}
-        .fail-text{color:#e11d48; font-weight:600;}
+        :root {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --accent: #0f172a;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* SIDEBAR */
+        .sidebar { width: 260px; background: #fff; border-right: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; }
+        .logo-container { margin-bottom: 40px; }
+        .logo-container img { max-width: 180px; }
+        .nav-item { padding: 12px 16px; border-radius: 8px; cursor: pointer; color: var(--text-sub); margin-bottom: 8px; font-weight: 500; transition: 0.2s; }
+        .nav-item:hover { background: #f1f5f9; color: var(--accent); }
+        .nav-item.active { background: var(--accent); color: #fff; }
+
+        /* MAIN CONTENT */
+        .main { flex: 1; overflow-y: auto; padding: 32px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 1200px; display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
+
+        /* CARDS */
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card-title { font-size: 14px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 20px; }
+        
+        /* DASHBOARD GRID */
+        .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: #fff; border: 1px solid var(--border); padding: 20px; border-radius: 12px; }
+        .stat-label { font-size: 13px; color: var(--text-sub); margin-bottom: 4px; }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--accent); }
+
+        /* FORMS */
+        .row { display: flex; gap: 12px; margin-bottom: 12px; align-items: center; }
+        input, select { flex: 1; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; }
+        input:focus { border-color: var(--accent); }
+        label { display: block; font-size: 12px; color: var(--text-sub); margin-bottom: 4px; font-weight: 600; }
+        button { padding: 10px 20px; border-radius: 8px; border: none; background: var(--accent); color: #fff; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        button:hover { opacity: 0.9; }
+
+        /* ADVISOR SIDEBAR */
+        .advisor-card { padding: 16px; border-radius: 12px; background: #fff; border: 1px solid var(--border); margin-bottom: 12px; }
+        .ai-box { background: #f1f5f9; padding: 16px; border-radius: 12px; font-size: 14px; line-height: 1.6; border-left: 4px solid var(--accent); }
+        .status-tag { font-weight: 700; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <div class="logo">BASTION</div>
-    <div class="nav-item active" onclick="showView('dashboard',this)">Dashboard</div>
-    <div class="nav-item" onclick="showView('financials',this)">Financials</div>
-    <div class="nav-item" onclick="showView('scenarios',this)">Scenarios</div>
+    <div class="logo-container">
+        <h2 style="letter-spacing: -1px;">BASTION</h2>
+        <p style="font-size: 10px; color: var(--text-sub); font-weight: 700;">INSIGHTS</p>
+    </div>
+    <div class="nav-item active" onclick="switchTab('dashboard', this)">Dashboard</div>
+    <div class="nav-item" onclick="switchTab('financials', this)">Financials</div>
+    <div class="nav-item" onclick="switchTab('scenarios', this)">Scenarios</div>
+    <div class="nav-item" onclick="switchTab('markets', this)">Markets</div>
 </div>
 
 <div class="main">
-    <div class="wrapper">
-        <div class="content">
-            <div id="dashboard">
-                <div class="grid">
-                    <div class="card"><div class="label">Net Worth</div><div id="netWorth" class="value">$0</div></div>
-                    <div class="card"><div class="label">Savings Rate</div><div id="savingsRate" class="value">0%</div></div>
-                    <div class="card"><div class="label">Annual Income</div><div id="income" class="value">$0</div></div>
-                    <div class="card"><div class="label">Annual Expenses</div><div id="expensesOut" class="value">$0</div></div>
+    <div class="container">
+        
+        <div class="content-area">
+            <div id="dashboard-tab">
+                <div class="stat-grid">
+                    <div class="stat-card"><div class="stat-label">Net Worth</div><div id="nw-val" class="stat-value">$0</div></div>
+                    <div class="stat-card"><div class="stat-label">Annual Income</div><div id="inc-val" class="stat-value">$0</div></div>
+                    <div class="stat-card"><div class="stat-label">Annual Expenses</div><div id="exp-val" class="stat-value">$0</div></div>
+                    <div class="stat-card"><div class="stat-label">Savings Rate</div><div id="sr-val" class="stat-value">0%</div></div>
                 </div>
                 <div class="card">
-                    <h4>Wealth Projection</h4>
-                    <canvas id="chart" height="150"></canvas>
+                    <div class="card-title">Wealth Projection</div>
+                    <canvas id="mainChart" height="140"></canvas>
                 </div>
             </div>
 
-            <div id="financials" style="display:none">
+            <div id="financials-tab" style="display:none;">
                 <div class="card">
-                    <h4>Income Streams</h4>
+                    <div class="card-title">Income Streams</div>
                     <div id="incomeList"></div>
-                    <button onclick="addIncome()">+ Add Income</button>
+                    <button onclick="addIncome()" style="margin-top:10px;">+ Add Income</button>
                 </div>
                 <div class="card">
-                    <h4>Accounts & Contributions</h4>
+                    <div class="card-title">Accounts & Contributions</div>
                     <div id="accountList"></div>
+                    <button onclick="addAccount()" style="margin-top:10px;">+ Add Account</button>
                 </div>
                 <div class="card">
-                    <h4>Base Assets & Debt</h4>
-                    <div class="grid">
-                        <div><label class="label">Cash</label><input id="cash" type="number" onblur="updateAsset('cash',this.value)"></div>
-                        <div><label class="label">Debt</label><input id="debt" type="number" onblur="updateAsset('debt',this.value)"></div>
+                    <div class="card-title">Assets & Liabilities</div>
+                    <div class="row">
+                        <div style="flex:1"><label>Cash Assets</label><input type="number" id="cash-input" onblur="updateAsset('cash', this.value)"></div>
+                        <div style="flex:1"><label>Total Debt</label><input type="number" id="debt-input" onblur="updateAsset('debt', this.value)"></div>
                     </div>
                 </div>
             </div>
 
-            <div id="scenarios" style="display:none">
+            <div id="scenarios-tab" style="display:none;">
                 <div class="card">
-                    <h4>Global Assumptions</h4>
-                    <div class="grid">
-                        <div><label class="label">Current Age</label><input type="number" id="currentAge" onblur="updateAssumption('currentAge',this.value)"></div>
-                        <div><label class="label">Retirement Age</label><input type="number" id="retirementAge" onblur="updateAssumption('retirementAge',this.value)"></div>
-                        <div><label class="label">Inflation %</label><input type="number" id="inflation" onblur="updateAssumption('inflation',this.value)"></div>
-                        <div><label class="label">Life Expectancy</label><input type="number" id="lifeExpectancy" onblur="updateAssumption('lifeExpectancy',this.value)"></div>
+                    <div class="card-title">Age & Retirement</div>
+                    <div class="row">
+                        <div><label>Current Age</label><input type="number" value="40" onchange="updateAssumption('currentAge', this.value)"></div>
+                        <div><label>Retirement Age</label><input type="number" value="65" onchange="updateAssumption('retirementAge', this.value)"></div>
+                        <div><label>Life Expectancy</label><input type="number" value="90" onchange="updateAssumption('lifeExpectancy', this.value)"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="side">
-            <div class="card">
-                <h4>Advisor Status</h4>
-                <div id="status" style="font-weight:600;">--</div>
-                <div id="failure" class="fail-text" style="margin-top:8px; font-size:14px;"></div>
+        <div class="advisor-area">
+            <div class="card-title" style="margin-bottom: 10px;">Advisor Lab</div>
+            <div class="advisor-card">
+                <label>Status</label>
+                <div id="ai-status" class="status-tag">--</div>
             </div>
-            <div class="card">
-                <h4>Recommended Actions</h4>
-                <div id="action" class="insight-box">No data yet.</div>
+            <div class="advisor-card">
+                <label>Failure Point</label>
+                <div id="ai-failure" style="font-size: 14px; font-weight: 600;">None</div>
+            </div>
+            <div class="advisor-card">
+                <label>Priority Action</label>
+                <div id="ai-action" style="font-size: 13px; color: var(--text-sub);">Analyzing...</div>
+            </div>
+            <div class="card-title" style="margin-top: 20px; margin-bottom: 10px;">AI Insights</div>
+            <div id="ai-box" class="ai-box">
+                Provide your financials to generate an automated wealth strategy.
             </div>
         </div>
+
     </div>
 </div>
 
 <script>
-/* =========================
-   STATE & STORAGE
-========================= */
+/* ==========================================================================
+   THE ENGINE (Consolidated)
+   ========================================================================== */
 let state = {
-    incomes: [{type:"salary", amount:100000, freq:"yearly", growth:3}],
-    expenses: [{cat:"housing", amount:2500, freq:"monthly"}],
+    incomes: [{amount: 100000, freq: "yearly", type: "salary"}],
+    expenses: [{amount: 4000, freq: "monthly", cat: "housing"}],
     accounts: [
-        {type:"401k", balance:50000, contrib:500, match:3},
-        {type:"roth", balance:10000, contrib:500, match:0},
-        {type:"brokerage", balance:5000, contrib:1000, match:0}
+        {type: "401k", balance: 50000, contrib: 500, match: 3},
+        {type: "Brokerage", balance: 10000, contrib: 1000, match: 0}
     ],
-    assets: { cash: 10000, invest: 0, debt: 0 },
-    assumptions: { inflation: 2.5, currentAge: 30, retirementAge: 65, lifeExpectancy: 90 }
+    assets: { cash: 20000, debt: 0 },
+    assumptions: { currentAge: 40, retirementAge: 65, lifeExpectancy: 90, inflation: 2.5 }
 };
 
 let chart;
 
-function save(){ localStorage.setItem("bastion_v2", JSON.stringify(state)); }
-function load(){ 
-    const data = localStorage.getItem("bastion_v2");
-    if(data) state = JSON.parse(data);
+function norm(a, f) { 
+    return (parseFloat(a) || 0) * (f === "monthly" ? 12 : f === "biweekly" ? 26 : 1); 
 }
 
-/* =========================
-   CORE ENGINE
-========================= */
-function norm(a, f){ return (parseFloat(a)||0) * (f === "monthly" ? 12 : f === "biweekly" ? 26 : 1); }
-
-function calculate(){
-    let income = state.incomes.reduce((s, i) => s + norm(i.amount, i.freq), 0);
-    let expenses = state.expenses.reduce((s, e) => s + norm(e.amount, e.freq), 0);
-    let contribs = state.accounts.reduce((s, a) => s + (a.contrib * 12), 0); // Monthly contrib assumed
-    let match = state.accounts.reduce((s, a) => s + (a.match ? (norm(income/12, "monthly") * a.match/100) : 0), 0);
+function calculate() {
+    const inc = state.incomes.reduce((s, i) => s + norm(i.amount, i.freq), 0);
+    const exp = state.expenses.reduce((s, e) => s + norm(e.amount, e.freq), 0);
+    const monthlyContrib = state.accounts.reduce((s, a) => s + (parseFloat(a.contrib) || 0), 0);
+    const match = state.accounts.reduce((s, a) => s + (a.match ? (inc * (a.match / 100)) : 0), 0);
     
-    let accountValue = state.accounts.reduce((s, a) => s + (a.balance || 0), 0);
-    let netWorth = accountValue + state.assets.cash - state.assets.debt;
-    let savingsRate = income > 0 ? ((contribs + match) / income) * 100 : 0;
+    const accountTotal = state.accounts.reduce((s, a) => s + (parseFloat(a.balance) || 0), 0);
+    const netWorth = accountTotal + state.assets.cash - state.assets.debt;
+    const savingsRate = inc > 0 ? (((monthlyContrib * 12) + match) / inc) * 100 : 0;
+    const surplus = (inc - exp - (monthlyContrib * 12));
 
-    return { income, expenses, netWorth, savingsRate, net: income - expenses - contribs };
+    return { inc, exp, netWorth, savingsRate, surplus };
 }
 
-function runProjection(){
+/* ==========================================================================
+   THE ADVISOR (Modules)
+   ========================================================================== */
+function runAdvisor() {
     const d = calculate();
-    let timeline = [];
-    let nw = d.netWorth;
-    let inc = d.income;
-    let exp = d.expenses;
+    let insights = [];
+    let status = "OPTIMAL";
+    let statusColor = "#10b981";
 
-    for(let i=0; i <= (state.assumptions.lifeExpectancy - state.assumptions.currentAge); i++){
-        let age = state.assumptions.currentAge + i;
-        if(age < state.assumptions.retirementAge) inc *= 1.03; else inc = d.income * 0.15;
-        exp *= (1 + (state.assumptions.inflation/100));
-        nw = (nw + (inc - exp)) * (age < state.assumptions.retirementAge ? 1.07 : 1.04);
-        timeline.push({age, nw});
-        if(nw < -1000000) break;
+    if (d.savingsRate < 15) {
+        status = "AT RISK"; statusColor = "#ef4444";
+        insights.push("Your savings rate is " + d.savingsRate.toFixed(1) + "%. The target for " + state.assumptions.currentAge + "-year-olds is 15-20%.");
     }
-    return timeline;
+
+    if (state.assets.debt > state.assets.cash) {
+        insights.push("High Leverage Detected: Your debt exceeds liquid cash. Focus on a high-yield emergency fund.");
+    }
+
+    const hasTaxShield = state.accounts.some(a => a.type === "401k" && a.contrib > 0);
+    if (!hasTaxShield) insights.push("Tax Tip: You aren't utilizing a 401k. This is costing you roughly 22% in immediate tax savings.");
+
+    return {
+        status, 
+        color: statusColor,
+        failure: d.surplus < 0 ? "Annual Deficit of $" + Math.abs(d.surplus).toLocaleString() : "Stable",
+        action: insights.length > 0 ? insights[0] : "Maintain current trajectory.",
+        fullAI: insights.length > 0 ? insights.join("<br><br>") : "Your plan is mathematically sound. Consider diversifying into specific market sectors."
+    };
 }
 
-/* =========================
-   UI RENDERING
-========================= */
-function renderAll(){
+/* ==========================================================================
+   UI CONTROLS
+   ========================================================================== */
+function renderAll() {
     const d = calculate();
-    const timeline = runProjection();
+    const adv = runAdvisor();
 
     // Dashboard
-    document.getElementById("netWorth").innerText = "$" + Math.round(d.netWorth).toLocaleString();
-    document.getElementById("income").innerText = "$" + Math.round(d.income).toLocaleString();
-    document.getElementById("expensesOut").innerText = "$" + Math.round(d.expenses).toLocaleString();
-    document.getElementById("savingsRate").innerText = d.savingsRate.toFixed(1) + "%";
+    document.getElementById("nw-val").innerText = "$" + Math.round(d.netWorth).toLocaleString();
+    document.getElementById("inc-val").innerText = "$" + Math.round(d.inc).toLocaleString();
+    document.getElementById("exp-val").innerText = "$" + Math.round(d.exp).toLocaleString();
+    document.getElementById("sr-val").innerText = d.savingsRate.toFixed(1) + "%";
 
-    // Advisor Logic
-    const death = timeline[timeline.length - 1];
-    const statusEl = document.getElementById("status");
-    const failEl = document.getElementById("failure");
-    const actionEl = document.getElementById("action");
+    // Advisor Sidebar
+    const sTag = document.getElementById("ai-status");
+    sTag.innerText = adv.status; sTag.style.color = adv.color;
+    document.getElementById("ai-failure").innerText = adv.failure;
+    document.getElementById("ai-action").innerText = adv.action;
+    document.getElementById("ai-box").innerHTML = adv.fullAI;
 
-    if(death.nw < 0){
-        statusEl.innerText = "AT RISK"; statusEl.style.color = "#e11d48";
-        failEl.innerText = "Depletion at age " + timeline.find(t=>t.nw < 0).age;
-        actionEl.innerText = "Increase savings by $" + Math.round(Math.abs(death.nw)/300) + "/mo to survive.";
-    } else {
-        statusEl.innerText = "ON TRACK"; statusEl.style.color = "#10b981";
-        failEl.innerText = "";
-        actionEl.innerText = "Maintain current trajectory. Portfolio is healthy.";
-    }
-
-    // Chart
-    updateChart(timeline);
-    renderFinancials();
-    save();
+    renderLists();
+    updateChart();
+    localStorage.setItem("bastion_data", JSON.stringify(state));
 }
 
-function updateChart(timeline){
-    const ctx = document.getElementById("chart").getContext("2d");
-    const labels = timeline.map(t => t.age);
-    const data = timeline.map(t => t.nw);
-
-    if(chart){
-        chart.data.labels = labels; chart.data.datasets[0].data = data; chart.update();
-    } else {
-        chart = new Chart(ctx, {
-            type:'line',
-            data: { labels, datasets: [{ label:'Wealth', data, borderColor:'#0f172a', tension:0.3, fill:true, backgroundColor:'rgba(15,23,42,0.1)' }]},
-            options: { responsive: true, scales: { y: { ticks: { callback: v => '$' + v/1000 + 'k' }}}}
-        });
-    }
-}
-
-function renderFinancials(){
-    document.getElementById("incomeList").innerHTML = state.incomes.map((i,idx)=>`
+function renderLists() {
+    document.getElementById("incomeList").innerHTML = state.incomes.map((i, idx) => `
         <div class="row">
-            <input value="${i.amount}" onblur="state.incomes[${idx}].amount=+this.value;renderAll()">
+            <input type="number" value="${i.amount}" onblur="state.incomes[${idx}].amount=this.value;renderAll()">
             <select onchange="state.incomes[${idx}].freq=this.value;renderAll()">
                 <option value="yearly" ${i.freq==='yearly'?'selected':''}>Yearly</option>
                 <option value="monthly" ${i.freq==='monthly'?'selected':''}>Monthly</option>
@@ -224,32 +243,59 @@ function renderFinancials(){
         </div>
     `).join("");
 
-    document.getElementById("accountList").innerHTML = state.accounts.map((a,idx)=>`
+    document.getElementById("accountList").innerHTML = state.accounts.map((a, idx) => `
         <div class="row">
-            <div style="flex:1; font-size:12px;">${a.type}</div>
-            <input style="flex:2" placeholder="Bal" value="${a.balance}" onblur="state.accounts[${idx}].balance=+this.value;renderAll()">
-            <input style="flex:2" placeholder="Contrib" value="${a.contrib}" onblur="state.accounts[${idx}].contrib=+this.value;renderAll()">
+            <div style="flex:1; font-size:12px; font-weight:700;">${a.type.toUpperCase()}</div>
+            <input placeholder="Balance" type="number" value="${a.balance}" onblur="state.accounts[${idx}].balance=this.value;renderAll()">
+            <input placeholder="Contrib/mo" type="number" value="${a.contrib}" onblur="state.accounts[${idx}].contrib=this.value;renderAll()">
         </div>
     `).join("");
-    
-    document.getElementById("cash").value = state.assets.cash;
-    document.getElementById("debt").value = state.assets.debt;
+
+    document.getElementById("cash-input").value = state.assets.cash;
+    document.getElementById("debt-input").value = state.assets.debt;
 }
 
-/* =========================
-   CONTROLS
-========================= */
-function showView(v, btn){
-    ['dashboard','financials','scenarios'].forEach(id => document.getElementById(id).style.display = (id===v?'block':'none'));
+function updateChart() {
+    const d = calculate();
+    const timeline = [];
+    let nw = d.netWorth;
+    for (let i=0; i <= (state.assumptions.lifeExpectancy - state.assumptions.currentAge); i++) {
+        nw = (nw + d.surplus) * 1.07;
+        timeline.push({age: state.assumptions.currentAge + i, nw});
+    }
+
+    const ctx = document.getElementById("mainChart").getContext("2d");
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: timeline.map(t => t.age),
+            datasets: [{ label: 'Wealth', data: timeline.map(t => t.nw), borderColor: '#0f172a', fill: true, tension: 0.3, backgroundColor: 'rgba(15,23,42,0.05)' }]
+        },
+        options: { responsive: true, scales: { y: { ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' }}}}
+    });
+}
+
+function switchTab(tabId, el) {
+    ['dashboard-tab', 'financials-tab', 'scenarios-tab'].forEach(id => {
+        const t = document.getElementById(id);
+        if (t) t.style.display = id.startsWith(tabId) ? 'block' : 'none';
+    });
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    btn.classList.add('active');
+    el.classList.add('active');
 }
 
-function updateAsset(key, val){ state.assets[key] = parseFloat(val)||0; renderAll(); }
-function updateAssumption(key, val){ state.assumptions[key] = parseFloat(val)||0; renderAll(); }
-function addIncome(){ state.incomes.push({type:"salary", amount:0, freq:"yearly"}); renderAll(); }
+// Adders
+function addIncome() { state.incomes.push({amount:0, freq:'yearly'}); renderAll(); }
+function addAccount() { state.accounts.push({type:'new account', balance:0, contrib:0, match:0}); renderAll(); }
+function updateAsset(key, val) { state.assets[key] = parseFloat(val) || 0; renderAll(); }
+function updateAssumption(key, val) { state.assumptions[key] = parseFloat(val) || 0; renderAll(); }
 
-window.onload = () => { load(); renderAll(); };
+window.onload = () => {
+    const saved = localStorage.getItem("bastion_data");
+    if (saved) state = JSON.parse(saved);
+    renderAll();
+};
 </script>
 </body>
 </html>
