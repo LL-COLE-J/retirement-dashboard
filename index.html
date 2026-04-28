@@ -364,6 +364,150 @@ renderStreams();
 updateAll();
 };
 
+  <script>
+
+// =========================
+// PROJECTION ENGINE (ADDITIVE)
+// =========================
+
+function runProjection(){
+
+  let base = calculate();
+
+  let years = 40;
+  let growth = 0.07;
+  let inflation = 0.03;
+
+  let balance = base.netWorth;
+  let yearlyData = [];
+
+  for(let i = 0; i < years; i++){
+
+    let expenses = base.expenses * Math.pow(1 + inflation, i);
+    let contributions = base.contrib;
+
+    balance = (balance + contributions - expenses) * (1 + growth);
+
+    yearlyData.push({
+      year: i,
+      balance: balance,
+      expenses: expenses
+    });
+
+    if(balance <= 0){
+      return {
+        success: false,
+        failureYear: i,
+        data: yearlyData
+      };
+    }
+  }
+
+  return {
+    success: true,
+    data: yearlyData
+  };
+}
+
+
+// =========================
+// MONTE CARLO ENGINE (ADDITIVE)
+// =========================
+
+function runMonteCarlo(){
+
+  let sims = 100;
+  let success = 0;
+
+  let base = calculate();
+
+  for(let i = 0; i < sims; i++){
+
+    let balance = base.netWorth;
+
+    for(let y = 0; y < 40; y++){
+
+      let randomReturn = (Math.random() * 0.15) - 0.05; // -5% to +10%
+
+      let expenses = base.expenses * Math.pow(1 + 0.03, y);
+      let contrib = base.contrib;
+
+      balance = (balance + contrib - expenses) * (1 + randomReturn);
+
+      if(balance <= 0) break;
+    }
+
+    if(balance > 0) success++;
+  }
+
+  return (success / sims) * 100;
+}
+
+
+// =========================
+// SAFE INJECTION INTO updateAll()
+// (DOES NOT BREAK EXISTING)
+// =========================
+
+(function(){
+
+  // Wait until updateAll exists
+  const waitForUpdate = setInterval(() => {
+
+    if(typeof updateAll === "function"){
+
+      clearInterval(waitForUpdate);
+
+      const originalUpdate = updateAll;
+
+      window.updateAll = function(){
+
+        // run your original logic FIRST
+        originalUpdate();
+
+        try {
+
+          let proj = runProjection();
+          let mc = runMonteCarlo();
+
+          // Safe DOM writes (only if elements exist)
+          let statusEl = document.getElementById("status");
+          let failureEl = document.getElementById("failure");
+          let actionEl = document.getElementById("action");
+
+          if(statusEl){
+            statusEl.innerText =
+              proj.success
+                ? "On Track"
+                : "Fails at year " + proj.failureYear;
+          }
+
+          if(failureEl){
+            failureEl.innerText =
+              "Monte Carlo Success: " + mc.toFixed(1) + "%";
+          }
+
+          if(actionEl){
+            actionEl.innerText =
+              mc > 80 ? "Strong plan" :
+              mc > 60 ? "Moderate risk" :
+              "High risk — adjust savings or expenses";
+          }
+
+        } catch(e){
+          console.log("Projection engine error:", e);
+        }
+
+      };
+
+    }
+
+  }, 100);
+
+})();
+
+</script>
+
 </script>
 
 </body>
