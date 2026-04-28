@@ -6,6 +6,7 @@
 <title>Avora</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
@@ -17,9 +18,11 @@ body{background:#0B0F1A;color:#E5E7EB;display:flex;height:100vh;}
 .content{flex:1;padding:20px;overflow:auto;}
 .card{background:#111827;padding:15px;border-radius:12px;margin-bottom:10px;}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.chartGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 input{width:100%;padding:8px;margin-top:5px;background:#1F2937;border:none;color:white;border-radius:6px;}
 button{margin-top:8px;padding:6px 10px;border:none;border-radius:6px;background:#3B82F6;color:white;cursor:pointer;}
 .ai{width:260px;background:#0F172A;padding:15px;}
+canvas{height:200px!important;}
 </style>
 </head>
 
@@ -28,6 +31,7 @@ button{margin-top:8px;padding:6px 10px;border:none;border-radius:6px;background:
 <div class="sidebar">
 <div class="nav-item active" onclick="showView('dashboard',this)">Dashboard</div>
 <div class="nav-item" onclick="showView('financials',this)">Financials</div>
+<div class="nav-item" onclick="showView('scenarios',this)">Scenarios</div>
 </div>
 
 <div class="main">
@@ -40,35 +44,77 @@ button{margin-top:8px;padding:6px 10px;border:none;border-radius:6px;background:
 <div class="card">Net Worth<div id="netWorth"></div></div>
 <div class="card">Income<div id="income"></div></div>
 <div class="card">Expenses<div id="expensesOut"></div></div>
-<div class="card">Years Safe<div id="years"></div></div>
+<div class="card">Years<div id="years"></div></div>
 </div>
 
 <div class="grid">
 <div class="card">Savings Rate<div id="savingsRate"></div></div>
 <div class="card">Burn Rate<div id="burnRate"></div></div>
+<div class="card">Years Safe<div id="yearsSafe"></div></div>
 <div class="card">Decision<div id="decision"></div></div>
 </div>
 
-<div class="card" id="retirementSummary"></div>
+<div class="card">
+<div id="retirementSummary"></div>
+</div>
+
+<div class="chartGrid">
+<canvas id="c1"></canvas>
+<canvas id="c2"></canvas>
+<canvas id="c3"></canvas>
+<canvas id="c4"></canvas>
+</div>
 </div>
 
 <!-- FINANCIALS -->
 <div id="financials" style="display:none">
 <div class="card">
 
-<h4>Income</h4>
-<div id="incomeList"></div>
-<button onclick="addIncome()">+ Add Income</button>
+<h4>Person A</h4>
+<input id="incomeA" placeholder="Income A">
+<input id="ageA" placeholder="Age A">
+<input id="retA" placeholder="Retirement Age A">
 
-<h4>Expenses</h4>
-<div id="expenseList"></div>
-<button onclick="addExpense()">+ Add Expense</button>
+<h4>Person B</h4>
+<input id="incomeB" placeholder="Income B">
+<input id="ageB" placeholder="Age B">
+<input id="retB" placeholder="Retirement Age B">
 
 <h4>Assets</h4>
 <input id="cash" placeholder="Cash">
 <input id="invest" placeholder="Investments">
-<input id="debt" placeholder="Debt">
 
+<h4>Expenses</h4>
+<input id="exp" placeholder="Annual Expenses">
+
+<!-- SAFE ADDITION (NO UI CHANGE) -->
+<div style="margin-top:10px;">
+<h4>Income Streams</h4>
+<div id="incomeList"></div>
+<button onclick="addIncome()">Add Income</button>
+
+<h4>Expense Streams</h4>
+<div id="expenseList"></div>
+<button onclick="addExpense()">Add Expense</button>
+</div>
+
+<button onclick="saveProfile()">Save Profile</button>
+<div id="profileList"></div>
+
+</div>
+</div>
+
+<!-- SCENARIOS -->
+<div id="scenarios" style="display:none">
+<div class="card">
+<h4>Quick Scenarios</h4>
+<button onclick="applyScenario('crash')">Market Crash</button>
+<button onclick="applyScenario('inflation')">High Inflation</button>
+<button onclick="applyScenario('longevity')">Live Longer</button>
+
+<h4>Assumptions</h4>
+<input id="returnRate" placeholder="Return % (default 5)">
+<input id="inflation" placeholder="Inflation % (default 2.5)">
 </div>
 </div>
 
@@ -83,37 +129,34 @@ button{margin-top:8px;padding:6px 10px;border:none;border-radius:6px;background:
 
 <script>
 
-/* STATE */
+/* =========================
+   STATE
+========================= */
 let state = {
   incomes: [],
   expenses: [],
-  accounts: [],
-  dependents: [],
   assets: { cash:0, invest:0, debt:0 }
 };
 
 /* HELPERS */
-function norm(a,f){
-  return a*(f==="monthly"?12:f==="biweekly"?26:1);
-}
-
-function money(n){
-  return "$"+Number(n||0).toLocaleString();
-}
+function norm(a,f){ return a*(f==="monthly"?12:f==="biweekly"?26:1); }
+function money(n){ return "$"+Number(n||0).toLocaleString(); }
 
 /* CALC */
 function calculate(){
 
-  let income = state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0);
+  let income = state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0)
+    || (+incomeA.value||0) + (+incomeB.value||0);
 
-  let expenses = state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0);
+  let expenses = state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0)
+    || (+exp.value||0);
 
   let net = income - expenses;
 
   let netWorth =
-    state.assets.cash +
-    state.assets.invest -
-    state.assets.debt;
+    (+cash.value||0) +
+    (+invest.value||0) -
+    (state.assets.debt||0);
 
   let savingsRate = income>0 ? ((income-expenses)/income)*100 : 0;
 
@@ -137,7 +180,8 @@ function updateAll(){
 
   savingsRate.innerText = d.savingsRate.toFixed(1)+"%";
   burnRate.innerText = money(d.expenses/12);
-  decisionEl.innerText = decision;
+  yearsSafe.innerText = yearsSafe.toFixed(1);
+  decision.innerText = decision;
 
   retirementSummary.innerHTML = `
     Status: ${decision}<br>
@@ -155,44 +199,36 @@ function updateAll(){
   aiOutput.innerHTML = ai.join("<br><br>");
 }
 
-/* UI */
+/* STREAM INPUTS */
 function addIncome(){
   state.incomes.push({amount:0,freq:"yearly"});
-  renderAll();
+  renderStreams();
 }
 
 function addExpense(){
   state.expenses.push({amount:0,freq:"yearly"});
-  renderAll();
+  renderStreams();
 }
 
-/* RENDER */
-function renderAll(){
+function renderStreams(){
 
   incomeList.innerHTML = state.incomes.map((i,idx)=>`
     <input value="${i.amount||""}"
-      onblur="state.incomes[${idx}].amount=+this.value||0;updateAll()">
+    onblur="state.incomes[${idx}].amount=+this.value||0;updateAll()">
   `).join("");
 
   expenseList.innerHTML = state.expenses.map((e,idx)=>`
     <input value="${e.amount||""}"
-      onblur="state.expenses[${idx}].amount=+this.value||0;updateAll()">
+    onblur="state.expenses[${idx}].amount=+this.value||0;updateAll()">
   `).join("");
-
-  cash.onblur = e => { state.assets.cash = +e.target.value||0; updateAll(); };
-  invest.onblur = e => { state.assets.invest = +e.target.value||0; updateAll(); };
-  debt.onblur = e => { state.assets.debt = +e.target.value||0; updateAll(); };
-
-  updateAll();
 }
 
 /* NAV */
 function showView(id,el){
-  ["dashboard","financials"].forEach(v=>{
+  ["dashboard","financials","scenarios"].forEach(v=>{
     document.getElementById(v).style.display="none";
   });
   document.getElementById(id).style.display="block";
-
   document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
   el.classList.add("active");
 }
@@ -201,7 +237,8 @@ function showView(id,el){
 window.onload=()=>{
   state.incomes.push({amount:80000,freq:"yearly"});
   state.expenses.push({amount:40000,freq:"yearly"});
-  renderAll();
+  renderStreams();
+  updateAll();
 };
 
 </script>
