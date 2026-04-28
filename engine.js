@@ -1,34 +1,54 @@
 // engine.js
-const TAX_2026 = {
-    single: { deduction: 14600, brackets: [{limit: 11600, rate: 0.10}, {limit: 47150, rate: 0.12}, {limit: 100525, rate: 0.22}] },
-    married: { deduction: 29200, brackets: [{limit: 23200, rate: 0.10}, {limit: 94300, rate: 0.12}, {limit: 201050, rate: 0.22}] }
-};
+const BASTION_ENGINE = {
+    // 2026 Brackets (Projected after TCJA sunset)
+    brackets: {
+        single: [
+            { threshold: 0, rate: 0.10 },
+            { threshold: 11600, rate: 0.15 }, // Rate jump in 2026
+            { threshold: 47150, rate: 0.25 },
+            { threshold: 100525, rate: 0.28 }
+        ],
+        married: [
+            { threshold: 0, rate: 0.10 },
+            { threshold: 23200, rate: 0.15 },
+            { threshold: 94300, rate: 0.25 },
+            { threshold: 201050, rate: 0.28 }
+        ]
+    },
+    
+    calculateTax(income, status) {
+        const deduction = status === 'married' ? 29200 : 14600;
+        const taxable = Math.max(0, income - deduction);
+        const activeBrackets = this.brackets[status];
+        let totalTax = 0;
 
-function calculateTaxes(income, status) {
-    const config = TAX_2026[status];
-    const taxable = Math.max(0, income - config.deduction);
-    let tax = 0;
-    let lastLimit = 0;
-
-    for (const b of config.brackets) {
-        if (taxable > lastLimit) {
-            const amountInBracket = Math.min(taxable - lastLimit, b.limit - lastLimit);
-            tax += amountInBracket * b.rate;
+        for (let i = 0; i < activeBrackets.length; i++) {
+            const b = activeBrackets[i];
+            const nextThreshold = activeBrackets[i + 1] ? activeBrackets[i + 1].threshold : Infinity;
+            if (taxable > b.threshold) {
+                const taxableInBracket = Math.min(taxable, nextThreshold) - b.threshold;
+                totalTax += taxableInBracket * b.rate;
+            }
         }
-        lastLimit = b.limit;
-    }
-    // Add FICA (7.65%)
-    return tax + (income * 0.0765);
-}
+        
+        // Add FICA (Social Security 6.2% + Medicare 1.45%)
+        const fica = income * 0.0765;
+        return {
+            total: totalTax + fica,
+            taxable: taxable,
+            rate: ((totalTax + fica) / income) * 100
+        };
+    },
 
-// FIXED: Uses a CORS-friendly public API instead of Binance
-async function getMarketData(symbol) {
-    try {
-        const res = await fetch(`https://api.coinlore.net/api/ticker/?id=90`); // BTC price example
-        const data = await res.json();
-        return data[0].price_usd;
-    } catch (e) {
-        console.error("Fetch error:", e);
-        return null;
+    async fetchPrice(id) {
+        try {
+            // CoinGecko allows browser-side fetching without CORS blocks for simple price checks
+            const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id.toLowerCase()}&vs_currencies=usd`);
+            const data = await res.json();
+            return data[id.toLowerCase()].usd;
+        } catch (e) {
+            console.error("Engine Error: Ticker Fetch Failed", e);
+            return null;
+        }
     }
-}
+};
