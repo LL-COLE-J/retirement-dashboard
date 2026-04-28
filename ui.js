@@ -1,58 +1,88 @@
 let wealthChart;
-let savedModels = JSON.parse(localStorage.getItem('bastion_models')) || {};
 
 function addRow(containerId, inputClass) {
     const container = document.getElementById(containerId);
     const div = document.createElement('div');
     div.className = 'entry-row';
-    const options = containerId === 'asset-container' 
-        ? ['Stocks', 'Bonds', 'CDs', 'Brokerage', 'Real Estate', 'Other'] 
-        : ['Housing', 'Food', 'Auto', 'Debt', 'Insurance', 'Other'];
-    
+    div.style.gridTemplateColumns = "1.2fr 1fr 40px";
     div.innerHTML = `
-        <select>${options.map(o => `<option>${o}</option>`).join('')}</select>
+        <select><option>Stocks</option><option>Bonds</option><option>Other</option></select>
         <input type="number" class="${inputClass}" placeholder="0" oninput="recalc()">
         <div class="del-btn" onclick="this.parentElement.remove(); recalc()">×</div>
     `;
     container.appendChild(div);
 }
 
+function addExpenseRow() {
+    const container = document.getElementById('expense-container');
+    const div = document.createElement('div');
+    div.className = 'entry-row';
+    div.innerHTML = `
+        <select><option>Housing</option><option>Medical</option><option>Lifestyle</option></select>
+        <input type="number" class="exp-input" placeholder="Amount" oninput="recalc()">
+        <input type="number" value="3" class="exp-inf" oninput="recalc()">
+        <div class="del-btn" onclick="this.parentElement.remove(); recalc()">×</div>
+    `;
+    container.appendChild(div);
+}
+
+function switchTab(tabId) {
+    document.getElementById('lab-tab').style.display = tabId === 'lab' ? 'block' : 'none';
+    document.getElementById('analytics-tab').style.display = tabId === 'analytics' ? 'block' : 'none';
+    if(tabId === 'analytics') recalc();
+}
+
 function recalc() {
-    // Collect Aggregate Totals
-    const totalInc = 125000; // Static placeholder or add income row logic
-    const totalAssets = Array.from(document.querySelectorAll('.asset-input')).reduce((s, i) => s + (parseFloat(i.value) || 0), 0);
-    const totalExp = Array.from(document.querySelectorAll('.exp-input')).reduce((s, i) => s + (parseFloat(i.value) || 0), 0) * 12;
-
-    const state = document.getElementById('state-select').value;
-    
-    // Core Engine Call (Strict Implementation)
-    const taxData = BASTION_ENGINE.getTaxWork(totalInc, state, 'single');
-    const projection = BASTION_ENGINE.runProjection({ income: totalInc, stressors: {} });
-
-    // Update UI
-    document.getElementById('val-eff-rate').innerText = `${taxData.effRate.toFixed(1)}%`;
-    document.getElementById('val-terminal').innerText = `$${projection[projection.length-1].wealth.toLocaleString()}`;
-    document.getElementById('logic-content').innerHTML = taxData.work;
-}
-
-// Persistance logic
-function saveModel() {
-    const name = prompt("Name this scenario:");
-    if (!name) return;
-    savedModels[name] = {
-        state: document.getElementById('state-select').value,
-        assets: Array.from(document.querySelectorAll('.asset-input')).map(i => i.value),
-        expenses: Array.from(document.querySelectorAll('.exp-input')).map(i => i.value)
+    const p = {
+        ageNow: parseInt(document.getElementById('age-now').value) || 35,
+        ageRetire: parseInt(document.getElementById('age-retire').value) || 65,
+        ageEnd: parseInt(document.getElementById('age-end').value) || 90,
+        startingAssets: Array.from(document.querySelectorAll('.asset-input')).reduce((s, i) => s + (parseFloat(i.value) || 0), 0),
+        ssAge: parseInt(document.getElementById('ss-age').value) || 67,
+        ssBenefit: (parseFloat(document.getElementById('ss-benefit').value) || 0) * 12,
+        expenses: Array.from(document.querySelectorAll('#expense-container .entry-row')).map(row => ({
+            amount: (parseFloat(row.querySelector('.exp-input').value) || 0) * 12,
+            inflation: (parseFloat(row.querySelector('.exp-inf').value) || 3) / 100
+        }))
     };
-    localStorage.setItem('bastion_models', JSON.stringify(savedModels));
-    renderList();
+
+    const projection = BASTION_ENGINE.runLifeCycleProjection(p);
+    const terminal = projection[projection.length - 1].wealth;
+
+    document.getElementById('val-terminal').innerText = `$${terminal.toLocaleString()}`;
+    document.getElementById('success-indicator').innerText = terminal > 0 ? "STABLE" : "PORTFOLIO EXHAUSTED";
+    document.getElementById('success-indicator').style.color = terminal > 0 ? "green" : "red";
+    
+    // Simple Work Log for Logic Explorer
+    document.getElementById('logic-content').innerHTML = `Retirement Age: ${p.ageRetire}\nSS Start: ${p.ssAge}\nInflated Expenses @ 65: $${Math.round(projection.find(d => d.age === p.ageRetire).expenses).toLocaleString()}`;
+
+    if (document.getElementById('analytics-tab').style.display !== 'none') {
+        renderChart(projection);
+    }
 }
 
-function renderList() {
-    const list = document.getElementById('scenario-list');
-    list.innerHTML = Object.keys(savedModels).map(n => `
-        <div style="background:rgba(255,255,255,0.05); padding:8px; border-radius:4px; margin-bottom:5px; font-size:12px; cursor:pointer" onclick="loadModel('${n}')">${n}</div>
-    `).join('');
+function renderChart(data) {
+    const ctx = document.getElementById('wealthChart').getContext('2d');
+    if (wealthChart) wealthChart.destroy();
+    wealthChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.map(d => d.age),
+            datasets: [{ 
+                label: 'Wealth Path', 
+                data: data.map(d => d.wealth), 
+                borderColor: '#0ea5e9', 
+                backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                fill: true, 
+                tension: 0.3 
+            }]
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + v.toLocaleString() } } }
+        }
+    });
 }
 
-window.onload = () => { renderList(); recalc(); };
+window.onload = recalc;
