@@ -3,86 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bastion Insights | Pro Planning Lab</title>
+    <title>Bastion | Planning Lab Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg: #0f172a; --sidebar: #1e293b; --card: #1e293b;
-            --text: #f8fafc; --accent: #38bdf8; --border: #334155;
+            --bg: #f8fafc; --sidebar: #ffffff; --card: #ffffff;
+            --text-main: #0f172a; --text-sub: #64748b;
+            --accent: #1e293b; --highlight: #38bdf8; --border: #e2e8f0;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
-        
-        .sidebar { width: 260px; background: var(--sidebar); padding: 32px 24px; border-right: 1px solid var(--border); }
-        .logo { font-weight: 800; font-size: 22px; color: var(--accent); margin-bottom: 40px; border-bottom: 2px solid var(--accent); display: inline-block; }
-        .nav-item { padding: 12px; border-radius: 8px; cursor: pointer; margin-bottom: 8px; font-weight: 600; color: #94a3b8; }
-        .nav-item.active { background: var(--accent); color: var(--bg); }
+        body { background: var(--bg); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-        .main { flex: 1; padding: 40px; overflow-y: auto; }
-        .grid { display: grid; grid-template-columns: 1fr 320px; gap: 32px; max-width: 1200px; margin: 0 auto; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
-        
-        input, select { width: 100%; padding: 12px; background: #0f172a; border: 1px solid var(--border); border-radius: 8px; color: white; margin-top: 8px; }
-        label { font-size: 12px; text-transform: uppercase; color: #94a3b8; font-weight: 700; }
-        
-        .big-price { font-size: 36px; font-weight: 800; color: var(--accent); margin: 16px 0; }
-        button { width: 100%; padding: 14px; background: var(--accent); color: var(--bg); border: none; border-radius: 8px; font-weight: 800; cursor: pointer; margin-top: 10px; }
-        .insight-box { background: rgba(56, 189, 248, 0.1); border-left: 4px solid var(--accent); padding: 16px; font-size: 14px; line-height: 1.6; }
+        /* Sidebar - Original Professional Style */
+        .sidebar { width: 260px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 32px 24px; display: flex; flex-direction: column; }
+        .logo { font-weight: 800; font-size: 20px; color: var(--accent); margin-bottom: 48px; letter-spacing: -0.5px; }
+        .logo span { display: block; font-size: 10px; color: var(--text-sub); letter-spacing: 2px; margin-top: -4px; }
+        .nav-item { padding: 12px 16px; border-radius: 8px; cursor: pointer; color: var(--text-sub); margin-bottom: 8px; font-weight: 600; transition: 0.2s; }
+        .nav-item:hover { background: #f1f5f9; color: var(--accent); }
+        .nav-item.active { background: var(--accent); color: #fff; }
+
+        /* Main Content */
+        .main { flex: 1; overflow-y: auto; padding: 40px; }
+        .container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 320px; gap: 32px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        h3 { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-sub); margin-bottom: 20px; }
+
+        /* Inputs & Form Elements */
+        .input-group { margin-bottom: 16px; }
+        label { display: block; font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 6px; text-transform: uppercase; }
+        input, select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s; }
+        input:focus { border-color: var(--highlight); }
+
+        /* Advisor Lab & Big Values */
+        .big-val { font-size: 28px; font-weight: 800; color: var(--accent); margin: 8px 0; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; margin-bottom: 12px; }
+        .badge.optimal { background: #dcfce7; color: #10b981; }
+        .ai-box { background: #f8fafc; border: 1px solid var(--border); padding: 16px; border-radius: 8px; font-size: 13px; line-height: 1.6; border-left: 4px solid var(--accent); }
+        button { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        button:hover { background: #0f172a; }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <div class="logo">BASTION</div>
-    <div class="nav-item active" onclick="tab('dashboard')">Dashboard</div>
-    <div class="nav-item" onclick="tab('financials')">Financials</div>
-    <div class="nav-item" onclick="tab('markets')">Markets</div>
+    <div class="logo">BASTION <span>PLANNING LAB</span></div>
+    <nav>
+        <div class="nav-item" onclick="switchTab('dashboard')">Dashboard</div>
+        <div class="nav-item active" onclick="switchTab('financials')">Financials</div>
+        <div class="nav-item" onclick="switchTab('scenarios')">Scenarios</div>
+        <div class="nav-item" onclick="switchTab('markets')">Markets</div>
+    </nav>
 </div>
 
-<div class="main">
-    <div class="grid">
-        <div class="content">
-            <div id="dashboard-page">
+<main class="main">
+    <div class="container">
+        <div class="content-area">
+            <section id="financials-tab">
                 <div class="card">
-                    <h3>20-Year Wealth Projection</h3>
-                    <canvas id="mainChart"></canvas>
+                    <h3>Tax Accountant (2026 Brackets)</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                        <div class="input-group">
+                            <label>Filing Status</label>
+                            <select id="filing-status" onchange="runCalculations()">
+                                <option value="single">Single</option>
+                                <option value="married">Married Filing Jointly</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>State</label>
+                            <select><option>Tennessee (0%)</option></select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Yearly Gross Income</label>
+                        <input type="number" id="income-input" value="120000" oninput="runCalculations()">
+                    </div>
                 </div>
-            </div>
-            <div id="financials-page" style="display:none">
+            </section>
+
+            <section id="markets-tab" style="display:none">
                 <div class="card">
-                    <h3>Income & Tax Profile</h3>
-                    <label>Gross Annual Income</label>
-                    <input type="number" id="income-in" value="120000" oninput="update()">
-                    <label style="margin-top:20px; display:block">Filing Status</label>
-                    <select id="filing-in" onchange="update()">
-                        <option value="single">Single</option>
-                        <option value="married">Married Filing Jointly</option>
-                    </select>
+                    <h3>Live Market Pulse</h3>
+                    <div class="input-group">
+                        <label>Ticker Symbol (BTC, ETH, etc.)</label>
+                        <input type="text" id="ticker-input" value="BTC">
+                    </div>
+                    <button onclick="refreshTicker()">Update Price</button>
+                    <div id="ticker-output" class="big-val">--</div>
                 </div>
-            </div>
-            <div id="markets-page" style="display:none">
-                <div class="card">
-                    <h3>Live Pulse</h3>
-                    <input type="text" id="ticker-in" value="bitcoin" placeholder="e.g. bitcoin">
-                    <button onclick="refresh()">Update Price</button>
-                    <div id="price-out" class="big-price">--</div>
-                </div>
-            </div>
+            </section>
         </div>
 
-        <div class="advisor">
+        <aside class="advisor-area">
             <h3>Advisor Lab</h3>
             <div class="card">
-                <label>Tax Estimate (2026)</label>
-                <div id="tax-out" class="big-price">$0</div>
-                <div class="insight-box" id="insight-out">
-                    Ready to analyze...
+                <div class="badge optimal">OPTIMAL</div>
+                <div id="tax-estimate-display" class="big-val">$0 /yr</div>
+                <div class="ai-box" id="advisor-insight">
+                    Analyzing your 2026 tax liability based on current inputs...
                 </div>
             </div>
-        </div>
+        </aside>
     </div>
-</div>
+</main>
 
 <script src="engine.js"></script>
 <script src="ui.js"></script>
