@@ -3,320 +3,310 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Avora</title>
+<title>Bastion Insights</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-body{background:#0B0F1A;color:#E5E7EB;display:flex;height:100vh;}
-.sidebar{width:220px;background:#0F172A;padding:20px;}
-.nav-item{padding:10px;border-radius:8px;cursor:pointer;margin-bottom:6px;}
-.nav-item.active{background:linear-gradient(135deg,#3B82F6,#6366F1);}
-.main{flex:1;display:flex;}
-.content{flex:1;padding:20px;overflow:auto;}
-.card{background:#111827;padding:15px;border-radius:12px;margin-bottom:10px;}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-.chartGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-input{width:100%;padding:8px;margin-top:5px;background:#1F2937;border:none;color:white;border-radius:6px;}
-button{margin-top:8px;padding:6px 10px;border:none;border-radius:6px;background:#3B82F6;color:white;cursor:pointer;}
-.ai{width:260px;background:#0F172A;padding:15px;}
-canvas{height:200px!important;}
+
+:root{
+  --bg:#f8fafc;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --text:#0f172a;
+  --sub:#64748b;
+  --accent:#1e293b;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  height:100vh;
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:240px;
+  background:#fff;
+  border-right:1px solid var(--border);
+  padding:20px;
+}
+
+.logo{
+  font-weight:600;
+  font-size:18px;
+  margin-bottom:20px;
+}
+
+.nav-item{
+  padding:10px;
+  border-radius:8px;
+  cursor:pointer;
+  margin-bottom:6px;
+  color:var(--sub);
+}
+
+.nav-item.active{
+  background:#0f172a;
+  color:#fff;
+}
+
+/* MAIN */
+.main{
+  flex:1;
+  display:flex;
+  justify-content:center;
+}
+
+.wrapper{
+  width:1200px;
+  display:flex;
+  gap:20px;
+  padding:20px;
+}
+
+/* LEFT CONTENT */
+.content{
+  flex:2;
+}
+
+/* RIGHT PANEL */
+.sidepanel{
+  flex:1;
+}
+
+/* CARDS */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:16px;
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-bottom:16px;
+}
+
+/* INPUTS */
+input{
+  width:100%;
+  padding:10px;
+  margin-top:6px;
+  border:1px solid var(--border);
+  border-radius:8px;
+}
+
+/* BUTTON */
+button{
+  margin-top:10px;
+  padding:8px 12px;
+  border:none;
+  border-radius:8px;
+  background:#0f172a;
+  color:white;
+  cursor:pointer;
+}
+
+/* SMALL TEXT */
+.label{
+  font-size:12px;
+  color:var(--sub);
+}
+
+.value{
+  font-weight:600;
+  margin-top:4px;
+}
+
 </style>
 </head>
 
 <body>
 
 <div class="sidebar">
+
+<div class="logo">
+  <img src="logo.png" style="width:100%;margin-bottom:10px;">
+</div>
+
 <div class="nav-item active" onclick="showView('dashboard',this)">Dashboard</div>
 <div class="nav-item" onclick="showView('financials',this)">Financials</div>
-<div class="nav-item" onclick="showView('scenarios',this)">Scenarios</div>
+
 </div>
 
 <div class="main">
+<div class="wrapper">
 
+<!-- LEFT -->
 <div class="content">
 
 <!-- DASHBOARD -->
 <div id="dashboard">
-<div class="grid">
-<div class="card">Net Worth<div id="netWorth"></div></div>
-<div class="card">Income<div id="income"></div></div>
-<div class="card">Expenses<div id="expensesOut"></div></div>
-<div class="card">Years<div id="years"></div></div>
-</div>
 
 <div class="grid">
-<div class="card">Savings Rate<div id="savingsRate"></div></div>
-<div class="card">Burn Rate<div id="burnRate"></div></div>
-<div class="card">Years Safe<div id="yearsSafe"></div></div>
-<div class="card">Decision<div id="decision"></div></div>
+<div class="card"><div class="label">Net Worth</div><div id="netWorth" class="value"></div></div>
+<div class="card"><div class="label">Income</div><div id="income" class="value"></div></div>
+<div class="card"><div class="label">Expenses</div><div id="expensesOut" class="value"></div></div>
+<div class="card"><div class="label">Years Safe</div><div id="years" class="value"></div></div>
 </div>
 
-<div class="card">
-<div id="retirementSummary"></div>
-</div>
+<div class="card" id="retirementSummary"></div>
 
-<div class="chartGrid">
-<canvas id="c1"></canvas>
-<canvas id="c2"></canvas>
-<canvas id="c3"></canvas>
-<canvas id="c4"></canvas>
-</div>
 </div>
 
 <!-- FINANCIALS -->
 <div id="financials" style="display:none">
+
 <div class="card">
 
-<h4>Person A</h4>
-<input id="incomeA" placeholder="Income A">
-<input id="ageA" placeholder="Age A">
-<input id="retA" placeholder="Retirement Age A">
+<h4>Income</h4>
+<div id="incomeList"></div>
+<button onclick="addIncome()">Add Income</button>
 
-<h4>Person B</h4>
-<input id="incomeB" placeholder="Income B">
-<input id="ageB" placeholder="Age B">
-<input id="retB" placeholder="Retirement Age B">
+<h4>Expenses</h4>
+<div id="expenseList"></div>
+<button onclick="addExpense()">Add Expense</button>
 
 <h4>Assets</h4>
 <input id="cash" placeholder="Cash">
 <input id="invest" placeholder="Investments">
 
-<h4>Expenses</h4>
-<input id="exp" placeholder="Annual Expenses">
-
-<!-- SAFE ADDITION (NO UI CHANGE) -->
-<div style="margin-top:10px;">
-<h4>Income Streams</h4>
-<div id="incomeList"></div>
-<button onclick="addIncome()">Add Income</button>
-
-<h4>Expense Streams</h4>
-<div id="expenseList"></div>
-<button onclick="addExpense()">Add Expense</button>
 </div>
 
-<button onclick="saveProfile()">Save Profile</button>
-<div id="profileList"></div>
-
-</div>
 </div>
 
-<!-- SCENARIOS -->
-<div id="scenarios" style="display:none">
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="sidepanel">
+
 <div class="card">
-<h4>Quick Scenarios</h4>
-<button onclick="applyScenario('crash')">Market Crash</button>
-<button onclick="applyScenario('inflation')">High Inflation</button>
-<button onclick="applyScenario('longevity')">Live Longer</button>
+<h4>Plan Summary</h4>
+<div class="label">Savings Rate</div>
+<div id="savingsRate" class="value"></div>
 
-<h4>Assumptions</h4>
-<input id="returnRate" placeholder="Return % (default 5)">
-<input id="inflation" placeholder="Inflation % (default 2.5)">
-</div>
+<div class="label">Monthly Burn</div>
+<div id="burnRate" class="value"></div>
 </div>
 
+<div class="card">
+<h4>Risk Signals</h4>
+<div id="riskSignals"></div>
 </div>
 
-<div class="ai">
-<h4>Advisor Insight</h4>
+<div class="card">
+<h4>Next Action</h4>
 <div id="aiOutput"></div>
 </div>
 
 </div>
 
+</div>
+</div>
+
 <script>
 
-/* =========================
-   STATE (UPGRADED)
-========================= */
-let state = {
-  incomes: [],
-  expenses: [],
-  accounts: [
-    {type:"401k", balance:0, contrib:0, match:0}
-  ],
-  dependents: [],
-  assets: { cash:0, invest:0, debt:0 },
-  filing:"single"
+/* STATE */
+let state={
+  incomes:[],
+  expenses:[],
+  assets:{cash:0,invest:0,debt:0}
 };
 
-/* =========================
-   HELPERS
-========================= */
-function norm(a,f){
-  return a*(f==="monthly"?12:f==="biweekly"?26:1);
-}
+function norm(a,f){return a*(f==="monthly"?12:f==="biweekly"?26:1);}
+function money(n){return "$"+Number(n||0).toLocaleString();}
 
-function money(n){
-  return "$"+Number(n||0).toLocaleString();
-}
-
-/* =========================
-   TAX
-========================= */
-function calcTax(income, filing){
-  let brackets={
-    single:[[10000,0.1],[40000,0.12],[85000,0.22]],
-    married_joint:[[20000,0.1],[80000,0.12],[170000,0.22]],
-    head:[[15000,0.1],[55000,0.12],[90000,0.22]]
-  };
-
-  let tax=0,prev=0;
-  for(let [limit,rate] of brackets[filing]){
-    if(income>limit){
-      tax+=(limit-prev)*rate;
-      prev=limit;
-    }else{
-      tax+=(income-prev)*rate;
-      break;
-    }
-  }
-  return tax;
-}
-
-/* =========================
-   CORE CALC (YOUR VERSION)
-========================= */
+/* CALC */
 function calculate(){
 
-  let income = state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0)
-    || (+incomeA.value||0) + (+incomeB.value||0);
+let income=state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0);
+let expenses=state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0);
 
-  let expenses = state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0)
-    || (+exp.value||0);
+let net=income-expenses;
 
-  /* DEPENDENTS */
-  let depCost = state.dependents.reduce((s,d)=>s+d.cost,0);
-  expenses += depCost;
+let netWorth=
+(+cash.value||0)+
+(+invest.value||0);
 
-  /* ACCOUNT CONTRIBUTIONS */
-  let contrib = state.accounts.reduce((s,a)=> s + (a.contrib || 0),0);
+let savingsRate=income>0?((income-expenses)/income)*100:0;
 
-  /* MATCH */
-  let match = state.accounts.reduce((s,a)=>{
-    if(a.match) return s + (a.contrib * a.match / 100);
-    return s;
-  },0);
-
-  let totalSavings = contrib + match;
-
-  let net = income - expenses - contrib;
-
-  /* NET WORTH */
-  let accountValue = state.accounts.reduce((s,a)=>s + (a.balance || 0),0);
-
-  let netWorth =
-    accountValue +
-    (+cash.value||0) +
-    (+invest.value||0) -
-    (state.assets.debt||0);
-
-  let savingsRate = income > 0 ? ((income - expenses) / income) * 100 : 0;
-
-  return {
-    income,
-    expenses,
-    net,
-    netWorth,
-    savingsRate,
-    contrib,
-    match,
-    totalSavings
-  };
+return{income,expenses,net,netWorth,savingsRate};
 }
 
-/* =========================
-   UPDATE
-========================= */
+/* UPDATE */
 function updateAll(){
 
-  let d = calculate();
+let d=calculate();
 
-  let yearsSafe = d.net > 0 ? (d.netWorth/(d.expenses||1)) : 0;
+let yearsSafe=d.net>0?(d.netWorth/(d.expenses||1)):0;
 
-  let decision = yearsSafe < 10 ? "FAIL" :
-                 yearsSafe < 25 ? "RISK" : "SAFE";
+netWorth.innerText=money(d.netWorth);
+income.innerText=money(d.income);
+expensesOut.innerText=money(d.expenses);
+years.innerText=yearsSafe.toFixed(1);
 
-  netWorth.innerText = money(d.netWorth);
-  income.innerText = money(d.income);
-  expensesOut.innerText = money(d.expenses);
-  years.innerText = yearsSafe.toFixed(1);
+savingsRate.innerText=d.savingsRate.toFixed(1)+"%";
+burnRate.innerText=money(d.expenses/12);
 
-  savingsRate.innerText = d.savingsRate.toFixed(1)+"%";
-  burnRate.innerText = money(d.expenses/12);
-  yearsSafe.innerText = yearsSafe.toFixed(1);
-  decision.innerText = decision;
+/* RISK */
+let risks=[];
+if(d.net<0) risks.push("Spending exceeds income");
+if(d.savingsRate<10) risks.push("Low savings rate");
+if(yearsSafe<15) risks.push("Short runway");
 
-  retirementSummary.innerHTML = `
-    Status: ${decision}<br>
-    Net: ${money(d.net)}<br>
-    Annual Savings: ${money(d.totalSavings)}<br>
-    Employer Match: ${money(d.match)}
-  `;
+riskSignals.innerHTML=risks.join("<br>")||"No major risks";
 
-  /* AI */
-  let ai=[];
-  if(decision==="FAIL") ai.push("🚨 Retirement not viable.");
-  else if(decision==="RISK") ai.push("⚠️ Plan fragile.");
-  else ai.push("✅ Plan solid.");
+/* AI */
+aiOutput.innerHTML="Adjust savings or reduce expenses to improve runway";
 
-  if(d.savingsRate < 10) ai.push("Savings rate too low.");
-  if(d.net < 0) ai.push("Spending exceeds income.");
-
-  ai.push("Action: increase contributions or reduce expenses.");
-
-  aiOutput.innerHTML = ai.join("<br><br>");
 }
 
-/* =========================
-   STREAM INPUTS
-========================= */
+/* STREAM INPUTS */
 function addIncome(){
-  state.incomes.push({amount:0,freq:"yearly"});
-  renderStreams();
+state.incomes.push({amount:0,freq:"yearly"});
+renderStreams();
 }
 
 function addExpense(){
-  state.expenses.push({amount:0,freq:"yearly"});
-  renderStreams();
+state.expenses.push({amount:0,freq:"yearly"});
+renderStreams();
 }
 
 function renderStreams(){
 
-  incomeList.innerHTML = state.incomes.map((i,idx)=>`
-    <input value="${i.amount||""}"
-    onblur="state.incomes[${idx}].amount=+this.value||0;updateAll()">
-  `).join("");
+incomeList.innerHTML=state.incomes.map((i,idx)=>`
+<input value="${i.amount||""}"
+onblur="state.incomes[${idx}].amount=+this.value||0;updateAll()">
+`).join("");
 
-  expenseList.innerHTML = state.expenses.map((e,idx)=>`
-    <input value="${e.amount||""}"
-    onblur="state.expenses[${idx}].amount=+this.value||0;updateAll()">
-  `).join("");
+expenseList.innerHTML=state.expenses.map((e,idx)=>`
+<input value="${e.amount||""}"
+onblur="state.expenses[${idx}].amount=+this.value||0;updateAll()">
+`).join("");
+
 }
 
-/* =========================
-   NAV
-========================= */
+/* NAV */
 function showView(id,el){
-  ["dashboard","financials","scenarios"].forEach(v=>{
-    document.getElementById(v).style.display="none";
-  });
-  document.getElementById(id).style.display="block";
-  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
-  el.classList.add("active");
+["dashboard","financials"].forEach(v=>document.getElementById(v).style.display="none");
+document.getElementById(id).style.display="block";
+document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+el.classList.add("active");
 }
 
-/* =========================
-   INIT
-========================= */
+/* INIT */
 window.onload=()=>{
-  state.incomes.push({amount:80000,freq:"yearly"});
-  state.expenses.push({amount:40000,freq:"yearly"});
-  renderStreams();
-  updateAll();
+state.incomes.push({amount:80000,freq:"yearly"});
+state.expenses.push({amount:40000,freq:"yearly"});
+renderStreams();
+updateAll();
 };
 
 </script>
