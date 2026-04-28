@@ -1,46 +1,55 @@
-/* ==========================================================================
-   ENGINE.JS - The Mathematical Core
-   ========================================================================== */
-let state = {
-    incomes: [],   
-    expenses: [],  
-    accounts: [
-        {type: "401k", balance: 0, contrib: 0, match: 3},
-        {type: "Roth IRA", balance: 0, contrib: 0, match: 0},
-        {type: "Brokerage", balance: 0, contrib: 0, match: 0}
-    ],
-    assets: { cash: 0, invest: 0, debt: 0 },
-    filing: "single",
-    assumptions: {
-        inflation: 2.5,
-        currentAge: 40,
-        retirementAge: 65,
-        lifeExpectancy: 90
-    },
-    tickers: ["AAPL"]
+const STATE_DB = {
+    "TN": { name: "Tennessee", rate: 0, type: "none" },
+    "TX": { name: "Texas", rate: 0, type: "none" },
+    "CA": { name: "California", type: "graduated", brackets: [{t:0, r:0.01}, {t:10412, r:0.02}, {t:24684, r:0.04}] },
+    "NY": { name: "New York", type: "graduated", brackets: [{t:0, r:0.04}, {t:8500, r:0.045}] }
 };
 
-const norm = (a, f) => (parseFloat(a) || 0) * (f === "monthly" ? 12 : f === "biweekly" ? 26 : 1);
+const FED_2026 = {
+    single: [{t: 0, r: 0.10}, {t: 11600, r: 0.12}, {t: 47150, r: 0.22}, {t: 100525, r: 0.24}],
+    married: [{t: 0, r: 0.10}, {t: 23200, r: 0.12}, {t: 94300, r: 0.22}, {t: 201050, r: 0.24}]
+};
 
-function calculateBase() {
-    let income = state.incomes.reduce((s, i) => s + norm(i.amount, i.freq), 0);
-    let expenses = state.expenses.reduce((s, e) => s + norm(e.amount, e.freq), 0);
-    let totalSavings = state.accounts.reduce((s, a) => s + (parseFloat(a.contrib) * 12 || 0), 0);
-    
-    // Simple Tax Pro Logic (Estimating 22% effective for planning)
-    let taxableIncome = Math.max(0, income - 14600); // Standard deduction proxy
-    let estTax = taxableIncome * 0.22; 
+let bastionState = {
+    income: 120000,
+    filing: 'single',
+    residence: 'TN',
+    accounts: [{name: 'Brokerage', bal: 50000}]
+};
 
-    let netWorth = (parseFloat(state.assets.cash) || 0) + 
-                   state.accounts.reduce((s, a) => s + (parseFloat(a.balance) || 0), 0) - 
-                   (parseFloat(state.assets.debt) || 0);
+function calculateRobustTaxes() {
+    const gross = bastionState.income;
+    const deduction = bastionState.filing === 'married' ? 29200 : 14600;
+    const taxable = Math.max(0, gross - deduction);
 
-    return { 
-        grossIncome: income, 
-        netIncome: income - estTax,
-        expenses, 
-        netWorth, 
-        savingsRate: income > 0 ? (totalSavings / income) * 100 : 0,
-        surplus: (income - estTax) - expenses - totalSavings
-    };
+    // 1. Federal Calculation
+    let fedTax = 0;
+    const brackets = FED_2026[bastionState.filing];
+    brackets.forEach((b, i) => {
+        const next = brackets[i+1] ? brackets[i+1].t : Infinity;
+        if (taxable > b.t) fedTax += (Math.min(taxable, next) - b.t) * b.r;
+    });
+
+    // 2. FICA (Social Security + Medicare)
+    const fica = Math.min(gross, 168600) * 0.0765;
+
+    // 3. State Calculation
+    let stateTax = 0;
+    const sInfo = STATE_DB[bastionState.residence];
+    if (sInfo.type === 'graduated') {
+        sInfo.brackets.forEach(b => { if (taxable > b.t) stateTax += (taxable - b.t) * b.r; });
+    }
+
+    return { fed: fedTax, fica: fica, state: stateTax, total: fedTax + fica + stateTax };
+}
+
+async function getTickerData(symbol) {
+    // Using a public proxy to avoid the CORS error from your screenshot
+    try {
+        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol.toUpperCase()}USDT`);
+        const data = await response.json();
+        return parseFloat(data.price);
+    } catch (e) {
+        return null;
+    }
 }
