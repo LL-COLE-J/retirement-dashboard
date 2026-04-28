@@ -324,6 +324,119 @@ window.onload=()=>{
   updateAll();
 };
 
+// =========================
+// REAL MONTE CARLO + WITHDRAWAL ENGINE (ADD ONLY)
+// =========================
+
+// timeline-safe Monte carlo
+function monteCarloReal(d){
+
+  let sims = 200;
+  let success = 0;
+
+  let age = +currentAge.value || 40;
+  let retire = +retirementAge.value || 65;
+  let end = +lifeExpectancy.value || 90;
+
+  for(let i=0;i<sims;i++){
+
+    let nw = d.netWorth;
+
+    for(let a=age; a<=end; a++){
+
+      let r = (Math.random()*0.15) - 0.05; // -5% to +10%
+
+      let isRetired = a >= retire;
+
+      let expenses = d.expenses * Math.pow(1.03, a-age);
+
+      let flow = isRetired
+        ? -expenses
+        : (d.income - d.expenses);
+
+      nw = nw*(1+r) + flow;
+
+      if(nw <= 0) break;
+    }
+
+    if(nw > 0) success++;
+  }
+
+  return (success / sims) * 100;
+}
+
+
+// enhanced projection (withdrawal aware)
+function projectionReal(d){
+
+  let age = +currentAge.value || 40;
+  let retire = +retirementAge.value || 65;
+  let end = +lifeExpectancy.value || 90;
+
+  let nw = d.netWorth;
+
+  for(let a=age; a<=end; a++){
+
+    let isRetired = a >= retire;
+
+    let r = 0.06;
+    let expenses = d.expenses * Math.pow(1.03, a-age);
+
+    let flow = isRetired
+      ? -expenses
+      : (d.income - d.expenses);
+
+    nw = nw*(1+r) + flow;
+
+    if(nw <= 0){
+      return {
+        success:false,
+        failAge:a
+      };
+    }
+  }
+
+  return {success:true};
+}
+
+
+// =========================
+// EXTEND EXISTING updateAll (SAFE HOOK)
+// =========================
+
+const __originalUpdateAll = updateAll;
+
+updateAll = function(){
+
+  // run your existing logic FIRST
+  __originalUpdateAll();
+
+  try {
+
+    let d = calculate();
+
+    // NEW ENGINES
+    let mc = monteCarloReal(d);
+    let proj = projectionReal(d);
+
+    // overwrite outputs ONLY (no UI changes)
+    status.innerText =
+      proj.success ? "On Track" : "Fails at age " + proj.failAge;
+
+    failure.innerText =
+      "Success Rate: " + mc.toFixed(1) + "%";
+
+    action.innerText =
+      mc > 80 ? "Strong plan" :
+      mc > 60 ? "Moderate risk" :
+      "High risk — adjust plan";
+
+  } catch(e){
+    console.log("Monte Carlo error:", e);
+  }
+
+};
+  
 </script>
 
 </body>
