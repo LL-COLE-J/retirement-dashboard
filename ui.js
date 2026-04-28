@@ -1,30 +1,38 @@
-/* ==========================================================================
-   UI.JS - Dashboard & Event Handlers
-   ========================================================================== */
-function renderDashboard() {
-    const data = calculateBase();
-    const advisor = runAdvisor();
-
-    // Mapping to your UI IDs
-    document.getElementById("netWorth").innerText = "$" + data.netWorth.toLocaleString();
-    document.getElementById("income").innerText = "$" + data.grossIncome.toLocaleString();
-    document.getElementById("expensesOut").innerText = "$" + data.expenses.toLocaleString();
-    document.getElementById("savingsRate").innerText = data.savingsRate.toFixed(1) + "%";
-
-    // AI Advisor Mapping
-    document.getElementById("status").innerText = advisor.status;
-    document.getElementById("failure").innerText = advisor.failure;
-    document.getElementById("action").innerText = advisor.action;
-    document.getElementById("aiOutput").innerText = advisor.allInsights.join("\n\n");
+function renderFinancials() {
+    const taxes = calculateRobustTaxes();
+    const gross = bastionState.income;
+    
+    // Planner Report UI
+    document.getElementById('tax-report-ui').innerHTML = `
+        <div class="report-row"><span>Gross Income</span> <span>$${gross.toLocaleString()}</span></div>
+        <div class="report-row"><span>Estimated Fed</span> <span>-$${taxes.fed.toLocaleString()}</span></div>
+        <div class="report-row"><span>State (${bastionState.residence})</span> <span>-$${taxes.state.toLocaleString()}</span></div>
+        <div class="report-row"><span>FICA/SocSec</span> <span>-$${taxes.fica.toLocaleString()}</span></div>
+        <hr>
+        <div class="report-row total"><span>Net Take-Home</span> <span>$${(gross - taxes.total).toLocaleString()}</span></div>
+        <div class="effective-badge">Effective Rate: ${((taxes.total/gross)*100).toFixed(1)}%</div>
+    `;
 }
 
-function updateAssumption(key, value) {
-    state.assumptions[key] = parseFloat(value);
-    saveAndRefresh();
+async function refreshTicker() {
+    const sym = document.getElementById('ticker-input').value || 'BTC';
+    const output = document.getElementById('ticker-output');
+    output.innerText = "LOADING...";
+    
+    const price = await getTickerData(sym);
+    if (price) {
+        output.innerHTML = `$${price.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+    } else {
+        output.innerText = "TICKER ERROR";
+    }
 }
 
-function saveAndRefresh() {
-    localStorage.setItem("bastion_save", JSON.stringify(state));
-    renderDashboard();
-    // If you have a chart, trigger update here
+function updateTaxProfile(key, val) {
+    bastionState[key] = val;
+    renderFinancials();
 }
+
+// Initial Load
+window.onload = () => {
+    renderFinancials();
+};
