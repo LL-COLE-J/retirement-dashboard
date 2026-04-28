@@ -21,7 +21,6 @@
 
 body{background:var(--bg);display:flex;height:100vh;color:var(--text);}
 
-/* SIDEBAR */
 .sidebar{
   width:240px;
   background:#fff;
@@ -40,12 +39,7 @@ body{background:var(--bg);display:flex;height:100vh;color:var(--text);}
 }
 .nav-item.active{background:var(--accent);color:#fff;}
 
-/* MAIN */
-.main{
-  flex:1;
-  display:flex;
-  justify-content:center;
-}
+.main{flex:1;display:flex;justify-content:center;}
 
 .wrapper{
   width:1200px;
@@ -54,13 +48,9 @@ body{background:var(--bg);display:flex;height:100vh;color:var(--text);}
   padding:20px;
 }
 
-/* LEFT */
 .content{flex:2;}
-
-/* RIGHT */
 .side{flex:1;}
 
-/* CARDS */
 .card{
   background:#fff;
   border:1px solid var(--border);
@@ -69,14 +59,12 @@ body{background:var(--bg);display:flex;height:100vh;color:var(--text);}
   margin-bottom:16px;
 }
 
-/* GRID */
 .grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:16px;
 }
 
-/* INPUT */
 input, select{
   width:100%;
   padding:8px;
@@ -85,7 +73,6 @@ input, select{
   border-radius:8px;
 }
 
-/* BUTTON */
 button{
   margin-top:10px;
   padding:8px 12px;
@@ -105,7 +92,7 @@ button{
 
 <div class="sidebar">
 <div class="logo">
-  <img src="logo.png">
+  <img src="./logo.png" onerror="this.style.display='none'">
 </div>
 
 <div class="nav-item active" onclick="showView('dashboard',this)">Dashboard</div>
@@ -115,41 +102,33 @@ button{
 <div class="main">
 <div class="wrapper">
 
-<!-- LEFT -->
 <div class="content">
 
-<!-- DASHBOARD -->
 <div id="dashboard">
-
 <div class="grid">
 <div class="card"><div class="label">Net Worth</div><div id="netWorth" class="value"></div></div>
 <div class="card"><div class="label">Income</div><div id="income" class="value"></div></div>
 <div class="card"><div class="label">Expenses</div><div id="expensesOut" class="value"></div></div>
 <div class="card"><div class="label">Savings Rate</div><div id="savingsRate" class="value"></div></div>
 </div>
-
 </div>
 
-<!-- FINANCIALS -->
 <div id="financials" style="display:none">
 
 <div class="grid">
 
-<!-- INCOME -->
 <div class="card">
 <h4>Income</h4>
 <div id="incomeList"></div>
 <button onclick="addIncome()">Add Income</button>
 </div>
 
-<!-- EXPENSE -->
 <div class="card">
 <h4>Expenses</h4>
 <div id="expenseList"></div>
 <button onclick="addExpense()">Add Expense</button>
 </div>
 
-<!-- TAX -->
 <div class="card">
 <h4>Tax</h4>
 <select id="filing" onchange="state.filing=this.value;updateAll()">
@@ -159,19 +138,17 @@ button{
 </select>
 </div>
 
-<!-- DEPENDENTS -->
 <div class="card">
 <h4>Dependents</h4>
-<input id="dependents" placeholder="Monthly cost" onblur="state.depCost=+this.value||0;updateAll()">
+<div class="label">Number of Dependents</div>
+<input id="dependents" type="number" onblur="state.dependents=+this.value||0;updateAll()">
 </div>
 
-<!-- ACCOUNTS -->
 <div class="card">
 <h4>Accounts</h4>
 <input id="accBalance" placeholder="Balance" onblur="state.accounts=+this.value||0;updateAll()">
 </div>
 
-<!-- ASSETS -->
 <div class="card">
 <h4>Assets</h4>
 <input id="cash" placeholder="Cash" onblur="updateAll()">
@@ -179,13 +156,17 @@ button{
 <input id="debt" placeholder="Debt" onblur="updateAll()">
 </div>
 
+<div class="card">
+<button onclick="saveProfile()">Save Profile</button>
+<button onclick="loadProfile()">Load Profile</button>
 </div>
 
 </div>
 
 </div>
 
-<!-- RIGHT PANEL -->
+</div>
+
 <div class="side">
 
 <div class="card">
@@ -203,6 +184,11 @@ button{
 <div id="action"></div>
 </div>
 
+<div class="card">
+<h4>AI Advisor</h4>
+<div id="aiOutput">Waiting for analysis...</div>
+</div>
+
 </div>
 
 </div>
@@ -210,42 +196,56 @@ button{
 
 <script>
 
-/* STATE */
 let state={
   incomes:[],
   expenses:[],
   filing:"single",
-  depCost:0,
+  dependents:0,
   accounts:0
 };
 
 function norm(a,f){return a*(f==="monthly"?12:f==="biweekly"?26:1);}
 function money(n){return "$"+Number(n||0).toLocaleString();}
 
-/* TAX */
-function calcTax(income, filing){
-  let brackets={
-    single:[[10000,0.1],[40000,0.12],[85000,0.22]],
-    married_joint:[[20000,0.1],[80000,0.12],[170000,0.22]],
-    head:[[15000,0.1],[55000,0.12],[90000,0.22]]
+function calcTax(income, filing, dependents){
+
+  const standard = {
+    single: 13850,
+    married_joint: 27700,
+    head: 20800
   };
+
+  const brackets = {
+    single:[[11000,0.1],[44725,0.12],[95375,0.22]],
+    married_joint:[[22000,0.1],[89450,0.12],[190750,0.22]],
+    head:[[15700,0.1],[59850,0.12],[95350,0.22]]
+  };
+
+  let taxable = Math.max(0, income - standard[filing]);
+
   let tax=0,prev=0;
+
   for(let [limit,rate] of brackets[filing]){
-    if(income>limit){tax+=(limit-prev)*rate;prev=limit;}
-    else{tax+=(income-prev)*rate;break;}
+    if(taxable>limit){
+      tax+=(limit-prev)*rate;
+      prev=limit;
+    }else{
+      tax+=(taxable-prev)*rate;
+      break;
+    }
   }
-  return tax;
+
+  tax -= dependents * 2000;
+
+  return Math.max(0,tax);
 }
 
-/* CALC */
 function calculate(){
 
 let income=state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0);
 let expenses=state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0);
 
-expenses+=state.depCost||0;
-
-let tax=calcTax(income,state.filing);
+let tax=calcTax(income,state.filing,state.dependents);
 let net=income-expenses-tax;
 
 let netWorth=
@@ -259,44 +259,39 @@ let savingsRate=income>0?((income-expenses)/income)*100:0;
 return{income,expenses,net,netWorth,savingsRate};
 }
 
-  let aiTimer;
-let lastPayload = null;
+let aiTimer;
+let lastPayload=null;
 
-function shouldCallAI(payload){
-  const str = JSON.stringify(payload);
-  if(str === lastPayload) return false;
-  lastPayload = str;
+function shouldCallAI(p){
+  let s=JSON.stringify(p);
+  if(s===lastPayload)return false;
+  lastPayload=s;
   return true;
 }
 
 function triggerAI(data){
 
-  if(!shouldCallAI(data)) return;
+if(!shouldCallAI(data)) return;
 
-  clearTimeout(aiTimer);
+clearTimeout(aiTimer);
 
-  aiTimer = setTimeout(async () => {
+aiTimer=setTimeout(async()=>{
 
-    try {
-
-      const res = await fetch("YOUR_WORKER_URL_HERE", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify(data)
-      });
-
-      const json = await res.json();
-
-      document.getElementById("aiOutput").innerText = json.result;
-
-    } catch(e){
-      document.getElementById("aiOutput").innerText = "AI unavailable";
-    }
-
-  }, 2000); // debounce = cost control
+try{
+let res=await fetch("https://summer-boat-369f.llcolej8.workers.dev/",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+});
+let json=await res.json();
+aiOutput.innerText=json.result;
+}catch{
+aiOutput.innerText="AI unavailable";
 }
 
-/* UPDATE */
+},2000);
+}
+
 function updateAll(){
 
 let d=calculate();
@@ -306,48 +301,55 @@ income.innerText=money(d.income);
 expensesOut.innerText=money(d.expenses);
 savingsRate.innerText=d.savingsRate.toFixed(1)+"%";
 
-/* STATUS */
 let yearsSafe=d.net>0?(d.netWorth/(d.expenses||1)):0;
 
-status.innerText=
-yearsSafe>25?"Stable":
-yearsSafe>15?"Moderate":
-"At Risk";
-
+status.innerText=yearsSafe>25?"Stable":yearsSafe>15?"Moderate":"At Risk";
 failure.innerText=yearsSafe>0?"Runs out in "+yearsSafe.toFixed(1)+" yrs":"Already negative";
+action.innerText=d.net<0?"Reduce expenses":d.savingsRate<15?"Increase savings":"Maintain course";
 
-action.innerText=
-d.net<0?"Reduce expenses":
-d.savingsRate<15?"Increase savings":
-"Maintain course";
-
+triggerAI({
+netWorth:d.netWorth,
+income:d.income,
+expenses:d.expenses,
+savingsRate:d.savingsRate,
+yearsSafe:yearsSafe
+});
 }
 
-/* STREAMS */
-function addIncome(){
-state.incomes.push({amount:0,freq:"yearly"});
-renderStreams();
-}
-function addExpense(){
-state.expenses.push({amount:0,freq:"yearly"});
-renderStreams();
-}
+function addIncome(){state.incomes.push({amount:0,freq:"yearly"});renderStreams();}
+function addExpense(){state.expenses.push({amount:0,freq:"yearly"});renderStreams();}
 
 function renderStreams(){
 
 incomeList.innerHTML=state.incomes.map((i,idx)=>`
+<div class="label">Income</div>
 <input value="${i.amount||""}"
 onblur="state.incomes[${idx}].amount=+this.value||0;updateAll()">
 `).join("");
 
 expenseList.innerHTML=state.expenses.map((e,idx)=>`
+<div class="label">Expense</div>
 <input value="${e.amount||""}"
 onblur="state.expenses[${idx}].amount=+this.value||0;updateAll()">
 `).join("");
-
 }
 
-/* NAV */
+function saveProfile(){
+let name=prompt("Profile name?");
+if(!name)return;
+localStorage.setItem("profile_"+name,JSON.stringify(state));
+alert("Saved");
+}
+
+function loadProfile(){
+let name=prompt("Load which profile?");
+let data=localStorage.getItem("profile_"+name);
+if(!data)return alert("Not found");
+state=JSON.parse(data);
+renderStreams();
+updateAll();
+}
+
 function showView(id,el){
 ["dashboard","financials"].forEach(v=>document.getElementById(v).style.display="none");
 document.getElementById(id).style.display="block";
@@ -355,21 +357,12 @@ document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
 el.classList.add("active");
 }
 
-/* INIT */
 window.onload=()=>{
 state.incomes.push({amount:80000,freq:"yearly"});
 state.expenses.push({amount:40000,freq:"yearly"});
 renderStreams();
 updateAll();
 };
-
-  triggerAI({
-  netWorth: d.netWorth,
-  income: d.income,
-  expenses: d.expenses,
-  savingsRate: d.savingsRate,
-  yearsSafe: yearsSafe
-});
 
 </script>
 
