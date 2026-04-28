@@ -1,113 +1,61 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bastion | Life-Cycle Planner</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root { --bg: #f8fafc; --sidebar: #0f172a; --card: #ffffff; --text: #0f172a; --sub: #64748b; --accent: #38bdf8; --border: #e2e8f0; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
-        
-        /* Sidebar Navigation */
-        .sidebar { width: 240px; background: var(--sidebar); padding: 32px 20px; display: flex; flex-direction: column; color: white; }
-        .logo { font-weight: 800; font-size: 18px; letter-spacing: 2px; margin-bottom: 40px; color: var(--accent); }
-        .nav-item { padding: 12px 16px; border-radius: 8px; cursor: pointer; color: #94a3b8; margin-bottom: 8px; font-size: 14px; font-weight: 600; transition: 0.2s; }
-        .nav-item.active { background: rgba(255,255,255,0.1); color: white; border-left: 3px solid var(--accent); }
+let wealthChart;
 
-        /* Main Workspace */
-        .main { flex: 1; overflow-y: auto; padding: 40px; }
-        .container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 320px; gap: 32px; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        
-        /* Typography & Layout */
-        h3 { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--sub); margin-bottom: 16px; letter-spacing: 1px; }
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-        .input-group { margin-bottom: 12px; }
-        label { display: block; font-size: 10px; font-weight: 700; color: var(--sub); text-transform: uppercase; margin-bottom: 4px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; outline: none; background: #fcfdfe; }
+function switchTab(tabId) {
+    document.getElementById('financials-tab').style.display = 'none';
+    document.getElementById('analytics-tab').style.display = 'none';
+    document.getElementById(tabId + '-tab').style.display = 'block';
+    
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.toggle('active', item.innerText.toLowerCase().includes(tabId.split('-')[0]));
+    });
+    if (tabId === 'analytics') recalc();
+}
 
-        /* Metrics & Charts */
-        .chart-container { height: 350px; position: relative; width: 100%; }
-        .metric-val { font-size: 26px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
-        .metric-label { font-size: 11px; color: var(--sub); font-weight: 600; margin-bottom: 16px; display: block; }
-        
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 9px; font-weight: 800; text-transform: uppercase; margin-left: 8px; }
-        .badge.safe { background: #dcfce7; color: #166534; }
-        .badge.risk { background: #fee2e2; color: #991b1b; }
+function recalc() {
+    const inc = parseFloat(document.getElementById('inc-gross').value) || 0;
+    const state = document.getElementById('state-select').value;
+    const status = document.getElementById('filing-status').value;
+    
+    // Process Tax Data
+    const taxData = BASTION_ENGINE.getTaxWork(inc, state, status);
+    
+    // Update Advisor Lab
+    document.getElementById('val-eff-rate').innerText = `${taxData.effRate.toFixed(1)}%`;
+    document.getElementById('val-tax-total').innerText = `$${Math.round(taxData.total).toLocaleString()}`;
+    document.getElementById('logic-content').innerHTML = taxData.work;
 
-        .advisor-box { background: #f1f5f9; border-left: 4px solid var(--sidebar); padding: 16px; font-size: 12px; line-height: 1.6; border-radius: 0 8px 8px 0; }
-    </style>
-</head>
-<body>
+    // Run Analytics if on that tab
+    if (document.getElementById('analytics-tab').style.display !== 'none') {
+        const projection = BASTION_ENGINE.runProjection(inc, 250000, 7, 3);
+        renderChart(projection);
+    }
+}
 
-<nav class="sidebar">
-    <div class="logo">BASTION</div>
-    <div class="nav-item" onclick="switchTab('analytics')">Analytics</div>
-    <div class="nav-item active" onclick="switchTab('financials')">Planning Lab</div>
-</nav>
+function renderChart(data) {
+    const ctx = document.getElementById('wealthChart').getContext('2d');
+    if (wealthChart) wealthChart.destroy();
+    
+    wealthChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array.from({length: 31}, (_, i) => 2026 + i),
+            datasets: [{
+                label: 'Real Wealth (Inflation Adjusted)',
+                data: data,
+                borderColor: '#38bdf8',
+                backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { ticks: { callback: v => '$' + (v/1000).toLocaleString() + 'k' } }
+            }
+        }
+    });
+}
 
-<main class="main">
-    <div class="container">
-        <div class="lab-content">
-            <section id="analytics-tab" style="display:none">
-                <div class="card">
-                    <h3>Net Worth Projection (Real Dollars)</h3>
-                    <div class="chart-container">
-                        <canvas id="wealthChart"></canvas>
-                    </div>
-                </div>
-            </section>
-
-            <section id="financials-tab">
-                <div class="card">
-                    <h3>Current Accumulation Stage</h3>
-                    <div class="grid-3">
-                        <div class="input-group"><label>Current Age</label><input type="number" id="age-current" value="35" oninput="recalc()"></div>
-                        <div class="input-group"><label>Retirement Age</label><input type="number" id="age-retire" value="65" oninput="recalc()"></div>
-                        <div class="input-group"><label>Annual Gross</label><input type="number" id="inc-gross" value="120000" oninput="recalc()"></div>
-                    </div>
-                    <div class="grid-3">
-                        <div class="input-group"><label>Cash/Emergency</label><input type="number" id="asset-cash" value="25000" oninput="recalc()"></div>
-                        <div class="input-group"><label>Taxable (Brokerage)</label><input type="number" id="asset-taxable" value="50000" oninput="recalc()"></div>
-                        <div class="input-group"><label>Tax-Deferred (401k)</label><input type="number" id="asset-trad" value="100000" oninput="recalc()"></div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3>Growth & Macro Assumptions</h3>
-                    <div class="grid-3">
-                        <div class="input-group"><label>Annual Savings ($)</label><input type="number" id="save-annual" value="15000" oninput="recalc()"></div>
-                        <div class="input-group"><label>Market Return (%)</label><input type="number" id="rate-return" value="7" oninput="recalc()"></div>
-                        <div class="input-group"><label>Inflation Rate (%)</label><input type="number" id="rate-inflation" value="3" oninput="recalc()"></div>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <aside class="advisor-lab">
-            <h3>Advisor Intelligence</h3>
-            <div class="card">
-                <label>Terminal Wealth (Age 90)</label>
-                <div class="metric-val" id="val-terminal">$0</div>
-                
-                <label>Monthly Retirement Budget</label>
-                <div class="metric-val" id="val-budget">$0</div>
-                
-                <label>Tax Resilience Score</label>
-                <div id="tax-score" class="metric-val">0/100</div>
-
-                <div class="advisor-box" id="pro-insight">
-                    Input your parameters to generate life-cycle insights.
-                </div>
-            </div>
-        </aside>
-    </div>
-</main>
-
-<script src="engine.js"></script>
-<script src="ui.js"></script>
-</body>
-</html>
+window.onload = recalc;
