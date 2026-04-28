@@ -130,19 +130,56 @@ canvas{height:200px!important;}
 <script>
 
 /* =========================
-   STATE
+   STATE (UPGRADED)
 ========================= */
 let state = {
   incomes: [],
   expenses: [],
-  assets: { cash:0, invest:0, debt:0 }
+  accounts: [
+    {type:"401k", balance:0, contrib:0, match:0}
+  ],
+  dependents: [],
+  assets: { cash:0, invest:0, debt:0 },
+  filing:"single"
 };
 
-/* HELPERS */
-function norm(a,f){ return a*(f==="monthly"?12:f==="biweekly"?26:1); }
-function money(n){ return "$"+Number(n||0).toLocaleString(); }
+/* =========================
+   HELPERS
+========================= */
+function norm(a,f){
+  return a*(f==="monthly"?12:f==="biweekly"?26:1);
+}
 
-/* CALC */
+function money(n){
+  return "$"+Number(n||0).toLocaleString();
+}
+
+/* =========================
+   TAX
+========================= */
+function calcTax(income, filing){
+  let brackets={
+    single:[[10000,0.1],[40000,0.12],[85000,0.22]],
+    married_joint:[[20000,0.1],[80000,0.12],[170000,0.22]],
+    head:[[15000,0.1],[55000,0.12],[90000,0.22]]
+  };
+
+  let tax=0,prev=0;
+  for(let [limit,rate] of brackets[filing]){
+    if(income>limit){
+      tax+=(limit-prev)*rate;
+      prev=limit;
+    }else{
+      tax+=(income-prev)*rate;
+      break;
+    }
+  }
+  return tax;
+}
+
+/* =========================
+   CORE CALC (YOUR VERSION)
+========================= */
 function calculate(){
 
   let income = state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0)
@@ -151,19 +188,49 @@ function calculate(){
   let expenses = state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0)
     || (+exp.value||0);
 
-  let net = income - expenses;
+  /* DEPENDENTS */
+  let depCost = state.dependents.reduce((s,d)=>s+d.cost,0);
+  expenses += depCost;
+
+  /* ACCOUNT CONTRIBUTIONS */
+  let contrib = state.accounts.reduce((s,a)=> s + (a.contrib || 0),0);
+
+  /* MATCH */
+  let match = state.accounts.reduce((s,a)=>{
+    if(a.match) return s + (a.contrib * a.match / 100);
+    return s;
+  },0);
+
+  let totalSavings = contrib + match;
+
+  let net = income - expenses - contrib;
+
+  /* NET WORTH */
+  let accountValue = state.accounts.reduce((s,a)=>s + (a.balance || 0),0);
 
   let netWorth =
+    accountValue +
     (+cash.value||0) +
     (+invest.value||0) -
     (state.assets.debt||0);
 
-  let savingsRate = income>0 ? ((income-expenses)/income)*100 : 0;
+  let savingsRate = income > 0 ? ((income - expenses) / income) * 100 : 0;
 
-  return { income, expenses, net, netWorth, savingsRate };
+  return {
+    income,
+    expenses,
+    net,
+    netWorth,
+    savingsRate,
+    contrib,
+    match,
+    totalSavings
+  };
 }
 
-/* UPDATE */
+/* =========================
+   UPDATE
+========================= */
 function updateAll(){
 
   let d = calculate();
@@ -186,20 +253,27 @@ function updateAll(){
   retirementSummary.innerHTML = `
     Status: ${decision}<br>
     Net: ${money(d.net)}<br>
-    Years Safe: ${yearsSafe.toFixed(1)}
+    Annual Savings: ${money(d.totalSavings)}<br>
+    Employer Match: ${money(d.match)}
   `;
 
+  /* AI */
   let ai=[];
   if(decision==="FAIL") ai.push("🚨 Retirement not viable.");
   else if(decision==="RISK") ai.push("⚠️ Plan fragile.");
   else ai.push("✅ Plan solid.");
 
+  if(d.savingsRate < 10) ai.push("Savings rate too low.");
   if(d.net < 0) ai.push("Spending exceeds income.");
+
+  ai.push("Action: increase contributions or reduce expenses.");
 
   aiOutput.innerHTML = ai.join("<br><br>");
 }
 
-/* STREAM INPUTS */
+/* =========================
+   STREAM INPUTS
+========================= */
 function addIncome(){
   state.incomes.push({amount:0,freq:"yearly"});
   renderStreams();
@@ -223,7 +297,9 @@ function renderStreams(){
   `).join("");
 }
 
-/* NAV */
+/* =========================
+   NAV
+========================= */
 function showView(id,el){
   ["dashboard","financials","scenarios"].forEach(v=>{
     document.getElementById(v).style.display="none";
@@ -233,7 +309,9 @@ function showView(id,el){
   el.classList.add("active");
 }
 
-/* INIT */
+/* =========================
+   INIT
+========================= */
 window.onload=()=>{
   state.incomes.push({amount:80000,freq:"yearly"});
   state.expenses.push({amount:40000,freq:"yearly"});
