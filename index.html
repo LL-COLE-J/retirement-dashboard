@@ -436,6 +436,168 @@ updateAll = function(){
   }
 
 };
+
+  // =========================
+// INPUT SANITIZATION (NO MORE GHOST VALUES)
+// =========================
+
+function getSafeIncome(){
+  if(state.incomes.length === 0) return 0;
+  return state.incomes.reduce((s,i)=>s+(i.amount||0),0);
+}
+
+function getSafeExpenses(){
+  // if user typed anything, ignore defaults
+  let manual = document.querySelectorAll("#expenseList input");
+  let hasManual = [...manual].some(i => i.value && +i.value > 0);
+
+  if(hasManual){
+    let total = 0;
+    manual.forEach(i=>{
+      total += (+i.value || 0);
+    });
+    return total;
+  }
+
+  return state.expenses.reduce((s,e)=>s+(e.amount||0),0);
+}
+
+
+// =========================
+// OVERRIDE CALC SAFELY
+// =========================
+
+const __oldCalculate = calculate;
+
+calculate = function(){
+
+  let d = __oldCalculate();
+
+  let safeIncome = getSafeIncome();
+  let safeExpenses = getSafeExpenses();
+
+  d.income = safeIncome;
+  d.expenses = safeExpenses;
+
+  return d;
+};
+
+
+// =========================
+// INTERACTIVE RIGHT PANEL (CLICKABLE CARDS)
+// =========================
+
+function explain(type){
+
+  let text = "";
+
+  if(type==="status"){
+    text = "Status shows whether your plan survives from your current age to life expectancy.";
+  }
+
+  if(type==="failure"){
+    text = "Success Rate = probability your money lasts through retirement using simulations.";
+  }
+
+  if(type==="action"){
+    text = "Action is based on savings rate and Monte Carlo success probability.";
+  }
+
+  if(type==="ai"){
+    text = "AI summarizes your biggest financial risks and next best move.";
+  }
+
+  aiOutput.innerText = text;
+}
+
+// make cards clickable
+setTimeout(()=>{
+  status.parentElement.onclick = ()=>explain("status");
+  failure.parentElement.onclick = ()=>explain("failure");
+  action.parentElement.onclick = ()=>explain("action");
+  aiOutput.parentElement.onclick = ()=>explain("ai");
+},500);
+
+
+// =========================
+// SCENARIO EXPLANATION (VISIBLE CONTEXT)
+// =========================
+
+function updateScenarioExplanation(){
+
+  let age = +currentAge.value || 0;
+  let retire = +retirementAge.value || 0;
+
+  let text = `
+  You are modeling a plan from age ${age} to ${retire}.
+  Income stops at retirement.
+  Expenses continue and grow with inflation.
+  Your investments fund retirement.
+  `;
+
+  aiOutput.innerText = text;
+}
+
+// attach
+["currentAge","retirementAge","lifeExpectancy"].forEach(id=>{
+  document.getElementById(id).addEventListener("input",updateScenarioExplanation);
+});
+
+
+// =========================
+// DASHBOARD INFOGRAPHICS (LIGHTWEIGHT)
+// =========================
+
+function renderDashboardCharts(d){
+
+  // simple bar visualization (no library)
+  let container = document.getElementById("dashboard");
+
+  let existing = document.getElementById("miniChart");
+  if(existing) existing.remove();
+
+  let chart = document.createElement("div");
+  chart.id = "miniChart";
+  chart.style.marginTop = "20px";
+
+  let incomeBar = (d.income/1000);
+  let expenseBar = (d.expenses/1000);
+
+  chart.innerHTML = `
+    <div style="margin-top:10px">
+      <div>Income</div>
+      <div style="background:#0f172a;height:10px;width:${incomeBar}px"></div>
+    </div>
+    <div style="margin-top:10px">
+      <div>Expenses</div>
+      <div style="background:#dc2626;height:10px;width:${expenseBar}px"></div>
+    </div>
+  `;
+
+  container.appendChild(chart);
+}
+
+
+// =========================
+// EXTEND UPDATE AGAIN (FINAL LAYER)
+// =========================
+
+const __finalUpdate = updateAll;
+
+updateAll = function(){
+
+  __finalUpdate();
+
+  try{
+    let d = calculate();
+
+    renderDashboardCharts(d);
+    updateScenarioExplanation();
+
+  }catch(e){
+    console.log("Final layer error:", e);
+  }
+};
   
 </script>
 
