@@ -1,279 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bastion Insights | Advanced Planning Lab</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8"><title>Bastion | Planning Lab Pro</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root {
-            --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0;
-            --text-main: #1e293b; --text-sub: #64748b;
-            --accent: #0f172a; --danger: #ef4444; --success: #10b981;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
-
-        /* Navigation */
-        .sidebar { width: 260px; background: #fff; border-right: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; }
-        .logo-container { margin-bottom: 40px; }
-        .nav-item { padding: 12px 16px; border-radius: 8px; cursor: pointer; color: var(--text-sub); margin-bottom: 8px; font-weight: 500; }
-        .nav-item.active { background: var(--accent); color: #fff; }
-
-        /* Main Layout */
-        .main { flex: 1; overflow-y: auto; padding: 32px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 1240px; display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-        .card-title { font-size: 12px; font-weight: 800; color: var(--text-sub); text-transform: uppercase; margin-bottom: 16px; display: flex; justify-content: space-between; }
-
-        /* Dashboard Stats */
-        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: #fff; border: 1px solid var(--border); padding: 16px; border-radius: 12px; }
-        .stat-val { font-size: 20px; font-weight: 700; color: var(--accent); }
-
-        /* Financials Lab Table Style */
-        .lab-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 8px; align-items: center; }
-        input, select { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; }
-        label { display: block; font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 4px; }
-        
-        .btn-add { background: #f1f5f9; border: 1px dashed var(--border); width: 100%; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
-        .btn-add:hover { background: #e2e8f0; }
-
-        /* AI Advisor Styling */
-        .ai-output { background: #f8fafc; border-left: 4px solid var(--accent); padding: 16px; border-radius: 8px; font-size: 13px; line-height: 1.6; }
-        .tax-pill { display: inline-block; padding: 2px 8px; background: #e2e8f0; border-radius: 4px; font-weight: 700; font-size: 10px; }
-    </style>
 </head>
 <body>
-
-<div class="sidebar">
-    <div class="logo-container">
-        <h2 style="letter-spacing: -1px; color: var(--accent)">BASTION</h2>
-        <p style="font-size: 10px; font-weight: 800; color: var(--text-sub)">PLANNING LAB PRO</p>
+    <div class="sidebar">
+        <div class="logo">BASTION <small>PRO</small></div>
+        <div class="nav-item active" onclick="switchTab('dashboard')">Dashboard</div>
+        <div class="nav-item" onclick="switchTab('financials')">Financials</div>
+        <div class="nav-item" onclick="switchTab('markets')">Markets</div>
     </div>
-    <div class="nav-item active" onclick="switchTab('dashboard', this)">Dashboard</div>
-    <div class="nav-item" onclick="switchTab('financials', this)">Financials</div>
-    <div class="nav-item" onclick="switchTab('scenarios', this)">Scenarios</div>
-    <div class="nav-item" onclick="switchTab('markets', this)">Markets</div>
-</div>
 
-<div class="main">
-    <div class="container">
-        <div class="content">
-            
-            <div id="dashboard-tab">
-                <div class="stat-grid">
-                    <div class="stat-card"><label>Net Worth</label><div id="nw-val" class="stat-val">$0</div></div>
-                    <div class="stat-card"><label>Monthly Surplus</label><div id="surp-val" class="stat-val">$0</div></div>
-                    <div class="stat-card"><label>Effective Tax</label><div id="tax-val" class="stat-val">0%</div></div>
-                    <div class="stat-card"><label>Savings Rate</label><div id="sr-val" class="stat-val">0%</div></div>
-                </div>
-                <div class="card">
-                    <div class="card-title">Wealth Path (30 Year Projection)</div>
-                    <canvas id="mainChart" height="120"></canvas>
-                </div>
-            </div>
-
-            <div id="financials-tab" style="display:none;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <div class="card">
-                            <div class="card-title">Tax Accountant <span class="tax-pill" id="tax-status">2026 BRACKETS</span></div>
-                            <div class="lab-row" style="grid-template-columns: 1fr 1fr;">
-                                <div><label>Filing Status</label>
-                                    <select id="filing" onchange="updateState('filing', this.value)">
-                                        <option value="single">Single</option>
-                                        <option value="married">Married Filing Jointly</option>
-                                    </select>
-                                </div>
-                                <div><label>State</label>
-                                    <select id="residence" onchange="updateState('residence', this.value)">
-                                        <option value="TN">Tennessee (0%)</option>
-                                        <option value="TX">Texas (0%)</option>
-                                        <option value="FL">Florida (0%)</option>
-                                        <option value="CA">California (Graduated)</option>
-                                        <option value="NY">New York (Graduated)</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="card-title">Income Sources</div>
-                            <div id="incomeList"></div>
-                            <button class="btn-add" onclick="addIncome()">+ Add New Stream</button>
-                        </div>
+    <main class="main-content">
+        <div id="financials-tab" class="tab-content" style="display:none;">
+            <div class="grid-2">
+                <div class="col">
+                    <div class="card">
+                        <h3>Tax Accountant</h3>
+                        <label>Filing Status</label>
+                        <select id="filing" onchange="updateTaxProfile('filing', this.value)">
+                            <option value="single">Single</option>
+                            <option value="married">Married Filing Jointly</option>
+                        </select>
+                        <label>State of Residence</label>
+                        <select id="residence" onchange="updateTaxProfile('residence', this.value)">
+                            <option value="TN">Tennessee (0%)</option>
+                            <option value="TX">Texas (0%)</option>
+                            <option value="CA">California (Graduated)</option>
+                            <option value="NY">New York (Graduated)</option>
+                        </select>
                     </div>
-                    <div>
-                        <div class="card">
-                            <div class="card-title">Account Balances (Banker)</div>
-                            <div id="accountList"></div>
-                            <button class="btn-add" onclick="addAccount()">+ Add Account</button>
-                        </div>
-                        <div class="card">
-                            <div class="card-title">Fixed Assets & Liabilities</div>
-                            <div class="lab-row" style="grid-template-columns: 1fr 1fr;">
-                                <div><label>Real Estate/Other</label><input type="number" id="asset-cash" onblur="updateAsset('cash', this.value)"></div>
-                                <div><label>Total Debt</label><input type="number" id="asset-debt" onblur="updateAsset('debt', this.value)"></div>
-                            </div>
-                        </div>
+                    <div class="card">
+                        <h3>Income Streams</h3>
+                        <div id="income-list"></div>
+                        <button onclick="addIncomeLine()">+ Add Income</button>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card planning-report">
+                        <h3>Financial Planner Report</h3>
+                        <div id="tax-report-ui"></div>
+                    </div>
+                    <div class="card">
+                        <h3>Banker (Assets & Liabilities)</h3>
+                        <div id="account-list"></div>
+                        <button onclick="addAccountLine()">+ Add Account</button>
                     </div>
                 </div>
             </div>
-            
-            <div id="scenarios-tab" style="display:none;"><div class="card">Scenario Engine coming in next update.</div></div>
-            <div id="markets-tab" style="display:none;">
-                <div class="card">
-                    <div class="card-title">Live Market Ticker</div>
-                    <div class="lab-row" style="grid-template-columns: 2fr 1fr;">
-                        <input type="text" id="ticker-input" placeholder="Enter Ticker (e.g. TSLA)">
-                        <button onclick="fetchTicker()">Update Price</button>
-                    </div>
-                    <div id="ticker-output" style="font-size: 32px; font-weight: 700; margin-top: 20px;">$0.00</div>
+        </div>
+
+        <div id="markets-tab" class="tab-content" style="display:none;">
+            <div class="card ticker-card">
+                <h3>Live Market Pulse</h3>
+                <div class="input-group">
+                    <input type="text" id="ticker-input" placeholder="Symbol (e.g. AAPL)">
+                    <button onclick="refreshTicker()">Update Price</button>
                 </div>
+                <div id="ticker-output" class="big-price">--</div>
             </div>
         </div>
+    </main>
 
-        <div class="advisor">
-            <div class="card-title">Advisor Lab</div>
-            <div class="card">
-                <label>System Status</label>
-                <div id="ai-status" style="font-weight: 800; font-size: 14px; margin-bottom: 12px;">--</div>
-                <label>Tax Estimate</label>
-                <div id="ai-tax-amt" style="font-size: 14px; margin-bottom: 12px;">$0 /yr</div>
-                <label>Advisor Insight</label>
-                <div id="ai-box" class="ai-output">Input your financials to activate the Bastion AI Advisor.</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-/* ==========================================================================
-   THE ENGINE: CALCULATIONS & TAXES
-   ========================================================================== */
-let state = {
-    incomes: [{amount: 120000, freq: "yearly"}],
-    accounts: [{type: "401k", balance: 50000, contrib: 500}],
-    assets: { cash: 10000, debt: 0 },
-    tax: { filing: "single", residence: "TN" },
-    assumptions: { age: 40, retire: 65, life: 90 }
-};
-
-const FED_2026 = {
-    single: [{t: 0, r: 0.10}, {t: 11600, r: 0.12}, {t: 47150, r: 0.22}, {t: 100525, r: 0.24}],
-    married: [{t: 0, r: 0.10}, {t: 23200, r: 0.12}, {t: 94300, r: 0.22}, {t: 201050, r: 0.24}]
-};
-
-function calculate() {
-    const gross = state.incomes.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
-    const deduction = state.tax.filing === 'married' ? 29200 : 14600;
-    const taxable = Math.max(0, gross - deduction);
-    
-    // Tax Engine
-    let fedTax = 0;
-    const brackets = FED_2026[state.tax.filing];
-    for (let i = 0; i < brackets.length; i++) {
-        let b = brackets[i];
-        let nextT = brackets[i+1] ? brackets[i+1].t : Infinity;
-        if (taxable > b.t) fedTax += (Math.min(taxable, nextT) - b.t) * b.r;
-    }
-
-    const stateRate = { "TN": 0, "TX": 0, "FL": 0, "CA": 0.08, "NY": 0.06 }[state.tax.residence];
-    const totalTax = fedTax + (taxable * stateRate);
-    
-    const nw = state.accounts.reduce((s, a) => s + (parseFloat(a.balance) || 0), 0) + (parseFloat(state.assets.cash) || 0) - (parseFloat(state.assets.debt) || 0);
-    const surplus = (gross - totalTax) / 12 - state.accounts.reduce((s, a) => s + (parseFloat(a.contrib) || 0), 0);
-
-    return { gross, totalTax, taxable, nw, surplus, rate: (totalTax/gross)*100 };
-}
-
-/* ==========================================================================
-   UI CONTROLS
-   ========================================================================== */
-let chart;
-function renderAll() {
-    const d = calculate();
-    
-    // Update Stats
-    document.getElementById("nw-val").innerText = "$" + Math.round(d.nw).toLocaleString();
-    document.getElementById("surp-val").innerText = "$" + Math.round(d.surplus).toLocaleString();
-    document.getElementById("tax-val").innerText = d.rate.toFixed(1) + "%";
-    
-    // AI Advisor
-    document.getElementById("ai-tax-amt").innerText = "$" + Math.round(d.totalTax).toLocaleString() + " /yr";
-    const aiStatus = document.getElementById("ai-status");
-    if (d.surplus > 0) { aiStatus.innerText = "OPTIMAL"; aiStatus.style.color = "var(--success)"; }
-    else { aiStatus.innerText = "DEFICIT"; aiStatus.style.color = "var(--danger)"; }
-
-    document.getElementById("ai-box").innerHTML = `
-        Your <strong>${state.tax.filing}</strong> filing in <strong>${state.tax.residence}</strong> results in a 
-        $${Math.round(d.totalTax).toLocaleString()} tax liability. 
-        <br><br><strong>Strategy:</strong> Since your taxable income is $${Math.round(d.taxable).toLocaleString()}, 
-        every $1,000 you add to your 401k saves you roughly $220 in taxes.
-    `;
-
-    renderLists();
-    updateChart(d.nw, d.surplus * 12);
-}
-
-function renderLists() {
-    document.getElementById("incomeList").innerHTML = state.incomes.map((i, idx) => `
-        <div class="lab-row">
-            <input type="number" value="${i.amount}" onblur="state.incomes[${idx}].amount=this.value;renderAll()">
-            <div style="font-size:11px; font-weight:700">YEARLY</div>
-        </div>
-    `).join("");
-
-    document.getElementById("accountList").innerHTML = state.accounts.map((a, idx) => `
-        <div class="lab-row">
-            <input value="${a.type}" onblur="state.accounts[${idx}].type=this.value">
-            <input type="number" value="${a.balance}" onblur="state.accounts[${idx}].balance=this.value;renderAll()">
-            <input type="number" value="${a.contrib}" onblur="state.accounts[${idx}].contrib=this.value;renderAll()">
-        </div>
-    `).join("");
-}
-
-function updateChart(startNW, annualSurplus) {
-    let pts = [];
-    let curr = startNW;
-    for(let i=0; i<=30; i++) {
-        curr = (curr + annualSurplus) * 1.07;
-        pts.push(curr);
-    }
-    const ctx = document.getElementById("mainChart").getContext("2d");
-    if(chart) chart.destroy();
-    chart = new Chart(ctx, {
-        type: 'line',
-        data: { labels: Array.from({length:31}, (_,i)=>40+i), datasets: [{ label: 'Net Worth', data: pts, borderColor: '#0f172a', tension: 0.4, fill: true, backgroundColor: 'rgba(15,23,42,0.05)' }] },
-        options: { plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => '$' + (v/1000000).toFixed(1) + 'M' }}}}
-    });
-}
-
-function switchTab(id, el) {
-    ['dashboard', 'financials', 'scenarios', 'markets'].forEach(t => document.getElementById(t+'-tab').style.display = t === id ? 'block' : 'none');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    el.classList.add('active');
-}
-
-// Global Handlers
-function updateState(key, val) { state.tax[key] = val; renderAll(); }
-function updateAsset(key, val) { state.assets[key] = val; renderAll(); }
-function addIncome() { state.incomes.push({amount: 0, freq: "yearly"}); renderAll(); }
-function addAccount() { state.accounts.push({type: "New Account", balance: 0, contrib: 0}); renderAll(); }
-
-async function fetchTicker() {
-    const sym = document.getElementById('ticker-input').value.toUpperCase();
-    const out = document.getElementById('ticker-output');
-    out.innerText = "FETCHING...";
-    try {
-        const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${sym}USDT`); // Using public crypto/stock proxy for demo
-        const data = await res.json();
-        out.innerText = `$${parseFloat(data.price).toLocaleString()}`;
-    } catch(e) { out.innerText = "TICKER NOT FOUND"; }
-}
-
-window.onload = renderAll;
-</script>
+    <script src="engine.js"></script>
+    <script src="ui.js"></script>
 </body>
 </html>
