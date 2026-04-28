@@ -53,7 +53,7 @@ button{
   cursor:pointer;
 }
 
-.row{margin-bottom:10px;}
+.row{margin-bottom:12px;}
 .label{font-size:12px;color:var(--sub);}
 .value{font-weight:600;margin-top:4px;}
 </style>
@@ -190,20 +190,20 @@ let state = {
   liabilities: [],
   filing:"single",
   taxState:"TN",
-  markets:{indices:{},userTickers:[]},
+  markets:{
+    indices:{},
+    userTickers:[],
+    enabled:true
+  },
   timeline:{currentAge:40,retirementAge:65,lifeExpectancy:90},
   settings:{inflation:0.03}
 };
 
 const states = ["TN","CA","NY","TX","FL"];
-const accountTypes = ["401k","Roth IRA","Brokerage","HSA"];
-const expenseTypes = ["Housing","Food","Transport","Other"];
-const assetTypes = ["Cash","Investments","Real Estate"];
-const liabilityTypes = ["Mortgage","Credit Card","Loan"];
 
 function norm(a,f){ return (+a||0)*(f==="monthly"?12:1); }
 
-/* ENGINE SAME */
+/* ENGINE UNCHANGED */
 function calculate(){
   let income = state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0);
   let expenses = state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0);
@@ -267,30 +267,65 @@ function updateAll(){
   renderMarkets();
 }
 
-/* MARKETS */
+/* MARKETS (CORS SAFE) */
 async function fetchMarkets(){
-  try{
-    let spy = await fetch("https://finnhub.io/api/v1/quote?symbol=SPY&token=demo").then(r=>r.json());
-    let qqq = await fetch("https://finnhub.io/api/v1/quote?symbol=QQQ&token=demo").then(r=>r.json());
 
-    state.markets.indices = {SPY:spy.c, QQQ:qqq.c};
-    renderMarkets();
-  }catch{}
+  if(!state.markets.enabled) return;
+
+  try{
+    let spy = await fetch("https://finnhub.io/api/v1/quote?symbol=SPY&token=demo");
+    let qqq = await fetch("https://finnhub.io/api/v1/quote?symbol=QQQ&token=demo");
+
+    if(!spy.ok || !qqq.ok) throw new Error();
+
+    let spyData = await spy.json();
+    let qqqData = await qqq.json();
+
+    state.markets.indices = {SPY:spyData.c, QQQ:qqqData.c};
+
+  }catch{
+    state.markets.enabled = false;
+  }
+
+  renderMarkets();
 }
 
 function renderMarkets(){
-  marketOverview.innerHTML = `
+
+  marketOverview.innerHTML = state.markets.enabled ? `
     <div>SPY: ${state.markets.indices.SPY||"--"}</div>
     <div>QQQ: ${state.markets.indices.QQQ||"--"}</div>
-  `;
+  ` : `<div>Market data unavailable</div>`;
 
-  tickerList.innerHTML = state.markets.userTickers.map(t=>`<div>${t}</div>`).join("");
+  tickerList.innerHTML = state.markets.userTickers.map((t,i)=>`
+    <div class="row">
+      <strong>${t.symbol}</strong>
+
+      <input placeholder="Shares" value="${t.shares||0}"
+        onblur="state.markets.userTickers[${i}].shares=this.value">
+
+      <input placeholder="Avg Cost" value="${t.avgCost||0}"
+        onblur="state.markets.userTickers[${i}].avgCost=this.value">
+
+      <select onchange="state.markets.userTickers[${i}].useInIndex=this.value==='true'">
+        <option value="true" ${t.useInIndex?"selected":""}>Include</option>
+        <option value="false" ${!t.useInIndex?"selected":""}>Exclude</option>
+      </select>
+    </div>
+  `).join("");
 }
 
 function addTicker(){
   let t=newTicker.value.toUpperCase();
   if(!t) return;
-  state.markets.userTickers.push(t);
+
+  state.markets.userTickers.push({
+    symbol:t,
+    shares:0,
+    avgCost:0,
+    useInIndex:true
+  });
+
   newTicker.value="";
   renderMarkets();
 }
@@ -298,7 +333,7 @@ function addTicker(){
 setInterval(fetchMarkets,60000);
 fetchMarkets();
 
-/* BASIC INPUT */
+/* INPUT */
 function addIncome(){state.incomes.push({amount:0,freq:"yearly"});render();}
 function addExpense(){state.expenses.push({amount:0,freq:"yearly"});render();}
 function addAccount(){state.accounts.push({type:"401k",balance:0});render();}
@@ -357,6 +392,7 @@ function render(){
 
   updateAll();
 }
+
 function showView(v,e){
   ["dashboard","financials","scenarios","markets"].forEach(id=>{
     document.getElementById(id).style.display="none";
