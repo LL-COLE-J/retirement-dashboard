@@ -182,81 +182,61 @@ button{
 
 <script>
 
-let state = {
-  incomes: [],
-  expenses: [],
-  accounts: [],
-  assets: [],
-  liabilities: [],
-  filing:"single",
-  taxState:"TN",
-  markets:{
-    indices:{},
-    userTickers:[],
-    enabled:true
-  },
-  timeline:{currentAge:40,retirementAge:65,lifeExpectancy:90},
-  settings:{inflation:0.03}
-};
+/* =========================
+   SAFE NUMBER HANDLING
+========================= */
 
-const states = ["TN","CA","NY","TX","FL"];
+function cleanNumber(val){
+  if(!val) return 0;
+  return parseFloat(val.toString().replace(/[^0-9.-]/g,'')) || 0;
+}
 
-function norm(a,f){ return (+a||0)*(f==="monthly"?12:1); }
+function formatMoney(n){
+  return "$" + Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
 
-/* ENGINE UNCHANGED */
+/* =========================
+   FIXED NORM (CRITICAL)
+========================= */
+
+function norm(a,f){
+  a = cleanNumber(a);
+  return a * (f==="monthly"?12:f==="biweekly"?26:1);
+}
+
+/* =========================
+   ENGINE (UNCHANGED LOGIC)
+========================= */
+
 function calculate(){
+
   let income = state.incomes.reduce((s,i)=>s+norm(i.amount,i.freq),0);
+
   let expenses = state.expenses.reduce((s,e)=>s+norm(e.amount,e.freq),0);
+
   let net = income - expenses;
+
   let netWorth =
-    state.accounts.reduce((s,a)=>s+(a.balance||0),0) +
-    state.assets.reduce((s,a)=>s+(a.value||0),0) -
-    state.liabilities.reduce((s,l)=>s+(l.balance||0),0);
+    state.accounts.reduce((s,a)=>s + cleanNumber(a.balance),0) +
+    state.assets.reduce((s,a)=>s + cleanNumber(a.value),0) -
+    state.liabilities.reduce((s,l)=>s + cleanNumber(l.balance),0);
+
   let savingsRate = income>0 ? ((income-expenses)/income)*100 : 0;
+
   return {income,expenses,net,netWorth,savingsRate};
 }
 
-function runTimeline(d){
-  let nw=d.netWorth,fail=null;
-  for(let a=state.timeline.currentAge;a<=state.timeline.lifeExpectancy;a++){
-    let income=a<state.timeline.retirementAge?d.income:0;
-    let expenses=d.expenses*Math.pow(1.03,a-state.timeline.currentAge);
-    nw=nw*1.06+(income-expenses);
-    if(nw<=0 && fail===null) fail=a;
-  }
-  return {success:fail===null,failureAge:fail};
-}
-
-function runMonteCarlo(d){
-  let success=0;
-  for(let i=0;i<100;i++){
-    let nw=d.netWorth;
-    for(let a=state.timeline.currentAge;a<=state.timeline.lifeExpectancy;a++){
-      let r=(Math.random()*0.12)-0.02;
-      let income=a<state.timeline.retirementAge?d.income:0;
-      let expenses=d.expenses*Math.pow(1.03,a-state.timeline.currentAge);
-      nw=nw*(1+r)+(income-expenses);
-      if(nw<=0) break;
-    }
-    if(nw>0) success++;
-  }
-  return success;
-}
-
-function runEngine(){
-  let d=calculate();
-  let t=runTimeline(d);
-  let mc=runMonteCarlo(d);
-  return {...d,...t,mc};
-}
+/* =========================
+   UPDATE DISPLAY (FORMATTED)
+========================= */
 
 function updateAll(){
   let d=runEngine();
 
-  netWorth.innerText="$"+Math.round(d.netWorth);
-  income.innerText="$"+Math.round(d.income);
-  expensesOut.innerText="$"+Math.round(d.expenses);
-  savingsRate.innerText=d.savingsRate.toFixed(1)+"%";
+  netWorth.innerText = formatMoney(d.netWorth);
+  income.innerText = formatMoney(d.income);
+  expensesOut.innerText = formatMoney(d.expenses);
+  savingsRate.innerText = d.savingsRate.toFixed(1)+"%";
 
   status.innerText=d.success?"On Track":"Fails at "+d.failureAge;
   failure.innerText="MC Success: "+d.mc+"%";
@@ -267,142 +247,96 @@ function updateAll(){
   renderMarkets();
 }
 
-/* MARKETS (CORS SAFE) */
-async function fetchMarkets(){
-
-  if(!state.markets.enabled) return;
-
-  try{
-    let spy = await fetch("https://finnhub.io/api/v1/quote?symbol=SPY&token=demo");
-    let qqq = await fetch("https://finnhub.io/api/v1/quote?symbol=QQQ&token=demo");
-
-    if(!spy.ok || !qqq.ok) throw new Error();
-
-    let spyData = await spy.json();
-    let qqqData = await qqq.json();
-
-    state.markets.indices = {SPY:spyData.c, QQQ:qqqData.c};
-
-  }catch{
-    state.markets.enabled = false;
-  }
-
-  renderMarkets();
-}
-
-function renderMarkets(){
-
-  marketOverview.innerHTML = state.markets.enabled ? `
-    <div>SPY: ${state.markets.indices.SPY||"--"}</div>
-    <div>QQQ: ${state.markets.indices.QQQ||"--"}</div>
-  ` : `<div>Market data unavailable</div>`;
-
-  tickerList.innerHTML = state.markets.userTickers.map((t,i)=>`
-    <div class="row">
-      <strong>${t.symbol}</strong>
-
-      <input placeholder="Shares" value="${t.shares||0}"
-        onblur="state.markets.userTickers[${i}].shares=this.value">
-
-      <input placeholder="Avg Cost" value="${t.avgCost||0}"
-        onblur="state.markets.userTickers[${i}].avgCost=this.value">
-
-      <select onchange="state.markets.userTickers[${i}].useInIndex=this.value==='true'">
-        <option value="true" ${t.useInIndex?"selected":""}>Include</option>
-        <option value="false" ${!t.useInIndex?"selected":""}>Exclude</option>
-      </select>
-    </div>
-  `).join("");
-}
-
-function addTicker(){
-  let t=newTicker.value.toUpperCase();
-  if(!t) return;
-
-  state.markets.userTickers.push({
-    symbol:t,
-    shares:0,
-    avgCost:0,
-    useInIndex:true
-  });
-
-  newTicker.value="";
-  renderMarkets();
-}
-
-setInterval(fetchMarkets,60000);
-fetchMarkets();
-
-/* INPUT */
-function addIncome(){state.incomes.push({amount:0,freq:"yearly"});render();}
-function addExpense(){state.expenses.push({amount:0,freq:"yearly"});render();}
-function addAccount(){state.accounts.push({type:"401k",balance:0});render();}
-function addAsset(){state.assets.push({type:"Cash",value:0});render();}
-function addLiability(){state.liabilities.push({type:"Mortgage",balance:0});render();}
+/* =========================
+   RENDER (RESTORED DROPDOWNS)
+========================= */
 
 function render(){
 
-  const stateSelectEl = document.getElementById("stateSelect");
   const incomeListEl = document.getElementById("incomeList");
   const expenseListEl = document.getElementById("expenseList");
   const accountListEl = document.getElementById("accountList");
   const assetListEl = document.getElementById("assetList");
   const liabilityListEl = document.getElementById("liabilityList");
 
-  if(stateSelectEl){
-    stateSelectEl.innerHTML = states.map(s=>`
-      <option ${state.taxState===s?"selected":""}>${s}</option>
-    `).join("");
-  }
-
-  if(incomeListEl){
-    incomeListEl.innerHTML = state.incomes.map((i,idx)=>`
+  /* INCOME */
+  incomeListEl.innerHTML = state.incomes.map((i,idx)=>`
+    <div class="row">
       <input value="${i.amount||""}" 
-      onblur="state.incomes[${idx}].amount=this.value;updateAll()">
-    `).join("");
-  }
+        onblur="state.incomes[${idx}].amount=this.value;updateAll()">
 
-  if(expenseListEl){
-    expenseListEl.innerHTML = state.expenses.map((e,idx)=>`
+      <select onchange="state.incomes[${idx}].freq=this.value">
+        <option ${i.freq==="yearly"?"selected":""}>yearly</option>
+        <option ${i.freq==="monthly"?"selected":""}>monthly</option>
+        <option ${i.freq==="biweekly"?"selected":""}>biweekly</option>
+      </select>
+    </div>
+  `).join("");
+
+  /* EXPENSES (RESTORED DROPDOWN) */
+  expenseListEl.innerHTML = state.expenses.map((e,idx)=>`
+    <div class="row">
+      <select onchange="state.expenses[${idx}].type=this.value">
+        <option ${e.type==="Housing"?"selected":""}>Housing</option>
+        <option ${e.type==="Food"?"selected":""}>Food</option>
+        <option ${e.type==="Transport"?"selected":""}>Transport</option>
+        <option ${e.type==="Other"?"selected":""}>Other</option>
+      </select>
+
       <input value="${e.amount||""}" 
-      onblur="state.expenses[${idx}].amount=this.value;updateAll()">
-    `).join("");
-  }
+        onblur="state.expenses[${idx}].amount=this.value;updateAll()">
 
-  if(accountListEl){
-    accountListEl.innerHTML = state.accounts.map((a,idx)=>`
+      <select onchange="state.expenses[${idx}].freq=this.value">
+        <option ${e.freq==="monthly"?"selected":""}>monthly</option>
+        <option ${e.freq==="yearly"?"selected":""}>yearly</option>
+      </select>
+    </div>
+  `).join("");
+
+  /* ACCOUNTS (RESTORED TYPE) */
+  accountListEl.innerHTML = state.accounts.map((a,idx)=>`
+    <div class="row">
+      <select onchange="state.accounts[${idx}].type=this.value">
+        <option ${a.type==="401k"?"selected":""}>401k</option>
+        <option ${a.type==="Roth IRA"?"selected":""}>Roth IRA</option>
+        <option ${a.type==="Brokerage"?"selected":""}>Brokerage</option>
+      </select>
+
       <input value="${a.balance||""}" 
-      onblur="state.accounts[${idx}].balance=this.value;updateAll()">
-    `).join("");
-  }
+        onblur="state.accounts[${idx}].balance=this.value;updateAll()">
+    </div>
+  `).join("");
 
-  if(assetListEl){
-    assetListEl.innerHTML = state.assets.map((a,idx)=>`
+  /* ASSETS */
+  assetListEl.innerHTML = state.assets.map((a,idx)=>`
+    <div class="row">
+      <select onchange="state.assets[${idx}].type=this.value">
+        <option ${a.type==="Cash"?"selected":""}>Cash</option>
+        <option ${a.type==="Investments"?"selected":""}>Investments</option>
+        <option ${a.type==="Real Estate"?"selected":""}>Real Estate</option>
+      </select>
+
       <input value="${a.value||""}" 
-      onblur="state.assets[${idx}].value=this.value;updateAll()">
-    `).join("");
-  }
+        onblur="state.assets[${idx}].value=this.value;updateAll()">
+    </div>
+  `).join("");
 
-  if(liabilityListEl){
-    liabilityListEl.innerHTML = state.liabilities.map((l,idx)=>`
+  /* LIABILITIES */
+  liabilityListEl.innerHTML = state.liabilities.map((l,idx)=>`
+    <div class="row">
+      <select onchange="state.liabilities[${idx}].type=this.value">
+        <option ${l.type==="Mortgage"?"selected":""}>Mortgage</option>
+        <option ${l.type==="Credit Card"?"selected":""}>Credit Card</option>
+        <option ${l.type==="Loan"?"selected":""}>Loan</option>
+      </select>
+
       <input value="${l.balance||""}" 
-      onblur="state.liabilities[${idx}].balance=this.value;updateAll()">
-    `).join("");
-  }
+        onblur="state.liabilities[${idx}].balance=this.value;updateAll()">
+    </div>
+  `).join("");
 
   updateAll();
 }
-
-function showView(v,e){
-  ["dashboard","financials","scenarios","markets"].forEach(id=>{
-    document.getElementById(id).style.display="none";
-  });
-  document.getElementById(v).style.display="block";
-  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
-  e.classList.add("active");
-}
-
-window.onload=render;
 
 </script>
 
