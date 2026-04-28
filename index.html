@@ -197,511 +197,242 @@ button{
 
 <script>
 
-// STATE
+// =========================
+// GLOBAL STATE (ONE SOURCE)
+// =========================
 let state = {
   incomes: [],
   expenses: [],
+  events: [],
   accounts: [],
-  dependents: 0,
+  dependents: [],
   assets: { cash:0, invest:0, debt:0 },
   filing: "single",
-  timeline:{currentAge:40,retirementAge:65,lifeExpectancy:90}
+  timeline:{ currentAge:40, retirementAge:65, lifeExpectancy:90 }
 };
 
-function norm(a,f){return a*(f==="monthly"?12:f==="biweekly"?26:1);}
-
-// TAX
-function calcTax(income, filing, dependents){
-  let brackets = {
-    single:[[11000,0.1],[44725,0.12],[95375,0.22]],
-    married_joint:[[22000,0.1],[89450,0.12],[190750,0.22]],
-    head:[[15700,0.1],[59850,0.12],[95350,0.22]]
-  };
-  let tax=0,prev=0;
-  for(let [limit,rate] of brackets[filing]){
-    if(income>limit){tax+=(limit-prev)*rate;prev=limit;}
-    else{tax+=(income-prev)*rate;break;}
-  }
-  tax -= dependents*2000;
-  return Math.max(tax,0);
+// =========================
+// HELPERS
+// =========================
+function norm(a,f){
+  a = +a || 0;
+  return a*(f==="monthly"?12:f==="biweekly"?26:1);
 }
 
-// CORE
-/* =========================
-   CORE CALC (REPLACED)
-========================= */
+// =========================
+// CORE CALC
+// =========================
 function calculate(){
 
-  // ===== SAFE INCOME =====
-  let income = (state.incomes || []).reduce((s,i)=>{
-    let amt = +i.amount || 0;
-    let freq = i.freq || "yearly";
-    return s + norm(amt,freq);
+  let income = (state.incomes||[]).reduce((s,i)=>{
+    return s + norm(i.amount,i.freq);
   },0);
 
-  // ===== SAFE EXPENSES =====
-  let expenses = (state.expenses || []).reduce((s,e)=>{
-    let amt = +e.amount || 0;
-    let freq = e.freq || "yearly";
-    return s + norm(amt,freq);
+  let expenses = (state.expenses||[]).reduce((s,e)=>{
+    return s + norm(e.amount,e.freq);
   },0);
 
-  // ===== DEPENDENTS =====
-  let depCost = (state.dependents || []).reduce((s,d)=>{
-    return s + (+d.cost || 0);
+  // dependents
+  expenses += (state.dependents||[]).reduce((s,d)=>{
+    return s + (+d.cost||0);
   },0);
 
-  expenses += depCost;
-
-  // ===== CONTRIBUTIONS =====
-  let contrib = (state.accounts || []).reduce((s,a)=>{
-    return s + (+a.contrib || 0);
+  // contributions
+  let contrib = (state.accounts||[]).reduce((s,a)=>{
+    return s + (+a.contrib||0);
   },0);
 
-  // ===== MATCH =====
-  let match = (state.accounts || []).reduce((s,a)=>{
-    if(a.match){
-      return s + ((+a.contrib || 0) * (+a.match || 0) / 100);
-    }
-    return s;
+  let match = (state.accounts||[]).reduce((s,a)=>{
+    return s + ((+a.contrib||0)*(+a.match||0)/100);
   },0);
 
   let totalSavings = contrib + match;
 
   let net = income - expenses - contrib;
 
-  // ===== NET WORTH =====
-  let accountValue = (state.accounts || []).reduce((s,a)=>{
-    return s + (+a.balance || 0);
+  let accountValue = (state.accounts||[]).reduce((s,a)=>{
+    return s + (+a.balance||0);
   },0);
 
   let netWorth =
     accountValue +
-    (+state.assets.cash || 0) +
-    (+state.assets.invest || 0) -
-    (+state.assets.debt || 0);
+    (+state.assets.cash||0) +
+    (+state.assets.invest||0) -
+    (+state.assets.debt||0);
 
-  let savingsRate = income > 0
-    ? ((income - expenses) / income) * 100
-    : 0;
+  let savingsRate = income>0 ? ((income-expenses)/income)*100 : 0;
 
-  return {
-    income,
-    expenses,
-    net,
-    netWorth,
-    savingsRate,
-    contrib,
-    match,
-    totalSavings
-  };
+  return { income, expenses, net, netWorth, savingsRate, totalSavings };
 }
 
-
-/* =========================
-   ENGINE PIPELINE (NEW)
-========================= */
-
-function runEngine(){
-
-  const base = calculate();
-  const timeline = runTimeline(base);
-
-  return {
-    ...base,
-    ...timeline
-  };
-}
-
-
-/* =========================
-   TIMELINE ENGINE (NEW)
-========================= */
-
+// =========================
+// TIMELINE ENGINE
+// =========================
 function runTimeline(d){
 
-  let age = state.timeline?.currentAge || 40;
-  let retire = state.timeline?.retirementAge || 65;
-  let end = state.timeline?.lifeExpectancy || 90;
+  let age = state.timeline.currentAge;
+  let retire = state.timeline.retirementAge;
+  let end = state.timeline.lifeExpectancy;
 
   let nw = d.netWorth;
   let failAge = null;
 
-  for(let a = age; a <= end; a++){
+  for(let a=age;a<=end;a++){
 
-    // income stops at retirement
     let working = a < retire;
 
     let income = working ? d.income : 0;
+    let expenses = d.expenses * Math.pow(1.03, a-age);
 
-    // inflation on expenses
-    let expenses = d.expenses * Math.pow(1.03, a - age);
-
-    // event system (you already had this)
-    (state.events || []).forEach(ev=>{
-      if(ev.year === (a - age)){
-        if(ev.type === "expense") expenses += (+ev.value || 0);
-        if(ev.type === "income") income += (+ev.value || 0);
+    (state.events||[]).forEach(ev=>{
+      if(ev.year === (a-age)){
+        if(ev.type==="expense") expenses += ev.value||0;
+        if(ev.type==="income") income += ev.value||0;
       }
     });
 
     let flow = income - expenses;
+    nw = nw*1.06 + flow;
 
-    // simple growth
-    nw = nw * 1.06 + flow;
-
-    if(nw <= 0 && failAge === null){
-      failAge = a;
-    }
+    if(nw <= 0 && failAge===null) failAge = a;
   }
 
   return {
-    projectionSuccess: failAge === null,
+    success: failAge===null,
     failureAge: failAge
   };
 }
 
-// UPDATE
-function updateAll(){
-
-  let d=calculate();
-  let p=projection(d);
-
-  netWorth.innerText="$"+Math.round(d.netWorth);
-  income.innerText="$"+Math.round(d.income);
-  expensesOut.innerText="$"+Math.round(d.expenses);
-  savingsRate.innerText=d.savingsRate.toFixed(1)+"%";
-
-  status.innerText=p.success?"On Track":"Fails at "+p.failAge;
-  failure.innerText=p.success?"Stable":"Plan failure";
-  action.innerText=d.savingsRate<10?"Increase savings":"Maintain";
-
-  aiOutput.innerText=p.success?"Strong plan":"Adjust plan";
-}
-
-// INPUTS
-dependents.oninput=()=>{state.dependents=+dependents.value||0;updateAll();}
-accBalance.oninput=()=>{
-  if(state.accounts.length===0)state.accounts.push({balance:0});
-  state.accounts[0].balance=+accBalance.value||0;
-  updateAll();
-};
-["cash","invest","debt"].forEach(id=>{
-  document.getElementById(id).oninput=()=>{
-    state.assets[id]=+document.getElementById(id).value||0;
-    updateAll();
-  };
-});
-["currentAge","retirementAge","lifeExpectancy","incomeAdjust","expenseAdjust","returnAdjust"]
-.forEach(id=>{
-  document.getElementById(id).oninput=updateAll;
-});
-
-// NAV
-function showView(v,e){
-  ["dashboard","financials","scenarios"].forEach(id=>{
-    document.getElementById(id).style.display="none";
-  });
-  document.getElementById(v).style.display="block";
-  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
-  e.classList.add("active");
-}
-
-// INIT
-window.onload=()=>{
-  state.incomes.push({amount:80000,freq:"yearly"});
-  state.expenses.push({amount:40000,freq:"yearly"});
-  updateAll();
-};
-
 // =========================
-// REAL MONTE CARLO + WITHDRAWAL ENGINE (ADD ONLY)
+// MONTE CARLO
 // =========================
+function runMonteCarlo(d){
 
-// timeline-safe Monte carlo
-function monteCarloReal(d){
-
-  let sims = 200;
+  let sims = 150;
   let success = 0;
 
-  let age = +currentAge.value || 40;
-  let retire = +retirementAge.value || 65;
-  let end = +lifeExpectancy.value || 90;
+  let age = state.timeline.currentAge;
+  let retire = state.timeline.retirementAge;
+  let end = state.timeline.lifeExpectancy;
 
   for(let i=0;i<sims;i++){
 
     let nw = d.netWorth;
 
-    for(let a=age; a<=end; a++){
+    for(let a=age;a<=end;a++){
 
-      let r = (Math.random()*0.15) - 0.05; // -5% to +10%
+      let r = (Math.random()*0.12)-0.02;
 
-      let isRetired = a >= retire;
-
+      let income = a<retire ? d.income : 0;
       let expenses = d.expenses * Math.pow(1.03, a-age);
 
-      let flow = isRetired
-        ? -expenses
-        : (d.income - d.expenses);
+      nw = nw*(1+r) + (income-expenses);
 
-      nw = nw*(1+r) + flow;
-
-      if(nw <= 0) break;
+      if(nw<=0) break;
     }
 
-    if(nw > 0) success++;
+    if(nw>0) success++;
   }
 
-  return (success / sims) * 100;
+  return (success/sims)*100;
 }
 
+// =========================
+// ENGINE PIPELINE
+// =========================
+function runEngine(){
 
-// enhanced projection (withdrawal aware)
-function projectionReal(d){
+  const base = calculate();
+  const timeline = runTimeline(base);
+  const mc = runMonteCarlo(base);
 
-  let age = +currentAge.value || 40;
-  let retire = +retirementAge.value || 65;
-  let end = +lifeExpectancy.value || 90;
-
-  let nw = d.netWorth;
-
-  for(let a=age; a<=end; a++){
-
-    let isRetired = a >= retire;
-
-    let r = 0.06;
-    let expenses = d.expenses * Math.pow(1.03, a-age);
-
-    let flow = isRetired
-      ? -expenses
-      : (d.income - d.expenses);
-
-    nw = nw*(1+r) + flow;
-
-    if(nw <= 0){
-      return {
-        success:false,
-        failAge:a
-      };
-    }
-  }
-
-  return {success:true};
+  return {
+    ...base,
+    ...timeline,
+    monteCarlo: mc
+  };
 }
 
+// =========================
+// UI UPDATE
+// =========================
+function updateAll(){
+
+  let d = runEngine();
+
+  netWorth.innerText = "$"+Math.round(d.netWorth);
+  income.innerText = "$"+Math.round(d.income);
+  expensesOut.innerText = "$"+Math.round(d.expenses);
+  savingsRate.innerText = d.savingsRate.toFixed(1)+"%";
+
+  status.innerText =
+    d.success ? "On Track" : "Fails at age "+d.failureAge;
+
+  failure.innerText =
+    "Success Rate: "+d.monteCarlo.toFixed(1)+"%";
+
+  action.innerText =
+    d.monteCarlo>80 ? "Strong plan"
+    : d.monteCarlo>60 ? "Moderate risk"
+    : "High risk — adjust plan";
+
+  aiOutput.innerText =
+    d.success ? "Plan looks stable"
+    : "You may outlive your money";
+}
 
 // =========================
-// EXTEND EXISTING updateAll (SAFE HOOK)
+// INPUT HOOKS
 // =========================
-
-const __originalUpdateAll = updateAll;
-
-updateAll = function(){
-
-  // run your existing logic FIRST
-  __originalUpdateAll();
-
-  try {
-
-    let d = calculate();
-
-    // NEW ENGINES
-    let mc = monteCarloReal(d);
-    let proj = projectionReal(d);
-
-    // overwrite outputs ONLY (no UI changes)
-    status.innerText =
-      proj.success ? "On Track" : "Fails at age " + proj.failAge;
-
-    failure.innerText =
-      "Success Rate: " + mc.toFixed(1) + "%";
-
-    action.innerText =
-      mc > 80 ? "Strong plan" :
-      mc > 60 ? "Moderate risk" :
-      "High risk — adjust plan";
-
-  } catch(e){
-    console.log("Monte Carlo error:", e);
-  }
-
+dependents.oninput = ()=>{
+  state.dependents = [{cost:+dependents.value||0}];
+  updateAll();
 };
 
-  // =========================
-// INPUT SANITIZATION (NO MORE GHOST VALUES)
-// =========================
-
-function getSafeIncome(){
-  if(state.incomes.length === 0) return 0;
-  return state.incomes.reduce((s,i)=>s+(i.amount||0),0);
-}
-
-function getSafeExpenses(){
-  // if user typed anything, ignore defaults
-  let manual = document.querySelectorAll("#expenseList input");
-  let hasManual = [...manual].some(i => i.value && +i.value > 0);
-
-  if(hasManual){
-    let total = 0;
-    manual.forEach(i=>{
-      total += (+i.value || 0);
-    });
-    return total;
-  }
-
-  return state.expenses.reduce((s,e)=>s+(e.amount||0),0);
-}
-
-
-// =========================
-// OVERRIDE CALC SAFELY
-// =========================
-
-const __oldCalculate = calculate;
-
-calculate = function(){
-
-  let d = __oldCalculate();
-
-  let safeIncome = getSafeIncome();
-  let safeExpenses = getSafeExpenses();
-
-  d.income = safeIncome;
-  d.expenses = safeExpenses;
-
-  return d;
+accBalance.oninput = ()=>{
+  if(state.accounts.length===0) state.accounts.push({});
+  state.accounts[0].balance = +accBalance.value||0;
+  updateAll();
 };
 
-
-// =========================
-// INTERACTIVE RIGHT PANEL (SAFE INIT)
-// =========================
-
-function attachPanelInteractions(){
-
-  const statusEl = document.getElementById("status");
-  const failureEl = document.getElementById("failure");
-  const actionEl = document.getElementById("action");
-  const aiEl = document.getElementById("aiOutput");
-
-  if(!statusEl || !failureEl || !actionEl || !aiEl){
-    return; // DOM not ready yet
-  }
-
-  function explain(type){
-
-    let text = "";
-
-    if(type==="status"){
-      text = "Status shows whether your plan survives from your current age to life expectancy.";
-    }
-
-    if(type==="failure"){
-      text = "Success Rate = probability your money lasts through retirement using simulations.";
-    }
-
-    if(type==="action"){
-      text = "Action is based on savings rate and Monte Carlo success probability.";
-    }
-
-    if(type==="ai"){
-      text = "AI summarizes your biggest financial risks and next best move.";
-    }
-
-    aiEl.innerText = text;
-  }
-
-  // SAFE CLICK ATTACH
-  statusEl.closest(".card").onclick = ()=>explain("status");
-  failureEl.closest(".card").onclick = ()=>explain("failure");
-  actionEl.closest(".card").onclick = ()=>explain("action");
-  aiEl.closest(".card").onclick = ()=>explain("ai");
-}
-
-
-// attach AFTER DOM is guaranteed ready
-window.addEventListener("load", attachPanelInteractions);
-
-// =========================
-// SCENARIO EXPLANATION (VISIBLE CONTEXT)
-// =========================
-
-function updateScenarioExplanation(){
-
-  let age = +currentAge.value || 0;
-  let retire = +retirementAge.value || 0;
-
-  let text = `
-  You are modeling a plan from age ${age} to ${retire}.
-  Income stops at retirement.
-  Expenses continue and grow with inflation.
-  Your investments fund retirement.
-  `;
-
-  aiOutput.innerText = text;
-}
-
-// attach
-["currentAge","retirementAge","lifeExpectancy"].forEach(id=>{
-  document.getElementById(id).addEventListener("input",updateScenarioExplanation);
+["cash","invest","debt"].forEach(id=>{
+  document.getElementById(id).oninput = ()=>{
+    state.assets[id] = +document.getElementById(id).value||0;
+    updateAll();
+  };
 });
 
+["currentAge","retirementAge","lifeExpectancy"].forEach(id=>{
+  document.getElementById(id).oninput = ()=>{
+    state.timeline[id==="currentAge"?"currentAge":
+                   id==="retirementAge"?"retirementAge":"lifeExpectancy"]
+    = +document.getElementById(id).value||0;
+    updateAll();
+  };
+});
 
 // =========================
-// DASHBOARD INFOGRAPHICS (LIGHTWEIGHT)
+// NAV
 // =========================
+function showView(v,e){
+  ["dashboard","financials","scenarios"].forEach(id=>{
+    document.getElementById(id).style.display="none";
+  });
+  document.getElementById(v).style.display="block";
 
-function renderDashboardCharts(d){
+  document.querySelectorAll(".nav-item")
+    .forEach(n=>n.classList.remove("active"));
 
-  // simple bar visualization (no library)
-  let container = document.getElementById("dashboard");
-
-  let existing = document.getElementById("miniChart");
-  if(existing) existing.remove();
-
-  let chart = document.createElement("div");
-  chart.id = "miniChart";
-  chart.style.marginTop = "20px";
-
-  let incomeBar = (d.income/1000);
-  let expenseBar = (d.expenses/1000);
-
-  chart.innerHTML = `
-    <div style="margin-top:10px">
-      <div>Income</div>
-      <div style="background:#0f172a;height:10px;width:${incomeBar}px"></div>
-    </div>
-    <div style="margin-top:10px">
-      <div>Expenses</div>
-      <div style="background:#dc2626;height:10px;width:${expenseBar}px"></div>
-    </div>
-  `;
-
-  container.appendChild(chart);
+  e.classList.add("active");
 }
 
-
 // =========================
-// EXTEND UPDATE AGAIN (FINAL LAYER)
+// INIT
 // =========================
-
-const __finalUpdate = updateAll;
-
-updateAll = function(){
-
-  __finalUpdate();
-
-  try{
-    let d = calculate();
-
-    renderDashboardCharts(d);
-    updateScenarioExplanation();
-
-  }catch(e){
-    console.log("Final layer error:", e);
-  }
+window.onload = ()=>{
+  updateAll();
 };
-  
+
 </script>
 
 </body>
