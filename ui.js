@@ -1,38 +1,38 @@
-function renderFinancials() {
-    const taxes = calculateRobustTaxes();
-    const gross = bastionState.income;
+function runCalculations() {
+    const income = parseFloat(document.getElementById('income-input').value) || 0;
+    const status = document.getElementById('filing-status').value;
     
-    // Planner Report UI
-    document.getElementById('tax-report-ui').innerHTML = `
-        <div class="report-row"><span>Gross Income</span> <span>$${gross.toLocaleString()}</span></div>
-        <div class="report-row"><span>Estimated Fed</span> <span>-$${taxes.fed.toLocaleString()}</span></div>
-        <div class="report-row"><span>State (${bastionState.residence})</span> <span>-$${taxes.state.toLocaleString()}</span></div>
-        <div class="report-row"><span>FICA/SocSec</span> <span>-$${taxes.fica.toLocaleString()}</span></div>
-        <hr>
-        <div class="report-row total"><span>Net Take-Home</span> <span>$${(gross - taxes.total).toLocaleString()}</span></div>
-        <div class="effective-badge">Effective Rate: ${((taxes.total/gross)*100).toFixed(1)}%</div>
-    `;
+    const taxTotal = calculateTaxes(income, status);
+    
+    document.getElementById('tax-estimate-display').innerText = 
+        `Tax Estimate: $${Math.round(taxTotal).toLocaleString()} /yr`;
+        
+    const taxableIncome = income - (status === 'married' ? 29200 : 14600);
+    document.getElementById('advisor-insight').innerHTML = 
+        `Your <strong>${status}</strong> filing in <strong>TN</strong> results in a liability including FICA. <br><br>` +
+        `Strategy: Since your taxable income is $${taxableIncome.toLocaleString()}, contributing to a 401k is highly recommended.`;
 }
 
-async function refreshTicker() {
+async function fetchPrice() {
     const sym = document.getElementById('ticker-input').value || 'BTC';
-    const output = document.getElementById('ticker-output');
-    output.innerText = "LOADING...";
+    const out = document.getElementById('ticker-output');
+    out.innerText = "REFRESHING...";
     
-    const price = await getTickerData(sym);
+    const price = await getMarketData(sym);
     if (price) {
-        output.innerHTML = `$${price.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        out.innerHTML = `$${price.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
     } else {
-        output.innerText = "TICKER ERROR";
+        out.innerText = "TICKER NOT FOUND";
     }
 }
 
-function updateTaxProfile(key, val) {
-    bastionState[key] = val;
-    renderFinancials();
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-pane').forEach(t => t.style.display = 'none');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    
+    document.getElementById(tabId + '-tab').style.display = 'block';
+    event.currentTarget.classList.add('active');
 }
 
-// Initial Load
-window.onload = () => {
-    renderFinancials();
-};
+// Run on load
+window.onload = runCalculations;
