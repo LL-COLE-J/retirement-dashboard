@@ -1,13 +1,18 @@
 let wealthChart;
 
-function addRow(containerId, inputClass) {
-    const container = document.getElementById(containerId);
+function addAssetRow() {
+    const container = document.getElementById('asset-container');
     const div = document.createElement('div');
     div.className = 'entry-row';
-    div.style.gridTemplateColumns = "1.2fr 1fr 40px";
+    div.style.gridTemplateColumns = "1fr 1fr 1fr 40px";
     div.innerHTML = `
-        <select><option>Stocks</option><option>Bonds</option><option>Other</option></select>
-        <input type="number" class="${inputClass}" placeholder="0" oninput="recalc()">
+        <select class="asset-type">
+            <option value="taxable">Taxable (Brokerage)</option>
+            <option value="deferred">Deferred (401k/IRA)</option>
+            <option value="taxfree">Tax-Free (Roth)</option>
+        </select>
+        <input type="number" class="asset-input" placeholder="0" oninput="recalc()">
+        <div style="font-size: 10px; color: var(--sub); padding-bottom: 10px;">Market Growth</div>
         <div class="del-btn" onclick="this.parentElement.remove(); recalc()">×</div>
     `;
     container.appendChild(div);
@@ -36,8 +41,13 @@ function recalc() {
     const p = {
         ageNow: parseInt(document.getElementById('age-now').value) || 35,
         ageRetire: parseInt(document.getElementById('age-retire').value) || 65,
-        ageEnd: parseInt(document.getElementById('age-end').value) || 90,
-        startingAssets: Array.from(document.querySelectorAll('.asset-input')).reduce((s, i) => s + (parseFloat(i.value) || 0), 0),
+        ageEnd: 90,
+        filingStatus: document.getElementById('filing-status').value,
+        dependents: parseInt(document.getElementById('dependents').value) || 0,
+        assets: Array.from(document.querySelectorAll('#asset-container .entry-row')).map(row => ({
+            type: row.querySelector('.asset-type').value,
+            value: parseFloat(row.querySelector('.asset-input').value) || 0
+        })),
         ssAge: parseInt(document.getElementById('ss-age').value) || 67,
         ssBenefit: (parseFloat(document.getElementById('ss-benefit').value) || 0) * 12,
         expenses: Array.from(document.querySelectorAll('#expense-container .entry-row')).map(row => ({
@@ -47,14 +57,15 @@ function recalc() {
     };
 
     const projection = BASTION_ENGINE.runLifeCycleProjection(p);
-    const terminal = projection[projection.length - 1].wealth;
+    const terminal = projection[projection.length - 1].totalWealth;
 
     document.getElementById('val-terminal').innerText = `$${terminal.toLocaleString()}`;
     document.getElementById('success-indicator').innerText = terminal > 0 ? "STABLE" : "PORTFOLIO EXHAUSTED";
     document.getElementById('success-indicator').style.color = terminal > 0 ? "green" : "red";
     
-    // Simple Work Log for Logic Explorer
-    document.getElementById('logic-content').innerHTML = `Retirement Age: ${p.ageRetire}\nSS Start: ${p.ssAge}\nInflated Expenses @ 65: $${Math.round(projection.find(d => d.age === p.ageRetire).expenses).toLocaleString()}`;
+    // Update Tax Logic Display
+    const taxSample = BASTION_ENGINE.getTaxWork(125000, 'TN', p.filingStatus);
+    document.getElementById('logic-content').innerHTML = taxSample.work;
 
     if (document.getElementById('analytics-tab').style.display !== 'none') {
         renderChart(projection);
@@ -69,8 +80,8 @@ function renderChart(data) {
         data: {
             labels: data.map(d => d.age),
             datasets: [{ 
-                label: 'Wealth Path', 
-                data: data.map(d => d.wealth), 
+                label: 'Combined Portfolio', 
+                data: data.map(d => d.totalWealth), 
                 borderColor: '#0ea5e9', 
                 backgroundColor: 'rgba(14, 165, 233, 0.1)',
                 fill: true, 
@@ -80,7 +91,7 @@ function renderChart(data) {
         options: { 
             responsive: true, 
             maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + v.toLocaleString() } } }
+            scales: { y: { ticks: { callback: v => '$' + v.toLocaleString() } } }
         }
     });
 }
