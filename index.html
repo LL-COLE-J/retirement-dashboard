@@ -484,40 +484,53 @@ calculate = function(){
 
 
 // =========================
-// INTERACTIVE RIGHT PANEL (CLICKABLE CARDS)
+// INTERACTIVE RIGHT PANEL (SAFE INIT)
 // =========================
 
-function explain(type){
+function attachPanelInteractions(){
 
-  let text = "";
+  const statusEl = document.getElementById("status");
+  const failureEl = document.getElementById("failure");
+  const actionEl = document.getElementById("action");
+  const aiEl = document.getElementById("aiOutput");
 
-  if(type==="status"){
-    text = "Status shows whether your plan survives from your current age to life expectancy.";
+  if(!statusEl || !failureEl || !actionEl || !aiEl){
+    return; // DOM not ready yet
   }
 
-  if(type==="failure"){
-    text = "Success Rate = probability your money lasts through retirement using simulations.";
+  function explain(type){
+
+    let text = "";
+
+    if(type==="status"){
+      text = "Status shows whether your plan survives from your current age to life expectancy.";
+    }
+
+    if(type==="failure"){
+      text = "Success Rate = probability your money lasts through retirement using simulations.";
+    }
+
+    if(type==="action"){
+      text = "Action is based on savings rate and Monte Carlo success probability.";
+    }
+
+    if(type==="ai"){
+      text = "AI summarizes your biggest financial risks and next best move.";
+    }
+
+    aiEl.innerText = text;
   }
 
-  if(type==="action"){
-    text = "Action is based on savings rate and Monte Carlo success probability.";
-  }
-
-  if(type==="ai"){
-    text = "AI summarizes your biggest financial risks and next best move.";
-  }
-
-  aiOutput.innerText = text;
+  // SAFE CLICK ATTACH
+  statusEl.closest(".card").onclick = ()=>explain("status");
+  failureEl.closest(".card").onclick = ()=>explain("failure");
+  actionEl.closest(".card").onclick = ()=>explain("action");
+  aiEl.closest(".card").onclick = ()=>explain("ai");
 }
 
-// make cards clickable
-setTimeout(()=>{
-  status.parentElement.onclick = ()=>explain("status");
-  failure.parentElement.onclick = ()=>explain("failure");
-  action.parentElement.onclick = ()=>explain("action");
-  aiOutput.parentElement.onclick = ()=>explain("ai");
-},500);
 
+// attach AFTER DOM is guaranteed ready
+window.addEventListener("load", attachPanelInteractions);
 
 // =========================
 // SCENARIO EXPLANATION (VISIBLE CONTEXT)
