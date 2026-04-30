@@ -44,10 +44,29 @@ button{
 
 button:hover{
   background:#2563EB;
-} 
+}
+
+#app{
+  display:none;
+  width:100%;
+  height:100vh;
+  background:white;
+}
+
+.auth-bar{
+  position:fixed;
+  top:12px;
+  right:12px;
+  z-index:9999;
+}
+
+iframe{
+  width:100%;
+  height:100%;
+  border:0;
+}
 </style>
 
-<!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -103,30 +122,28 @@ onAuthStateChanged(auth, (user) => {
 
 <body>
 
-<div class="container">
+<div class="container" id="auth">
 
-  <!-- LOGIN -->
-  <div id="auth">
-    <h2>Beta Access</h2>
+  <img src="../logo.png" style="width:120px;margin-bottom:10px;">
 
-    <input id="email" placeholder="Email"><br>
-    <input id="password" type="password" placeholder="Password"><br>
+  <h2>Beta Access</h2>
 
-    <button onclick="signup()">Sign Up</button>
-    <button onclick="login()">Login</button>
-  </div>
+  <input id="email" placeholder="Email"><br>
+  <input id="password" type="password" placeholder="Password"><br>
 
-  <!-- APP (after login) -->
-  <div id="app" style="display:none;">
-    <h2>You're in</h2>
-    <p id="user"></p>
+  <button onclick="signup()">Sign Up</button>
+  <button onclick="login()">Login</button>
 
+</div>
+
+<div id="app">
+
+  <div class="auth-bar">
+    <span id="user"></span>
     <button onclick="logout()">Logout</button>
-
-    <p style="opacity:.6; margin-top:20px;">
-      Next step: hook your Bastion dashboard here
-    </p>
   </div>
+
+  <iframe src="../index.html"></iframe>
 
 </div>
 
