@@ -1,4 +1,3 @@
-
 const BASTION_AI = {
     generateInsight(m) {
         if (m.marketCrash && m.terminalWealth < 500000) {
