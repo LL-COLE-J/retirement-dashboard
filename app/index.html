@@ -2,83 +2,101 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Bastion Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bastion Insights</title>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
-body {
+body{
   margin:0;
-  font-family:Arial;
+  font-family:'Inter',system-ui;
   background:#0B1220;
   color:#E5E7EB;
   display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
 }
-.sidebar { width:220px; background:#111827; padding:20px; }
-.main { flex:1; padding:20px; }
-.card { background:#111827; padding:15px; margin-top:15px; border-radius:10px; }
+
+.container{
+  text-align:center;
+  max-width:520px;
+  padding:20px;
+}
+
+.logo{
+  margin-bottom:15px;
+}
+
+.logo img{
+  width:120px;
+}
+
+.logo-fallback{
+  font-size:28px;
+  font-weight:600;
+}
+
+.logo-fallback span{
+  color:#3B82F6;
+}
+
+.tagline{
+  font-size:16px;
+  opacity:.75;
+  margin-bottom:30px;
+}
+
+h1{
+  font-size:42px;
+  margin-bottom:10px;
+}
+
+p{
+  opacity:.7;
+  margin-bottom:25px;
+}
+
+.footer{
+  margin-top:25px;
+  font-size:12px;
+  opacity:.4;
+}
 </style>
 </head>
 
 <body>
 
-<div class="sidebar">
-  <h2>Bastion</h2>
+<div class="container">
 
-  <label>Age Now</label>
-  <input id="age-now" type="number" value="35">
-
-  <label>Retirement Age</label>
-  <input id="age-ret" type="number" value="65">
-
-  <label>Status</label>
-  <select id="status">
-    <option value="single">Single</option>
-    <option value="married">Married</option>
-  </select>
-
-  <label>Dependents</label>
-  <input id="deps" type="number" value="0">
-</div>
-
-<div class="main">
-
-  <h1>Dashboard</h1>
-
-  <div class="card">
-    <h3>Income</h3>
-    <div id="income-cont"></div>
-    <button onclick="addRow('income')">+ Add Income</button>
+  <div class="logo">
+    <img src="./logo.png" alt="Bastion Insights Logo"
+         onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='block';">
+    <div id="logo-fallback" class="logo-fallback" style="display:none;">
+      <span>B</span>astion Insights
+    </div>
   </div>
 
-  <div class="card">
-    <h3>Assets</h3>
-    <div id="asset-cont"></div>
-    <button onclick="addRow('asset')">+ Add Asset</button>
+  <h1>Coming Soon</h1>
+
+  <div class="tagline">
+    Financial clarity. Advisor-level insight. Without the noise.
   </div>
 
-  <div class="card">
-    <h3>Results</h3>
-    <div>Total Wealth: <span id="res-wealth">$0</span></div>
-    <div>Total Tax: <span id="res-tax">$0</span></div>
+  <p>
+    Build, test, and understand your financial future with confidence.
+  </p>
+
+  <div style="margin-top:20px; opacity:.6;">
+    Early access opening soon
   </div>
 
-  <div class="card">
-    <h3>Projection</h3>
-    <canvas id="mainChart"></canvas>
-  </div>
-
-  <div class="card">
-    <h3>Audit</h3>
-    <div id="logic-content"></div>
+  <div class="footer">
+    Launching soon • Bastion Insights
   </div>
 
 </div>
-
-<script src="./js/engine.js"></script>
-<script src="./js/modules.js"></script>
-<script src="./js/ui.js"></script>
-<script src="./js/ai-gate.js"></script>
 
 </body>
 </html>
