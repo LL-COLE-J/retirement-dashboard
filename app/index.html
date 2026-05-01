@@ -2,352 +2,117 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bastion Insight Beta</title>
+<title>Bastion Dashboard</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-:root{
-  --bg:#0B1220;
-  --panel:#111827;
-  --card:#ffffff;
-  --text:#E5E7EB;
-  --dark:#111827;
-  --muted:#9CA3AF;
-  --blue:#3B82F6;
-  --gold:#D4AF37;
-  --border:#E5E7EB;
-}
-
-*{box-sizing:border-box;}
-
-body{
+body {
   margin:0;
-  font-family:'Inter',system-ui;
-  background:var(--bg);
-  color:var(--text);
-  min-height:100vh;
-}
-
-#auth{
-  min-height:100vh;
+  font-family:Arial;
+  background:#0B1220;
+  color:#E5E7EB;
   display:flex;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-  padding:20px;
 }
 
-.auth-card{
-  max-width:420px;
-  width:100%;
-}
-
-.auth-card img{
-  width:120px;
-  margin-bottom:10px;
-}
-
-input, select{
-  padding:12px;
-  margin:6px;
-  width:240px;
-  border-radius:8px;
-  border:1px solid var(--border);
-}
-
-button{
-  padding:12px 16px;
-  margin:6px;
-  border:none;
-  border-radius:8px;
-  background:var(--blue);
-  color:white;
-  cursor:pointer;
-  font-weight:600;
-}
-
-button:hover{background:#2563EB;}
-
-#app{
-  display:none;
-  min-height:100vh;
-  background:#F6F8FB;
-  color:var(--dark);
-}
-
-.app-shell{
-  display:flex;
-  min-height:100vh;
-}
-
-.sidebar{
-  width:300px;
+.sidebar {
+  width:220px;
   background:#111827;
-  color:white;
-  padding:22px;
-  overflow-y:auto;
-}
-
-.sidebar img{
-  width:130px;
-  display:block;
-  margin:0 auto 18px;
-  background:white;
-}
-
-.sidebar h3{
-  margin:22px 0 8px;
-  font-size:13px;
-  text-transform:uppercase;
-  letter-spacing:.08em;
-  color:#93C5FD;
-}
-
-.sidebar input,
-.sidebar select{
-  width:100%;
-  margin:6px 0;
-}
-
-.sidebar button{
-  width:100%;
-  margin:8px 0;
-}
-
-.main{
-  flex:1;
-  padding:34px;
-  overflow:auto;
-}
-
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:16px;
-  margin-bottom:24px;
-}
-
-.user-pill{
-  font-size:12px;
-  color:#6B7280;
-}
-
-.cards{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(180px,1fr));
-  gap:16px;
-  margin-bottom:18px;
-}
-
-.card{
-  background:white;
-  border:1px solid #E5E7EB;
-  border-radius:16px;
   padding:20px;
-  box-shadow:0 6px 18px rgba(15,23,42,.05);
 }
 
-.kpi{
-  font-size:28px;
-  font-weight:800;
-  margin-top:8px;
+.main {
+  flex:1;
+  padding:20px;
 }
 
-.chart-card{
-  height:360px;
+h1 { margin-bottom:10px; }
+
+input, select {
+  padding:8px;
+  margin:5px 0;
+  width:100%;
 }
 
-.audit{
-  font-family:'Courier New',monospace;
-  font-size:13px;
-  line-height:1.5;
-  color:#475569;
+button {
+  padding:8px 12px;
+  margin-top:10px;
+  cursor:pointer;
 }
 
-.row-box{
-  display:flex;
-  gap:8px;
-  margin-bottom:8px;
+.card {
+  background:#111827;
+  padding:15px;
+  margin-top:15px;
+  border-radius:10px;
 }
 
-.row-box select,
-.row-box input{
-  margin:0;
-}
-
-@media(max-width:800px){
-  .app-shell{flex-direction:column;}
-  .sidebar{width:100%;}
-  .cards{grid-template-columns:1fr;}
+#mainChart {
+  height:300px;
 }
 </style>
-
-<!-- FIREBASE -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAyCyCesDBGytZw4pqItYqxjUJ_ENFC7mc",
-  authDomain: "retirement-dashboard-4c0d3.firebaseapp.com",
-  projectId: "retirement-dashboard-4c0d3",
-  storageBucket: "retirement-dashboard-4c0d3.firebasestorage.app",
-  messagingSenderId: "842171307258",
-  appId: "1:842171307258:web:d84a33e6509b3847996543"
-};
-
-const fbApp = initializeApp(firebaseConfig);
-const auth = getAuth(fbApp);
-
-window.signup = () => {
-  const email = document.getElementById("email").value.trim();
-  const pass = document.getElementById("password").value;
-
-  createUserWithEmailAndPassword(auth, email, pass)
-    .then(() => alert("Account created"))
-    .catch(e => alert(e.message));
-};
-
-window.login = () => {
-  const email = document.getElementById("email").value.trim();
-  const pass = document.getElementById("password").value;
-
-  signInWithEmailAndPassword(auth, email, pass)
-    .then(() => alert("Logged in"))
-    .catch(e => alert(e.message));
-};
-
-window.logout = () => signOut(auth);
-
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    document.getElementById("auth").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    document.getElementById("user").innerText = user.email;
-
-    setTimeout(bootBastion, 200);
-
-  } else {
-    document.getElementById("auth").style.display = "flex";
-    document.getElementById("app").style.display = "none";
-  }
-});
-</script>
-
 </head>
 
 <body>
 
-<div id="auth">
-  <div class="auth-card">
-    <img src="./logo.png">
-    <h2>Beta Access</h2>
+<div class="sidebar">
+  <h2>Bastion</h2>
 
-    <input id="email" type="email" placeholder="Email"><br>
-    <input id="password" type="password" placeholder="Password"><br>
+  <label>Age Now</label>
+  <input id="age-now" type="number" value="35">
 
-    <button onclick="signup()">Sign Up</button>
-    <button onclick="login()">Login</button>
-  </div>
+  <label>Retirement Age</label>
+  <input id="age-ret" type="number" value="65">
+
+  <label>Status</label>
+  <select id="status">
+    <option value="single">Single</option>
+    <option value="married">Married</option>
+  </select>
+
+  <label>Dependents</label>
+  <input id="deps" type="number" value="0">
 </div>
 
-<div id="app">
-  <div class="app-shell">
+<div class="main">
 
-    <aside class="sidebar">
-      <img src="./logo.png">
+  <h1>Dashboard</h1>
 
-      <h3>Profile</h3>
-      <input id="age-now" type="number" value="35" oninput="recalc()">
-      <input id="age-ret" type="number" value="65" oninput="recalc()">
-
-      <select id="status" onchange="recalc()">
-        <option value="single">Single</option>
-        <option value="married">Married Filing Jointly</option>
-      </select>
-
-      <h3>Income</h3>
-      <div id="income-cont"></div>
-      <button onclick="addRow('income')">+ Add Income</button>
-
-      <h3>Assets</h3>
-      <div id="asset-cont"></div>
-      <button onclick="addRow('asset')">+ Add Asset</button>
-
-      <button onclick="logout()" style="background:#374151;">Logout</button>
-    </aside>
-
-    <main class="main">
-      <div class="topbar">
-        <div>
-          <h1>Bastion Beta Dashboard</h1>
-          <div class="user-pill">Logged in as <span id="user"></span></div>
-        </div>
-      </div>
-
-      <section class="cards">
-        <div class="card">
-          <div>Terminal Wealth</div>
-          <div class="kpi" id="res-wealth">$0</div>
-        </div>
-
-        <div class="card">
-          <div>Lifetime Tax</div>
-          <div class="kpi" id="res-tax">$0</div>
-        </div>
-
-        <div class="card">
-          <div>Status</div>
-          <div class="kpi">Active</div>
-        </div>
-      </section>
-
-      <section class="card chart-card">
-        <canvas id="mainChart"></canvas>
-      </section>
-
-      <section class="card" style="margin-top:18px;">
-        <h3>Compliance & Tax Engine</h3>
-        <div id="logic-content" class="audit"></div>
-      </section>
-    </main>
-
+  <div class="card">
+    <h3>Income</h3>
+    <div id="income-cont"></div>
+    <button onclick="addRow('income')">+ Add Income</button>
   </div>
+
+  <div class="card">
+    <h3>Assets</h3>
+    <div id="asset-cont"></div>
+    <button onclick="addRow('asset')">+ Add Asset</button>
+  </div>
+
+  <div class="card">
+    <h3>Results</h3>
+    <div>Total Wealth: <span id="res-wealth">$0</span></div>
+    <div>Total Tax: <span id="res-tax">$0</span></div>
+  </div>
+
+  <div class="card">
+    <h3>Projection</h3>
+    <canvas id="mainChart"></canvas>
+  </div>
+
+  <div class="card">
+    <h3>Audit</h3>
+    <div id="logic-content"></div>
+  </div>
+
 </div>
 
-<!-- CORE SCRIPTS -->
+<!-- IMPORTANT: SCRIPT ORDER -->
 <script src="./js/engine.js"></script>
 <script src="./js/modules.js"></script>
 <script src="./js/ui.js"></script>
 <script src="./js/ai-gate.js"></script>
-
-<!-- SAFE BOOT -->
-<script>
-function bootBastion() {
-  if (typeof addRow !== "function") {
-    return setTimeout(bootBastion, 100);
-  }
-
-  if (!window.__bastionInitialized) {
-    window.__bastionInitialized = true;
-
-    addRow("income", 100000);
-    addRow("asset", 50000);
-
-    if (typeof recalc === "function") recalc();
-  }
-}
-</script>
 
 </body>
 </html>
