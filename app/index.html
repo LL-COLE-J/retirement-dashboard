@@ -452,11 +452,24 @@ function setupViews(){
 
   var profileIds = ['age','retireAge','filingStatus','income1','income2','income2RetireAge','taxState','countyTaxRate','cityTaxRate'];
   var assumptionIds = ['currentSpend','retireSpend','captureRate','inflationRate','returnProfile','invested','cash','debt'];
-  moveFields(profileIds,'profileFields');
-  moveFields(assumptionIds,'assumptionFields');
+  moveFieldsFromSource(coreCard,profileIds,'profileFields');
+  moveFieldsFromSource(coreCard,assumptionIds,'assumptionFields');
 
   if(eventsCard) scenariosView.appendChild(eventsCard);
   if(tweakCard) scenariosView.appendChild(tweakCard);
+
+  var phase210Card = document.createElement('div'); phase210Card.className='card';
+  phase210Card.innerHTML = '<div class="section-head"><div><h3>2.10 Scenario Planning</h3><p>Starter structure for household scenario planning. Placeholders are non-breaking and do not alter current projections yet.</p></div></div>'+
+    '<div class="form-grid">'+
+    '<div class="field"><label>First Retiree</label><select><option>Person 1</option><option>Person 2</option></select></div>'+
+    '<div class="field"><label>Retires First Age</label><input type="number" placeholder="e.g. 62"></div>'+
+    '<div class="field"><label>Survivor Scenario</label><select><option>Off</option><option>On (placeholder)</option></select></div>'+
+    '<div class="field"><label>Medical / LTC Shock</label><input type="number" placeholder="Annual $ impact"></div>'+
+    '<div class="field"><label>Market Crash Stress Test</label><select><option>Off</option><option>-20% (placeholder)</option><option>-35% (placeholder)</option></select></div>'+
+    '<div class="field"><label>Tax Increase Stress Test</label><select><option>Off</option><option>+2% effective (placeholder)</option><option>+5% effective (placeholder)</option></select></div>'+
+    '</div><div class="sub">Phase 2.10 placeholder layer only. Projection engine updates remain unchanged in this patch.</div>';
+  scenariosView.appendChild(phase210Card);
+
 
   var advisorCard = document.createElement('div'); advisorCard.className='card';
   advisorCard.innerHTML = '<div class="section-head"><div><h3>Advisor</h3><p>Expanded interpretation of the current model.</p></div><button class="btn secondary" onclick="toggleDrawer(true)">Open Drawer</button></div><ul id="advisorPageList"></ul>';
@@ -464,11 +477,11 @@ function setupViews(){
 
   wireNav();
 }
-function moveFields(ids,targetId){
+function moveFieldsFromSource(sourceRoot,ids,targetId){
   var target = el(targetId);
-  if(!target) return;
+  if(!target || !sourceRoot) return;
   for(var i=0;i<ids.length;i++){
-    var node = el(ids[i]);
+    var node = sourceRoot.querySelector ? sourceRoot.querySelector('#'+ids[i]) : null;
     if(node){
       var field = node.closest ? node.closest('.field') : null;
       if(field) target.appendChild(field);
