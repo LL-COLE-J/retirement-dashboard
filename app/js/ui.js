@@ -28,6 +28,8 @@ function recalc() {
     document.getElementById('res-tax').innerText = `$${res.totalTax.toLocaleString()}`;
     document.getElementById('logic-content').innerHTML = BASTION_ENGINE.getAudit(p, res);
     updateChart(res);
+    renderAdvisorPanel(p, res);
+renderProfilePanel(p);
 }
 
 function updateChart(res) {
