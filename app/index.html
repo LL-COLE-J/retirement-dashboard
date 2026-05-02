@@ -84,12 +84,10 @@ button{cursor:pointer}
   <aside class="sidebar">
     <div class="brand"><div class="logo">B</div><div><h1>Bastion</h1><span>Inputs define the path.</span></div></div>
     <nav class="nav">
-      <button class="active">Path Dashboard</button>
-      <button>Inputs</button>
-      <button>Life Events</button>
+      <button class="active">Dashboard</button>
+      <button>Profile</button>
+      <button>Advisor</button>
       <button>Scenarios</button>
-      <button>Advisor Review</button>
-      <button>Compliance</button>
     </nav>
     <div class="side-card"><small><strong>Save State 2.7</strong><br/>Reality engine now supports household income timing, taxes, capture rate, inflation, returns, medical care, and pass-away scenarios.</small></div>
   </aside>
@@ -368,7 +366,7 @@ function commit(){
   el('pathStatus').textContent=status; el('pathStatus').className='metric '+cls; el('statusFill').style.width=score+'%';
   el('pathSummary').textContent='Projected ending path: '+money(withEvents.ending)+'. Reality drag included: tax, inflation, returns, and '+Math.round(captureRate()*100)+'% surplus capture.';
   el('startingNetWorthMetric').textContent=money(startingNetWorth); el('grossIncomeMetric').textContent=money(taxes.income); el('taxEstimateMetric').textContent=money(taxes.total); el('annualSurplusMetric').textContent=money(capturedSurplus); el('endingPathMetric').textContent=money(withEvents.ending); el('minPathMetric').textContent=money(withEvents.min); el('currentSpendMetric').textContent=money(num('currentSpend')); el('retireSpendMetric').textContent=money(num('retireSpend')); el('eventImpactMetric').textContent=money(eventImpactNow());
-  renderChart(withoutEvents,withEvents); renderChanges(); renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus); saveState();
+  renderChart(withoutEvents,withEvents); renderChanges(); renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus); renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus); saveState();
 }
 function renderChart(base,eventsPath){ var ctx=el('pathChart'); if(chart) chart.destroy(); chart=new Chart(ctx,{type:'line',data:{labels:base.labels,datasets:[{label:'Before Events',data:base.values,tension:.3,borderWidth:2,pointRadius:0},{label:'After Events',data:eventsPath.values,tension:.3,borderWidth:3,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#bdc8d8'}}},scales:{x:{ticks:{color:'#97a6ba'},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'#97a6ba',callback:function(v){return '$'+Math.round(v/1000)+'k';}},grid:{color:'rgba(255,255,255,.06)'}}}}}); }
 function hasEventType(type){ for(var i=0;i<events.length;i++){ if(events[i].type===type) return true; } return false; }
@@ -414,18 +412,14 @@ function setupViews(){
 
   var dashboardView = document.createElement('section'); dashboardView.id='dashboardView'; dashboardView.className='view active';
   var profileView = document.createElement('section'); profileView.id='profileView'; profileView.className='view';
-  var assumptionsView = document.createElement('section'); assumptionsView.id='assumptionsView'; assumptionsView.className='view';
-  var eventsView = document.createElement('section'); eventsView.id='eventsView'; eventsView.className='view';
-  var tweaksView = document.createElement('section'); tweaksView.id='tweaksView'; tweaksView.className='view';
+  var scenariosView = document.createElement('section'); scenariosView.id='scenariosView'; scenariosView.className='view';
   var advisorView = document.createElement('section'); advisorView.id='advisorView'; advisorView.className='view';
 
   content.innerHTML = '';
   content.appendChild(dashboardView);
   content.appendChild(profileView);
-  content.appendChild(assumptionsView);
-  content.appendChild(eventsView);
-  content.appendChild(tweaksView);
   content.appendChild(advisorView);
+  content.appendChild(scenariosView);
 
   var metrics1 = children[0];
   var metrics2 = children[1];
@@ -454,15 +448,28 @@ function setupViews(){
 
   var assumptionsCard = document.createElement('div'); assumptionsCard.className='card';
   assumptionsCard.innerHTML = '<div class="section-head"><div><h3>Assumptions</h3><p>Spend, inflation, returns, and how much surplus actually gets invested.</p></div><div class="toggle"><button id="monthlyBtn" onclick="setMode(\'monthly\')">Monthly</button><button id="annualBtn" onclick="setMode(\'annual\')">Annual</button></div></div><div class="form-grid" id="assumptionFields"></div>';
-  assumptionsView.appendChild(assumptionsCard);
+  profileView.appendChild(assumptionsCard);
 
   var profileIds = ['age','retireAge','filingStatus','income1','income2','income2RetireAge','taxState','countyTaxRate','cityTaxRate'];
   var assumptionIds = ['currentSpend','retireSpend','captureRate','inflationRate','returnProfile','invested','cash','debt'];
-  moveFields(profileIds,'profileFields');
-  moveFields(assumptionIds,'assumptionFields');
+  moveFieldsFromSource(coreCard,profileIds,'profileFields');
+  moveFieldsFromSource(coreCard,assumptionIds,'assumptionFields');
 
-  if(eventsCard) eventsView.appendChild(eventsCard);
-  if(tweakCard) tweaksView.appendChild(tweakCard);
+  if(eventsCard) scenariosView.appendChild(eventsCard);
+  if(tweakCard) scenariosView.appendChild(tweakCard);
+
+  var phase210Card = document.createElement('div'); phase210Card.className='card';
+  phase210Card.innerHTML = '<div class="section-head"><div><h3>2.10 Scenario Planning</h3><p>Starter structure for household scenario planning. Placeholders are non-breaking and do not alter current projections yet.</p></div></div>'+
+    '<div class="form-grid">'+
+    '<div class="field"><label>First Retiree</label><select><option>Person 1</option><option>Person 2</option></select></div>'+
+    '<div class="field"><label>Retires First Age</label><input type="number" placeholder="e.g. 62"></div>'+
+    '<div class="field"><label>Survivor Scenario</label><select><option>Off</option><option>On (placeholder)</option></select></div>'+
+    '<div class="field"><label>Medical / LTC Shock</label><input type="number" placeholder="Annual $ impact"></div>'+
+    '<div class="field"><label>Market Crash Stress Test</label><select><option>Off</option><option>-20% (placeholder)</option><option>-35% (placeholder)</option></select></div>'+
+    '<div class="field"><label>Tax Increase Stress Test</label><select><option>Off</option><option>+2% effective (placeholder)</option><option>+5% effective (placeholder)</option></select></div>'+
+    '</div><div class="sub">Phase 2.10 placeholder layer only. Projection engine updates remain unchanged in this patch.</div>';
+  scenariosView.appendChild(phase210Card);
+
 
   var advisorCard = document.createElement('div'); advisorCard.className='card';
   advisorCard.innerHTML = '<div class="section-head"><div><h3>Advisor</h3><p>Expanded interpretation of the current model.</p></div><button class="btn secondary" onclick="toggleDrawer(true)">Open Drawer</button></div><ul id="advisorPageList"></ul>';
@@ -470,11 +477,11 @@ function setupViews(){
 
   wireNav();
 }
-function moveFields(ids,targetId){
+function moveFieldsFromSource(sourceRoot,ids,targetId){
   var target = el(targetId);
-  if(!target) return;
+  if(!target || !sourceRoot) return;
   for(var i=0;i<ids.length;i++){
-    var node = el(ids[i]);
+    var node = sourceRoot.querySelector ? sourceRoot.querySelector('#'+ids[i]) : null;
     if(node){
       var field = node.closest ? node.closest('.field') : null;
       if(field) target.appendChild(field);
@@ -483,8 +490,8 @@ function moveFields(ids,targetId){
 }
 function wireNav(){
   var buttons = document.querySelectorAll('.nav button');
-  var map = ['dashboard','profile','events','tweaks','advisor','assumptions'];
-  var labels = ['Dashboard','Profile','Life Events','Quick Tweaks','Advisor','Assumptions'];
+  var map = ['dashboard','profile','advisor','scenarios'];
+  var labels = ['Dashboard','Profile','Advisor','Scenarios'];
   for(var i=0;i<buttons.length;i++){
     buttons[i].textContent = labels[i] || buttons[i].textContent;
     buttons[i].setAttribute('data-view',map[i] || 'dashboard');
@@ -492,7 +499,7 @@ function wireNav(){
   }
 }
 function showView(name){
-  var ids = ['dashboard','profile','assumptions','events','tweaks','advisor'];
+  var ids = ['dashboard','profile','advisor','scenarios'];
   for(var i=0;i<ids.length;i++){
     var view = el(ids[i]+'View');
     if(view) view.classList.toggle('active',ids[i]===name);
@@ -502,6 +509,21 @@ function showView(name){
     buttons[j].classList.toggle('active',buttons[j].getAttribute('data-view')===name);
   }
 }
+
+function renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus){
+  var baselineIncome = taxes && taxes.income ? taxes.income : 0;
+  var annualSpend = annualSpendValue('currentSpend');
+  var savingsRate = baselineIncome>0 ? Math.max(0,Math.min(1,capturedSurplus/baselineIncome)) : 0;
+  var riskWindow = 'Low';
+  if(withEvents.min < 0 || withEvents.ending < 0) riskWindow = 'High';
+  else if(withEvents.min < (baselineIncome*2) || savingsRate < 0.12) riskWindow = 'Moderate';
+  var intelligence = [];
+  intelligence.push('<strong>Advisor Intelligence</strong> — Savings capture is <strong>'+Math.round(savingsRate*100)+'%</strong> of gross income after taxes/spend.');
+  intelligence.push('Risk Window: <strong>'+riskWindow+'</strong>. Minimum modeled path value is <strong>'+money(withEvents.min)+'</strong>.');
+  intelligence.push('Event drag vs baseline path: <strong>'+money(withEvents.ending-withoutEvents.ending)+'</strong>. Current annual spend basis: <strong>'+money(annualSpend)+'</strong>.');
+  if(el('advisorSummary')) el('advisorSummary').innerHTML = intelligence.join('<br>');
+}
+
 function init(){ loadState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; } setupViews(); syncModeUI(); renderEvents(); commit(); }
 init();
 </script>
