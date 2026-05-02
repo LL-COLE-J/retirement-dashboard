@@ -77,6 +77,7 @@ button{cursor:pointer}
 }.field input:focus,.field select:focus{border-color:rgba(93,214,169,.55)}
 .toggle{display:flex;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:4px}.toggle button{flex:1;border:0;background:transparent;color:var(--muted);border-radius:11px;padding:8px;font-weight:800}.toggle button.active{background:var(--accent);color:#07111f}
 .section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}.section-head p{margin:4px 0 0;color:var(--muted);font-size:13px;line-height:1.45}.event-list{display:grid;gap:12px}.event-row{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);border-radius:18px;padding:14px;display:grid;grid-template-columns:1.1fr .8fr .7fr .7fr .7fr auto;gap:10px;align-items:end}.event-row .remove{padding:10px 12px;border-radius:12px}.event-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:850;color:#07111f;background:var(--accent);padding:6px 9px;border-radius:999px;width:max-content}.event-note{grid-column:1/-1;color:var(--muted);font-size:12px;line-height:1.45;margin-top:-2px}.divider{height:1px;background:rgba(255,255,255,.08);margin:4px 0 12px}.drawer{position:fixed;right:0;top:0;height:100vh;width:min(440px,92vw);transform:translateX(105%);transition:.25s ease;z-index:50;background:#0b1728;border-left:1px solid rgba(255,255,255,.1);box-shadow:-30px 0 90px rgba(0,0,0,.42);padding:22px;overflow:auto}.drawer.open{transform:translateX(0)}.drawer-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.drawer h2{margin:0}.drawer p,.drawer li{color:var(--muted);line-height:1.5}.drawer ul{padding-left:20px}.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40}.overlay.open{display:block}.changed-list{display:grid;gap:8px}.changed-item{display:flex;justify-content:space-between;gap:12px;border:1px solid rgba(255,255,255,.08);padding:11px 12px;border-radius:14px;background:rgba(255,255,255,.04);font-size:13px}.changed-item span:first-child{color:var(--soft)}.changed-item span:last-child{font-weight:800}.empty{color:var(--muted);font-size:13px;padding:10px 0}.mini-actions{display:flex;gap:8px;flex-wrap:wrap}.quick-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.quick-grid button{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--text);border-radius:14px;padding:12px;font-weight:800;text-align:left}.quick-grid small{display:block;color:var(--muted);font-weight:600;margin-top:4px}.chart-wrap{height:260px}.view{display:none}.view.active{display:grid;gap:20px}.dashboard-summary{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);border-radius:18px;padding:16px;color:var(--muted);line-height:1.55}.dashboard-summary strong{color:var(--text)}@media(max-width:1100px){.grid.cols-4,.grid.cols-3{grid-template-columns:repeat(2,minmax(0,1fr))}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.event-row{grid-template-columns:repeat(2,minmax(0,1fr))}.event-note{grid-column:1/-1}}@media(max-width:760px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.topbar{position:relative;align-items:flex-start;flex-direction:column}.content{padding:18px}.grid.cols-4,.grid.cols-3,.grid.cols-2,.form-grid,.quick-grid{grid-template-columns:1fr}.event-row{grid-template-columns:1fr}.metric{font-size:26px}}
+.timeline-shell{position:relative;display:grid;gap:18px;padding:28px 8px 10px;overflow-x:auto}.timeline-track{position:relative;min-width:640px;height:140px}.timeline-line{position:absolute;left:0;right:0;top:66px;height:3px;border-radius:999px;background:linear-gradient(90deg,rgba(93,214,169,.8),rgba(120,166,255,.75));box-shadow:0 0 24px rgba(93,214,169,.12)}.timeline-point{position:absolute;top:0;width:150px;transform:translateX(-50%);display:grid;justify-items:center;gap:8px;text-align:center}.timeline-dot{width:18px;height:18px;border-radius:999px;background:var(--accent);border:3px solid #102037;box-shadow:0 0 0 5px rgba(93,214,169,.16);margin-top:58px}.timeline-point.placeholder .timeline-dot{background:var(--warn);box-shadow:0 0 0 5px rgba(246,198,106,.14)}.timeline-age{font-size:12px;font-weight:850;color:var(--accent);text-transform:uppercase}.timeline-title{font-size:13px;font-weight:850;color:var(--text);line-height:1.25}.timeline-note{font-size:12px;color:var(--muted);line-height:1.35}.timeline-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.timeline-summary .dashboard-summary{min-height:100%}@media(max-width:1100px){.timeline-summary{grid-template-columns:1fr}}@media(max-width:760px){.timeline-track{min-width:560px}.timeline-point{width:130px}}
 </style>
 </head>
 <body>
@@ -88,6 +89,7 @@ button{cursor:pointer}
       <button>Profile</button>
       <button>Advisor</button>
       <button>Scenarios</button>
+      <button>Timeline</button>
     </nav>
     <div class="side-card"><small><strong>Save State 2.11b</strong><br/>Reality engine now supports household income timing, taxes, capture rate, inflation, returns, medical care, and pass-away scenarios.</small></div>
   </aside>
@@ -409,7 +411,7 @@ function commit(){
   el('pathStatus').textContent=status; el('pathStatus').className='metric '+cls; el('statusFill').style.width=score+'%';
   el('pathSummary').textContent='Projected ending path: '+money(withEvents.ending)+'. Reality drag included: tax, inflation, returns, and '+Math.round(captureRate()*100)+'% surplus capture.';
   el('startingNetWorthMetric').textContent=money(startingNetWorth); el('grossIncomeMetric').textContent=money(taxes.income); el('taxEstimateMetric').textContent=money(taxes.total); el('annualSurplusMetric').textContent=money(capturedSurplus); el('endingPathMetric').textContent=money(withEvents.ending); el('minPathMetric').textContent=money(withEvents.min); el('currentSpendMetric').textContent=money(num('currentSpend')); el('retireSpendMetric').textContent=money(num('retireSpend')); el('eventImpactMetric').textContent=money(eventImpactNow());
-  renderChart(withoutEvents,withEvents); renderChanges(); renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus); renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus); saveState();
+  renderChart(withoutEvents,withEvents); renderChanges(); renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus); renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus); renderTimeline(); saveState();
   renderScenarioComparison(withoutEvents,withEvents);
 }
 function renderScenarioComparison(base,scenario){
@@ -420,6 +422,51 @@ function renderScenarioComparison(base,scenario){
   var primary = causes.length ? causes[0] : 'no active stress causes';
   var causeText = causes.length ? causes.join(', ') : 'none (scenario controls are off/default).';
   box.innerHTML = '<strong>Scenario Comparison</strong><br>Baseline ending path is <strong>'+money(base.ending)+'</strong>. Scenario ending path is <strong>'+money(scenario.ending)+'</strong> (<strong>'+money(diff)+'</strong> delta).<br>Primary impact: <strong>'+primary+'</strong>.<br>Active stress causes: '+causeText;
+}
+function renderTimeline(){
+  var track = el('timelineTrack');
+  if(!track) return;
+  var currentAge = num('age');
+  var retirementAge = num('retireAge');
+  var income2Age = num('income2RetireAge');
+  var ltcAge = Math.max(retirementAge,income2Age,currentAge) + 10;
+  var legacyAge = Math.max(ltcAge + 10, retirementAge + 25, currentAge + 20);
+  var items = [
+    {age:currentAge,title:'Current age',note:'Profile starting point'},
+    {age:retirementAge,title:'Retirement age',note:'Income 1 retirement marker'},
+    {age:income2Age,title:'Income 2 retirement age',note:'Second income timing'},
+    {age:ltcAge,title:'Long-term care',note:'Placeholder',placeholder:true},
+    {age:legacyAge,title:'Legacy',note:'Placeholder',placeholder:true}
+  ];
+  var minAge = currentAge;
+  var maxAge = legacyAge;
+  for(var i=0;i<items.length;i++){ minAge = Math.min(minAge,items[i].age); maxAge = Math.max(maxAge,items[i].age); }
+  var span = Math.max(1,maxAge-minAge);
+  var html = '<div class="timeline-line"></div>';
+  var ageCounts = {};
+  var ageSeen = {};
+  for(var c=0;c<items.length;c++){ ageCounts[items[c].age] = (ageCounts[items[c].age]||0)+1; }
+  for(var j=0;j<items.length;j++){
+    var item = items[j];
+    ageSeen[item.age] = (ageSeen[item.age]||0)+1;
+    var left = 4 + ((item.age-minAge)/span)*92;
+    if(ageCounts[item.age] > 1){ left += (ageSeen[item.age]-((ageCounts[item.age]+1)/2))*6; }
+    left = clamp(left,4,96);
+    html += '<div class="timeline-point '+(item.placeholder?'placeholder':'')+'" style="left:'+left+'%">'+
+      '<div class="timeline-age">Age '+item.age+'</div>'+
+      '<div class="timeline-title">'+item.title+'</div>'+
+      '<div class="timeline-dot"></div>'+
+      '<div class="timeline-note">'+item.note+'</div>'+
+    '</div>';
+  }
+  track.innerHTML = html;
+  var summary = el('timelineSummary');
+  if(summary){
+    summary.innerHTML =
+      '<div class="dashboard-summary"><strong>Working Window</strong><br>Current age <strong>'+currentAge+'</strong> to retirement age <strong>'+retirementAge+'</strong>.</div>'+
+      '<div class="dashboard-summary"><strong>Income Timing</strong><br>Income 2 is modeled through age <strong>'+income2Age+'</strong>.</div>'+
+      '<div class="dashboard-summary"><strong>Planning Placeholders</strong><br>LTC and legacy markers are shown for later detail.</div>';
+  }
 }
 function renderChart(base,eventsPath){ var ctx=el('pathChart'); if(chart) chart.destroy(); chart=new Chart(ctx,{type:'line',data:{labels:base.labels,datasets:[{label:'Before Events',data:base.values,tension:.3,borderWidth:2,pointRadius:0},{label:'After Events',data:eventsPath.values,tension:.3,borderWidth:3,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#bdc8d8'}}},scales:{x:{ticks:{color:'#97a6ba'},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'#97a6ba',callback:function(v){return '$'+Math.round(v/1000)+'k';}},grid:{color:'rgba(255,255,255,.06)'}}}}}); }
 function hasEventType(type){ for(var i=0;i<events.length;i++){ if(events[i].type===type) return true; } return false; }
@@ -467,12 +514,14 @@ function setupViews(){
   var profileView = document.createElement('section'); profileView.id='profileView'; profileView.className='view';
   var scenariosView = document.createElement('section'); scenariosView.id='scenariosView'; scenariosView.className='view';
   var advisorView = document.createElement('section'); advisorView.id='advisorView'; advisorView.className='view';
+  var timelineView = document.createElement('section'); timelineView.id='timelineView'; timelineView.className='view';
 
   content.innerHTML = '';
   content.appendChild(dashboardView);
   content.appendChild(profileView);
   content.appendChild(advisorView);
   content.appendChild(scenariosView);
+  content.appendChild(timelineView);
 
   var metrics1 = children[0];
   var metrics2 = children[1];
@@ -529,6 +578,10 @@ function setupViews(){
   advisorCard.innerHTML = '<div class="section-head"><div><h3>Advisor</h3><p>Expanded interpretation of the current model.</p></div><button class="btn secondary" onclick="toggleDrawer(true)">Open Drawer</button></div><ul id="advisorPageList"></ul>';
   advisorView.appendChild(advisorCard);
 
+  var timelineCard = document.createElement('div'); timelineCard.className='card';
+  timelineCard.innerHTML = '<div class="section-head"><div><h3>Timeline</h3><p>Simple life path markers based on the current profile inputs.</p></div></div><div class="timeline-shell"><div class="timeline-track" id="timelineTrack"></div></div><div class="timeline-summary" id="timelineSummary"></div>';
+  timelineView.appendChild(timelineCard);
+
   wireNav();
 }
 function moveFieldsFromSource(sourceRoot,ids,targetId){
@@ -544,8 +597,8 @@ function moveFieldsFromSource(sourceRoot,ids,targetId){
 }
 function wireNav(){
   var buttons = document.querySelectorAll('.nav button');
-  var map = ['dashboard','profile','advisor','scenarios'];
-  var labels = ['Dashboard','Profile','Advisor','Scenarios'];
+  var map = ['dashboard','profile','advisor','scenarios','timeline'];
+  var labels = ['Dashboard','Profile','Advisor','Scenarios','Timeline'];
   for(var i=0;i<buttons.length;i++){
     buttons[i].textContent = labels[i] || buttons[i].textContent;
     buttons[i].setAttribute('data-view',map[i] || 'dashboard');
@@ -553,7 +606,7 @@ function wireNav(){
   }
 }
 function showView(name){
-  var ids = ['dashboard','profile','advisor','scenarios'];
+  var ids = ['dashboard','profile','advisor','scenarios','timeline'];
   for(var i=0;i<ids.length;i++){
     var view = el(ids[i]+'View');
     if(view) view.classList.toggle('active',ids[i]===name);
