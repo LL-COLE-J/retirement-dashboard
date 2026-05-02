@@ -1,5 +1,6 @@
 const BASTION_AI = {
     generateInsight(m) {
+
         if (m.marketCrash && m.terminalWealth < 500000) {
             return "CRITICAL: A Year-1 market correction jeopardizes your long-term solvency. You lack the 'Sequence of Returns' protection found in the Full Suite.";
         }
