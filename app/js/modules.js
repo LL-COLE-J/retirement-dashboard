@@ -1,15 +1,20 @@
 function normalize(){
 
+  const toNum = (v) => {
+    const n = Number(v);
+    return isNaN(n) ? 0 : n;
+  };
+
   return {
-    age: Number(document.getElementById("ageNow").value),
-    retire: Number(document.getElementById("retireAge").value),
-    status: document.getElementById("status").value,
-    deps: Number(document.getElementById("deps").value),
+    age: toNum(document.getElementById("ageNow")?.value),
+    retire: toNum(document.getElementById("retireAge")?.value),
+    status: document.getElementById("status")?.value || "single",
+    deps: toNum(document.getElementById("deps")?.value),
 
     income: [...document.querySelectorAll(".incomeVal")]
-      .map(i=>Number(i.value)||0),
+      .map(i => toNum(i.value)),
 
     assets: [...document.querySelectorAll(".assetVal")]
-      .map(i=>Number(i.value)||0)
+      .map(i => toNum(i.value))
   };
 }
