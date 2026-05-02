@@ -1,68 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Bastion Dashboard</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-body {
-  margin:0;
-  font-family:Arial;
-  background:#0B1220;
-  color:#E5E7EB;
-  display:flex;
-}
-
-.sidebar {
-  width:220px;
-  background:#111827;
-  padding:20px;
-}
-
-.main {
-  flex:1;
-  padding:20px;
-}
-
-h1 {
-  margin-bottom:10px;
-}
-
-input, select {
-  padding:8px;
-  margin:5px 0;
-  width:100%;
-  border-radius:6px;
-  border:none;
-}
-
-button {
-  padding:8px 12px;
-  margin-top:10px;
-  cursor:pointer;
-  border:none;
-  border-radius:6px;
-  background:#3B82F6;
-  color:white;
-}
-
-button:hover {
-  background:#2563EB;
-}
-
-.card {
-  background:#111827;
-  padding:15px;
-  margin-top:15px;
-  border-radius:10px;
-}
-
-#mainChart {
-  height:300px;
-}
-</style>
+  <title>Bastion</title>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 
 <body>
@@ -71,19 +11,19 @@ button:hover {
   <h2>Bastion</h2>
 
   <label>Age Now</label>
-  <input id="age-now" type="number" value="35">
+  <input id="ageNow" value="35">
 
   <label>Retirement Age</label>
-  <input id="age-ret" type="number" value="65">
+  <input id="retireAge" value="65">
 
   <label>Status</label>
   <select id="status">
     <option value="single">Single</option>
-    <option value="married">Married</option>
+    <option value="married_joint">Married</option>
   </select>
 
   <label>Dependents</label>
-  <input id="deps" type="number" value="0">
+  <input id="deps" value="0">
 </div>
 
 <div class="main">
@@ -92,35 +32,23 @@ button:hover {
 
   <div class="card">
     <h3>Income</h3>
-    <div id="income-cont"></div>
-    <button onclick="addRow('income')">+ Add Income</button>
+    <div id="incomeRows"></div>
+    <button onclick="addIncome()">+ Add Income</button>
   </div>
 
   <div class="card">
     <h3>Assets</h3>
-    <div id="asset-cont"></div>
-    <button onclick="addRow('asset')">+ Add Asset</button>
+    <div id="assetRows"></div>
+    <button onclick="addAsset()">+ Add Asset</button>
   </div>
 
   <div class="card">
     <h3>Results</h3>
-    <div>Total Wealth: <span id="res-wealth">$0</span></div>
-    <div>Total Tax: <span id="res-tax">$0</span></div>
-  </div>
-
-  <div class="card">
-    <h3>Projection</h3>
-    <canvas id="mainChart"></canvas>
-  </div>
-
-  <div class="card">
-    <h3>Audit</h3>
-    <div id="logic-content"></div>
+    <div id="results"></div>
   </div>
 
 </div>
 
-<!-- SCRIPT ORDER MATTERS -->
 <script src="./js/engine.js"></script>
 <script src="./js/modules.js"></script>
 <script src="./js/ui.js"></script>
