@@ -1,47 +1,94 @@
-
 /* ==========================================================================
-   MODULES.JS - The Planning Lab & AI Advisor
+   MODULES.JS - Bastion Advisor Intelligence / Phase 2.9
+   Works with current engine.js + ui.js model
    ========================================================================== */
-function runAdvisor() {
-    const data = calculateBase();
-    let insights = [];
-    let status = "Stable";
 
-    // 1. Credit Karma Style Debt Check
-    if (state.assets.debt > state.assets.cash * 2) {
-        insights.push("Debt-to-Cash ratio is high. Prioritize a 3-month emergency fund.");
-    }
+function getAdvisorAnalysis(p, res) {
+  const income = p.incomes.reduce((s, i) => s + Number(i.val || 0), 0);
+  const assets = p.assets.reduce((s, a) => s + Number(a.val || 0), 0);
+  const yearsToRetire = Math.max(0, p.ageRet - p.ageNow);
 
-    // 2. Financial Planner Style Retirement Check
-    const yearsToRetire = state.assumptions.retirementAge - state.assumptions.currentAge;
-    if (data.savingsRate < 15) {
-        status = "At Risk";
-        insights.push("Savings rate is below the 15% 'Golden Rule'. Increase contributions.");
-    }
+  const insights = [];
+  let status = "Stable";
 
-    // 3. Tax Pro Style Optimization
-    const has401k = state.accounts.some(a => a.type === "401k" && a.contrib > 0);
-    if (!has401k && data.grossIncome > 60000) {
-        insights.push("Missing Tax Shield: Opening a 401k could lower your taxable income.");
-    }
+  if (income <= 0) {
+    status = "At Risk";
+    insights.push("Income is missing. Add income before relying on the projection.");
+  }
 
-    return {
-        status: status,
-        failure: data.surplus < 0 ? "Monthly Deficit: " + (data.surplus / 12).toFixed(0) : "None",
-        action: insights.length > 0 ? insights[0] : "Maintain current trajectory.",
-        allInsights: insights
-    };
+  if (assets < income * 0.5 && p.ageNow >= 40) {
+    status = "Watch";
+    insights.push("Assets appear low compared with income and age. Retirement funding pressure may increase.");
+  }
+
+  if (yearsToRetire <= 5) {
+    status = "High Priority";
+    insights.push("Retirement is close. Liquidity, tax order, and withdrawal timing matter more now.");
+  }
+
+  if (res.terminal < 0) {
+    status = "At Risk";
+    insights.push("Projection ends below zero. Spending, retirement age, or savings assumptions need adjustment.");
+  }
+
+  if (res.totalTax > 250000) {
+    insights.push("Projected tax drag is meaningful. Bastion should evaluate Roth, taxable, and traditional withdrawal order.");
+  }
+
+  if (!insights.length) {
+    insights.push("No immediate red flag detected. Next step is deeper tax and life-event modeling.");
+  }
+
+  return {
+    status,
+    yearsToRetire,
+    income,
+    assets,
+    primaryAction: insights[0],
+    insights
+  };
 }
 
-function getProjection() {
-    const base = calculateBase();
-    let points = [];
-    let runningNW = base.netWorth;
-    
-    for (let i = 0; i <= (state.assumptions.lifeExpectancy - state.assumptions.currentAge); i++) {
-        // Compound interest (7%) + Annual Surplus
-        runningNW = (runningNW + base.surplus) * 1.07;
-        points.push({ age: state.assumptions.currentAge + i, nw: runningNW });
-    }
-    return points;
+function renderAdvisorPanel(p, res) {
+  let panel = document.getElementById("advisor-panel");
+
+  if (!panel) {
+    panel = document.createElement("div");
+    panel.id = "advisor-panel";
+    panel.className = "card";
+    document.querySelector(".main").appendChild(panel);
+  }
+
+  const a = getAdvisorAnalysis(p, res);
+
+  panel.innerHTML = `
+    <h3>Advisor Intelligence</h3>
+    <div><b>Status:</b> ${a.status}</div>
+    <div><b>Years to Retirement:</b> ${a.yearsToRetire}</div>
+    <div><b>Primary Move:</b> ${a.primaryAction}</div>
+    <br>
+    <ul>
+      ${a.insights.map(i => `<li>${i}</li>`).join("")}
+    </ul>
+  `;
+}
+
+function renderProfilePanel(p) {
+  let panel = document.getElementById("profile-panel");
+
+  if (!panel) {
+    panel = document.createElement("div");
+    panel.id = "profile-panel";
+    panel.className = "card";
+    document.querySelector(".main").appendChild(panel);
+  }
+
+  panel.innerHTML = `
+    <h3>Profile Summary</h3>
+    <div><b>Age Now:</b> ${p.ageNow}</div>
+    <div><b>Retirement Age:</b> ${p.ageRet}</div>
+    <div><b>Filing Status:</b> ${p.status}</div>
+    <div><b>Income Streams:</b> ${p.incomes.length}</div>
+    <div><b>Asset Accounts:</b> ${p.assets.length}</div>
+  `;
 }
