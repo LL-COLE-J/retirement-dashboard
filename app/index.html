@@ -214,6 +214,19 @@ var TAX_CODES = {
 function el(id){ return document.getElementById(id); }
 function money(n){ return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(Number(n)||0); }
 function num(id){ var node = el(id); return node ? (Number(node.value)||0) : 0; }
+function safeNum(v,fallback){
+  var n = Number(v);
+  if(!isFinite(n) || isNaN(n)) return fallback===undefined?0:fallback;
+  return n;
+}
+function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
+function safeFieldNum(id,fallback,min,max){
+  var node = el(id); var raw = node ? node.value : fallback; var n = safeNum(raw,fallback===undefined?0:fallback);
+  if(n < 0) n = 0;
+  if(min!==undefined) n = Math.max(min,n);
+  if(max!==undefined) n = Math.min(max,n);
+  return n;
+}
 function val(id){ var node = el(id); return node ? node.value : ''; }
 function setNum(id,val){ if(el(id)) el(id).value = Math.round(val); }
 function annualSpendValue(id){ return mode === 'annual' ? num(id) : num(id) * 12; }
@@ -266,6 +279,34 @@ function readState(){
   var copiedEvents = []; for(var i=0;i<events.length;i++){ copiedEvents.push(cloneEvent(events[i])); }
   return {age:num('age'),retireAge:num('retireAge'),income2RetireAge:num('income2RetireAge'),filingStatus:val('filingStatus')||'single',taxState:val('taxState')||'TN',countyTaxRate:num('countyTaxRate'),cityTaxRate:num('cityTaxRate'),captureRate:num('captureRate'),inflationRate:num('inflationRate'),returnProfile:val('returnProfile')||'moderate',income1:num('income1'),income2:num('income2'),income:currentGrossIncome(),currentSpend:num('currentSpend'),retireSpend:num('retireSpend'),invested:num('invested'),cash:num('cash'),debt:num('debt'),events:copiedEvents};
 }
+// Phase 2.11 START - Expanded balance sheet helper
+function getExpandedBalanceSheet(){
+  function f(id){ return Math.max(0,safeFieldNum(id,0,0)); }
+  var detailedAssets = {
+    checking:f('bsChecking'),savings:f('bsSavings'),emergency:f('bsEmergencyFund'),cds:f('bsCDsMoneyMarket'),
+    k401:f('bs401k'),b403:f('bs403b'),tradIra:f('bsTraditionalIRA'),rothIra:f('bsRothIRA'),pension:f('bsPensionReserve'),hsa:f('bsHSA'),
+    brokerage:f('bsBrokerage'),funds:f('bsMutualEtf'),stocks:f('bsStocks'),bonds:f('bsBonds'),crypto:f('bsCrypto'),
+    homeEquity:f('bsPrimaryHomeEquity'),rentalEquity:f('bsRentalEquity'),business:f('bsBusinessValue'),other:f('bsOtherAssets')
+  };
+  var detailedDebts = {mortgage:f('debtMortgage'),heloc:f('debtHELOC'),auto:f('debtAutoLoans'),student:f('debtStudentLoans'),cards:f('debtCreditCards'),personal:f('debtPersonalLoans'),medical:f('debtMedical'),other:f('debtOther')};
+  var detailedAssetsSum = 0; for(var k in detailedAssets){ detailedAssetsSum += detailedAssets[k]; }
+  var detailedDebtSum = 0; for(var d in detailedDebts){ detailedDebtSum += detailedDebts[d]; }
+  var hasDetailedAssets = detailedAssetsSum > 0;
+  var hasDetailedDebt = detailedDebtSum > 0;
+  var cashAssets = hasDetailedAssets ? (detailedAssets.checking+detailedAssets.savings+detailedAssets.emergency+detailedAssets.cds) : Math.max(0,num('cash'));
+  var retirementAssets = hasDetailedAssets ? (detailedAssets.k401+detailedAssets.b403+detailedAssets.tradIra+detailedAssets.rothIra+detailedAssets.pension+detailedAssets.hsa) : Math.max(0,num('invested'));
+  var taxableInvestmentAssets = hasDetailedAssets ? (detailedAssets.brokerage+detailedAssets.funds+detailedAssets.stocks+detailedAssets.bonds+detailedAssets.crypto) : 0;
+  var propertyAssets = hasDetailedAssets ? (detailedAssets.homeEquity+detailedAssets.rentalEquity+detailedAssets.business) : 0;
+  var otherAssets = hasDetailedAssets ? detailedAssets.other : 0;
+  var totalAssets = cashAssets + retirementAssets + taxableInvestmentAssets + propertyAssets + otherAssets;
+  var marketExposedAssets = hasDetailedAssets ? (detailedAssets.k401+detailedAssets.b403+detailedAssets.tradIra+detailedAssets.rothIra+detailedAssets.hsa+detailedAssets.brokerage+detailedAssets.funds+detailedAssets.stocks+(detailedAssets.bonds*0.5)+detailedAssets.crypto) : Math.max(0,num('invested'));
+  var nonMarketAssets = Math.max(0,totalAssets - marketExposedAssets);
+  var securedDebt = hasDetailedDebt ? (detailedDebts.mortgage+detailedDebts.heloc+detailedDebts.auto) : Math.max(0,num('debt'));
+  var unsecuredDebt = hasDetailedDebt ? (detailedDebts.student+detailedDebts.cards+detailedDebts.personal+detailedDebts.medical+detailedDebts.other) : 0;
+  var totalDebt = securedDebt + unsecuredDebt;
+  return {cashAssets:cashAssets,retirementAssets:retirementAssets,taxableInvestmentAssets:taxableInvestmentAssets,propertyAssets:propertyAssets,otherAssets:otherAssets,totalAssets:totalAssets,marketExposedAssets:marketExposedAssets,nonMarketAssets:nonMarketAssets,securedDebt:securedDebt,unsecuredDebt:unsecuredDebt,totalDebt:totalDebt,netWorth:totalAssets-totalDebt,hasDetailedAssets:hasDetailedAssets,hasDetailedDebt:hasDetailedDebt};
+}
+// Phase 2.11 END - Expanded balance sheet helper
 function saveState(){ localStorage.setItem(STORAGE_KEY,JSON.stringify({mode:mode,baseline:baseline,events:events,inputs:readState()})); }
 function loadState(){
   try{
@@ -340,7 +381,20 @@ function renderEvents(){
 
 function project(includeEvents){
   if(includeEvents===undefined) includeEvents=true;
-  var s=readState(); var labels=[]; var values=[]; var nw=s.invested+s.cash-s.debt; var start=s.age; var end=Math.max(s.retireAge+25,s.income2RetireAge+25,s.age+10); var minValue=null;
+  var s=readState(); var bs=getExpandedBalanceSheet(); var labels=[]; var values=[]; var nw=bs.netWorth; var start=s.age; var end=Math.max(s.retireAge+25,s.income2RetireAge+25,s.age+10); var minValue=null;
+  var scenario = {
+    enabled: !!includeEvents,
+    firstRetireAge: Math.max(start,safeFieldNum('scenarioFirstRetireAge',s.retireAge,start,120)),
+    survivorOn: (val('scenarioSurvivor')||'off') === 'on',
+    marketCrashPct: clamp(safeFieldNum('scenarioMarketCrash',0,0,90),0,90),
+    taxIncreasePct: clamp(safeFieldNum('scenarioTaxIncrease',0,0,25),0,25),
+    medicalType: val('scenarioMedicalType') || 'one_time',
+    medicalAmount: Math.max(0,safeFieldNum('scenarioMedicalAmount',0,0)),
+    causes: []
+  };
+  var shockType = (scenario.medicalType==='annual'||scenario.medicalType==='one_time') ? scenario.medicalType : 'one_time';
+  var hasStress = scenario.enabled && (scenario.firstRetireAge!==s.retireAge || scenario.survivorOn || scenario.marketCrashPct>0 || scenario.taxIncreasePct>0 || scenario.medicalAmount>0);
+  var marketCrashApplied = false;
   for(var age=start;age<=end;age++){
     labels.push(age);
     var income=grossIncomeAtAge(age);
@@ -354,19 +408,47 @@ function project(includeEvents){
     var annualCashFlow=baseCashFlow;
     if(workingIncomeActive && baseCashFlow>0) annualCashFlow=baseCashFlow*captureRate();
     if(includeEvents){ for(var j=0;j<s.events.length;j++){ var ev=s.events[j]; if(eventApplies(ev,age)) annualCashFlow+=eventAnnualImpact(ev); } }
+    // Phase 2.10 SCENARIO OVERLAY START
+    if(hasStress){
+      // 1) Income changes from retirement/staggered retirement
+      if(age >= scenario.firstRetireAge && age < s.income2RetireAge){ annualCashFlow -= s.income1; if(scenario.causes.indexOf('staggered retirement income change')<0) scenario.causes.push('staggered retirement income change'); }
+      // 2) Survivor income removal and expense reduction
+      if(scenario.survivorOn && age >= start+1){ annualCashFlow -= s.income2; annualCashFlow += annualRetire*0.25; if(scenario.causes.indexOf('survivor income loss')<0) scenario.causes.push('survivor income loss'); }
+      // 3) Market crash asset haircut
+      if(!marketCrashApplied && scenario.marketCrashPct>0 && age===start+1){ nw -= (bs.marketExposedAssets * (scenario.marketCrashPct/100)); marketCrashApplied = true; if(scenario.causes.indexOf('market crash asset reduction')<0) scenario.causes.push('market crash asset reduction'); }
+      // 4) Medical/LTC shock
+      if(scenario.medicalAmount>0){
+        if(shockType==='annual'){ annualCashFlow -= scenario.medicalAmount; if(scenario.causes.indexOf('medical/LTC cost shock')<0) scenario.causes.push('medical/LTC cost shock'); }
+        else if(age===start+1){ nw -= scenario.medicalAmount; if(scenario.causes.indexOf('medical/LTC cost shock')<0) scenario.causes.push('medical/LTC cost shock'); }
+      }
+      // 5) Tax increase overlay / tax drag
+      if(scenario.taxIncreasePct>0){ annualCashFlow -= Math.max(0,income)*(scenario.taxIncreasePct/100); if(scenario.causes.indexOf('tax increase drag')<0) scenario.causes.push('tax increase drag'); }
+    }
+    // Phase 2.10 SCENARIO OVERLAY END
     nw=nw*(1+returnRate())+annualCashFlow;
     var rounded=Math.round(nw); values.push(rounded); if(minValue===null||rounded<minValue) minValue=rounded;
   }
-  return {labels:labels,values:values,ending:values[values.length-1],min:minValue};
+  return {labels:labels,values:values,ending:values[values.length-1],min:minValue,scenarioCauses:scenario.causes,balanceSheet:bs};
 }
 function eventImpactNow(){ var age=num('age'); var total=0; for(var i=0;i<events.length;i++){ if(eventApplies(events[i],age)) total+=eventAnnualImpact(events[i]); } return total; }
 function commit(){
-  var withEvents=project(true); var withoutEvents=project(false); var taxes=taxSummary(); var startingNetWorth=num('invested')+num('cash')-num('debt'); var annualCurrent=annualSpendValue('currentSpend'); var grossSurplus=taxes.income-taxes.total-annualCurrent; var capturedSurplus=grossSurplus>0?grossSurplus*captureRate():grossSurplus;
+  var withEvents=project(true); var withoutEvents=project(false); var taxes=taxSummary(); var bs=withEvents.balanceSheet||getExpandedBalanceSheet(); var startingNetWorth=bs.netWorth; var annualCurrent=annualSpendValue('currentSpend'); var grossSurplus=taxes.income-taxes.total-annualCurrent; var capturedSurplus=grossSurplus>0?grossSurplus*captureRate():grossSurplus;
   var score=Math.max(0,Math.min(100,Math.round((withEvents.ending/1000000)*50+(withEvents.min>0?35:10)))); var status='Watch'; var cls='warn-text'; if(score>=72){status='Stable';cls='good';}else if(score<45){status='At Risk';cls='bad-text';}
   el('pathStatus').textContent=status; el('pathStatus').className='metric '+cls; el('statusFill').style.width=score+'%';
   el('pathSummary').textContent='Projected ending path: '+money(withEvents.ending)+'. Reality drag included: tax, inflation, returns, and '+Math.round(captureRate()*100)+'% surplus capture.';
   el('startingNetWorthMetric').textContent=money(startingNetWorth); el('grossIncomeMetric').textContent=money(taxes.income); el('taxEstimateMetric').textContent=money(taxes.total); el('annualSurplusMetric').textContent=money(capturedSurplus); el('endingPathMetric').textContent=money(withEvents.ending); el('minPathMetric').textContent=money(withEvents.min); el('currentSpendMetric').textContent=money(num('currentSpend')); el('retireSpendMetric').textContent=money(num('retireSpend')); el('eventImpactMetric').textContent=money(eventImpactNow());
   renderChart(withoutEvents,withEvents); renderChanges(); renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus); renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus); saveState();
+  renderScenarioComparison(withoutEvents,withEvents);
+}
+function renderScenarioComparison(base,scenario){
+  var box = el('scenarioComparison');
+  if(!box) return;
+  var diff = scenario.ending - base.ending;
+  var causes = scenario.scenarioCauses || [];
+  var primary = causes.length ? causes[0] : 'no active stress causes';
+  var causeText = causes.length ? causes.join(', ') : 'none (scenario controls are off/default).';
+  var bs = scenario.balanceSheet || getExpandedBalanceSheet();
+  box.innerHTML = '<strong>Scenario Comparison</strong><br>Baseline ending path is <strong>'+money(base.ending)+'</strong>. Scenario ending path is <strong>'+money(scenario.ending)+'</strong> (<strong>'+money(diff)+'</strong> delta).<br>Primary impact: <strong>'+primary+'</strong>.<br>Active stress causes: '+causeText+'<br>Market-exposed assets in this profile: <strong>'+money(bs.marketExposedAssets)+'</strong> of <strong>'+money(bs.totalAssets)+'</strong> total assets.';
 }
 function renderChart(base,eventsPath){ var ctx=el('pathChart'); if(chart) chart.destroy(); chart=new Chart(ctx,{type:'line',data:{labels:base.labels,datasets:[{label:'Before Events',data:base.values,tension:.3,borderWidth:2,pointRadius:0},{label:'After Events',data:eventsPath.values,tension:.3,borderWidth:3,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#bdc8d8'}}},scales:{x:{ticks:{color:'#97a6ba'},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'#97a6ba',callback:function(v){return '$'+Math.round(v/1000)+'k';}},grid:{color:'rgba(255,255,255,.06)'}}}}}); }
 function hasEventType(type){ for(var i=0;i<events.length;i++){ if(events[i].type===type) return true; } return false; }
@@ -377,6 +459,12 @@ function renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus){
   items.push('Income 1 is modeled until age <strong>'+num('retireAge')+'</strong>. Income 2 is modeled until age <strong>'+num('income2RetireAge')+'</strong>.');
   items.push('Reality assumptions: <strong>'+Math.round(captureRate()*100)+'%</strong> surplus capture, <strong>'+num('inflationRate')+'%</strong> inflation, and <strong>'+val('returnProfile')+'</strong> return profile.');
   items.push('State logic loaded: <strong>'+stateCode.name+'</strong>. '+stateCode.note);
+  var bs = withEvents.balanceSheet || getExpandedBalanceSheet();
+  var marketShare = bs.totalAssets>0 ? bs.marketExposedAssets/bs.totalAssets : 0;
+  var propertyShare = bs.totalAssets>0 ? bs.propertyAssets/bs.totalAssets : 0;
+  items.push('Balance sheet view: total assets <strong>'+money(bs.totalAssets)+'</strong>, total debt <strong>'+money(bs.totalDebt)+'</strong>, net worth <strong>'+money(bs.netWorth)+'</strong>.');
+  if(marketShare>0.65) items.push('Concentration risk: most assets are market-exposed ('+Math.round(marketShare*100)+'%), so downturns can hit net worth quickly.');
+  if(propertyShare>0.5) items.push('Concentration risk: a large share of net worth is tied to property/home equity ('+Math.round(propertyShare*100)+'%).');
   if(hasEventType('medical_care')) items.push('Medical / long-term care scenario is active and applies as a recurring expense during the selected years.');
   if(hasEventType('pass_away')) items.push('Pass-away scenario is active. V1 reduces household spend by 25% after the selected age; later versions should ask survivor income, Social Security survivor benefit, insurance, estate settlement, and filing-status transition.');
   items.push('Life events shift the modeled ending path by <strong>'+money(diff)+'</strong>.');
@@ -443,31 +531,43 @@ function setupViews(){
   var tweakCard = coreGrid ? coreGrid.children[1] : null;
 
   var profileCard = document.createElement('div'); profileCard.className='card';
-  profileCard.innerHTML = '<div class="section-head"><div><h3>Profile</h3><p>Household, income timing, filing status, and tax location.</p></div></div><div class="form-grid" id="profileFields"></div>';
+  // Phase 2.11 START - Profile UX sections
+  profileCard.innerHTML = '<div class="section-head"><div><h3>Profile</h3><p>Organized household profile with clearer sections and helper notes.</p></div></div>'+
+    '<div class="grid cols-2"><div class="card"><h3>Household</h3><div class="sub">Core household timing inputs.</div><div class="form-grid" id="profileHouseholdFields"></div></div>'+
+    '<div class="card"><h3>Income</h3><div class="sub">Primary and secondary earnings timing.</div><div class="form-grid" id="profileIncomeFields"></div></div>'+
+    '<div class="card"><h3>Spending</h3><div class="sub">Current and retirement lifestyle spending.</div><div class="form-grid" id="profileSpendingFields"></div></div>'+
+    '<div class="card"><h3>Tax Location</h3><div class="sub">Filing status and local tax add-ons.</div><div class="form-grid" id="profileTaxFields"></div></div></div>'+
+    '<div class="divider"></div><h3>Assets</h3><div class="sub">Detailed assets are optional. If used, they override simple invested/cash totals for balance-sheet modeling.</div><div class="form-grid" id="expandedAssetsFields"></div>'+
+    '<div class="divider"></div><h3>Debts</h3><div class="sub">Detailed debts are optional. If used, they override the single debt field in balance-sheet modeling.</div><div class="form-grid" id="expandedDebtFields"></div>';
+  // Phase 2.11 END - Profile UX sections
   profileView.appendChild(profileCard);
 
   var assumptionsCard = document.createElement('div'); assumptionsCard.className='card';
   assumptionsCard.innerHTML = '<div class="section-head"><div><h3>Assumptions</h3><p>Spend, inflation, returns, and how much surplus actually gets invested.</p></div><div class="toggle"><button id="monthlyBtn" onclick="setMode(\'monthly\')">Monthly</button><button id="annualBtn" onclick="setMode(\'annual\')">Annual</button></div></div><div class="form-grid" id="assumptionFields"></div>';
   profileView.appendChild(assumptionsCard);
 
-  var profileIds = ['age','retireAge','filingStatus','income1','income2','income2RetireAge','taxState','countyTaxRate','cityTaxRate'];
-  var assumptionIds = ['currentSpend','retireSpend','captureRate','inflationRate','returnProfile','invested','cash','debt'];
-  moveFieldsFromSource(coreCard,profileIds,'profileFields');
+  moveFieldsFromSource(coreCard,['age','retireAge'],'profileHouseholdFields');
+  moveFieldsFromSource(coreCard,['income1','income2','income2RetireAge'],'profileIncomeFields');
+  moveFieldsFromSource(coreCard,['currentSpend','retireSpend'],'profileSpendingFields');
+  moveFieldsFromSource(coreCard,['filingStatus','taxState','countyTaxRate','cityTaxRate'],'profileTaxFields');
+  var assumptionIds = ['captureRate','inflationRate','returnProfile','invested','cash','debt'];
   moveFieldsFromSource(coreCard,assumptionIds,'assumptionFields');
+  addExpandedBalanceSheetFields();
 
   if(eventsCard) scenariosView.appendChild(eventsCard);
   if(tweakCard) scenariosView.appendChild(tweakCard);
 
   var phase210Card = document.createElement('div'); phase210Card.className='card';
-  phase210Card.innerHTML = '<div class="section-head"><div><h3>2.10 Scenario Planning</h3><p>Starter structure for household scenario planning. Placeholders are non-breaking and do not alter current projections yet.</p></div></div>'+
+  phase210Card.innerHTML = '<div class="section-head"><div><h3>2.10 Scenario Planning</h3><p>Scenario overlay applies only to scenario path. Baseline projection remains unchanged.</p></div></div>'+
     '<div class="form-grid">'+
     '<div class="field"><label>First Retiree</label><select><option>Person 1</option><option>Person 2</option></select></div>'+
-    '<div class="field"><label>Retires First Age</label><input type="number" placeholder="e.g. 62"></div>'+
-    '<div class="field"><label>Survivor Scenario</label><select><option>Off</option><option>On (placeholder)</option></select></div>'+
-    '<div class="field"><label>Medical / LTC Shock</label><input type="number" placeholder="Annual $ impact"></div>'+
-    '<div class="field"><label>Market Crash Stress Test</label><select><option>Off</option><option>-20% (placeholder)</option><option>-35% (placeholder)</option></select></div>'+
-    '<div class="field"><label>Tax Increase Stress Test</label><select><option>Off</option><option>+2% effective (placeholder)</option><option>+5% effective (placeholder)</option></select></div>'+
-    '</div><div class="sub">Phase 2.10 placeholder layer only. Projection engine updates remain unchanged in this patch.</div>';
+    '<div class="field"><label>Retires First Age</label><input id="scenarioFirstRetireAge" type="number" value="67" oninput="commit()"></div>'+
+    '<div class="field"><label>Survivor Scenario</label><select id="scenarioSurvivor" onchange="commit()"><option value="off" selected>Off</option><option value="on">On</option></select></div>'+
+    '<div class="field"><label>Medical / LTC Shock Type</label><select id="scenarioMedicalType" onchange="commit()"><option value="one_time" selected>One-time</option><option value="annual">Annual</option></select></div>'+
+    '<div class="field"><label>Medical / LTC Shock Amount</label><input id="scenarioMedicalAmount" type="number" value="0" oninput="commit()"></div>'+
+    '<div class="field"><label>Market Crash %</label><input id="scenarioMarketCrash" type="number" value="0" oninput="commit()"></div>'+
+    '<div class="field"><label>Tax Increase %</label><input id="scenarioTaxIncrease" type="number" value="0" oninput="commit()"></div>'+
+    '</div><div class="sub" id="scenarioComparison">Scenario comparison will update after projection run.</div>';
   scenariosView.appendChild(phase210Card);
 
 
@@ -476,6 +576,25 @@ function setupViews(){
   advisorView.appendChild(advisorCard);
 
   wireNav();
+}
+function addExpandedBalanceSheetFields(){
+  // Phase 2.11 START - Expanded assets/debts inputs
+  function addField(targetId,id,label,help){
+    var target = el(targetId); if(!target || el(id)) return;
+    var wrap = document.createElement('div'); wrap.className='field';
+    wrap.innerHTML = '<label>'+label+'</label><input id="'+id+'" type="number" value="0" oninput="commit()"><small class="sub">'+help+'</small>';
+    target.appendChild(wrap);
+  }
+  var assets = [
+    ['bsChecking','Checking','Cash / bank'],['bsSavings','Savings','Cash / bank'],['bsEmergencyFund','Emergency Fund','Cash reserve'],['bsCDsMoneyMarket','CDs / Money Market','Low-volatility cash-like'],
+    ['bs401k','401(k)','Retirement'],['bs403b','403(b)','Retirement'],['bsTraditionalIRA','Traditional IRA','Retirement'],['bsRothIRA','Roth IRA','Retirement'],['bsPensionReserve','Pension Reserve','Estimated pension value'],['bsHSA','HSA','Assumed invested for market stress'],
+    ['bsBrokerage','Brokerage','Taxable investments'],['bsMutualEtf','Mutual Funds / ETFs','Taxable investments'],['bsStocks','Individual Stocks','Taxable investments'],['bsBonds','Bonds / Bond Funds','Taxable investments'],['bsCrypto','Crypto','Taxable investments'],
+    ['bsPrimaryHomeEquity','Primary Home Equity','Property'],['bsRentalEquity','Rental Property Equity','Property'],['bsBusinessValue','Business Ownership Value','Property / other'],['bsOtherAssets','Vehicles / Collectibles / Other','Other assets']
+  ];
+  for(var i=0;i<assets.length;i++) addField('expandedAssetsFields',assets[i][0],assets[i][1],assets[i][2]);
+  var debts = [['debtMortgage','Mortgage','Secured debt'],['debtHELOC','HELOC','Secured debt'],['debtAutoLoans','Auto Loans','Secured debt'],['debtStudentLoans','Student Loans','Unsecured debt'],['debtCreditCards','Credit Cards','Unsecured debt'],['debtPersonalLoans','Personal Loans','Unsecured debt'],['debtMedical','Medical Debt','Unsecured debt'],['debtOther','Other Debt','Unsecured debt']];
+  for(var j=0;j<debts.length;j++) addField('expandedDebtFields',debts[j][0],debts[j][1],debts[j][2]);
+  // Phase 2.11 END - Expanded assets/debts inputs
 }
 function moveFieldsFromSource(sourceRoot,ids,targetId){
   var target = el(targetId);
