@@ -1,6 +1,35 @@
 let mainChart;
 function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); }
 
+const appState = {
+    ageNow: 35,
+    ageRet: 65,
+    status: 'single',
+    deps: 0,
+    incomes: [],
+    assets: []
+};
+
+function toNum(v, fallback = 0) {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : fallback;
+}
+
+function syncStateFromDom() {
+    appState.ageNow = toNum(document.getElementById('age-now').value, 35);
+    appState.ageRet = Math.max(appState.ageNow, toNum(document.getElementById('age-ret').value, 65));
+    appState.status = document.getElementById('status').value === 'married' ? 'married' : 'single';
+    appState.deps = Math.max(0, toNum(document.getElementById('deps').value, 0));
+    appState.incomes = Array.from(document.querySelectorAll('#income-cont div')).map(r => ({
+        type: r.querySelector('.income-type')?.value || 'W2 Salary',
+        val: toNum(r.querySelector('.income-val')?.value, 0)
+    }));
+    appState.assets = Array.from(document.querySelectorAll('#asset-cont div')).map(r => ({
+        type: r.querySelector('.asset-type')?.value || 'Qualified (401k)',
+        val: toNum(r.querySelector('.asset-val')?.value, 0)
+    }));
+}
+
 function addRow(type, val = 100000, label = "W2 Salary") {
     const cont = document.getElementById(`${type}-cont`);
     const div = document.createElement('div');
@@ -11,18 +40,16 @@ function addRow(type, val = 100000, label = "W2 Salary") {
         </select>
         <input style="flex:2" type="number" class="${type}-val" value="${val}" oninput="recalc()">
         <button onclick="this.parentElement.remove(); recalc()" style="background:none; border:none; color:#ef4444; font-weight:800; cursor:pointer;">×</button>`;
+    const select = div.querySelector(`.${type}-type`);
+    if (select && label) select.value = label;
+    select?.addEventListener('change', recalc);
     cont.appendChild(div);
     recalc();
 }
 
 function recalc() {
-    const p = {
-        ageNow: parseInt(document.getElementById('age-now').value) || 35,
-        ageRet: parseInt(document.getElementById('age-ret').value) || 65,
-        status: document.getElementById('status').value,
-        incomes: Array.from(document.querySelectorAll('#income-cont div')).map(r => ({ val: parseFloat(r.querySelector('.income-val').value) })),
-        assets: Array.from(document.querySelectorAll('#asset-cont div')).map(r => ({ val: parseFloat(r.querySelector('.asset-val').value) }))
-    };
+    syncStateFromDom();
+    const p = { ...appState };
     const res = BASTION_ENGINE.run(p);
     document.getElementById('res-wealth').innerText = `$${res.terminal.toLocaleString()}`;
     document.getElementById('res-tax').innerText = `$${res.totalTax.toLocaleString()}`;
@@ -45,4 +72,11 @@ function updateChart(res) {
     });
 }
 
-window.onload = () => { addRow('income', 100000); addRow('asset', 50000); };
+window.onload = () => {
+    document.getElementById('age-now').addEventListener('input', recalc);
+    document.getElementById('age-ret').addEventListener('input', recalc);
+    document.getElementById('status').addEventListener('change', recalc);
+    document.getElementById('deps').addEventListener('input', recalc);
+    addRow('income', 100000, 'W2 Salary');
+    addRow('asset', 50000, 'Qualified (401k)');
+};
