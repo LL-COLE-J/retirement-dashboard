@@ -84,12 +84,10 @@ button{cursor:pointer}
   <aside class="sidebar">
     <div class="brand"><div class="logo">B</div><div><h1>Bastion</h1><span>Inputs define the path.</span></div></div>
     <nav class="nav">
-      <button class="active">Path Dashboard</button>
-      <button>Inputs</button>
-      <button>Life Events</button>
+      <button class="active">Dashboard</button>
+      <button>Profile</button>
+      <button>Advisor</button>
       <button>Scenarios</button>
-      <button>Advisor Review</button>
-      <button>Compliance</button>
     </nav>
     <div class="side-card"><small><strong>Save State 2.7</strong><br/>Reality engine now supports household income timing, taxes, capture rate, inflation, returns, medical care, and pass-away scenarios.</small></div>
   </aside>
@@ -340,13 +338,23 @@ function renderEvents(){
   box.innerHTML=html;
 }
 
-function project(includeEvents){
+function project(includeEvents,scenario){
   if(includeEvents===undefined) includeEvents=true;
+  scenario = scenario || null;
   var s=readState(); var labels=[]; var values=[]; var nw=s.invested+s.cash-s.debt; var start=s.age; var end=Math.max(s.retireAge+25,s.income2RetireAge+25,s.age+10); var minValue=null;
+  if(scenario && scenario.enabled && scenario.marketCrashPct>0){ nw = nw*(1-scenario.marketCrashPct); }
   for(var age=start;age<=end;age++){
     labels.push(age);
-    var income=grossIncomeAtAge(age);
+    var income1 = age < s.retireAge ? s.income1 : 0;
+    var income2 = age < s.income2RetireAge ? s.income2 : 0;
+    if(scenario && scenario.enabled){
+      if(scenario.firstRetiree==='p1' && age>=scenario.firstRetireAge) income1=0;
+      if(scenario.firstRetiree==='p2' && age>=scenario.firstRetireAge) income2=0;
+      if(scenario.survivorOn && age>=scenario.survivorAge){ if(scenario.survivorPerson==='p1') income1=0; else income2=0; }
+    }
+    var income=income1+income2;
     var taxes=taxSummaryForIncome(income);
+    if(scenario && scenario.enabled && scenario.taxIncreasePct>0){ taxes.total += income*scenario.taxIncreasePct; }
     var afterTaxIncome=income-taxes.total;
     var workingIncomeActive=income>0;
     var annualCurrent=inflatedAmount(annualSpendValue('currentSpend'),age);
@@ -354,8 +362,13 @@ function project(includeEvents){
     if(passAwayHasOccurred(age)){ annualCurrent*=0.75; annualRetire*=0.75; }
     var baseCashFlow=workingIncomeActive ? (afterTaxIncome-annualCurrent) : -annualRetire;
     var annualCashFlow=baseCashFlow;
+    if(scenario && scenario.enabled && scenario.survivorOn && age>=scenario.survivorAge){ annualCashFlow += annualCurrent*0.25; }
     if(workingIncomeActive && baseCashFlow>0) annualCashFlow=baseCashFlow*captureRate();
     if(includeEvents){ for(var j=0;j<s.events.length;j++){ var ev=s.events[j]; if(eventApplies(ev,age)) annualCashFlow+=eventAnnualImpact(ev); } }
+    if(scenario && scenario.enabled && scenario.medicalShockAmount>0){
+      if(scenario.medicalShockType==='annual' && age>=scenario.medicalShockAge) annualCashFlow -= scenario.medicalShockAmount;
+      if(scenario.medicalShockType==='one_time' && age===scenario.medicalShockAge) annualCashFlow -= scenario.medicalShockAmount;
+    }
     nw=nw*(1+returnRate())+annualCashFlow;
     var rounded=Math.round(nw); values.push(rounded); if(minValue===null||rounded<minValue) minValue=rounded;
   }
@@ -363,12 +376,12 @@ function project(includeEvents){
 }
 function eventImpactNow(){ var age=num('age'); var total=0; for(var i=0;i<events.length;i++){ if(eventApplies(events[i],age)) total+=eventAnnualImpact(events[i]); } return total; }
 function commit(){
-  var withEvents=project(true); var withoutEvents=project(false); var taxes=taxSummary(); var startingNetWorth=num('invested')+num('cash')-num('debt'); var annualCurrent=annualSpendValue('currentSpend'); var grossSurplus=taxes.income-taxes.total-annualCurrent; var capturedSurplus=grossSurplus>0?grossSurplus*captureRate():grossSurplus;
+  var withEvents=project(true); var withoutEvents=project(false); var scenarioSettings=getPhase210Settings(); var scenarioPath=project(true,scenarioSettings); var taxes=taxSummary(); var startingNetWorth=num('invested')+num('cash')-num('debt'); var annualCurrent=annualSpendValue('currentSpend'); var grossSurplus=taxes.income-taxes.total-annualCurrent; var capturedSurplus=grossSurplus>0?grossSurplus*captureRate():grossSurplus;
   var score=Math.max(0,Math.min(100,Math.round((withEvents.ending/1000000)*50+(withEvents.min>0?35:10)))); var status='Watch'; var cls='warn-text'; if(score>=72){status='Stable';cls='good';}else if(score<45){status='At Risk';cls='bad-text';}
   el('pathStatus').textContent=status; el('pathStatus').className='metric '+cls; el('statusFill').style.width=score+'%';
   el('pathSummary').textContent='Projected ending path: '+money(withEvents.ending)+'. Reality drag included: tax, inflation, returns, and '+Math.round(captureRate()*100)+'% surplus capture.';
   el('startingNetWorthMetric').textContent=money(startingNetWorth); el('grossIncomeMetric').textContent=money(taxes.income); el('taxEstimateMetric').textContent=money(taxes.total); el('annualSurplusMetric').textContent=money(capturedSurplus); el('endingPathMetric').textContent=money(withEvents.ending); el('minPathMetric').textContent=money(withEvents.min); el('currentSpendMetric').textContent=money(num('currentSpend')); el('retireSpendMetric').textContent=money(num('retireSpend')); el('eventImpactMetric').textContent=money(eventImpactNow());
-  renderChart(withoutEvents,withEvents); renderChanges(); renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus); saveState();
+  renderChart(withoutEvents,withEvents); renderChanges(); renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus); renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus); renderScenarioComparison(withEvents,scenarioPath,capturedSurplus); saveState();
 }
 function renderChart(base,eventsPath){ var ctx=el('pathChart'); if(chart) chart.destroy(); chart=new Chart(ctx,{type:'line',data:{labels:base.labels,datasets:[{label:'Before Events',data:base.values,tension:.3,borderWidth:2,pointRadius:0},{label:'After Events',data:eventsPath.values,tension:.3,borderWidth:3,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#bdc8d8'}}},scales:{x:{ticks:{color:'#97a6ba'},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'#97a6ba',callback:function(v){return '$'+Math.round(v/1000)+'k';}},grid:{color:'rgba(255,255,255,.06)'}}}}}); }
 function hasEventType(type){ for(var i=0;i<events.length;i++){ if(events[i].type===type) return true; } return false; }
@@ -414,18 +427,14 @@ function setupViews(){
 
   var dashboardView = document.createElement('section'); dashboardView.id='dashboardView'; dashboardView.className='view active';
   var profileView = document.createElement('section'); profileView.id='profileView'; profileView.className='view';
-  var assumptionsView = document.createElement('section'); assumptionsView.id='assumptionsView'; assumptionsView.className='view';
-  var eventsView = document.createElement('section'); eventsView.id='eventsView'; eventsView.className='view';
-  var tweaksView = document.createElement('section'); tweaksView.id='tweaksView'; tweaksView.className='view';
+  var scenariosView = document.createElement('section'); scenariosView.id='scenariosView'; scenariosView.className='view';
   var advisorView = document.createElement('section'); advisorView.id='advisorView'; advisorView.className='view';
 
   content.innerHTML = '';
   content.appendChild(dashboardView);
   content.appendChild(profileView);
-  content.appendChild(assumptionsView);
-  content.appendChild(eventsView);
-  content.appendChild(tweaksView);
   content.appendChild(advisorView);
+  content.appendChild(scenariosView);
 
   var metrics1 = children[0];
   var metrics2 = children[1];
@@ -454,15 +463,33 @@ function setupViews(){
 
   var assumptionsCard = document.createElement('div'); assumptionsCard.className='card';
   assumptionsCard.innerHTML = '<div class="section-head"><div><h3>Assumptions</h3><p>Spend, inflation, returns, and how much surplus actually gets invested.</p></div><div class="toggle"><button id="monthlyBtn" onclick="setMode(\'monthly\')">Monthly</button><button id="annualBtn" onclick="setMode(\'annual\')">Annual</button></div></div><div class="form-grid" id="assumptionFields"></div>';
-  assumptionsView.appendChild(assumptionsCard);
+  profileView.appendChild(assumptionsCard);
 
   var profileIds = ['age','retireAge','filingStatus','income1','income2','income2RetireAge','taxState','countyTaxRate','cityTaxRate'];
   var assumptionIds = ['currentSpend','retireSpend','captureRate','inflationRate','returnProfile','invested','cash','debt'];
-  moveFields(profileIds,'profileFields');
-  moveFields(assumptionIds,'assumptionFields');
+  moveFieldsFromSource(coreCard,profileIds,'profileFields');
+  moveFieldsFromSource(coreCard,assumptionIds,'assumptionFields');
 
-  if(eventsCard) eventsView.appendChild(eventsCard);
-  if(tweakCard) tweaksView.appendChild(tweakCard);
+  if(eventsCard) scenariosView.appendChild(eventsCard);
+  if(tweakCard) scenariosView.appendChild(tweakCard);
+
+  var phase210Card = document.createElement('div'); phase210Card.className='card';
+  phase210Card.innerHTML = '<div class="section-head"><div><h3>2.10 Scenario Planning</h3><p>Starter structure for household scenario planning. Placeholders are non-breaking and do not alter current projections yet.</p></div></div>'+
+    '<div class="form-grid">'+
+    '<div class="field"><label>2.10 Mode</label><select id="phase210Enabled" onchange="commit()"><option value="off" selected>Off</option><option value="on">On</option></select></div>'+
+    '<div class="field"><label>First Retiree</label><select id="firstRetiree" onchange="commit()"><option value="none" selected>None</option><option value="p1">Person 1</option><option value="p2">Person 2</option></select></div>'+
+    '<div class="field"><label>Retires First Age</label><input id="firstRetireAge" type="number" value="62" oninput="commit()"></div>'+
+    '<div class="field"><label>Survivor Scenario</label><select id="survivorOn" onchange="commit()"><option value="off" selected>Off</option><option value="on">On</option></select></div>'+
+    '<div class="field"><label>Survivor Person</label><select id="survivorPerson" onchange="commit()"><option value="p1" selected>Person 1</option><option value="p2">Person 2</option></select></div>'+
+    '<div class="field"><label>Survivor Age</label><input id="survivorAge" type="number" value="70" oninput="commit()"></div>'+
+    '<div class="field"><label>Medical / LTC Shock</label><input id="medicalShockAmount" type="number" value="0" oninput="commit()"></div>'+
+    '<div class="field"><label>Medical Shock Type</label><select id="medicalShockType" onchange="commit()"><option value="annual" selected>Annual</option><option value="one_time">One-Time</option></select></div>'+
+    '<div class="field"><label>Medical Shock Age</label><input id="medicalShockAge" type="number" value="68" oninput="commit()"></div>'+
+    '<div class="field"><label>Market Crash %</label><input id="marketCrashPct" type="number" value="25" oninput="commit()"></div>'+
+    '<div class="field"><label>Tax Increase %</label><input id="taxIncreasePct" type="number" value="3" oninput="commit()"></div>'+
+    '</div><div class="sub">Phase 2.10 scenario stress controls are now wired as a scenario-only overlay.</div><div class="changed-list" id="scenarioComparison"></div>';
+  scenariosView.appendChild(phase210Card);
+
 
   var advisorCard = document.createElement('div'); advisorCard.className='card';
   advisorCard.innerHTML = '<div class="section-head"><div><h3>Advisor</h3><p>Expanded interpretation of the current model.</p></div><button class="btn secondary" onclick="toggleDrawer(true)">Open Drawer</button></div><ul id="advisorPageList"></ul>';
@@ -470,11 +497,11 @@ function setupViews(){
 
   wireNav();
 }
-function moveFields(ids,targetId){
+function moveFieldsFromSource(sourceRoot,ids,targetId){
   var target = el(targetId);
-  if(!target) return;
+  if(!target || !sourceRoot) return;
   for(var i=0;i<ids.length;i++){
-    var node = el(ids[i]);
+    var node = sourceRoot.querySelector ? sourceRoot.querySelector('#'+ids[i]) : null;
     if(node){
       var field = node.closest ? node.closest('.field') : null;
       if(field) target.appendChild(field);
@@ -483,8 +510,8 @@ function moveFields(ids,targetId){
 }
 function wireNav(){
   var buttons = document.querySelectorAll('.nav button');
-  var map = ['dashboard','profile','events','tweaks','advisor','assumptions'];
-  var labels = ['Dashboard','Profile','Life Events','Quick Tweaks','Advisor','Assumptions'];
+  var map = ['dashboard','profile','advisor','scenarios'];
+  var labels = ['Dashboard','Profile','Advisor','Scenarios'];
   for(var i=0;i<buttons.length;i++){
     buttons[i].textContent = labels[i] || buttons[i].textContent;
     buttons[i].setAttribute('data-view',map[i] || 'dashboard');
@@ -492,7 +519,7 @@ function wireNav(){
   }
 }
 function showView(name){
-  var ids = ['dashboard','profile','assumptions','events','tweaks','advisor'];
+  var ids = ['dashboard','profile','advisor','scenarios'];
   for(var i=0;i<ids.length;i++){
     var view = el(ids[i]+'View');
     if(view) view.classList.toggle('active',ids[i]===name);
@@ -502,6 +529,55 @@ function showView(name){
     buttons[j].classList.toggle('active',buttons[j].getAttribute('data-view')===name);
   }
 }
+
+// Phase 2.10: scenario control wiring (non-breaking overlay)
+function getPhase210Settings(){
+  if(!el('phase210Enabled')) return {enabled:false};
+  return {
+    enabled: val('phase210Enabled')==='on',
+    firstRetiree: val('firstRetiree')||'none',
+    firstRetireAge: num('firstRetireAge')||num('retireAge'),
+    survivorOn: val('survivorOn')==='on',
+    survivorPerson: val('survivorPerson')||'p1',
+    survivorAge: num('survivorAge')||num('retireAge'),
+    medicalShockAmount: num('medicalShockAmount')||0,
+    medicalShockType: val('medicalShockType')||'annual',
+    medicalShockAge: num('medicalShockAge')||num('retireAge'),
+    marketCrashPct: (num('marketCrashPct')||0)/100,
+    taxIncreasePct: (num('taxIncreasePct')||0)/100
+  };
+}
+function renderScenarioComparison(baseline,scenarioPath,capturedSurplus){
+  var box=el('scenarioComparison'); if(!box || !scenarioPath) return;
+  var nwDelta=scenarioPath.ending-baseline.ending;
+  var minDelta=scenarioPath.min-baseline.min;
+  var baseScore=Math.max(0,Math.min(100,Math.round((baseline.ending/1000000)*50+(baseline.min>0?35:10))));
+  var scenarioScore=Math.max(0,Math.min(100,Math.round((scenarioPath.ending/1000000)*50+(scenarioPath.min>0?35:10))));
+  var risk='Scenario stress is manageable.';
+  if(nwDelta<0||minDelta<0) risk='Scenario increases risk by reducing modeled safety margin.';
+  if(scenarioPath.min<0) risk='Scenario may create a funding gap window before or during retirement.';
+  box.innerHTML='<div class="changed-item"><span>Baseline Ending</span><span>'+money(baseline.ending)+'</span></div>'+
+    '<div class="changed-item"><span>Scenario Ending</span><span>'+money(scenarioPath.ending)+'</span></div>'+
+    '<div class="changed-item"><span>Net Worth Delta</span><span class="'+(nwDelta>=0?'good':'bad-text')+'">'+money(nwDelta)+'</span></div>'+
+    '<div class="changed-item"><span>Cash Flow Delta (proxy)</span><span class="'+(minDelta>=0?'good':'bad-text')+'">'+money(minDelta)+'</span></div>'+
+    '<div class="changed-item"><span>Readiness Delta</span><span class="'+((scenarioScore-baseScore)>=0?'good':'bad-text')+'">'+(scenarioScore-baseScore)+'</span></div>'+
+    '<div class="dashboard-summary"><strong>Risk Explanation</strong><br>'+risk+' Baseline captured surplus: '+money(capturedSurplus)+'.</div>';
+}
+
+function renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus){
+  var baselineIncome = taxes && taxes.income ? taxes.income : 0;
+  var annualSpend = annualSpendValue('currentSpend');
+  var savingsRate = baselineIncome>0 ? Math.max(0,Math.min(1,capturedSurplus/baselineIncome)) : 0;
+  var riskWindow = 'Low';
+  if(withEvents.min < 0 || withEvents.ending < 0) riskWindow = 'High';
+  else if(withEvents.min < (baselineIncome*2) || savingsRate < 0.12) riskWindow = 'Moderate';
+  var intelligence = [];
+  intelligence.push('<strong>Advisor Intelligence</strong> — Savings capture is <strong>'+Math.round(savingsRate*100)+'%</strong> of gross income after taxes/spend.');
+  intelligence.push('Risk Window: <strong>'+riskWindow+'</strong>. Minimum modeled path value is <strong>'+money(withEvents.min)+'</strong>.');
+  intelligence.push('Event drag vs baseline path: <strong>'+money(withEvents.ending-withoutEvents.ending)+'</strong>. Current annual spend basis: <strong>'+money(annualSpend)+'</strong>.');
+  if(el('advisorSummary')) el('advisorSummary').innerHTML = intelligence.join('<br>');
+}
+
 function init(){ loadState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; } setupViews(); syncModeUI(); renderEvents(); commit(); }
 init();
 </script>
