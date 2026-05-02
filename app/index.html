@@ -214,6 +214,19 @@ var TAX_CODES = {
 function el(id){ return document.getElementById(id); }
 function money(n){ return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(Number(n)||0); }
 function num(id){ var node = el(id); return node ? (Number(node.value)||0) : 0; }
+function safeNum(v,fallback){
+  var n = Number(v);
+  if(!isFinite(n) || isNaN(n)) return fallback===undefined?0:fallback;
+  return n;
+}
+function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
+function safeFieldNum(id,fallback,min,max){
+  var node = el(id); var raw = node ? node.value : fallback; var n = safeNum(raw,fallback===undefined?0:fallback);
+  if(n < 0) n = 0;
+  if(min!==undefined) n = Math.max(min,n);
+  if(max!==undefined) n = Math.min(max,n);
+  return n;
+}
 function val(id){ var node = el(id); return node ? node.value : ''; }
 function setNum(id,val){ if(el(id)) el(id).value = Math.round(val); }
 function annualSpendValue(id){ return mode === 'annual' ? num(id) : num(id) * 12; }
@@ -341,6 +354,19 @@ function renderEvents(){
 function project(includeEvents){
   if(includeEvents===undefined) includeEvents=true;
   var s=readState(); var labels=[]; var values=[]; var nw=s.invested+s.cash-s.debt; var start=s.age; var end=Math.max(s.retireAge+25,s.income2RetireAge+25,s.age+10); var minValue=null;
+  var scenario = {
+    enabled: !!includeEvents,
+    firstRetireAge: Math.max(start,safeFieldNum('scenarioFirstRetireAge',s.retireAge,start,120)),
+    survivorOn: (val('scenarioSurvivor')||'off') === 'on',
+    marketCrashPct: clamp(safeFieldNum('scenarioMarketCrash',0,0,90),0,90),
+    taxIncreasePct: clamp(safeFieldNum('scenarioTaxIncrease',0,0,25),0,25),
+    medicalType: val('scenarioMedicalType') || 'one_time',
+    medicalAmount: Math.max(0,safeFieldNum('scenarioMedicalAmount',0,0)),
+    causes: []
+  };
+  var shockType = (scenario.medicalType==='annual'||scenario.medicalType==='one_time') ? scenario.medicalType : 'one_time';
+  var hasStress = scenario.enabled && (scenario.firstRetireAge!==s.retireAge || scenario.survivorOn || scenario.marketCrashPct>0 || scenario.taxIncreasePct>0 || scenario.medicalAmount>0);
+  var marketCrashApplied = false;
   for(var age=start;age<=end;age++){
     labels.push(age);
     var income=grossIncomeAtAge(age);
@@ -354,10 +380,27 @@ function project(includeEvents){
     var annualCashFlow=baseCashFlow;
     if(workingIncomeActive && baseCashFlow>0) annualCashFlow=baseCashFlow*captureRate();
     if(includeEvents){ for(var j=0;j<s.events.length;j++){ var ev=s.events[j]; if(eventApplies(ev,age)) annualCashFlow+=eventAnnualImpact(ev); } }
+    // Phase 2.10 SCENARIO OVERLAY START
+    if(hasStress){
+      // 1) Income changes from retirement/staggered retirement
+      if(age >= scenario.firstRetireAge && age < s.income2RetireAge){ annualCashFlow -= s.income1; if(scenario.causes.indexOf('staggered retirement income change')<0) scenario.causes.push('staggered retirement income change'); }
+      // 2) Survivor income removal and expense reduction
+      if(scenario.survivorOn && age >= start+1){ annualCashFlow -= s.income2; annualCashFlow += annualRetire*0.25; if(scenario.causes.indexOf('survivor income loss')<0) scenario.causes.push('survivor income loss'); }
+      // 3) Market crash asset haircut
+      if(!marketCrashApplied && scenario.marketCrashPct>0 && age===start+1){ nw = nw * (1 - scenario.marketCrashPct/100); marketCrashApplied = true; if(scenario.causes.indexOf('market crash asset reduction')<0) scenario.causes.push('market crash asset reduction'); }
+      // 4) Medical/LTC shock
+      if(scenario.medicalAmount>0){
+        if(shockType==='annual'){ annualCashFlow -= scenario.medicalAmount; if(scenario.causes.indexOf('medical/LTC cost shock')<0) scenario.causes.push('medical/LTC cost shock'); }
+        else if(age===start+1){ nw -= scenario.medicalAmount; if(scenario.causes.indexOf('medical/LTC cost shock')<0) scenario.causes.push('medical/LTC cost shock'); }
+      }
+      // 5) Tax increase overlay / tax drag
+      if(scenario.taxIncreasePct>0){ annualCashFlow -= Math.max(0,income)*(scenario.taxIncreasePct/100); if(scenario.causes.indexOf('tax increase drag')<0) scenario.causes.push('tax increase drag'); }
+    }
+    // Phase 2.10 SCENARIO OVERLAY END
     nw=nw*(1+returnRate())+annualCashFlow;
     var rounded=Math.round(nw); values.push(rounded); if(minValue===null||rounded<minValue) minValue=rounded;
   }
-  return {labels:labels,values:values,ending:values[values.length-1],min:minValue};
+  return {labels:labels,values:values,ending:values[values.length-1],min:minValue,scenarioCauses:scenario.causes};
 }
 function eventImpactNow(){ var age=num('age'); var total=0; for(var i=0;i<events.length;i++){ if(eventApplies(events[i],age)) total+=eventAnnualImpact(events[i]); } return total; }
 function commit(){
@@ -367,6 +410,16 @@ function commit(){
   el('pathSummary').textContent='Projected ending path: '+money(withEvents.ending)+'. Reality drag included: tax, inflation, returns, and '+Math.round(captureRate()*100)+'% surplus capture.';
   el('startingNetWorthMetric').textContent=money(startingNetWorth); el('grossIncomeMetric').textContent=money(taxes.income); el('taxEstimateMetric').textContent=money(taxes.total); el('annualSurplusMetric').textContent=money(capturedSurplus); el('endingPathMetric').textContent=money(withEvents.ending); el('minPathMetric').textContent=money(withEvents.min); el('currentSpendMetric').textContent=money(num('currentSpend')); el('retireSpendMetric').textContent=money(num('retireSpend')); el('eventImpactMetric').textContent=money(eventImpactNow());
   renderChart(withoutEvents,withEvents); renderChanges(); renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus); renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus); saveState();
+  renderScenarioComparison(withoutEvents,withEvents);
+}
+function renderScenarioComparison(base,scenario){
+  var box = el('scenarioComparison');
+  if(!box) return;
+  var diff = scenario.ending - base.ending;
+  var causes = scenario.scenarioCauses || [];
+  var primary = causes.length ? causes[0] : 'no active stress causes';
+  var causeText = causes.length ? causes.join(', ') : 'none (scenario controls are off/default).';
+  box.innerHTML = '<strong>Scenario Comparison</strong><br>Baseline ending path is <strong>'+money(base.ending)+'</strong>. Scenario ending path is <strong>'+money(scenario.ending)+'</strong> (<strong>'+money(diff)+'</strong> delta).<br>Primary impact: <strong>'+primary+'</strong>.<br>Active stress causes: '+causeText;
 }
 function renderChart(base,eventsPath){ var ctx=el('pathChart'); if(chart) chart.destroy(); chart=new Chart(ctx,{type:'line',data:{labels:base.labels,datasets:[{label:'Before Events',data:base.values,tension:.3,borderWidth:2,pointRadius:0},{label:'After Events',data:eventsPath.values,tension:.3,borderWidth:3,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#bdc8d8'}}},scales:{x:{ticks:{color:'#97a6ba'},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'#97a6ba',callback:function(v){return '$'+Math.round(v/1000)+'k';}},grid:{color:'rgba(255,255,255,.06)'}}}}}); }
 function hasEventType(type){ for(var i=0;i<events.length;i++){ if(events[i].type===type) return true; } return false; }
@@ -459,15 +512,16 @@ function setupViews(){
   if(tweakCard) scenariosView.appendChild(tweakCard);
 
   var phase210Card = document.createElement('div'); phase210Card.className='card';
-  phase210Card.innerHTML = '<div class="section-head"><div><h3>2.10 Scenario Planning</h3><p>Starter structure for household scenario planning. Placeholders are non-breaking and do not alter current projections yet.</p></div></div>'+
+  phase210Card.innerHTML = '<div class="section-head"><div><h3>2.10 Scenario Planning</h3><p>Scenario overlay applies only to scenario path. Baseline projection remains unchanged.</p></div></div>'+
     '<div class="form-grid">'+
     '<div class="field"><label>First Retiree</label><select><option>Person 1</option><option>Person 2</option></select></div>'+
-    '<div class="field"><label>Retires First Age</label><input type="number" placeholder="e.g. 62"></div>'+
-    '<div class="field"><label>Survivor Scenario</label><select><option>Off</option><option>On (placeholder)</option></select></div>'+
-    '<div class="field"><label>Medical / LTC Shock</label><input type="number" placeholder="Annual $ impact"></div>'+
-    '<div class="field"><label>Market Crash Stress Test</label><select><option>Off</option><option>-20% (placeholder)</option><option>-35% (placeholder)</option></select></div>'+
-    '<div class="field"><label>Tax Increase Stress Test</label><select><option>Off</option><option>+2% effective (placeholder)</option><option>+5% effective (placeholder)</option></select></div>'+
-    '</div><div class="sub">Phase 2.10 placeholder layer only. Projection engine updates remain unchanged in this patch.</div>';
+    '<div class="field"><label>Retires First Age</label><input id="scenarioFirstRetireAge" type="number" value="67" oninput="commit()"></div>'+
+    '<div class="field"><label>Survivor Scenario</label><select id="scenarioSurvivor" onchange="commit()"><option value="off" selected>Off</option><option value="on">On</option></select></div>'+
+    '<div class="field"><label>Medical / LTC Shock Type</label><select id="scenarioMedicalType" onchange="commit()"><option value="one_time" selected>One-time</option><option value="annual">Annual</option></select></div>'+
+    '<div class="field"><label>Medical / LTC Shock Amount</label><input id="scenarioMedicalAmount" type="number" value="0" oninput="commit()"></div>'+
+    '<div class="field"><label>Market Crash %</label><input id="scenarioMarketCrash" type="number" value="0" oninput="commit()"></div>'+
+    '<div class="field"><label>Tax Increase %</label><input id="scenarioTaxIncrease" type="number" value="0" oninput="commit()"></div>'+
+    '</div><div class="sub" id="scenarioComparison">Scenario comparison will update after projection run.</div>';
   scenariosView.appendChild(phase210Card);
 
 
