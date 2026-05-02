@@ -1,28 +1,65 @@
-<div class="main">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bastion</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
 
-  <h1>Bastion Dashboard</h1>
-  <p>Inputs define the path. Bastion shows the outcome.</p>
+<body>
 
-  <div class="card">
-    <h3>Income</h3>
-    <div id="incomeRows"></div>
-    <button onclick="addIncome()">+ Add Income</button>
+  <div class="sidebar">
+    <h2>Bastion</h2>
+    <p class="tagline">Phase 2.9</p>
+
+    <label>Age Now</label>
+    <input id="ageNow" type="number" value="35" />
+
+    <label>Retirement Age</label>
+    <input id="retireAge" type="number" value="65" />
+
+    <label>Filing Status</label>
+    <select id="status">
+      <option value="single">Single</option>
+      <option value="married_joint">Married Joint</option>
+    </select>
+
+    <label>Dependents</label>
+    <input id="deps" type="number" value="0" />
   </div>
 
-  <div class="card">
-    <h3>Assets</h3>
-    <div id="assetRows"></div>
-    <button onclick="addAsset()">+ Add Asset</button>
+  <div class="main">
+    <h1>Bastion Dashboard</h1>
+    <p>Inputs define the path. Bastion shows the outcome.</p>
+
+    <div class="card">
+      <h3>Income</h3>
+      <div id="incomeRows"></div>
+      <button onclick="addIncome()">+ Add Income</button>
+    </div>
+
+    <div class="card">
+      <h3>Assets</h3>
+      <div id="assetRows"></div>
+      <button onclick="addAsset()">+ Add Asset</button>
+    </div>
+
+    <div class="card">
+      <h3>Results</h3>
+      <div id="results"></div>
+    </div>
+
+    <div class="card">
+      <h3>Advisor Intelligence</h3>
+      <div id="advisor"></div>
+    </div>
   </div>
 
-  <div class="card">
-    <h3>Results</h3>
-    <div id="results"></div>
-  </div>
+  <script src="./js/engine.js"></script>
+  <script src="./js/modules.js"></script>
+  <script src="./js/ui.js"></script>
+  <script src="./js/ai-gate.js"></script>
 
-  <div class="card">
-    <h3>Advisor Intelligence</h3>
-    <div id="advisor"></div>
-  </div>
-
-</div>
+</body>
+</html>
