@@ -439,6 +439,7 @@ function commit(){
   el('startingNetWorthMetric').textContent=money(startingNetWorth); el('grossIncomeMetric').textContent=money(taxes.income); el('taxEstimateMetric').textContent=money(taxes.total); el('annualSurplusMetric').textContent=money(capturedSurplus); el('endingPathMetric').textContent=money(withEvents.ending); el('minPathMetric').textContent=money(withEvents.min); el('currentSpendMetric').textContent=money(num('currentSpend')); el('retireSpendMetric').textContent=money(num('retireSpend')); el('eventImpactMetric').textContent=money(eventImpactNow());
   renderChart(withoutEvents,withEvents); renderChanges(); renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus); renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus); saveState();
   renderScenarioComparison(withoutEvents,withEvents);
+  renderProfileBalanceSheetSummary(bs);
 }
 function renderScenarioComparison(base,scenario){
   var box = el('scenarioComparison');
@@ -537,8 +538,18 @@ function setupViews(){
     '<div class="card"><h3>Income</h3><div class="sub">Primary and secondary earnings timing.</div><div class="form-grid" id="profileIncomeFields"></div></div>'+
     '<div class="card"><h3>Spending</h3><div class="sub">Current and retirement lifestyle spending.</div><div class="form-grid" id="profileSpendingFields"></div></div>'+
     '<div class="card"><h3>Tax Location</h3><div class="sub">Filing status and local tax add-ons.</div><div class="form-grid" id="profileTaxFields"></div></div></div>'+
-    '<div class="divider"></div><h3>Assets</h3><div class="sub">Detailed assets are optional. If used, they override simple invested/cash totals for balance-sheet modeling.</div><div class="form-grid" id="expandedAssetsFields"></div>'+
-    '<div class="divider"></div><h3>Debts</h3><div class="sub">Detailed debts are optional. If used, they override the single debt field in balance-sheet modeling.</div><div class="form-grid" id="expandedDebtFields"></div>';
+    '<div class="divider"></div><h3>Quick Totals / Fallback</h3><div class="sub">Legacy totals remain active when detailed fields are all zero.</div><div class="form-grid" id="quickTotalsFields"></div>'+
+    '<div class="divider"></div><h3>Assets</h3><div class="sub">Detailed assets are optional. If used, they override simple invested/cash totals for balance-sheet modeling.</div><div class="grid cols-2">'+
+      '<div class="card"><h3>Cash & Bank</h3><div class="form-grid" id="assetsCashBankFields"></div></div>'+
+      '<div class="card"><h3>Retirement</h3><div class="form-grid" id="assetsRetirementFields"></div></div>'+
+      '<div class="card"><h3>Taxable Investments</h3><div class="form-grid" id="assetsTaxableFields"></div></div>'+
+      '<div class="card"><h3>Property & Other</h3><div class="form-grid" id="assetsPropertyFields"></div></div>'+
+    '</div>'+
+    '<div class="divider"></div><h3>Debts</h3><div class="sub">Detailed debts are optional. If used, they override the single debt field in balance-sheet modeling.</div><div class="grid cols-2">'+
+      '<div class="card"><h3>Secured Debt</h3><div class="form-grid" id="debtsSecuredFields"></div></div>'+
+      '<div class="card"><h3>Unsecured Debt</h3><div class="form-grid" id="debtsUnsecuredFields"></div></div>'+
+    '</div>'+
+    '<div class="divider"></div><div class="card"><h3>Balance Sheet Summary</h3><div class="sub">Updates live as you type.</div><div id="profileBalanceSheetSummary" class="changed-list"></div></div>';
   // Phase 2.11 END - Profile UX sections
   profileView.appendChild(profileCard);
 
@@ -550,7 +561,8 @@ function setupViews(){
   moveFieldsFromSource(coreCard,['income1','income2','income2RetireAge'],'profileIncomeFields');
   moveFieldsFromSource(coreCard,['currentSpend','retireSpend'],'profileSpendingFields');
   moveFieldsFromSource(coreCard,['filingStatus','taxState','countyTaxRate','cityTaxRate'],'profileTaxFields');
-  var assumptionIds = ['captureRate','inflationRate','returnProfile','invested','cash','debt'];
+  moveFieldsFromSource(coreCard,['invested','cash','debt'],'quickTotalsFields');
+  var assumptionIds = ['captureRate','inflationRate','returnProfile'];
   moveFieldsFromSource(coreCard,assumptionIds,'assumptionFields');
   addExpandedBalanceSheetFields();
 
@@ -586,15 +598,23 @@ function addExpandedBalanceSheetFields(){
     target.appendChild(wrap);
   }
   var assets = [
-    ['bsChecking','Checking','Cash / bank'],['bsSavings','Savings','Cash / bank'],['bsEmergencyFund','Emergency Fund','Cash reserve'],['bsCDsMoneyMarket','CDs / Money Market','Low-volatility cash-like'],
-    ['bs401k','401(k)','Retirement'],['bs403b','403(b)','Retirement'],['bsTraditionalIRA','Traditional IRA','Retirement'],['bsRothIRA','Roth IRA','Retirement'],['bsPensionReserve','Pension Reserve','Estimated pension value'],['bsHSA','HSA','Assumed invested for market stress'],
-    ['bsBrokerage','Brokerage','Taxable investments'],['bsMutualEtf','Mutual Funds / ETFs','Taxable investments'],['bsStocks','Individual Stocks','Taxable investments'],['bsBonds','Bonds / Bond Funds','Taxable investments'],['bsCrypto','Crypto','Taxable investments'],
-    ['bsPrimaryHomeEquity','Primary Home Equity','Property'],['bsRentalEquity','Rental Property Equity','Property'],['bsBusinessValue','Business Ownership Value','Property / other'],['bsOtherAssets','Vehicles / Collectibles / Other','Other assets']
+    ['assetsCashBankFields','bsChecking','Checking','Cash / bank'],['assetsCashBankFields','bsSavings','Savings','Cash / bank'],['assetsCashBankFields','bsEmergencyFund','Emergency Fund','Cash reserve'],['assetsCashBankFields','bsCDsMoneyMarket','CDs / Money Market','Low-volatility cash-like'],
+    ['assetsRetirementFields','bs401k','401(k)','Retirement'],['assetsRetirementFields','bs403b','403(b)','Retirement'],['assetsRetirementFields','bsTraditionalIRA','Traditional IRA','Retirement'],['assetsRetirementFields','bsRothIRA','Roth IRA','Retirement'],['assetsRetirementFields','bsPensionReserve','Pension Reserve','Estimated pension value'],['assetsRetirementFields','bsHSA','HSA','Assumed invested for market stress'],
+    ['assetsTaxableFields','bsBrokerage','Brokerage','Taxable investments'],['assetsTaxableFields','bsMutualEtf','Mutual Funds / ETFs','Taxable investments'],['assetsTaxableFields','bsStocks','Individual Stocks','Taxable investments'],['assetsTaxableFields','bsBonds','Bonds / Bond Funds','Taxable investments'],['assetsTaxableFields','bsCrypto','Crypto','Taxable investments'],
+    ['assetsPropertyFields','bsPrimaryHomeEquity','Primary Home Equity','Property'],['assetsPropertyFields','bsRentalEquity','Rental Property Equity','Property'],['assetsPropertyFields','bsBusinessValue','Business Ownership Value','Property / other'],['assetsPropertyFields','bsOtherAssets','Vehicles / Collectibles / Other','Other assets']
   ];
-  for(var i=0;i<assets.length;i++) addField('expandedAssetsFields',assets[i][0],assets[i][1],assets[i][2]);
-  var debts = [['debtMortgage','Mortgage','Secured debt'],['debtHELOC','HELOC','Secured debt'],['debtAutoLoans','Auto Loans','Secured debt'],['debtStudentLoans','Student Loans','Unsecured debt'],['debtCreditCards','Credit Cards','Unsecured debt'],['debtPersonalLoans','Personal Loans','Unsecured debt'],['debtMedical','Medical Debt','Unsecured debt'],['debtOther','Other Debt','Unsecured debt']];
-  for(var j=0;j<debts.length;j++) addField('expandedDebtFields',debts[j][0],debts[j][1],debts[j][2]);
+  for(var i=0;i<assets.length;i++) addField(assets[i][0],assets[i][1],assets[i][2],assets[i][3]);
+  var debts = [['debtsSecuredFields','debtMortgage','Mortgage','Secured debt'],['debtsSecuredFields','debtHELOC','HELOC','Secured debt'],['debtsSecuredFields','debtAutoLoans','Auto Loans','Secured debt'],['debtsUnsecuredFields','debtStudentLoans','Student Loans','Unsecured debt'],['debtsUnsecuredFields','debtCreditCards','Credit Cards','Unsecured debt'],['debtsUnsecuredFields','debtPersonalLoans','Personal Loans','Unsecured debt'],['debtsUnsecuredFields','debtMedical','Medical Debt','Unsecured debt'],['debtsUnsecuredFields','debtOther','Other Debt','Unsecured debt']];
+  for(var j=0;j<debts.length;j++) addField(debts[j][0],debts[j][1],debts[j][2],debts[j][3]);
   // Phase 2.11 END - Expanded assets/debts inputs
+}
+function renderProfileBalanceSheetSummary(bs){
+  var box = el('profileBalanceSheetSummary'); if(!box || !bs) return;
+  box.innerHTML = '<div class="changed-item"><span>Total Assets</span><span>'+money(bs.totalAssets)+'</span></div>'+
+    '<div class="changed-item"><span>Market-Exposed Assets</span><span>'+money(bs.marketExposedAssets)+'</span></div>'+
+    '<div class="changed-item"><span>Non-Market Assets</span><span>'+money(bs.nonMarketAssets)+'</span></div>'+
+    '<div class="changed-item"><span>Total Debt</span><span>'+money(bs.totalDebt)+'</span></div>'+
+    '<div class="changed-item"><span>Net Worth</span><span class="'+(bs.netWorth>=0?'good':'bad-text')+'">'+money(bs.netWorth)+'</span></div>';
 }
 function moveFieldsFromSource(sourceRoot,ids,targetId){
   var target = el(targetId);
