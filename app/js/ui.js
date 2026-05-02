@@ -6,6 +6,7 @@ function addIncome(){
   `;
 
   document.getElementById("incomeRows").appendChild(row);
+  render();
 }
 
 function addAsset(){
@@ -16,16 +17,41 @@ function addAsset(){
   `;
 
   document.getElementById("assetRows").appendChild(row);
+  render();
 }
 
 function render(){
+
   let p = normalize();
   let r = calc(p);
 
+  // ===== Core Results =====
   document.getElementById("results").innerHTML = `
-    Total Wealth: $${r.wealth}<br>
-    Total Tax: $${r.tax}
+    Income: $${r.income}<br>
+    Net Income: $${r.net}<br>
+    Total Wealth: $${r.assets}<br>
+    Projected: $${Math.round(r.projected)}<br>
+    Tax: $${Math.round(r.tax)}
   `;
+
+  // ===== AI Insight =====
+  let metrics = {
+    terminalWealth: r.projected,
+    dti: r.dti,
+    marketCrash: false,
+    taxHike: false
+  };
+
+  if (typeof BASTION_AI !== "undefined") {
+    let insight = BASTION_AI.generateInsight(metrics);
+    document.getElementById("insight").innerText = insight;
+  }
 }
 
+// Better event handling
 document.addEventListener("input", render);
+
+// Initial render
+window.onload = () => {
+  render();
+};
