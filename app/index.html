@@ -89,12 +89,13 @@ button{cursor:pointer}
       <button>Advisor</button>
       <button>Scenarios</button>
     </nav>
-    <div class="side-card"><small><strong>Save State 2.7</strong><br/>Reality engine now supports household income timing, taxes, capture rate, inflation, returns, medical care, and pass-away scenarios.</small></div>
+    <!-- Save State 2.11b - visible status labels updated -->
+    <div class="side-card"><small><strong>Save State 2.11</strong><br/>- Expanded household balance sheet<br/>- Market-exposed asset stress testing<br/>- Scenario overlay: survivor, medical/LTC, market crash, tax drag<br/>- Profile grouped into household, income, spending, assets, debts, and tax<br/>- Baseline preserved separately from scenario<br/><br/><strong>Next:</strong> timeline visualization showing baseline vs scenario path, life events, retirement timing, and stress points.</small></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-      <div><h2>Lifetime Financial Path</h2><p>Dark shell locked. Phase 2.7 adds household scenario and reality assumptions.</p></div>
+      <div><h2>Lifetime Financial Path</h2><p>Dark shell locked. Save State 2.11b active with expanded balance sheet and scenario stress overlay.</p></div>
       <div class="top-actions">
         <span class="pill" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="toggleDrawer(true)">Advisor Drawer</button>
@@ -178,7 +179,7 @@ button{cursor:pointer}
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><h2>Bastion Advisor</h2><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Phase 2.5b readout:</strong></p>
+  <p><strong>Bastion 2.11 readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
@@ -469,7 +470,7 @@ function renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus){
   if(hasEventType('medical_care')) items.push('Medical / long-term care scenario is active and applies as a recurring expense during the selected years.');
   if(hasEventType('pass_away')) items.push('Pass-away scenario is active. V1 reduces household spend by 25% after the selected age; later versions should ask survivor income, Social Security survivor benefit, insurance, estate settlement, and filing-status transition.');
   items.push('Life events shift the modeled ending path by <strong>'+money(diff)+'</strong>.');
-  items.push('Next: dedicated Household Agent + Tax Jurisdiction Agent so Bastion can capture spouse timing, survivor scenarios, medical care, and location-specific tax rules cleanly.');
+  items.push('Next: Phase 2.12 timeline visualization and life-event path mapping.');
   var html=''; for(var i=0;i<items.length;i++){ html+='<li>'+items[i]+'</li>'; }
   el('advisorList').innerHTML=html;
   if(el('advisorPageList')) el('advisorPageList').innerHTML=html;
