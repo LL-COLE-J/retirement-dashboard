@@ -264,7 +264,7 @@ function taxSummary(){ return taxSummaryForIncome(currentGrossIncome()); }
 function cloneEvent(e){ return {id:e.id,type:e.type,name:e.name,startAge:e.startAge,duration:e.duration,amount:e.amount,frequency:e.frequency}; }
 function readState(){
   var copiedEvents = []; for(var i=0;i<events.length;i++){ copiedEvents.push(cloneEvent(events[i])); }
-  return {age:num('age'),retireAge:num('retireAge'),income2RetireAge:num('income2RetireAge'),filingStatus:val('filingStatus')||'single',taxState:val('taxState')||'TN',countyTaxRate:num('countyTaxRate'),cityTaxRate:num('cityTaxRate'),captureRate:num('captureRate'),inflationRate:num('inflationRate'),returnProfile:val('returnProfile')||'moderate',income1:num('income1'),income2:num('income2'),income:currentGrossIncome(),currentSpend:num('currentSpend'),retireSpend:num('retireSpend'),invested:num('invested'),cash:num('cash'),debt:num('debt'),events:copiedEvents};
+  return {age:num('age'),retireAge:num('retireAge'),income2RetireAge:num('income2RetireAge'),p1Label:val('p1Label')||'Person 1',p2Label:val('p2Label')||'Person 2',p2Age:num('p2Age')||num('age'),filingStatus:val('filingStatus')||'single',taxState:val('taxState')||'TN',countyTaxRate:num('countyTaxRate'),cityTaxRate:num('cityTaxRate'),captureRate:num('captureRate'),inflationRate:num('inflationRate'),returnProfile:val('returnProfile')||'moderate',income1:num('income1'),income2:num('income2'),income:currentGrossIncome(),currentSpend:num('currentSpend'),retireSpend:num('retireSpend'),invested:num('invested'),cash:num('cash'),debt:num('debt'),events:copiedEvents};
 }
 function saveState(){ localStorage.setItem(STORAGE_KEY,JSON.stringify({mode:mode,baseline:baseline,events:events,inputs:readState()})); }
 function loadState(){
@@ -272,12 +272,14 @@ function loadState(){
     var saved = JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'); if(!saved) return;
     mode = saved.mode || 'annual'; baseline = saved.baseline || null; events = Array.isArray(saved.events) ? saved.events : [];
     if(saved.inputs){
-      var keys = ['age','retireAge','income2RetireAge','income1','income2','currentSpend','retireSpend','invested','cash','debt','countyTaxRate','cityTaxRate','captureRate','inflationRate'];
+      var keys = ['age','retireAge','income2RetireAge','income1','income2','currentSpend','retireSpend','invested','cash','debt','countyTaxRate','cityTaxRate','captureRate','inflationRate','p2Age'];
       for(var i=0;i<keys.length;i++){ var k = keys[i]; if(saved.inputs[k] !== undefined && el(k)){ el(k).value = saved.inputs[k]; } }
       if(saved.inputs.income !== undefined && saved.inputs.income1 === undefined && el('income1')) el('income1').value = saved.inputs.income;
       if(saved.inputs.filingStatus && el('filingStatus')) el('filingStatus').value = saved.inputs.filingStatus;
       if(saved.inputs.taxState && el('taxState')) el('taxState').value = saved.inputs.taxState;
       if(saved.inputs.returnProfile && el('returnProfile')) el('returnProfile').value = saved.inputs.returnProfile;
+      if(saved.inputs.p1Label && el('p1Label')) el('p1Label').value = saved.inputs.p1Label;
+      if(saved.inputs.p2Label && el('p2Label')) el('p2Label').value = saved.inputs.p2Label;
     }
   }catch(err){ console.warn('Saved state could not be loaded',err); }
 }
@@ -375,6 +377,15 @@ function project(includeEvents,scenario){
   return {labels:labels,values:values,ending:values[values.length-1],min:minValue};
 }
 function eventImpactNow(){ var age=num('age'); var total=0; for(var i=0;i<events.length;i++){ if(eventApplies(events[i],age)) total+=eventAnnualImpact(events[i]); } return total; }
+// Phase 2.11: normalized household person helper
+function getHouseholdPeople(){
+  var p1={id:'p1',label:val('p1Label')||'Person 1',currentAge:num('age'),retireAge:num('retireAge'),income:num('income1')};
+  var p2Income=num('income2');
+  var p2={id:'p2',label:val('p2Label')||'Person 2',currentAge:num('p2Age')||num('age'),retireAge:num('income2RetireAge'),income:p2Income};
+  var people=[p1];
+  if((p2Income>0) || ((val('p2Label')||'').trim() && (val('p2Label')||'').trim()!=='Person 2')) people.push(p2);
+  return people;
+}
 function commit(){
   var withEvents=project(true); var withoutEvents=project(false); var scenarioSettings=getPhase210Settings(); var scenarioPath=project(true,scenarioSettings); var taxes=taxSummary(); var startingNetWorth=num('invested')+num('cash')-num('debt'); var annualCurrent=annualSpendValue('currentSpend'); var grossSurplus=taxes.income-taxes.total-annualCurrent; var capturedSurplus=grossSurplus>0?grossSurplus*captureRate():grossSurplus;
   var score=Math.max(0,Math.min(100,Math.round((withEvents.ending/1000000)*50+(withEvents.min>0?35:10)))); var status='Watch'; var cls='warn-text'; if(score>=72){status='Stable';cls='good';}else if(score<45){status='At Risk';cls='bad-text';}
@@ -489,6 +500,21 @@ function setupViews(){
     '<div class="field"><label>Tax Increase %</label><input id="taxIncreasePct" type="number" value="3" oninput="commit()"></div>'+
     '</div><div class="sub">Phase 2.10 scenario stress controls are now wired as a scenario-only overlay.</div><div class="changed-list" id="scenarioComparison"></div>';
   scenariosView.appendChild(phase210Card);
+  // Phase 2.11: dual-person profile labels/ages (reuses existing income and retirement IDs)
+  var peopleCard = document.createElement('div'); peopleCard.className='card';
+  peopleCard.innerHTML = '<div class="section-head"><div><h3>Phase 2.11 Household People</h3><p>Label each person and capture separate ages/retirement timing while preserving existing profile logic.</p></div></div>'+
+    '<div class="form-grid">'+
+    '<div class="field"><label>Person 1 Name/Label</label><input id="p1Label" value="Person 1" oninput="commit()"></div>'+
+    '<div class="field"><label>Person 1 Current Age</label><input value="'+num('age')+'" disabled></div>'+
+    '<div class="field"><label>Person 1 Retirement Age</label><input value="'+num('retireAge')+'" disabled></div>'+
+    '<div class="field"><label>Person 1 Annual Income</label><input value="'+num('income1')+'" disabled></div>'+
+    '<div class="field"><label>Person 2 Name/Label</label><input id="p2Label" value="Person 2" oninput="commit()"></div>'+
+    '<div class="field"><label>Person 2 Current Age</label><input id="p2Age" type="number" value="'+num('age')+'" oninput="commit()"></div>'+
+    '<div class="field"><label>Person 2 Retirement Age</label><input value="'+num('income2RetireAge')+'" disabled></div>'+
+    '<div class="field"><label>Person 2 Annual Income</label><input value="'+num('income2')+'" disabled></div>'+
+    '</div><div class="sub">Editable source fields remain in Profile: Age, Retirement Age, Income 1, Income 2, and Income 2 Retires At.</div>';
+  profileView.appendChild(peopleCard);
+
 
 
   var advisorCard = document.createElement('div'); advisorCard.className='card';
@@ -549,6 +575,8 @@ function getPhase210Settings(){
 }
 function renderScenarioComparison(baseline,scenarioPath,capturedSurplus){
   var box=el('scenarioComparison'); if(!box || !scenarioPath) return;
+  var people=getHouseholdPeople();
+  var settings=getPhase210Settings();
   var nwDelta=scenarioPath.ending-baseline.ending;
   var minDelta=scenarioPath.min-baseline.min;
   var baseScore=Math.max(0,Math.min(100,Math.round((baseline.ending/1000000)*50+(baseline.min>0?35:10))));
@@ -556,8 +584,19 @@ function renderScenarioComparison(baseline,scenarioPath,capturedSurplus){
   var risk='Scenario stress is manageable.';
   if(nwDelta<0||minDelta<0) risk='Scenario increases risk by reducing modeled safety margin.';
   if(scenarioPath.min<0) risk='Scenario may create a funding gap window before or during retirement.';
+  var incomeBefore=0; for(var i=0;i<people.length;i++) incomeBefore+=people[i].income||0;
+  var incomeAfter=incomeBefore;
+  var removed='None';
+  if(settings.enabled){
+    if(settings.firstRetiree==='p1'){ incomeAfter-=num('income1'); removed=(people[0]&&people[0].label?people[0].label:'Person 1')+' retires first at age '+settings.firstRetireAge; }
+    else if(settings.firstRetiree==='p2' && people.length>1){ incomeAfter-=num('income2'); removed=(people[1]&&people[1].label?people[1].label:'Person 2')+' retires first at age '+settings.firstRetireAge; }
+    if(settings.survivorOn){ var label=(settings.survivorPerson==='p1')?(people[0].label):(people[1]?people[1].label:'Person 2'); removed='Survivor scenario affects '+label+' at age '+settings.survivorAge; }
+  }
   box.innerHTML='<div class="changed-item"><span>Baseline Ending</span><span>'+money(baseline.ending)+'</span></div>'+
     '<div class="changed-item"><span>Scenario Ending</span><span>'+money(scenarioPath.ending)+'</span></div>'+
+    '<div class="changed-item"><span>Income Before Stress</span><span>'+money(incomeBefore)+'</span></div>'+
+    '<div class="changed-item"><span>Income After Stress</span><span>'+money(Math.max(0,incomeAfter))+'</span></div>'+
+    '<div class="changed-item"><span>Income Change Driver</span><span>'+removed+'</span></div>'+
     '<div class="changed-item"><span>Net Worth Delta</span><span class="'+(nwDelta>=0?'good':'bad-text')+'">'+money(nwDelta)+'</span></div>'+
     '<div class="changed-item"><span>Cash Flow Delta (proxy)</span><span class="'+(minDelta>=0?'good':'bad-text')+'">'+money(minDelta)+'</span></div>'+
     '<div class="changed-item"><span>Readiness Delta</span><span class="'+((scenarioScore-baseScore)>=0?'good':'bad-text')+'">'+(scenarioScore-baseScore)+'</span></div>'+
