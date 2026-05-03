@@ -2,22 +2,41 @@
 
 ---
 
+## Locked Rules
+
+- Dark UI is locked.
+- `app/index.html` remains the deployed app file.
+- Single-file structure remains for now.
+- Navigation must remain: Dashboard / Profile / Advisor / Scenarios / Timeline.
+- Cloudflare deploys from GitHub `main`.
+- Do not break working features to add new ones.
+- Always preserve current user flow unless explicitly changing it.
+- Every roadmap phase must update the visible UI phase card using `phaseNumber` and `phaseDesc`.
+- No phase is complete unless the visible Save State reflects the current phase/status.
+- Run `scripts/check-bastion.ps1` before finishing every phase.
+
+---
+
 ## CORE SYSTEM AGENTS (ACTIVE)
 
 ### DECISION_AGENT
+
 Owns:
 - “Am I okay?” result
 - Run-out age clarity
 - Biggest risk prioritization
+- Safe / Risk / Fail classification
 
 Rules:
 - Always reduce to a clear decision
 - Max 1–2 risks shown
 - Must be understood in 10 seconds
+- Must explain the user’s outcome in plain English
 
 ---
 
 ### IMPACT_AGENT
+
 Owns:
 - Financial meaning of events
 - Income vs expense visualization
@@ -27,10 +46,12 @@ Rules:
 - Green = positive
 - Red = risk
 - Blue = phase change
+- Always explain why an event matters
 
 ---
 
 ### SCENARIO_AGENT
+
 Owns:
 - Scenario A vs B comparison
 - Timeline shifting
@@ -40,22 +61,125 @@ Rules:
 - Keep comparison simple
 - No clutter
 - Highlight differences only
+- Do not alter baseline logic unless instructed
 
 ---
 
-### OUTCOME_AGENT
+### ADVISOR_AGENT
+
 Owns:
-- Translation of numbers → meaning
+- Plain-English financial interpretation
+- User-facing advisor readout
+- Actionable insight from model output
+
+Rules:
+- Explain what the result means
+- Avoid jargon unless necessary
+- Give clear next-step guidance
+- Do not overstate certainty
+
+---
+
+### TIMELINE_AGENT
+
+Owns:
+- Life-event path mapping
+- Scenario timeline overlays
+- Retirement, risk, and legacy markers
+
+Rules:
+- Timeline must remain readable
+- Labels must not overlap when avoidable
+- Scenario A and Scenario B must stay visually distinct
+
+---
+
+### UI_AGENT
+
+Mandatory phase review agent.
+
+Runs during every Bastion phase before completion.
+
+Owns:
+- Visual regression review
+- Layout clarity
+- Card spacing
+- Text wrapping
+- Mobile and desktop readability
+- Sidebar/header Save State visibility
+
+Responsibilities:
+- Review all visible UI affected by the phase.
+- Check dashboard, profile, advisor, scenarios, timeline, sidebar, and header.
+- Identify overlapping text, broken spacing, clipped cards, unreadable labels, bad mobile wrapping, and visual regressions.
+- Confirm Save State is visible and synced in sidebar and header.
+- Confirm new features fit the existing dark UI language.
+- Prefer CSS/layout fixes over logic changes.
+- Never change formulas, calculations, state structure, or financial logic unless explicitly instructed.
+
+Required every phase:
+1. Review affected files before final summary.
+2. Scan `app/index.html` for layout risks.
+3. Check whether new UI creates overflow, overlap, or cramped cards.
+4. Fix obvious visual regressions.
+5. Run `scripts/check-bastion.ps1`.
+6. Report UI_AGENT result in the phase summary.
+
+Phase summary must include:
+- UI_AGENT: Passed / Fixed issues / Issues remaining
+
+Rules:
+- Preserve current dark UI.
+- Do not redesign unless asked.
+- Do not change formulas.
+- Fix layout issues with minimal CSS or markup changes.
+- No phase is complete without UI_AGENT review.
+
+---
+
+### REGRESSION_AGENT
+
+Owns:
+- System stability
+- Preventing broken features
+- Phase acceptance checks
+
+Checks:
+- Dashboard renders
+- Profile renders
+- Advisor renders
+- Scenarios render
+- Timeline renders
+- Decision Core visible
+- Save State synced
+- `scripts/check-bastion.ps1` passes
+
+Rules:
+- Never break working features
+- Prefer minimal changes
+- Report issues before moving forward
+
+---
+
+## INTELLIGENCE LAYER AGENTS
+
+### OUTCOME_AGENT
+
+Owns:
+- Translation of numbers into meaning
 - “Years lost”
 - “Money runs out at X”
+- User-friendly result framing
 
 Rules:
 - No raw numbers without meaning
 - Always explain impact
+- Output must be understandable quickly
 
 ---
 
 ### STRATEGY_AGENT
+
 Owns:
 - Suggested improvements
 - Scenario ideas
@@ -63,264 +187,422 @@ Owns:
 
 Rules:
 - Suggest simple actions
-- No complex plans
+- No complex plans unless requested
 - Focus on high-impact changes
 
 ---
 
-### UX_AGENT
-Owns:
-- Layout clarity
-- Card structure
-- Visual hierarchy
-
-Rules:
-- Max 5–7 cards
-- Each card = one purpose
-- Primary result always visible
-
----
-
-### REGRESSION_AGENT
-Owns:
-- System stability
-- Prevent broken features
-
-Checks:
-- Timeline works
-- Scenario works
-- Decision core visible
-
-Rules:
-- Never break working features
-- Prefer minimal changes
-
----
-
----
-
-## INTELLIGENCE LAYER AGENTS
-
 ### RISK_AGENT
+
 Owns:
 - Detect weakest point
 - Identify failure points
+- Rank major risks
+
+Rules:
+- Prioritize the biggest risk first
+- Avoid overwhelming the user
+- Tie risk to actual model output
 
 ---
 
 ### DRIFT_AGENT
+
 Owns:
 - Detect plan degradation
 - Alert user when off track
+- Identify negative trend movement
+
+Rules:
+- Compare against baseline when available
+- Flag deterioration clearly
+- Avoid false alarms
 
 ---
 
 ### BEHAVIOR_AGENT
+
 Owns:
 - Detect unrealistic inputs
 - Identify user bias
+- Flag over-optimistic assumptions
+
+Rules:
+- Be practical and calm
+- Never shame the user
+- Explain why an assumption may be risky
 
 ---
 
 ### BLINDSPOT_AGENT
+
 Owns:
 - Missing planning areas
-- Insurance / tax / estate gaps
+- Insurance gaps
+- Tax gaps
+- Estate gaps
+- Healthcare gaps
+
+Rules:
+- Identify what is missing
+- Do not invent data
+- Ask for missing inputs only when necessary
 
 ---
 
 ### TIMING_AGENT
+
 Owns:
 - When to act
 - Optimal timing signals
+- Retirement timing consequences
+
+Rules:
+- Explain timing impact clearly
+- Compare early vs delayed choices
+- Avoid overprecision
 
 ---
 
 ### STRESS_AGENT
+
 Owns:
 - Stress testing scenarios
 - Failure visualization
+- Downside case interpretation
 
----
+Rules:
+- Show what breaks the plan
+- Keep stress results readable
+- Do not make worst-case framing excessive
 
 ---
 
 ## FINANCIAL MODEL AGENTS
 
 ### TAX_AGENT
+
 Owns:
 - Tax impact modeling
-- “Tax drag”
+- Tax drag
+- Filing status logic
+- State/local tax placeholders
+
+Rules:
+- Use simple estimates unless tax module is upgraded
+- Clearly label approximations
+- Do not imply CPA-level precision yet
 
 ---
 
 ### WITHDRAWAL_AGENT
+
 Owns:
 - Withdrawal strategies
 - Retirement drawdown logic
+- Spend sustainability
+
+Rules:
+- Explain drawdown pressure
+- Identify when spending exceeds supportable assets
+- Avoid unsupported precision
 
 ---
 
 ### SS_AGENT
+
 Owns:
 - Social Security timing
+- Benefit timing impact
+- Future benefit placeholders
+
+Rules:
+- Do not estimate exact benefits without inputs
+- Clearly mark assumptions
+- Tie timing to retirement decision impact
 
 ---
 
 ### RMD_AGENT
+
 Owns:
 - Required Minimum Distributions
+- RMD timing
+- RMD tax impact placeholders
+
+Rules:
+- Keep rules versioned
+- Flag need for law updates
+- Do not overstate accuracy without current rule verification
 
 ---
 
 ### INCOME_AGENT
+
 Owns:
 - Income modeling
 - Multi-income households
+- Retirement timing per income stream
+
+Rules:
+- Keep income streams distinct
+- Support staggered retirement
+- Explain income loss timing
 
 ---
 
 ### HEALTH_AGENT
+
 Owns:
 - Healthcare costs
 - Long-term care scenarios
+- Medical shock modeling
+
+Rules:
+- Keep framing calm
+- Use scenarios, not fear-based language
+- Mark placeholders clearly
 
 ---
 
 ### INFLATION_AGENT
+
 Owns:
 - Inflation modeling
 - Sensitivity testing
+- Purchasing power erosion
 
----
+Rules:
+- Explain long-term impact plainly
+- Keep assumptions visible
+- Avoid hiding inflation drag
 
 ---
 
 ## PRODUCT EXPERIENCE AGENTS
 
 ### ONBOARDING_AGENT
+
 Owns:
 - Input flow
 - Setup simplicity
+- First-use clarity
+
+Rules:
+- Reduce friction
+- Ask only for essential inputs first
+- Keep advanced fields organized
 
 ---
 
 ### INSIGHT_AGENT
+
 Owns:
 - Plain-English outputs
 - Summary clarity
+- User-facing explanations
+
+Rules:
+- Explain what changed
+- Explain why it matters
+- Explain what to do next
 
 ---
 
 ### NARRATIVE_AGENT
+
 Owns:
 - Story flow:
   - Where you stand
   - What breaks your plan
   - What to do
 
+Rules:
+- Keep the experience human-readable
+- Avoid dumping metrics without meaning
+- Use a clear beginning, middle, and next step
+
 ---
 
 ### AHA_AGENT
+
 Owns:
 - Highlight surprising insights
 - Trigger realization moments
+- Make key findings memorable
+
+Rules:
+- Surface only meaningful surprises
+- Do not exaggerate
+- Tie every aha moment to model output
 
 ---
 
 ### COMPARISON_AGENT
+
 Owns:
 - Plan vs plan comparison
+- Scenario comparison
 - Advisor vs user comparison
 
----
+Rules:
+- Highlight deltas
+- Avoid clutter
+- Show the practical meaning of each difference
 
 ---
 
 ## STRATEGIC / FUTURE AGENTS
 
 ### PLANNING_RULES_AGENT
+
 Owns:
 - Financial rule tracking
 - Accuracy flags
+- Rule version awareness
+
+Rules:
+- Mark assumptions clearly
+- Identify areas requiring updated rules
+- Keep compliance-sensitive logic separated
 
 ---
 
 ### COMPLIANCE_ARCHITECT_AGENT
+
 Owns:
 - Future compliance system design
 - Rule versioning
 - Verification layers
 
+Rules:
+- Do not mix compliance logic casually into UI
+- Keep auditability in mind
+- Flag where professional verification is needed
+
 ---
 
 ### GPS_AGENT
+
 Owns:
 - Weekly check-ins
 - Ongoing tracking
+- Path monitoring
+
+Rules:
+- Track whether the user is drifting from plan
+- Keep feedback practical
+- Focus on next best action
 
 ---
 
 ### EVENT_AGENT
+
 Owns:
 - Life events
-- Event chains (cause → effect)
+- Event chains
+- Cause → effect modeling
+
+Rules:
+- Events must have financial meaning
+- Avoid disconnected markers
+- Explain how events change the path
 
 ---
 
 ### TRADEOFF_AGENT
+
 Owns:
 - Life decisions:
   - job vs time
   - spend vs save
+  - retire earlier vs work longer
+  - risk vs flexibility
+
+Rules:
+- Show tradeoffs clearly
+- Avoid moral judgment
+- Support decision-making
 
 ---
 
 ### DECISION_SUPPORT_AGENT
+
 Owns:
 - “Should I do this?” evaluations
+- User decision framing
+- Pros/cons from model output
+
+Rules:
+- Give a direct answer when possible
+- Explain uncertainty
+- Show what would change the answer
 
 ---
 
 ### FUTURE_SELF_AGENT
+
 Owns:
 - Future projections framed as advice
-- Emotional outputs
+- Future-self warnings
+- Emotional but practical outputs
+
+Rules:
+- Keep tone supportive
+- Avoid fear-based framing
+- Help user understand future consequences
 
 ---
 
 ### ENTERPRISE_AGENT
+
 Owns:
 - Advisor tools
 - White-label systems
+- Enterprise planning layer
 
----
+Rules:
+- Do not affect consumer UI unless requested
+- Keep future enterprise logic modular
+- Preserve main Bastion simplicity
 
 ---
 
 ## SYSTEM RULES
 
-- No agent may introduce unnecessary complexity
-- All outputs must be decision-focused
-- Clarity > completeness
-- Simplicity > accuracy (early phases)
-- Never break working UI
+- No agent may introduce unnecessary complexity.
+- All outputs must be decision-focused.
+- Clarity > completeness.
+- Simplicity > accuracy in early phases.
+- Never break working UI.
+- Preserve existing user flow.
+- Preserve existing calculations unless the phase explicitly changes them.
+- Every new feature must support the core Bastion mantra:
+  - Inputs define the path.
+  - Bastion shows the outcome.
 
 ---
 
 ## GLOBAL EXECUTION RULES
 
-### Phase Sync Requirement (MANDATORY)
+### Phase Sync Requirement — MANDATORY
 
 Every time a roadmap phase is executed, the system MUST:
 
-1. Update the visible phase in the UI (left sidebar / Save State card)
-   - Reflect the current phase number (e.g., 2.17, 2.18, etc.)
-   - Include a short, accurate description of what was added
+1. Update the visible phase in the UI.
+   - Sidebar Save State card must reflect the current phase.
+   - Header/topbar must reflect the current phase.
+   - Phase number must be accurate.
+   - Description must be short and accurate.
 
-2. Remove or replace any outdated phase labels (e.g., 2.11b)
+2. Remove or replace outdated phase labels.
+   - No stale phase labels like 2.11b, 2.16, etc. should remain when the app is on a newer phase.
 
-3. Keep UI and roadmap in sync at all times
+3. Keep UI, roadmap, and save state in sync.
+
+4. Run `scripts/check-bastion.ps1`.
+
+5. Report test result in final phase summary.
 
 ---
 
@@ -328,14 +610,39 @@ Every time a roadmap phase is executed, the system MUST:
 
 When a phase is completed:
 
-- UI must reflect the new phase
-- SAVE_STATE.md should be updated if applicable
-- ROADMAP.md remains the source of truth
+- UI must reflect the new phase.
+- `SAVE_STATE.md` should be updated if applicable.
+- `ROADMAP.md` remains the source of truth.
+- `AGENTS.md` should be updated when agent rules change.
+- Git commit should clearly identify the completed phase.
+
+---
+
+### Required Phase Completion Checklist
+
+Before any phase is considered complete:
+
+1. Save State visible in sidebar is current.
+2. Save State visible in header/topbar is current.
+3. UI_AGENT review completed.
+4. REGRESSION_AGENT checks completed.
+5. `scripts/check-bastion.ps1` passes.
+6. Only necessary files changed.
+7. Existing layout and logic preserved.
+8. Phase summary includes:
+   - Files changed
+   - Features added
+   - UI_AGENT result
+   - Regression result
+   - Test result
 
 ---
 
 ### Non-Negotiable
 
-- No phase is considered complete unless the UI phase label is updated
-- Do not skip this step
-- Do not leave stale phase indicators in the interface
+- No phase is considered complete unless the UI phase label is updated.
+- Do not skip UI_AGENT review.
+- Do not skip regression review.
+- Do not leave stale phase indicators in the interface.
+- Do not leave merge conflict markers in any file.
+- Do not proceed to the next phase until the current phase is committed and pushed.
