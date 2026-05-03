@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bastion Insights — Save State 2.7</title>
+<title>Bastion Insights — Save State 2.11b</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -89,12 +89,12 @@ button{cursor:pointer}
       <button>Advisor</button>
       <button>Scenarios</button>
     </nav>
-    <div class="side-card"><small><strong>Save State 2.7</strong><br/>Reality engine now supports household income timing, taxes, capture rate, inflation, returns, medical care, and pass-away scenarios.</small></div>
+    <div class="side-card"><small><strong>Save State 2.11b</strong><br/>Reality engine now supports household income timing, taxes, capture rate, inflation, returns, medical care, and pass-away scenarios.</small></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-      <div><h2>Lifetime Financial Path</h2><p>Dark shell locked. Phase 2.7 adds household scenario and reality assumptions.</p></div>
+      <div><h2>Lifetime Financial Path</h2><p>Dark shell locked. Restore Bastion Save State 2.11b includes resilient persistence and backward-compatible state recovery.</p></div>
       <div class="top-actions">
         <span class="pill" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="toggleDrawer(true)">Advisor Drawer</button>
@@ -178,12 +178,13 @@ button{cursor:pointer}
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><h2>Bastion Advisor</h2><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Phase 2.5b readout:</strong></p>
+  <p><strong>Phase 2.11b readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
 <script>
-var STORAGE_KEY = 'bastion_save_state_2_7_reality_household';
+var STORAGE_KEY = 'bastion_save_state_2_11b_reality_household';
+var LEGACY_STORAGE_KEYS = ['bastion_save_state_2_10a_reality_household','bastion_save_state_2_7_reality_household'];
 var mode = 'annual';
 var chart = null;
 var baseline = null;
@@ -282,7 +283,19 @@ function readState(){
 function saveState(){ localStorage.setItem(STORAGE_KEY,JSON.stringify({mode:mode,baseline:baseline,events:events,inputs:readState()})); }
 function loadState(){
   try{
-    var saved = JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'); if(!saved) return;
+    var saved = JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
+    if(!saved){
+      for(var i=0;i<LEGACY_STORAGE_KEYS.length;i++){
+        var legacyRaw = localStorage.getItem(LEGACY_STORAGE_KEYS[i]);
+        if(!legacyRaw) continue;
+        saved = JSON.parse(legacyRaw);
+        if(saved){
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+          break;
+        }
+      }
+    }
+    if(!saved) return;
     mode = saved.mode || 'annual'; baseline = saved.baseline || null; events = Array.isArray(saved.events) ? saved.events : [];
     if(saved.inputs){
       var keys = ['age','retireAge','income2RetireAge','income1','income2','currentSpend','retireSpend','invested','cash','debt','countyTaxRate','cityTaxRate','captureRate','inflationRate'];
