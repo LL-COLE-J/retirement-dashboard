@@ -92,6 +92,16 @@ button{cursor:pointer}
 .timeline-intro{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin:2px 0 4px}.timeline-intro h4{margin:0;font-size:18px;font-weight:900;color:var(--text)}.timeline-intro p{margin:5px 0 0;color:var(--soft);font-size:13px;font-weight:750;line-height:1.4}.timeline-key{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.timeline-key span{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);border-radius:999px;padding:7px 10px;color:var(--soft);font-size:12px;font-weight:850;white-space:nowrap}.timeline-key i{width:18px;height:0;border-top:3px solid var(--accent2);display:inline-block}.timeline-key .scenario-b-line{border-top-style:dashed;opacity:.8}.timeline-point.scenario-b .timeline-label{box-shadow:0 16px 34px rgba(0,0,0,.34),0 0 0 1px rgba(120,166,255,.08)}.timeline-label{gap:6px;padding:12px;border-color:rgba(255,255,255,.14);background:rgba(7,17,31,.97)}.timeline-title{font-size:13px;font-weight:900}.timeline-note{color:var(--soft);font-weight:650}.timeline-impact{font-size:12px;font-weight:950}.timeline-point.scenario-b .timeline-age:before{content:'Scenario B  ';color:rgba(120,166,255,.9)}.timeline-point:not(.scenario-b) .timeline-age:before{content:'Scenario A  ';color:rgba(189,200,216,.72)}@media(max-width:760px){.timeline-intro{display:grid}.timeline-key{justify-content:flex-start}}
 .advisor-actions-title{margin:0 0 10px;font-size:13px;font-weight:900;color:var(--text)}.advisor-insights{display:grid;gap:10px;margin:0;padding:0;list-style:none}.advisor-insights li{position:relative;padding:12px 13px 12px 38px;border:1px solid rgba(255,255,255,.09);border-radius:14px;background:rgba(255,255,255,.04);color:var(--soft);font-size:13px;font-weight:700;line-height:1.45}.advisor-insights li:before{content:'';position:absolute;left:15px;top:18px;width:8px;height:8px;border-radius:999px;background:var(--accent)}.advisor-insights li.warning{border-color:rgba(246,198,106,.28);background:rgba(246,198,106,.08);color:#ffe0a3}.advisor-insights li.warning:before{background:var(--warn)}.advisor-insights li.risk{border-color:rgba(255,122,122,.28);background:rgba(255,122,122,.08);color:#ffc6c6}.advisor-insights li.risk:before{background:var(--bad)}.advisor-insights li.good{border-color:rgba(93,214,169,.25);background:rgba(93,214,169,.07);color:#c8f5e6}.advisor-insights li.good:before{background:var(--good)}.advisor-insight-text{display:block;color:var(--text);font-weight:900}.advisor-action-text{display:block;margin-top:4px;color:inherit;font-weight:700}.advisor-action-text strong{color:var(--text)}
 .decision-core{display:grid;grid-template-columns:1.25fr repeat(3,minmax(0,1fr));gap:14px}.decision-card{border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);border-radius:18px;padding:16px;min-width:0}.decision-card.primary{background:linear-gradient(180deg,rgba(93,214,169,.09),rgba(255,255,255,.035));border-color:rgba(93,214,169,.2)}.decision-kicker{font-size:11px;font-weight:900;text-transform:uppercase;color:var(--muted);margin-bottom:8px}.decision-value{font-size:32px;font-weight:950;line-height:1;color:var(--text)}.decision-value.large{font-size:46px}.decision-value.safe{color:var(--good)}.decision-value.tight{color:var(--warn)}.decision-value.risk{color:var(--bad)}.decision-sub{margin-top:8px;color:var(--soft);font-size:13px;font-weight:700;line-height:1.4}.decision-statement{margin-top:14px;padding-top:13px;border-top:1px solid rgba(255,255,255,.08);color:var(--muted);font-size:13px;line-height:1.45}.decision-statement strong{color:var(--text)}@media(max-width:1100px){.decision-core{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.decision-core{grid-template-columns:1fr}.decision-value.large{font-size:38px}}
+
+.beta-gate{position:fixed;inset:0;z-index:120;background:radial-gradient(circle at top left,rgba(93,214,169,.14),transparent 38%),linear-gradient(180deg,#07111f 0%,#091426 100%);display:grid;place-items:center;padding:20px}
+.beta-gate.hidden{display:none}
+.beta-card{width:min(520px,100%);border:1px solid rgba(255,255,255,.12);border-radius:20px;background:rgba(13,27,47,.95);padding:22px;box-shadow:var(--shadow);display:grid;gap:12px}
+.beta-actions{display:grid;gap:10px}
+.beta-note{color:var(--muted);font-size:12px;line-height:1.45}
+.profile-tools{display:grid;gap:12px}
+.profile-tools-row{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
+.profile-tools-row .field{flex:1;min-width:180px}
+
 .owner-mode .app,.owner-mode .overlay,.owner-mode .drawer{display:none}.owner-dashboard{display:none;min-height:100vh;padding:28px;background:radial-gradient(circle at top left,rgba(120,166,255,.13),transparent 34%),var(--bg)}.owner-mode .owner-dashboard{display:grid;gap:22px}.owner-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:20px;border:1px solid rgba(255,255,255,.1);border-radius:22px;background:rgba(255,255,255,.055);box-shadow:0 24px 80px rgba(0,0,0,.22)}.owner-header h1{margin:0;font-size:26px;line-height:1.1}.owner-header p{margin:7px 0 0;color:var(--muted);font-size:14px;font-weight:700;line-height:1.45}.owner-badge{white-space:nowrap;border:1px solid rgba(93,214,169,.22);background:rgba(93,214,169,.1);color:var(--accent);border-radius:999px;padding:9px 12px;font-size:13px;font-weight:900}.owner-section{display:grid;gap:14px}.owner-section h2{margin:0;font-size:16px}.owner-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.owner-card,.owner-panel{border:1px solid rgba(255,255,255,.09);border-radius:18px;background:rgba(255,255,255,.05);padding:16px;min-width:0;box-shadow:0 16px 40px rgba(0,0,0,.18)}.owner-card h3,.owner-report h3{margin:0 0 10px;font-size:14px;color:var(--text)}.owner-meta{display:grid;gap:7px;color:var(--muted);font-size:12px;line-height:1.4}.owner-meta strong{color:var(--soft)}.owner-pill{display:inline-flex;width:max-content;max-width:100%;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:900;border:1px solid rgba(255,255,255,.12);color:var(--soft);background:rgba(255,255,255,.05)}.owner-pill.high{color:#ffc6c6;border-color:rgba(255,122,122,.3);background:rgba(255,122,122,.1)}.owner-pill.medium{color:#ffe0a3;border-color:rgba(246,198,106,.3);background:rgba(246,198,106,.1)}.owner-pill.low{color:#c8f5e6;border-color:rgba(93,214,169,.25);background:rgba(93,214,169,.08)}.owner-report{display:grid;gap:12px}.owner-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.owner-report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.owner-report-field{border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:11px;background:rgba(255,255,255,.04);min-width:0}.owner-report-field span{display:block;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;margin-bottom:5px}.owner-report-field strong{display:block;color:var(--text);font-size:13px;overflow-wrap:anywhere}.owner-report-summary{color:var(--soft);font-size:13px;line-height:1.5}.owner-report-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.owner-report-list h4{margin:0 0 6px;color:var(--text);font-size:12px;text-transform:uppercase}.owner-report-list ul{margin:0;padding-left:18px;color:var(--soft);font-size:12px;line-height:1.5}.owner-report-status{color:var(--muted);font-size:12px;font-weight:800}.owner-report-status.error{color:#ffc6c6}.owner-report-status.ready{color:#c8f5e6}.owner-table-wrap{overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.035)}.owner-table{width:100%;border-collapse:collapse;min-width:900px}.owner-table th,.owner-table td{padding:12px;text-align:left;border-bottom:1px solid rgba(255,255,255,.07);vertical-align:top;font-size:12px;line-height:1.4}.owner-table th{color:var(--muted);font-size:11px;text-transform:uppercase}.owner-table td{color:var(--soft)}.owner-actions{display:flex;gap:6px;flex-wrap:wrap}.owner-action{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:var(--soft);border-radius:10px;padding:7px 8px;font-size:11px;font-weight:850}.owner-action:hover{border-color:rgba(93,214,169,.35);color:var(--text)}.owner-action.primary{border-color:rgba(93,214,169,.28);background:rgba(93,214,169,.12);color:#c8f5e6}.owner-candidates{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.owner-candidate{border:1px solid rgba(120,166,255,.18);background:rgba(120,166,255,.07);border-radius:16px;padding:13px;color:var(--soft);font-size:13px;font-weight:850;line-height:1.35}.owner-queue-note{margin:0;color:var(--muted);font-size:13px;font-weight:700;line-height:1.45}.owner-empty-row{color:var(--muted);font-weight:800}@media(max-width:1100px){.owner-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.owner-candidates,.owner-report-list{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.owner-dashboard{padding:18px}.owner-header{display:grid}.owner-grid,.owner-candidates,.owner-report-grid,.owner-report-list{grid-template-columns:1fr}.owner-badge{white-space:normal;width:max-content;max-width:100%}}
 
 #taxRmdView{background:#f8fafc;border:1px solid #e5eaf2;border-radius:22px;padding:24px;gap:16px}
@@ -123,6 +133,18 @@ button{cursor:pointer}
 </style>
 </head>
 <body>
+<div id="betaGate" class="beta-gate">
+  <div class="beta-card">
+    <h2 style="margin:0">Bastion Private Beta Access</h2>
+    <p class="sub" style="margin:0">Enter owner or tester access to continue.</p>
+    <div class="beta-actions">
+      <div class="field"><label>Access Type</label><select id="betaAccessType"><option value="tester">Approved Tester</option><option value="owner">Owner</option></select></div>
+      <div class="field"><label>Owner Key / Beta Password</label><input id="betaAccessSecret" type="password" placeholder="Enter access secret"></div>
+      <button class="btn" onclick="unlockBetaAccess()">Enter Bastion</button>
+      <div class="beta-note" id="betaAccessMessage">Beta gate only. Production auth should move to Firebase Auth or Cloudflare Access.</div>
+    </div>
+  </div>
+</div>
 <div class="app">
   <aside class="sidebar">
     <div class="brand"><div class="logo">B</div><div><h1>Bastion</h1><span>Inputs define the path.</span></div></div>
@@ -144,6 +166,7 @@ button{cursor:pointer}
         <span class="pill" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="toggleDrawer(true)">Advisor Drawer</button>
         <button class="btn" onclick="saveBaseline()">Save Baseline</button>
+        <button class="btn bad" onclick="logoutBetaAccess()">Logout / Reset Access</button>
       </div>
     </header>
 
@@ -867,6 +890,10 @@ function setupViews(){
   assumptionsCard.innerHTML = '<div class="section-head"><div><h3>Assumptions</h3><p>Spend, inflation, returns, and how much surplus actually gets invested.</p></div><div class="toggle"><button id="monthlyBtn" onclick="setMode(\'monthly\')">Monthly</button><button id="annualBtn" onclick="setMode(\'annual\')">Annual</button></div></div><div class="form-grid" id="assumptionFields"></div>';
   profileView.appendChild(assumptionsCard);
 
+  var profileManagerCard = document.createElement('div'); profileManagerCard.className='card';
+  profileManagerCard.innerHTML = '<div class="section-head"><div><h3>Saved Profiles (Local)</h3><p>Create, save, and load named profiles in this browser.</p></div></div><div class="profile-tools"><div class="profile-tools-row"><div class="field"><label>Profile Name</label><input id="profileNameInput" type="text" placeholder="Example: Smith Baseline"></div><button class="btn" onclick="saveNamedProfile()">Save Profile</button></div><div class="profile-tools-row"><div class="field"><label>Load Profile</label><select id="profileSelect"></select></div><button class="btn secondary" onclick="loadNamedProfile()">Load</button><button class="btn warn" onclick="deleteNamedProfile()">Delete</button></div><div class="sub" id="profileMessage">No saved profiles yet.</div></div>';
+  profileView.appendChild(profileManagerCard);
+
   var profileIds = ['age','retireAge','filingStatus','income1','income2','income2RetireAge','taxState','countyTaxRate','cityTaxRate'];
   var assumptionIds = ['currentSpend','retireSpend','captureRate','inflationRate','returnProfile','invested','cash','debt'];
   moveFieldsFromSource(coreCard,profileIds,'profileFields');
@@ -982,7 +1009,7 @@ var ownerFeedback = [
   {agent:'ADVISOR_AGENT',source:'Advisor logic',finding:'Insight should explain what the decision means, not just repeat metrics.',recommendation:'Write recommendations in plain English with one next action.',priority:'Medium',status:'New'}
 ];
 var OWNER_BUILD_QUEUE_COLLECTION = 'owner_build_queue';
-function isOwnerMode(){ return new URLSearchParams(window.location.search).get('owner') === 'true'; }
+function isOwnerMode(){ if(ownerFromQuery()) return true; try{ var saved=JSON.parse(localStorage.getItem(BETA_SESSION_KEY)||'null'); return !!(saved && saved.role==='owner'); }catch(e){ return false; } }
 function ownerPriorityClass(priority){ return String(priority || '').toLowerCase(); }
 function ownerPhaseCandidate(priority){
   var value = String(priority || '').toLowerCase();
@@ -1186,6 +1213,20 @@ function generateOwnerTestReport(){
       setOwnerReportStatus('Firestore write failed: '+(error && error.message ? error.message : 'Unknown error'),'error');
     });
 }
+
+function getProfiles(){ try{ return JSON.parse(localStorage.getItem(PROFILE_STORE_KEY)||'{}') || {}; }catch(e){ return {}; } }
+function saveProfiles(data){ localStorage.setItem(PROFILE_STORE_KEY,JSON.stringify(data||{})); }
+function refreshProfileList(){ var sel=el('profileSelect'); if(!sel) return; var profiles=getProfiles(); var names=Object.keys(profiles); sel.innerHTML=names.length?names.map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join(''):'<option value="">No saved profiles</option>'; }
+function saveNamedProfile(){ var input=el('profileNameInput'); if(!input) return; var name=(input.value||'').trim(); if(!name){ el('profileMessage').textContent='Enter a profile name first.'; return; } var profiles=getProfiles(); profiles[name]={mode:mode,baseline:baseline,events:events,inputs:readState(),savedAt:new Date().toISOString()}; saveProfiles(profiles); refreshProfileList(); if(el('profileSelect')) el('profileSelect').value=name; el('profileMessage').textContent='Saved profile: '+name; }
+function loadNamedProfile(){ var sel=el('profileSelect'); if(!sel||!sel.value) return; var profiles=getProfiles(); var data=profiles[sel.value]; if(!data){ el('profileMessage').textContent='Selected profile was not found.'; return; } mode=data.mode||mode; baseline=data.baseline||null; events=Array.isArray(data.events)?data.events.map(normalizeEvent):[]; writeState(data.inputs||{}); syncModeUI(); renderEvents(); commit(); el('profileMessage').textContent='Loaded profile: '+sel.value; }
+function deleteNamedProfile(){ var sel=el('profileSelect'); if(!sel||!sel.value) return; var name=sel.value; var profiles=getProfiles(); delete profiles[name]; saveProfiles(profiles); refreshProfileList(); el('profileMessage').textContent='Deleted profile: '+name; }
+function ownerFromQuery(){ return new URLSearchParams(window.location.search).get('owner') === 'true'; }
+function unlockBetaAccess(){ var type=(el('betaAccessType')&&el('betaAccessType').value)||'tester'; var secret=(el('betaAccessSecret')&&el('betaAccessSecret').value)||''; var valid=(type==='owner') ? (secret===OWNER_ACCESS_KEY) : (secret===TESTER_BETA_PASSWORD); if(!valid){ if(el('betaAccessMessage')) el('betaAccessMessage').textContent='Access denied. Check the provided beta credentials.'; return; } localStorage.setItem(BETA_SESSION_KEY,JSON.stringify({role:type,authorizedAt:new Date().toISOString()})); hideBetaGate(); }
+function hideBetaGate(){ if(el('betaGate')) el('betaGate').classList.add('hidden'); }
+function logoutBetaAccess(){ localStorage.removeItem(BETA_SESSION_KEY); window.location.reload(); }
+function hasBetaAccess(){ if(ownerFromQuery()) return true; try{ var saved=JSON.parse(localStorage.getItem(BETA_SESSION_KEY)||'null'); return !!(saved && saved.role); }catch(e){ return false; } }
+function initBetaGate(){ if(hasBetaAccess()){ hideBetaGate(); return; } document.body.classList.remove('owner-mode'); }
+
 function initOwnerMode(){
   if(!isOwnerMode()) return;
   document.body.classList.add('owner-mode');
@@ -1194,7 +1235,7 @@ function initOwnerMode(){
   renderOwnerBuildQueue();
   loadOwnerDailyReport();
 }
-function init(){ loadState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; } setupViews(); syncModeUI(); renderEvents(); commit(); initOwnerMode(); }
+function init(){ loadState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; } setupViews(); syncModeUI(); renderEvents(); commit(); refreshProfileList(); initBetaGate(); initOwnerMode(); }
 console.log("Bastion Tax & RMD clickfix deployed: 2.23-rmd-clickfix");
 init();
 </script>
