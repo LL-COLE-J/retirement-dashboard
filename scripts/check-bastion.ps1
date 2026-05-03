@@ -2,11 +2,11 @@ Write-Host "=== Bastion Local Check ==="
 
 $errors = 0
 
-if (!(Test-Path "app\index.html")) {
-  Write-Host "ERROR: app\index.html missing"
+if (!(Test-Path "index.html")) {
+  Write-Host "ERROR: index.html missing"
   $errors++
 } else {
-  Write-Host "OK: app/index.html exists"
+  Write-Host "OK: index.html exists"
 }
 
 if (!(Test-Path "AGENTS.md")) {

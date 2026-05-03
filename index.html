@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bastion Insights - Save State 2.17r</title>
+<title>Bastion Insights - Save State 2.19r</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -81,6 +81,7 @@ button{cursor:pointer}
 .timeline-intro{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin:2px 0 4px}.timeline-intro h4{margin:0;font-size:18px;font-weight:900;color:var(--text)}.timeline-intro p{margin:5px 0 0;color:var(--soft);font-size:13px;font-weight:750;line-height:1.4}.timeline-key{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.timeline-key span{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);border-radius:999px;padding:7px 10px;color:var(--soft);font-size:12px;font-weight:850;white-space:nowrap}.timeline-key i{width:18px;height:0;border-top:3px solid var(--accent2);display:inline-block}.timeline-key .scenario-b-line{border-top-style:dashed;opacity:.8}.timeline-point.scenario-b .timeline-label{box-shadow:0 16px 34px rgba(0,0,0,.34),0 0 0 1px rgba(120,166,255,.08)}.timeline-label{gap:6px;padding:12px;border-color:rgba(255,255,255,.14);background:rgba(7,17,31,.97)}.timeline-title{font-size:13px;font-weight:900}.timeline-note{color:var(--soft);font-weight:650}.timeline-impact{font-size:12px;font-weight:950}.timeline-point.scenario-b .timeline-age:before{content:'Scenario B  ';color:rgba(120,166,255,.9)}.timeline-point:not(.scenario-b) .timeline-age:before{content:'Scenario A  ';color:rgba(189,200,216,.72)}@media(max-width:760px){.timeline-intro{display:grid}.timeline-key{justify-content:flex-start}}
 .advisor-actions-title{margin:0 0 10px;font-size:13px;font-weight:900;color:var(--text)}.advisor-insights{display:grid;gap:10px;margin:0;padding:0;list-style:none}.advisor-insights li{position:relative;padding:12px 13px 12px 38px;border:1px solid rgba(255,255,255,.09);border-radius:14px;background:rgba(255,255,255,.04);color:var(--soft);font-size:13px;font-weight:700;line-height:1.45}.advisor-insights li:before{content:'';position:absolute;left:15px;top:18px;width:8px;height:8px;border-radius:999px;background:var(--accent)}.advisor-insights li.warning{border-color:rgba(246,198,106,.28);background:rgba(246,198,106,.08);color:#ffe0a3}.advisor-insights li.warning:before{background:var(--warn)}.advisor-insights li.risk{border-color:rgba(255,122,122,.28);background:rgba(255,122,122,.08);color:#ffc6c6}.advisor-insights li.risk:before{background:var(--bad)}.advisor-insights li.good{border-color:rgba(93,214,169,.25);background:rgba(93,214,169,.07);color:#c8f5e6}.advisor-insights li.good:before{background:var(--good)}.advisor-insight-text{display:block;color:var(--text);font-weight:900}.advisor-action-text{display:block;margin-top:4px;color:inherit;font-weight:700}.advisor-action-text strong{color:var(--text)}
 .decision-core{display:grid;grid-template-columns:1.25fr repeat(3,minmax(0,1fr));gap:14px}.decision-card{border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);border-radius:18px;padding:16px;min-width:0}.decision-card.primary{background:linear-gradient(180deg,rgba(93,214,169,.09),rgba(255,255,255,.035));border-color:rgba(93,214,169,.2)}.decision-kicker{font-size:11px;font-weight:900;text-transform:uppercase;color:var(--muted);margin-bottom:8px}.decision-value{font-size:32px;font-weight:950;line-height:1;color:var(--text)}.decision-value.large{font-size:46px}.decision-value.safe{color:var(--good)}.decision-value.tight{color:var(--warn)}.decision-value.risk{color:var(--bad)}.decision-sub{margin-top:8px;color:var(--soft);font-size:13px;font-weight:700;line-height:1.4}.decision-statement{margin-top:14px;padding-top:13px;border-top:1px solid rgba(255,255,255,.08);color:var(--muted);font-size:13px;line-height:1.45}.decision-statement strong{color:var(--text)}@media(max-width:1100px){.decision-core{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.decision-core{grid-template-columns:1fr}.decision-value.large{font-size:38px}}
+.owner-mode .app,.owner-mode .overlay,.owner-mode .drawer{display:none}.owner-dashboard{display:none;min-height:100vh;padding:28px;background:radial-gradient(circle at top left,rgba(120,166,255,.13),transparent 34%),var(--bg)}.owner-mode .owner-dashboard{display:grid;gap:22px}.owner-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:20px;border:1px solid rgba(255,255,255,.1);border-radius:22px;background:rgba(255,255,255,.055);box-shadow:0 24px 80px rgba(0,0,0,.22)}.owner-header h1{margin:0;font-size:26px;line-height:1.1}.owner-header p{margin:7px 0 0;color:var(--muted);font-size:14px;font-weight:700;line-height:1.45}.owner-badge{white-space:nowrap;border:1px solid rgba(93,214,169,.22);background:rgba(93,214,169,.1);color:var(--accent);border-radius:999px;padding:9px 12px;font-size:13px;font-weight:900}.owner-section{display:grid;gap:14px}.owner-section h2{margin:0;font-size:16px}.owner-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.owner-card,.owner-panel{border:1px solid rgba(255,255,255,.09);border-radius:18px;background:rgba(255,255,255,.05);padding:16px;min-width:0;box-shadow:0 16px 40px rgba(0,0,0,.18)}.owner-card h3,.owner-report h3{margin:0 0 10px;font-size:14px;color:var(--text)}.owner-meta{display:grid;gap:7px;color:var(--muted);font-size:12px;line-height:1.4}.owner-meta strong{color:var(--soft)}.owner-pill{display:inline-flex;width:max-content;max-width:100%;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:900;border:1px solid rgba(255,255,255,.12);color:var(--soft);background:rgba(255,255,255,.05)}.owner-pill.high{color:#ffc6c6;border-color:rgba(255,122,122,.3);background:rgba(255,122,122,.1)}.owner-pill.medium{color:#ffe0a3;border-color:rgba(246,198,106,.3);background:rgba(246,198,106,.1)}.owner-pill.low{color:#c8f5e6;border-color:rgba(93,214,169,.25);background:rgba(93,214,169,.08)}.owner-report{display:grid;gap:12px}.owner-report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.owner-report-field{border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:11px;background:rgba(255,255,255,.04)}.owner-report-field span{display:block;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;margin-bottom:5px}.owner-report-field strong{color:var(--text);font-size:13px}.owner-report-summary{color:var(--soft);font-size:13px;line-height:1.5}.owner-report-status{color:var(--muted);font-size:12px;font-weight:800}.owner-report-status.error{color:#ffc6c6}.owner-report-status.ready{color:#c8f5e6}.owner-table-wrap{overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.035)}.owner-table{width:100%;border-collapse:collapse;min-width:900px}.owner-table th,.owner-table td{padding:12px;text-align:left;border-bottom:1px solid rgba(255,255,255,.07);vertical-align:top;font-size:12px;line-height:1.4}.owner-table th{color:var(--muted);font-size:11px;text-transform:uppercase}.owner-table td{color:var(--soft)}.owner-actions{display:flex;gap:6px;flex-wrap:wrap}.owner-action{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:var(--soft);border-radius:10px;padding:7px 8px;font-size:11px;font-weight:850}.owner-action:hover{border-color:rgba(93,214,169,.35);color:var(--text)}.owner-candidates{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.owner-candidate{border:1px solid rgba(120,166,255,.18);background:rgba(120,166,255,.07);border-radius:16px;padding:13px;color:var(--soft);font-size:13px;font-weight:850;line-height:1.35}@media(max-width:1100px){.owner-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.owner-candidates{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.owner-dashboard{padding:18px}.owner-header{display:grid}.owner-grid,.owner-candidates,.owner-report-grid{grid-template-columns:1fr}.owner-badge{white-space:normal;width:max-content;max-width:100%}}
 </style>
 </head>
 <body>
@@ -94,12 +95,12 @@ button{cursor:pointer}
       <button>Scenarios</button>
       <button>Timeline</button>
     </nav>
-    <div class="side-card"><small><strong id="phaseNumber">Save State 2.17r</strong><br/><span id="phaseDesc">Restore + Protect: full app restored after owner dashboard rollback.</span></small></div>
+    <div class="side-card"><small><strong id="phaseNumber">Save State 2.19r</strong><br/><span id="phaseDesc">Owner Dashboard rebuilt cleanly behind hidden owner mode.</span></small></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-      <div><h2>Lifetime Financial Path</h2><p>Save State 2.17r restores and protects the full working app.</p></div>
+      <div><h2>Lifetime Financial Path</h2><p>Save State 2.19r keeps the full user app intact and adds hidden owner intelligence.</p></div>
       <div class="top-actions">
         <span class="pill" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="toggleDrawer(true)">Advisor Drawer</button>
@@ -183,9 +184,66 @@ button{cursor:pointer}
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><h2>Bastion Advisor</h2><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Save State 2.17r readout:</strong></p>
+  <p><strong>Save State 2.19r readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
+
+<section class="owner-dashboard" id="ownerDashboard" aria-label="Bastion Owner Command Center">
+  <header class="owner-header">
+    <div>
+      <h1>Bastion Owner Command Center</h1>
+      <p>Agent feedback, product intelligence, and build opportunities.</p>
+    </div>
+    <div class="owner-badge">Save State 2.19r</div>
+  </header>
+
+  <section class="owner-section">
+    <h2>Daily Intelligence Report</h2>
+    <div class="owner-panel owner-report">
+      <div class="owner-report-status" id="ownerReportStatus">Firestore not connected yet - paste Firebase config locally.</div>
+      <h3 id="ownerReportTitle">Daily intelligence report</h3>
+      <div class="owner-report-grid">
+        <div class="owner-report-field"><span>Date</span><strong id="ownerReportDate">Not loaded</strong></div>
+        <div class="owner-report-field"><span>Status</span><strong id="ownerReportState">Not connected</strong></div>
+        <div class="owner-report-field"><span>Source</span><strong>owner_reports/daily_test_report</strong></div>
+      </div>
+      <div class="owner-report-summary" id="ownerReportSummary">Static agent cards remain available while Firestore is offline.</div>
+    </div>
+  </section>
+
+  <section class="owner-section">
+    <h2>Active Agent Status</h2>
+    <div class="owner-grid">
+      <div class="owner-card"><h3>UI_AGENT</h3><div class="owner-meta"><span class="owner-pill medium">Watching</span><span><strong>Focus:</strong> Layout clarity and mobile readability.</span><span><strong>Last finding:</strong> Timeline labels can crowd on smaller screens.</span><span><strong>Priority:</strong> Medium</span></div></div>
+      <div class="owner-card"><h3>ANALYTICS_AGENT</h3><div class="owner-meta"><span class="owner-pill medium">Needs Data</span><span><strong>Focus:</strong> Engagement signals and click tracking.</span><span><strong>Last finding:</strong> Tracking is not active yet, so engagement findings are hypotheses only.</span><span><strong>Priority:</strong> Medium</span></div></div>
+      <div class="owner-card"><h3>MARKET_AGENT</h3><div class="owner-meta"><span class="owner-pill low">Watching</span><span><strong>Focus:</strong> User expectations and market positioning.</span><span><strong>Last finding:</strong> Users expect the primary answer above charts and details.</span><span><strong>Priority:</strong> Low</span></div></div>
+      <div class="owner-card"><h3>DECISION_AGENT</h3><div class="owner-meta"><span class="owner-pill high">Active</span><span><strong>Focus:</strong> Moment of Truth and decision clarity.</span><span><strong>Last finding:</strong> Decision Core should remain the first visible value.</span><span><strong>Priority:</strong> High</span></div></div>
+      <div class="owner-card"><h3>REGRESSION_AGENT</h3><div class="owner-meta"><span class="owner-pill high">Active</span><span><strong>Focus:</strong> Protecting existing formulas and flows.</span><span><strong>Last finding:</strong> Phase changes must not alter existing formulas.</span><span><strong>Priority:</strong> High</span></div></div>
+      <div class="owner-card"><h3>ADVISOR_AGENT</h3><div class="owner-meta"><span class="owner-pill medium">Watching</span><span><strong>Focus:</strong> Plain-English interpretation.</span><span><strong>Last finding:</strong> Insight should explain what the decision means, not just repeat metrics.</span><span><strong>Priority:</strong> Medium</span></div></div>
+    </div>
+  </section>
+
+  <section class="owner-section">
+    <h2>Agent Feedback Inbox</h2>
+    <div class="owner-table-wrap">
+      <table class="owner-table">
+        <thead><tr><th>Agent</th><th>Source</th><th>Finding</th><th>Recommendation</th><th>Priority</th><th>Status</th><th>Owner Actions</th></tr></thead>
+        <tbody id="ownerFeedbackRows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="owner-section">
+    <h2>Next Phase Candidates</h2>
+    <div class="owner-candidates">
+      <div class="owner-candidate">Click tracking v1</div>
+      <div class="owner-candidate">Owner feedback persistence</div>
+      <div class="owner-candidate">Market scan notes</div>
+      <div class="owner-candidate">Decision Intelligence v2</div>
+      <div class="owner-candidate">User onboarding simplification</div>
+    </div>
+  </section>
+</section>
 
 <script>
 var STORAGE_KEY = 'bastion_save_state_2_11b_reality_household';
@@ -811,7 +869,96 @@ function renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus){
   if(el('advisorSummary')) el('advisorSummary').innerHTML = intelligence.join('<br>');
 }
 
-function init(){ loadState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; } setupViews(); syncModeUI(); renderEvents(); commit(); }
+var ownerFeedback = [
+  {agent:'UI_AGENT',source:'Internal UI',finding:'Timeline labels are crowded on smaller screens.',recommendation:'Keep timeline labels shorter and preserve vertical spacing.',priority:'Medium',status:'New'},
+  {agent:'ANALYTICS_AGENT',source:'User behavior',finding:'Tracking is not active yet, so engagement findings are hypotheses only.',recommendation:'Add click tracking before optimizing behavior.',priority:'Medium',status:'Parked'},
+  {agent:'MARKET_AGENT',source:'Competitor/market',finding:'Users expect the primary answer above charts and details.',recommendation:'Keep Moment of Truth above supporting data.',priority:'Low',status:'New'},
+  {agent:'DECISION_AGENT',source:'Internal UI',finding:'Decision Core should remain the first visible value.',recommendation:'Avoid pushing the decision answer below charts.',priority:'High',status:'Approved'},
+  {agent:'REGRESSION_AGENT',source:'Regression check',finding:'Phase changes must not alter existing formulas.',recommendation:'Treat phase changes as additive unless a calculation change is explicit.',priority:'High',status:'New'},
+  {agent:'ADVISOR_AGENT',source:'Advisor logic',finding:'Insight should explain what the decision means, not just repeat metrics.',recommendation:'Write recommendations in plain English with one next action.',priority:'Medium',status:'New'}
+];
+function isOwnerMode(){ return new URLSearchParams(window.location.search).get('owner') === 'true'; }
+function ownerPriorityClass(priority){ return String(priority || '').toLowerCase(); }
+function setOwnerStatus(index,status){
+  ownerFeedback[index].status = status;
+  try{ localStorage.setItem('bastion_owner_feedback_status',JSON.stringify(ownerFeedback.map(function(item){return item.status;}))); }catch(e){}
+  renderOwnerFeedback();
+}
+function loadOwnerFeedbackStatus(){
+  try{
+    var saved = JSON.parse(localStorage.getItem('bastion_owner_feedback_status') || 'null');
+    if(Array.isArray(saved)){
+      for(var i=0;i<saved.length && i<ownerFeedback.length;i++) ownerFeedback[i].status = saved[i] || ownerFeedback[i].status;
+    }
+  }catch(e){}
+}
+function renderOwnerFeedback(){
+  var rows = el('ownerFeedbackRows');
+  if(!rows) return;
+  rows.innerHTML = ownerFeedback.map(function(item,index){
+    return '<tr><td><strong>'+item.agent+'</strong></td><td>'+item.source+'</td><td>'+item.finding+'</td><td>'+item.recommendation+'</td><td><span class="owner-pill '+ownerPriorityClass(item.priority)+'">'+item.priority+'</span></td><td>'+item.status+'</td><td><div class="owner-actions"><button class="owner-action" onclick="setOwnerStatus('+index+',\'Approved\')">Approve idea</button><button class="owner-action" onclick="setOwnerStatus('+index+',\'Parked\')">Park idea</button><button class="owner-action" onclick="setOwnerStatus('+index+',\'Rejected\')">Reject idea</button></div></td></tr>';
+  }).join('');
+}
+function setOwnerReportStatus(message,tone){
+  var node = el('ownerReportStatus');
+  if(!node) return;
+  node.textContent = message;
+  node.className = 'owner-report-status '+(tone || '');
+}
+function renderOwnerReport(data){
+  if(el('ownerReportTitle')) el('ownerReportTitle').textContent = data.title || 'Daily intelligence report';
+  if(el('ownerReportDate')) el('ownerReportDate').textContent = data.date || 'No date provided';
+  if(el('ownerReportState')) el('ownerReportState').textContent = data.status || 'No status provided';
+  if(el('ownerReportSummary')) el('ownerReportSummary').textContent = data.summary || 'No summary provided.';
+}
+function loadOwnerScript(src){
+  return new Promise(function(resolve,reject){
+    var existing = document.querySelector('script[src="'+src+'"]');
+    if(existing){ resolve(); return; }
+    var script = document.createElement('script');
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+function hasOwnerFirebaseConfig(config){
+  return !!(config && config.apiKey && config.projectId && config.appId);
+}
+function loadOwnerDailyReport(){
+  var config = window.BASTION_FIREBASE_CONFIG || null;
+  if(!hasOwnerFirebaseConfig(config)){
+    setOwnerReportStatus('Firestore not connected yet - paste Firebase config locally.','');
+    return;
+  }
+  setOwnerReportStatus('Loading owner_reports/daily_test_report...','');
+  loadOwnerScript('https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js')
+    .then(function(){ return loadOwnerScript('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js'); })
+    .then(function(){
+      if(!window.firebase || !firebase.firestore) throw new Error('Firestore SDK unavailable');
+      if(!firebase.apps.length) firebase.initializeApp(config);
+      return firebase.firestore().collection('owner_reports').doc('daily_test_report').get();
+    })
+    .then(function(doc){
+      if(!doc.exists){
+        setOwnerReportStatus('No daily_test_report document found in owner_reports.','error');
+        return;
+      }
+      renderOwnerReport(doc.data() || {});
+      setOwnerReportStatus('Firestore report loaded.','ready');
+    })
+    .catch(function(error){
+      setOwnerReportStatus('Firestore load failed: '+(error && error.message ? error.message : 'Unknown error'),'error');
+    });
+}
+function initOwnerMode(){
+  if(!isOwnerMode()) return;
+  document.body.classList.add('owner-mode');
+  loadOwnerFeedbackStatus();
+  renderOwnerFeedback();
+  loadOwnerDailyReport();
+}
+function init(){ loadState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; } setupViews(); syncModeUI(); renderEvents(); commit(); initOwnerMode(); }
 init();
 </script>
 </body>
