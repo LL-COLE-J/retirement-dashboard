@@ -1,67 +1,51 @@
-# Bastion Save State 2.20
+# Bastion Save State 2.22
 
 ## Current Status
 - Local repo stable at `D:\dev\retirement-dashboard`
-- Git + GitHub pipeline verified working
-- Cloudflare Pages deployment fixed and consistent
-- Single root `index.html` confirmed (no /app conflicts)
-- Clean repo (no nested folders)
-
-## Infrastructure (LOCKED)
-- Deploy path: root `index.html`
-- Cloudflare Pages auto-deploy from `main`
-- No build command, no output directory
-- Every `git push` triggers correct deployment
-
-## UI State (LOCKED)
+- Deploy path remains root `index.html`
 - Dark UI preserved
 - Dashboard / Profile / Advisor / Scenarios / Timeline intact
-- No regressions after rebuild
-- Save State visible and synced across UI
+- Owner tools remain hidden unless `?owner=true`
 
-## Owner System (ACTIVE)
-- Owner mode enabled via `?owner=true`
-- Bastion Owner Command Center live
-- Agent system rendering:
-  - UI_AGENT
-  - ANALYTICS_AGENT
-  - MARKET_AGENT
-  - DECISION_AGENT
-  - REGRESSION_AGENT
-  - ADVISOR_AGENT
+## Phase 2.22 - Owner Intelligence Bridge
+- Owner Dashboard agent findings now flow into an owner-controlled build pipeline.
+- Approved ideas become Build Queue candidates only.
+- Parked and Rejected ideas stay out of the active Build Queue.
+- No approved idea executes automatically.
+- Customer-facing projection math and dashboard behavior are unchanged.
 
-## Firestore Integration
-- Firebase config connected in root `index.html`
-- Collection: `owner_reports`
-- Document: `daily_test_report`
-- Write + read cycle confirmed working
-- Owner dashboard successfully writes and renders reports
+## Owner Build Queue
+- Owner-only section: `Approved Build Queue`
+- Firestore collection: `owner_build_queue`
+- Approved queue records include:
+  - agent
+  - source
+  - finding
+  - recommendation
+  - priority
+  - status: `Queued`
+  - phaseCandidate
+  - createdAt
+  - updatedAt
+  - ownerDecision: `Approved`
+  - executionAllowed: `false`
 
-## Security (Temporary)
-Firestore rules:
-- `owner_reports`: read allowed, write disabled
-- all other collections: blocked
+## Suggested Phase Logic
+- High priority -> `Next Phase`
+- Medium priority -> `Soon`
+- Low priority -> `Later`
 
-## System Capabilities (NEW)
-- Owner-triggered report generation
-- Persistent intelligence storage
-- Agent output rendering pipeline
-- Safe fallback when Firebase unavailable
+## Daily Intelligence Report
+- Daily Intelligence Report remains read-only.
+- Report content does not enter the Build Queue until the owner approves a finding.
 
-## Latest Known Stable Commit
-- Phase 2.20 – Owner Agent Writer
+## Save State Sync
+- Sidebar visible save state: `Bastion Save State 2.22`
+- Header/topbar visible save state: `Bastion Save State 2.22`
+- File-based save state: `Bastion Save State 2.22`
 
-## Status
-Bastion is now:
-- Deploy stable
-- Data-connected
-- Agent-capable
-- Ready for decision engine expansion
+## Latest Known Phase
+- Phase 2.22 - Owner Intelligence Bridge
 
 ## Next Phase
-Phase 2.21 — Advisor Decision Engine
-
-Goal:
-Turn Bastion into a true decision system:
-- Explain outcomes (WHY)
-- Provide actions (WHAT TO DO)
+- Select from owner-approved Build Queue candidates.

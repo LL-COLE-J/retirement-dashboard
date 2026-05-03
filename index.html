@@ -14,7 +14,7 @@ window.BASTION_FIREBASE_CONFIG = {
 </script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bastion Insights - Save State 2.20</title>
+<title>Bastion Insights - Save State 2.22</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -92,7 +92,7 @@ button{cursor:pointer}
 .timeline-intro{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin:2px 0 4px}.timeline-intro h4{margin:0;font-size:18px;font-weight:900;color:var(--text)}.timeline-intro p{margin:5px 0 0;color:var(--soft);font-size:13px;font-weight:750;line-height:1.4}.timeline-key{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.timeline-key span{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);border-radius:999px;padding:7px 10px;color:var(--soft);font-size:12px;font-weight:850;white-space:nowrap}.timeline-key i{width:18px;height:0;border-top:3px solid var(--accent2);display:inline-block}.timeline-key .scenario-b-line{border-top-style:dashed;opacity:.8}.timeline-point.scenario-b .timeline-label{box-shadow:0 16px 34px rgba(0,0,0,.34),0 0 0 1px rgba(120,166,255,.08)}.timeline-label{gap:6px;padding:12px;border-color:rgba(255,255,255,.14);background:rgba(7,17,31,.97)}.timeline-title{font-size:13px;font-weight:900}.timeline-note{color:var(--soft);font-weight:650}.timeline-impact{font-size:12px;font-weight:950}.timeline-point.scenario-b .timeline-age:before{content:'Scenario B  ';color:rgba(120,166,255,.9)}.timeline-point:not(.scenario-b) .timeline-age:before{content:'Scenario A  ';color:rgba(189,200,216,.72)}@media(max-width:760px){.timeline-intro{display:grid}.timeline-key{justify-content:flex-start}}
 .advisor-actions-title{margin:0 0 10px;font-size:13px;font-weight:900;color:var(--text)}.advisor-insights{display:grid;gap:10px;margin:0;padding:0;list-style:none}.advisor-insights li{position:relative;padding:12px 13px 12px 38px;border:1px solid rgba(255,255,255,.09);border-radius:14px;background:rgba(255,255,255,.04);color:var(--soft);font-size:13px;font-weight:700;line-height:1.45}.advisor-insights li:before{content:'';position:absolute;left:15px;top:18px;width:8px;height:8px;border-radius:999px;background:var(--accent)}.advisor-insights li.warning{border-color:rgba(246,198,106,.28);background:rgba(246,198,106,.08);color:#ffe0a3}.advisor-insights li.warning:before{background:var(--warn)}.advisor-insights li.risk{border-color:rgba(255,122,122,.28);background:rgba(255,122,122,.08);color:#ffc6c6}.advisor-insights li.risk:before{background:var(--bad)}.advisor-insights li.good{border-color:rgba(93,214,169,.25);background:rgba(93,214,169,.07);color:#c8f5e6}.advisor-insights li.good:before{background:var(--good)}.advisor-insight-text{display:block;color:var(--text);font-weight:900}.advisor-action-text{display:block;margin-top:4px;color:inherit;font-weight:700}.advisor-action-text strong{color:var(--text)}
 .decision-core{display:grid;grid-template-columns:1.25fr repeat(3,minmax(0,1fr));gap:14px}.decision-card{border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);border-radius:18px;padding:16px;min-width:0}.decision-card.primary{background:linear-gradient(180deg,rgba(93,214,169,.09),rgba(255,255,255,.035));border-color:rgba(93,214,169,.2)}.decision-kicker{font-size:11px;font-weight:900;text-transform:uppercase;color:var(--muted);margin-bottom:8px}.decision-value{font-size:32px;font-weight:950;line-height:1;color:var(--text)}.decision-value.large{font-size:46px}.decision-value.safe{color:var(--good)}.decision-value.tight{color:var(--warn)}.decision-value.risk{color:var(--bad)}.decision-sub{margin-top:8px;color:var(--soft);font-size:13px;font-weight:700;line-height:1.4}.decision-statement{margin-top:14px;padding-top:13px;border-top:1px solid rgba(255,255,255,.08);color:var(--muted);font-size:13px;line-height:1.45}.decision-statement strong{color:var(--text)}@media(max-width:1100px){.decision-core{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.decision-core{grid-template-columns:1fr}.decision-value.large{font-size:38px}}
-.owner-mode .app,.owner-mode .overlay,.owner-mode .drawer{display:none}.owner-dashboard{display:none;min-height:100vh;padding:28px;background:radial-gradient(circle at top left,rgba(120,166,255,.13),transparent 34%),var(--bg)}.owner-mode .owner-dashboard{display:grid;gap:22px}.owner-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:20px;border:1px solid rgba(255,255,255,.1);border-radius:22px;background:rgba(255,255,255,.055);box-shadow:0 24px 80px rgba(0,0,0,.22)}.owner-header h1{margin:0;font-size:26px;line-height:1.1}.owner-header p{margin:7px 0 0;color:var(--muted);font-size:14px;font-weight:700;line-height:1.45}.owner-badge{white-space:nowrap;border:1px solid rgba(93,214,169,.22);background:rgba(93,214,169,.1);color:var(--accent);border-radius:999px;padding:9px 12px;font-size:13px;font-weight:900}.owner-section{display:grid;gap:14px}.owner-section h2{margin:0;font-size:16px}.owner-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.owner-card,.owner-panel{border:1px solid rgba(255,255,255,.09);border-radius:18px;background:rgba(255,255,255,.05);padding:16px;min-width:0;box-shadow:0 16px 40px rgba(0,0,0,.18)}.owner-card h3,.owner-report h3{margin:0 0 10px;font-size:14px;color:var(--text)}.owner-meta{display:grid;gap:7px;color:var(--muted);font-size:12px;line-height:1.4}.owner-meta strong{color:var(--soft)}.owner-pill{display:inline-flex;width:max-content;max-width:100%;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:900;border:1px solid rgba(255,255,255,.12);color:var(--soft);background:rgba(255,255,255,.05)}.owner-pill.high{color:#ffc6c6;border-color:rgba(255,122,122,.3);background:rgba(255,122,122,.1)}.owner-pill.medium{color:#ffe0a3;border-color:rgba(246,198,106,.3);background:rgba(246,198,106,.1)}.owner-pill.low{color:#c8f5e6;border-color:rgba(93,214,169,.25);background:rgba(93,214,169,.08)}.owner-report{display:grid;gap:12px}.owner-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.owner-report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.owner-report-field{border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:11px;background:rgba(255,255,255,.04);min-width:0}.owner-report-field span{display:block;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;margin-bottom:5px}.owner-report-field strong{display:block;color:var(--text);font-size:13px;overflow-wrap:anywhere}.owner-report-summary{color:var(--soft);font-size:13px;line-height:1.5}.owner-report-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.owner-report-list h4{margin:0 0 6px;color:var(--text);font-size:12px;text-transform:uppercase}.owner-report-list ul{margin:0;padding-left:18px;color:var(--soft);font-size:12px;line-height:1.5}.owner-report-status{color:var(--muted);font-size:12px;font-weight:800}.owner-report-status.error{color:#ffc6c6}.owner-report-status.ready{color:#c8f5e6}.owner-table-wrap{overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.035)}.owner-table{width:100%;border-collapse:collapse;min-width:900px}.owner-table th,.owner-table td{padding:12px;text-align:left;border-bottom:1px solid rgba(255,255,255,.07);vertical-align:top;font-size:12px;line-height:1.4}.owner-table th{color:var(--muted);font-size:11px;text-transform:uppercase}.owner-table td{color:var(--soft)}.owner-actions{display:flex;gap:6px;flex-wrap:wrap}.owner-action{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:var(--soft);border-radius:10px;padding:7px 8px;font-size:11px;font-weight:850}.owner-action:hover{border-color:rgba(93,214,169,.35);color:var(--text)}.owner-action.primary{border-color:rgba(93,214,169,.28);background:rgba(93,214,169,.12);color:#c8f5e6}.owner-candidates{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.owner-candidate{border:1px solid rgba(120,166,255,.18);background:rgba(120,166,255,.07);border-radius:16px;padding:13px;color:var(--soft);font-size:13px;font-weight:850;line-height:1.35}@media(max-width:1100px){.owner-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.owner-candidates,.owner-report-list{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.owner-dashboard{padding:18px}.owner-header{display:grid}.owner-grid,.owner-candidates,.owner-report-grid,.owner-report-list{grid-template-columns:1fr}.owner-badge{white-space:normal;width:max-content;max-width:100%}}
+.owner-mode .app,.owner-mode .overlay,.owner-mode .drawer{display:none}.owner-dashboard{display:none;min-height:100vh;padding:28px;background:radial-gradient(circle at top left,rgba(120,166,255,.13),transparent 34%),var(--bg)}.owner-mode .owner-dashboard{display:grid;gap:22px}.owner-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:20px;border:1px solid rgba(255,255,255,.1);border-radius:22px;background:rgba(255,255,255,.055);box-shadow:0 24px 80px rgba(0,0,0,.22)}.owner-header h1{margin:0;font-size:26px;line-height:1.1}.owner-header p{margin:7px 0 0;color:var(--muted);font-size:14px;font-weight:700;line-height:1.45}.owner-badge{white-space:nowrap;border:1px solid rgba(93,214,169,.22);background:rgba(93,214,169,.1);color:var(--accent);border-radius:999px;padding:9px 12px;font-size:13px;font-weight:900}.owner-section{display:grid;gap:14px}.owner-section h2{margin:0;font-size:16px}.owner-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.owner-card,.owner-panel{border:1px solid rgba(255,255,255,.09);border-radius:18px;background:rgba(255,255,255,.05);padding:16px;min-width:0;box-shadow:0 16px 40px rgba(0,0,0,.18)}.owner-card h3,.owner-report h3{margin:0 0 10px;font-size:14px;color:var(--text)}.owner-meta{display:grid;gap:7px;color:var(--muted);font-size:12px;line-height:1.4}.owner-meta strong{color:var(--soft)}.owner-pill{display:inline-flex;width:max-content;max-width:100%;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:900;border:1px solid rgba(255,255,255,.12);color:var(--soft);background:rgba(255,255,255,.05)}.owner-pill.high{color:#ffc6c6;border-color:rgba(255,122,122,.3);background:rgba(255,122,122,.1)}.owner-pill.medium{color:#ffe0a3;border-color:rgba(246,198,106,.3);background:rgba(246,198,106,.1)}.owner-pill.low{color:#c8f5e6;border-color:rgba(93,214,169,.25);background:rgba(93,214,169,.08)}.owner-report{display:grid;gap:12px}.owner-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.owner-report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.owner-report-field{border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:11px;background:rgba(255,255,255,.04);min-width:0}.owner-report-field span{display:block;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;margin-bottom:5px}.owner-report-field strong{display:block;color:var(--text);font-size:13px;overflow-wrap:anywhere}.owner-report-summary{color:var(--soft);font-size:13px;line-height:1.5}.owner-report-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.owner-report-list h4{margin:0 0 6px;color:var(--text);font-size:12px;text-transform:uppercase}.owner-report-list ul{margin:0;padding-left:18px;color:var(--soft);font-size:12px;line-height:1.5}.owner-report-status{color:var(--muted);font-size:12px;font-weight:800}.owner-report-status.error{color:#ffc6c6}.owner-report-status.ready{color:#c8f5e6}.owner-table-wrap{overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.035)}.owner-table{width:100%;border-collapse:collapse;min-width:900px}.owner-table th,.owner-table td{padding:12px;text-align:left;border-bottom:1px solid rgba(255,255,255,.07);vertical-align:top;font-size:12px;line-height:1.4}.owner-table th{color:var(--muted);font-size:11px;text-transform:uppercase}.owner-table td{color:var(--soft)}.owner-actions{display:flex;gap:6px;flex-wrap:wrap}.owner-action{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:var(--soft);border-radius:10px;padding:7px 8px;font-size:11px;font-weight:850}.owner-action:hover{border-color:rgba(93,214,169,.35);color:var(--text)}.owner-action.primary{border-color:rgba(93,214,169,.28);background:rgba(93,214,169,.12);color:#c8f5e6}.owner-candidates{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.owner-candidate{border:1px solid rgba(120,166,255,.18);background:rgba(120,166,255,.07);border-radius:16px;padding:13px;color:var(--soft);font-size:13px;font-weight:850;line-height:1.35}.owner-queue-note{margin:0;color:var(--muted);font-size:13px;font-weight:700;line-height:1.45}.owner-empty-row{color:var(--muted);font-weight:800}@media(max-width:1100px){.owner-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.owner-candidates,.owner-report-list{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.owner-dashboard{padding:18px}.owner-header{display:grid}.owner-grid,.owner-candidates,.owner-report-grid,.owner-report-list{grid-template-columns:1fr}.owner-badge{white-space:normal;width:max-content;max-width:100%}}
 </style>
 </head>
 <body>
@@ -106,12 +106,12 @@ button{cursor:pointer}
       <button>Scenarios</button>
       <button>Timeline</button>
     </nav>
-    <div class="side-card"><small><strong id="phaseNumber">Save State 2.20</strong><br/><span id="phaseDesc">Live Agent Writer v1 adds owner-only test report generation.</span></small></div>
+    <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.22</strong><br/><span id="phaseDesc">Owner Intelligence Bridge queues approved findings without execution.</span></small></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-      <div><h2>Lifetime Financial Path</h2><p>Save State 2.20 keeps the full user app intact and adds owner-only report writing.</p></div>
+      <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.22 keeps the customer app intact while owner-approved findings become build candidates only.</p></div>
       <div class="top-actions">
         <span class="pill" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="toggleDrawer(true)">Advisor Drawer</button>
@@ -195,7 +195,7 @@ button{cursor:pointer}
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><h2>Bastion Advisor</h2><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Save State 2.20 readout:</strong></p>
+  <p><strong>Bastion Save State 2.22 readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
@@ -205,7 +205,7 @@ button{cursor:pointer}
       <h1>Bastion Owner Command Center</h1>
       <p>Agent feedback, product intelligence, and build opportunities.</p>
     </div>
-    <div class="owner-badge">Save State 2.20</div>
+    <div class="owner-badge">Bastion Save State 2.22</div>
   </header>
 
   <section class="owner-section">
@@ -258,13 +258,15 @@ button{cursor:pointer}
   </section>
 
   <section class="owner-section">
-    <h2>Next Phase Candidates</h2>
-    <div class="owner-candidates">
-      <div class="owner-candidate">Click tracking v1</div>
-      <div class="owner-candidate">Owner feedback persistence</div>
-      <div class="owner-candidate">Market scan notes</div>
-      <div class="owner-candidate">Decision Intelligence v2</div>
-      <div class="owner-candidate">User onboarding simplification</div>
+    <div>
+      <h2>Approved Build Queue</h2>
+      <p class="owner-queue-note">Only owner-approved findings appear here. Queue status does not execute product changes.</p>
+    </div>
+    <div class="owner-table-wrap">
+      <table class="owner-table">
+        <thead><tr><th>Agent</th><th>Finding</th><th>Recommendation</th><th>Priority</th><th>Suggested Phase</th><th>Status</th></tr></thead>
+        <tbody id="ownerBuildQueueRows"></tbody>
+      </table>
     </div>
   </section>
 </section>
@@ -901,12 +903,40 @@ var ownerFeedback = [
   {agent:'REGRESSION_AGENT',source:'Regression check',finding:'Phase changes must not alter existing formulas.',recommendation:'Treat phase changes as additive unless a calculation change is explicit.',priority:'High',status:'New'},
   {agent:'ADVISOR_AGENT',source:'Advisor logic',finding:'Insight should explain what the decision means, not just repeat metrics.',recommendation:'Write recommendations in plain English with one next action.',priority:'Medium',status:'New'}
 ];
+var OWNER_BUILD_QUEUE_COLLECTION = 'owner_build_queue';
 function isOwnerMode(){ return new URLSearchParams(window.location.search).get('owner') === 'true'; }
 function ownerPriorityClass(priority){ return String(priority || '').toLowerCase(); }
+function ownerPhaseCandidate(priority){
+  var value = String(priority || '').toLowerCase();
+  if(value === 'high') return 'Next Phase';
+  if(value === 'medium') return 'Soon';
+  return 'Later';
+}
+function ownerQueueId(item){
+  return String((item.agent || 'agent')+'-'+(item.finding || 'finding')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,120) || 'owner-build-item';
+}
+function ownerQueueDoc(item){
+  var now = new Date().toISOString();
+  return {
+    agent:item.agent,
+    source:item.source,
+    finding:item.finding,
+    recommendation:item.recommendation,
+    priority:item.priority,
+    status:'Queued',
+    phaseCandidate:ownerPhaseCandidate(item.priority),
+    createdAt:now,
+    updatedAt:now,
+    ownerDecision:'Approved',
+    executionAllowed:false
+  };
+}
 function setOwnerStatus(index,status){
   ownerFeedback[index].status = status;
   try{ localStorage.setItem('bastion_owner_feedback_status',JSON.stringify(ownerFeedback.map(function(item){return item.status;}))); }catch(e){}
   renderOwnerFeedback();
+  renderOwnerBuildQueue();
+  syncOwnerBuildQueueItem(ownerFeedback[index]);
 }
 function loadOwnerFeedbackStatus(){
   try{
@@ -922,6 +952,34 @@ function renderOwnerFeedback(){
   rows.innerHTML = ownerFeedback.map(function(item,index){
     return '<tr><td><strong>'+item.agent+'</strong></td><td>'+item.source+'</td><td>'+item.finding+'</td><td>'+item.recommendation+'</td><td><span class="owner-pill '+ownerPriorityClass(item.priority)+'">'+item.priority+'</span></td><td>'+item.status+'</td><td><div class="owner-actions"><button class="owner-action" onclick="setOwnerStatus('+index+',\'Approved\')">Approve idea</button><button class="owner-action" onclick="setOwnerStatus('+index+',\'Parked\')">Park idea</button><button class="owner-action" onclick="setOwnerStatus('+index+',\'Rejected\')">Reject idea</button></div></td></tr>';
   }).join('');
+}
+function renderOwnerBuildQueue(){
+  var rows = el('ownerBuildQueueRows');
+  if(!rows) return;
+  var queue = ownerFeedback.filter(function(item){ return item.status === 'Approved'; }).map(ownerQueueDoc);
+  if(!queue.length){
+    rows.innerHTML = '<tr><td class="owner-empty-row" colspan="6">No approved build candidates yet.</td></tr>';
+    return;
+  }
+  rows.innerHTML = queue.map(function(item){
+    return '<tr><td><strong>'+item.agent+'</strong></td><td>'+item.finding+'</td><td>'+item.recommendation+'</td><td><span class="owner-pill '+ownerPriorityClass(item.priority)+'">'+item.priority+'</span></td><td>'+item.phaseCandidate+'</td><td>'+item.status+'</td></tr>';
+  }).join('');
+}
+function syncOwnerBuildQueueItem(item){
+  if(!isOwnerMode() || !item || !hasOwnerFirebaseConfig(window.BASTION_FIREBASE_CONFIG || null)) return Promise.resolve();
+  return getOwnerFirestore()
+    .then(function(db){
+      var ref = db.collection(OWNER_BUILD_QUEUE_COLLECTION).doc(ownerQueueId(item));
+      if(item.status === 'Approved'){
+        var doc = ownerQueueDoc(item);
+        doc.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+        return ref.set(doc,{merge:true});
+      }
+      return ref.delete();
+    })
+    .catch(function(error){
+      setOwnerReportStatus('Build queue sync failed: '+(error && error.message ? error.message : 'Unknown error'),'error');
+    });
 }
 function setOwnerReportStatus(message,tone){
   var node = el('ownerReportStatus');
@@ -1026,7 +1084,7 @@ function createOwnerTestReport(){
       'Do not change formulas during owner intelligence phases.',
       'Keep owner tools hidden from customer-facing routes.'
     ],
-    suggestedNextPhase:'2.21 Owner Feedback Persistence',
+    suggestedNextPhase:'2.22 Owner Intelligence Bridge',
     generatedAt:now.toISOString()
   };
 }
@@ -1055,6 +1113,7 @@ function initOwnerMode(){
   document.body.classList.add('owner-mode');
   loadOwnerFeedbackStatus();
   renderOwnerFeedback();
+  renderOwnerBuildQueue();
   loadOwnerDailyReport();
 }
 function init(){ loadState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; } setupViews(); syncModeUI(); renderEvents(); commit(); initOwnerMode(); }
