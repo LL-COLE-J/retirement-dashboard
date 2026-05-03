@@ -717,13 +717,16 @@ Before any phase is considered complete:
 7. `scripts/check-bastion.ps1` passes.
 8. Only necessary files changed.
 9. Existing layout and logic preserved.
-10. Phase summary includes:
+10. `SAVE_STATE.md` updated to reflect the new phase, stabilization, or rollback.
+11. Save State in UI, `SAVE_STATE.md`, and deployed app match exactly.
+12. Phase summary includes:
    - Files changed
    - Features added
    - UI_AGENT result
    - REGRESSION_AGENT result
    - ANALYTICS_AGENT result, if applicable
    - MARKET_AGENT result, if applicable
+   - Save State update result
    - Test result
 
 ---
@@ -731,6 +734,7 @@ Before any phase is considered complete:
 ### Non-Negotiable
 
 - No phase is considered complete unless the UI phase label is updated.
+- No phase is considered complete until `SAVE_STATE.md`, root `index.html`, and deployed UI agree.
 - Do not skip UI_AGENT review.
 - Do not skip REGRESSION_AGENT review.
 - Do not leave stale phase indicators in the interface.
