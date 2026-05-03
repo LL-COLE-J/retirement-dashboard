@@ -14,7 +14,7 @@ window.BASTION_FIREBASE_CONFIG = {
 </script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bastion Insights - Save State 2.22</title>
+<title>Bastion Insights - Save State 2.23</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -93,6 +93,9 @@ button{cursor:pointer}
 .advisor-actions-title{margin:0 0 10px;font-size:13px;font-weight:900;color:var(--text)}.advisor-insights{display:grid;gap:10px;margin:0;padding:0;list-style:none}.advisor-insights li{position:relative;padding:12px 13px 12px 38px;border:1px solid rgba(255,255,255,.09);border-radius:14px;background:rgba(255,255,255,.04);color:var(--soft);font-size:13px;font-weight:700;line-height:1.45}.advisor-insights li:before{content:'';position:absolute;left:15px;top:18px;width:8px;height:8px;border-radius:999px;background:var(--accent)}.advisor-insights li.warning{border-color:rgba(246,198,106,.28);background:rgba(246,198,106,.08);color:#ffe0a3}.advisor-insights li.warning:before{background:var(--warn)}.advisor-insights li.risk{border-color:rgba(255,122,122,.28);background:rgba(255,122,122,.08);color:#ffc6c6}.advisor-insights li.risk:before{background:var(--bad)}.advisor-insights li.good{border-color:rgba(93,214,169,.25);background:rgba(93,214,169,.07);color:#c8f5e6}.advisor-insights li.good:before{background:var(--good)}.advisor-insight-text{display:block;color:var(--text);font-weight:900}.advisor-action-text{display:block;margin-top:4px;color:inherit;font-weight:700}.advisor-action-text strong{color:var(--text)}
 .decision-core{display:grid;grid-template-columns:1.25fr repeat(3,minmax(0,1fr));gap:14px}.decision-card{border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);border-radius:18px;padding:16px;min-width:0}.decision-card.primary{background:linear-gradient(180deg,rgba(93,214,169,.09),rgba(255,255,255,.035));border-color:rgba(93,214,169,.2)}.decision-kicker{font-size:11px;font-weight:900;text-transform:uppercase;color:var(--muted);margin-bottom:8px}.decision-value{font-size:32px;font-weight:950;line-height:1;color:var(--text)}.decision-value.large{font-size:46px}.decision-value.safe{color:var(--good)}.decision-value.tight{color:var(--warn)}.decision-value.risk{color:var(--bad)}.decision-sub{margin-top:8px;color:var(--soft);font-size:13px;font-weight:700;line-height:1.4}.decision-statement{margin-top:14px;padding-top:13px;border-top:1px solid rgba(255,255,255,.08);color:var(--muted);font-size:13px;line-height:1.45}.decision-statement strong{color:var(--text)}@media(max-width:1100px){.decision-core{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.decision-core{grid-template-columns:1fr}.decision-value.large{font-size:38px}}
 .owner-mode .app,.owner-mode .overlay,.owner-mode .drawer{display:none}.owner-dashboard{display:none;min-height:100vh;padding:28px;background:radial-gradient(circle at top left,rgba(120,166,255,.13),transparent 34%),var(--bg)}.owner-mode .owner-dashboard{display:grid;gap:22px}.owner-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:20px;border:1px solid rgba(255,255,255,.1);border-radius:22px;background:rgba(255,255,255,.055);box-shadow:0 24px 80px rgba(0,0,0,.22)}.owner-header h1{margin:0;font-size:26px;line-height:1.1}.owner-header p{margin:7px 0 0;color:var(--muted);font-size:14px;font-weight:700;line-height:1.45}.owner-badge{white-space:nowrap;border:1px solid rgba(93,214,169,.22);background:rgba(93,214,169,.1);color:var(--accent);border-radius:999px;padding:9px 12px;font-size:13px;font-weight:900}.owner-section{display:grid;gap:14px}.owner-section h2{margin:0;font-size:16px}.owner-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.owner-card,.owner-panel{border:1px solid rgba(255,255,255,.09);border-radius:18px;background:rgba(255,255,255,.05);padding:16px;min-width:0;box-shadow:0 16px 40px rgba(0,0,0,.18)}.owner-card h3,.owner-report h3{margin:0 0 10px;font-size:14px;color:var(--text)}.owner-meta{display:grid;gap:7px;color:var(--muted);font-size:12px;line-height:1.4}.owner-meta strong{color:var(--soft)}.owner-pill{display:inline-flex;width:max-content;max-width:100%;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:900;border:1px solid rgba(255,255,255,.12);color:var(--soft);background:rgba(255,255,255,.05)}.owner-pill.high{color:#ffc6c6;border-color:rgba(255,122,122,.3);background:rgba(255,122,122,.1)}.owner-pill.medium{color:#ffe0a3;border-color:rgba(246,198,106,.3);background:rgba(246,198,106,.1)}.owner-pill.low{color:#c8f5e6;border-color:rgba(93,214,169,.25);background:rgba(93,214,169,.08)}.owner-report{display:grid;gap:12px}.owner-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.owner-report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.owner-report-field{border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:11px;background:rgba(255,255,255,.04);min-width:0}.owner-report-field span{display:block;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;margin-bottom:5px}.owner-report-field strong{display:block;color:var(--text);font-size:13px;overflow-wrap:anywhere}.owner-report-summary{color:var(--soft);font-size:13px;line-height:1.5}.owner-report-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.owner-report-list h4{margin:0 0 6px;color:var(--text);font-size:12px;text-transform:uppercase}.owner-report-list ul{margin:0;padding-left:18px;color:var(--soft);font-size:12px;line-height:1.5}.owner-report-status{color:var(--muted);font-size:12px;font-weight:800}.owner-report-status.error{color:#ffc6c6}.owner-report-status.ready{color:#c8f5e6}.owner-table-wrap{overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.035)}.owner-table{width:100%;border-collapse:collapse;min-width:900px}.owner-table th,.owner-table td{padding:12px;text-align:left;border-bottom:1px solid rgba(255,255,255,.07);vertical-align:top;font-size:12px;line-height:1.4}.owner-table th{color:var(--muted);font-size:11px;text-transform:uppercase}.owner-table td{color:var(--soft)}.owner-actions{display:flex;gap:6px;flex-wrap:wrap}.owner-action{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:var(--soft);border-radius:10px;padding:7px 8px;font-size:11px;font-weight:850}.owner-action:hover{border-color:rgba(93,214,169,.35);color:var(--text)}.owner-action.primary{border-color:rgba(93,214,169,.28);background:rgba(93,214,169,.12);color:#c8f5e6}.owner-candidates{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.owner-candidate{border:1px solid rgba(120,166,255,.18);background:rgba(120,166,255,.07);border-radius:16px;padding:13px;color:var(--soft);font-size:13px;font-weight:850;line-height:1.35}.owner-queue-note{margin:0;color:var(--muted);font-size:13px;font-weight:700;line-height:1.45}.owner-empty-row{color:var(--muted);font-weight:800}@media(max-width:1100px){.owner-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.owner-candidates,.owner-report-list{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.owner-dashboard{padding:18px}.owner-header{display:grid}.owner-grid,.owner-candidates,.owner-report-grid,.owner-report-list{grid-template-columns:1fr}.owner-badge{white-space:normal;width:max-content;max-width:100%}}
+
+.tax-page{background:#f3f6fb;border-radius:22px;padding:18px;display:grid;gap:14px;color:#10233f}.tax-grid{display:grid;gap:14px}.tax-grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.tax-grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.tax-card{background:#fff;border:1px solid #dbe6f5;border-radius:16px;padding:16px;box-shadow:0 8px 24px rgba(16,35,63,.08)}.tax-card h4{margin:0 0 8px;color:#0f2b52}.tax-muted{color:#4c6280;font-size:13px;line-height:1.45}.tax-metric{font-size:28px;font-weight:900;color:#123d79}.tax-good{color:#1e8e58;font-weight:800}.tax-bad{color:#bf2f2f;font-weight:800}.tax-table-wrap{overflow:auto}.tax-table{width:100%;border-collapse:collapse}.tax-table th,.tax-table td{padding:8px;border-bottom:1px solid #e8eef8;text-align:left;font-size:12px;color:#17355d}.tax-actions{display:flex;justify-content:flex-end}.tax-btn{border:1px solid #2f5ea8;background:#2f5ea8;color:#fff;border-radius:10px;padding:10px 12px;font-weight:800}@media(max-width:1100px){.tax-grid.cols-3{grid-template-columns:1fr}}@media(max-width:760px){.tax-grid.cols-2{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -106,12 +109,12 @@ button{cursor:pointer}
       <button>Scenarios</button>
       <button>Timeline</button>
     </nav>
-    <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.22</strong><br/><span id="phaseDesc">Owner Intelligence Bridge queues approved findings without execution.</span></small></div>
+    <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.23</strong><br/><span id="phaseDesc">Tax & RMD Strategy UI is live with RMD schedule and tax-order guidance.</span></small></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-      <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.22 keeps the customer app intact while owner-approved findings become build candidates only.</p></div>
+      <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.23 keeps the customer app intact while owner-approved findings become build candidates only.</p></div>
       <div class="top-actions">
         <span class="pill" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="toggleDrawer(true)">Advisor Drawer</button>
@@ -195,7 +198,7 @@ button{cursor:pointer}
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><h2>Bastion Advisor</h2><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Bastion Save State 2.22 readout:</strong></p>
+  <p><strong>Bastion Save State 2.23 readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
@@ -205,7 +208,7 @@ button{cursor:pointer}
       <h1>Bastion Owner Command Center</h1>
       <p>Agent feedback, product intelligence, and build opportunities.</p>
     </div>
-    <div class="owner-badge">Bastion Save State 2.22</div>
+    <div class="owner-badge">Bastion Save State 2.23</div>
   </header>
 
   <section class="owner-section">
@@ -543,13 +546,38 @@ function renderDecisionCore(path,taxes,capturedSurplus){
   el(ids.gap).className = 'decision-value '+(monthlyGap < 0 ? 'risk' : (monthlyGap < 500 ? 'tight' : 'safe'));
   el(ids.statement).innerHTML = '<strong>Baseline:</strong> '+baseline;
 }
+
+function rmdDivisor(age){ var table={73:26.5,74:25.5,75:24.6,76:23.7,77:22.9,78:22.0,79:21.1,80:20.2,81:19.4,82:18.5,83:17.7,84:16.8,85:16.0,86:15.2,87:14.4,88:13.7,89:12.9,90:12.2}; return table[age]||Math.max(2,27-(age-72)); }
+function renderTaxRmdStrategy(path){
+  var age=num('age'), retireAge=num('retireAge'), filing=val('filingStatus'), state=val('taxState');
+  var taxDeferred=Math.max(0,num('invested')*0.6), roth=Math.max(0,num('invested')*0.2), taxable=Math.max(0,num('invested')*0.2);
+  var needsInput = !age || !retireAge || !filing;
+  var status = needsInput ? 'Needs input' : (age>=73 && taxDeferred>0 ? 'Compliant / monitor annually' : 'On track');
+  if(el('taxComplianceStatus')) el('taxComplianceStatus').textContent=status;
+  if(el('taxComplianceNote')) el('taxComplianceNote').textContent='Filing: '+(filing||'Needs input')+' • State: '+(state||'Needs input')+' • RMD start age: 73';
+  var yearlyBaseTax = taxSummaryForIncome(currentGrossIncome()).total;
+  var lifetimeTaxes = yearlyBaseTax * Math.max(1,(95-age));
+  if(el('lifetimeTaxMetric')) el('lifetimeTaxMetric').textContent=money(lifetimeTaxes);
+  var optimized = lifetimeTaxes*0.92;
+  if(el('taxImpactComparison')) el('taxImpactComparison').textContent='Impact comparison: optimized '+money(optimized)+' vs simple '+money(lifetimeTaxes)+'.';
+  if(el('withdrawalExplain')) el('withdrawalExplain').textContent='Default order uses taxable brokerage first, then traditional tax-deferred accounts, then Roth assets last to reduce lifetime tax drag and preserve tax-free growth.';
+  if(el('takeMoneyWhy')) el('takeMoneyWhy').textContent='Order: Taxable ('+money(taxable)+') → Traditional ('+money(taxDeferred)+') → Roth ('+money(roth)+'). Roth IRA is excluded from lifetime owner RMD calculations.';
+  if(el('taxStress')) el('taxStress').textContent='Stress test: if spending rises 15% or returns drop, RMD cash flow may push taxable income higher; scenario tools can test this directly.';
+  if(el('taxBottomLine')) el('taxBottomLine').textContent='Recommendation: maintain withdrawal order discipline, satisfy annual RMDs starting at age 73, and re-run scenarios when spending or retirement timing changes.';
+  var body=el('rmdScheduleBody'); if(!body) return;
+  if(needsInput || taxDeferred<=0){ body.innerHTML='<tr><td colspan="5">Needs input</td></tr>'; return; }
+  var startAge=Math.max(73,age); var bal=taxDeferred; var rows='';
+  for(var i=0;i<5;i++){ var a=startAge+i; var div=rmdDivisor(a); var rmd=bal/div; var tax=taxSummaryForIncome(rmd).total; rows+='<tr><td>'+a+'</td><td>'+money(bal)+'</td><td>'+div.toFixed(1)+'</td><td>'+money(rmd)+'</td><td>'+money(tax)+'</td></tr>'; bal=(bal-rmd)*(1+returnRate()); }
+  body.innerHTML=rows;
+}
+
 function commit(){
   var withEvents=project(true); var withoutEvents=project(false); var taxes=taxSummary(); var startingNetWorth=num('invested')+num('cash')-num('debt'); var annualCurrent=annualSpendValue('currentSpend'); var grossSurplus=taxes.income-taxes.total-annualCurrent; var capturedSurplus=grossSurplus>0?grossSurplus*captureRate():grossSurplus;
   var score=Math.max(0,Math.min(100,Math.round((withEvents.ending/1000000)*50+(withEvents.min>0?35:10)))); var status='Watch'; var cls='warn-text'; if(score>=72){status='Stable';cls='good';}else if(score<45){status='At Risk';cls='bad-text';}
   el('pathStatus').textContent=status; el('pathStatus').className='metric '+cls; el('statusFill').style.width=score+'%';
   el('pathSummary').textContent='Projected ending path: '+money(withEvents.ending)+'. Reality drag included: tax, inflation, returns, and '+Math.round(captureRate()*100)+'% surplus capture.';
   el('startingNetWorthMetric').textContent=money(startingNetWorth); el('grossIncomeMetric').textContent=money(taxes.income); el('taxEstimateMetric').textContent=money(taxes.total); el('annualSurplusMetric').textContent=money(capturedSurplus); el('endingPathMetric').textContent=money(withEvents.ending); el('minPathMetric').textContent=money(withEvents.min); el('currentSpendMetric').textContent=money(num('currentSpend')); el('retireSpendMetric').textContent=money(num('retireSpend')); el('eventImpactMetric').textContent=money(eventImpactNow());
-  renderDecisionCore(withEvents,taxes,capturedSurplus); renderChart(withoutEvents,withEvents); renderChanges(); renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus); renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus); renderTimeline(); saveState();
+  renderDecisionCore(withEvents,taxes,capturedSurplus); renderChart(withoutEvents,withEvents); renderChanges(); renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus); renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus); renderTimeline(); renderTaxRmdStrategy(withEvents); saveState();
   renderScenarioComparison(withoutEvents,withEvents);
 }
 function renderScenarioComparison(base,scenario){
@@ -833,6 +861,24 @@ function setupViews(){
     '<div class="field"><label>Tax Increase %</label><input id="scenarioTaxIncrease" type="number" value="0" oninput="commit()"></div>'+
     '</div><div class="sub" id="scenarioComparison">Scenario comparison will update after projection run.</div>';
   scenariosView.appendChild(phase210Card);
+  var taxCard = document.createElement('div'); taxCard.className='tax-page'; taxCard.id='taxRmdPage';
+  taxCard.innerHTML = '<div class="tax-grid cols-3">'+
+    '<div class="tax-card"><h4>Tax & RMD Compliance</h4><div class="tax-metric" id="taxComplianceStatus">Needs input</div><div class="tax-muted" id="taxComplianceNote">Complete profile fields for live compliance status.</div></div>'+
+    '<div class="tax-card"><h4>Estimated Lifetime Taxes</h4><div class="tax-metric" id="lifetimeTaxMetric">Needs input</div><div class="tax-muted" id="taxImpactComparison">Optimized strategy comparison appears after projection.</div></div>'+
+    '<div class="tax-card"><h4>Bottom-line Recommendation</h4><div class="tax-muted" id="taxBottomLine">Add tax-deferred and Roth balances to generate the final recommendation.</div></div>'+
+    '</div>'+
+    '<div class="tax-grid cols-2">'+
+    '<div class="tax-card"><h4>Withdrawal Strategy</h4><div class="tax-muted" id="withdrawalExplain"></div></div>'+
+    '<div class="tax-card"><h4>What is an RMD?</h4><div class="tax-muted">Required Minimum Distributions (RMDs) are annual minimum withdrawals from most tax-deferred retirement accounts starting at age 73. Missed/short RMDs can trigger a 25% excise tax risk on the shortfall.</div></div>'+
+    '</div>'+
+    '<div class="tax-card"><h4>RMD Schedule (5 years)</h4><div class="tax-table-wrap"><table class="tax-table"><thead><tr><th>Age</th><th>Tax-Deferred Balance</th><th>Divisor</th><th>RMD</th><th>Est. Tax</th></tr></thead><tbody id="rmdScheduleBody"><tr><td colspan="5">Needs input</td></tr></tbody></table></div></div>'+
+    '<div class="tax-grid cols-2">'+
+    '<div class="tax-card"><h4>Where we take money & why</h4><div class="tax-muted" id="takeMoneyWhy"></div></div>'+
+    '<div class="tax-card"><h4>Stress Test</h4><div class="tax-muted" id="taxStress"></div></div>'+
+    '</div>'+
+    '<div class="tax-actions"><button class="tax-btn" onclick="showView('scenarios')">Run New Scenario</button></div>';
+  scenariosView.appendChild(taxCard);
+
 
 
   var advisorCard = document.createElement('div'); advisorCard.className='card';
