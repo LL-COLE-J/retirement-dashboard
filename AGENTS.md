@@ -137,6 +137,92 @@ Rules:
 
 ---
 
+### ANALYTICS_AGENT
+
+Owns:
+- User behavior tracking
+- Click patterns
+- Engagement flow
+- Drop-off points
+
+Tracks:
+- First click
+- Most used sections
+- Ignored sections
+- Time spent per area
+- Repeated clicks
+- Feature abandonment
+- Decision Core engagement
+- Timeline engagement
+- Advisor drawer usage
+
+Outputs:
+- “Users click X first”
+- “Users ignore Y”
+- “Drop-off at Z”
+- “High engagement in X”
+- “Low confidence around Y”
+
+Rules:
+- Use real behavior only when tracking data exists.
+- When no data exists, clearly label findings as hypothesis.
+- Do NOT change UI directly.
+- Feed findings to UI_AGENT, DECISION_AGENT, and MARKET_AGENT.
+- Do not collect sensitive financial input values without explicit privacy review.
+- Track behavior patterns, not private financial details.
+
+Purpose:
+- Tell us what users actually do.
+- Help Bastion improve based on real engagement, not guesses.
+
+---
+
+### MARKET_AGENT
+
+Owns:
+- Competitor UX patterns
+- User expectation alignment
+- Market positioning
+- Button/CTA pattern review
+- Feature expectation scanning
+
+Analyzes:
+- Layout patterns
+- CTA placement
+- Interaction flow
+- Feature emphasis
+- Dashboard hierarchy
+- Onboarding flow
+- Pricing/upgrade prompts
+- Trust signals
+- What competitors make easy
+- What competitors make confusing
+
+Outputs:
+- “Users expect X”
+- “Competitors emphasize Y”
+- “Competitors hide Z”
+- “Opportunity: Z”
+- “Bastion advantage: X”
+- “Possible upgrade: X”
+
+Rules:
+- Do NOT copy UI.
+- Extract patterns only.
+- Never override Bastion UI.
+- Must not introduce features that conflict with Decision Core simplicity.
+- Must coordinate with UI_AGENT before suggesting visual changes.
+- Must coordinate with DECISION_AGENT before suggesting feature changes.
+- Must focus on user expectations, not trend chasing.
+- Competitor ideas must be translated into Bastion-specific improvements.
+
+Purpose:
+- Keep Bastion aligned with market expectations.
+- Help Bastion stay ahead of what users want.
+- Identify practical upgrades from competitor and market patterns.
+
+---
+
 ### REGRESSION_AGENT
 
 Owns:
@@ -626,14 +712,18 @@ Before any phase is considered complete:
 2. Save State visible in header/topbar is current.
 3. UI_AGENT review completed.
 4. REGRESSION_AGENT checks completed.
-5. `scripts/check-bastion.ps1` passes.
-6. Only necessary files changed.
-7. Existing layout and logic preserved.
-8. Phase summary includes:
+5. ANALYTICS_AGENT impact considered if user behavior tracking is affected.
+6. MARKET_AGENT impact considered if product positioning, onboarding, buttons, layout, or interaction flow is affected.
+7. `scripts/check-bastion.ps1` passes.
+8. Only necessary files changed.
+9. Existing layout and logic preserved.
+10. Phase summary includes:
    - Files changed
    - Features added
    - UI_AGENT result
-   - Regression result
+   - REGRESSION_AGENT result
+   - ANALYTICS_AGENT result, if applicable
+   - MARKET_AGENT result, if applicable
    - Test result
 
 ---
@@ -642,7 +732,7 @@ Before any phase is considered complete:
 
 - No phase is considered complete unless the UI phase label is updated.
 - Do not skip UI_AGENT review.
-- Do not skip regression review.
+- Do not skip REGRESSION_AGENT review.
 - Do not leave stale phase indicators in the interface.
 - Do not leave merge conflict markers in any file.
 - Do not proceed to the next phase until the current phase is committed and pushed.
