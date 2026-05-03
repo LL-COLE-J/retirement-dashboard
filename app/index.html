@@ -77,7 +77,7 @@ button{cursor:pointer}
 }.field input:focus,.field select:focus{border-color:rgba(93,214,169,.55)}
 .toggle{display:flex;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:4px}.toggle button{flex:1;border:0;background:transparent;color:var(--muted);border-radius:11px;padding:8px;font-weight:800}.toggle button.active{background:var(--accent);color:#07111f}
 .section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}.section-head p{margin:4px 0 0;color:var(--muted);font-size:13px;line-height:1.45}.event-list{display:grid;gap:12px}.event-row{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);border-radius:18px;padding:14px;display:grid;grid-template-columns:1.1fr .8fr .7fr .7fr .7fr auto;gap:10px;align-items:end}.event-row .remove{padding:10px 12px;border-radius:12px}.event-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:850;color:#07111f;background:var(--accent);padding:6px 9px;border-radius:999px;width:max-content}.event-note{grid-column:1/-1;color:var(--muted);font-size:12px;line-height:1.45;margin-top:-2px}.divider{height:1px;background:rgba(255,255,255,.08);margin:4px 0 12px}.drawer{position:fixed;right:0;top:0;height:100vh;width:min(440px,92vw);transform:translateX(105%);transition:.25s ease;z-index:50;background:#0b1728;border-left:1px solid rgba(255,255,255,.1);box-shadow:-30px 0 90px rgba(0,0,0,.42);padding:22px;overflow:auto}.drawer.open{transform:translateX(0)}.drawer-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.drawer h2{margin:0}.drawer p,.drawer li{color:var(--muted);line-height:1.5}.drawer ul{padding-left:20px}.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40}.overlay.open{display:block}.changed-list{display:grid;gap:8px}.changed-item{display:flex;justify-content:space-between;gap:12px;border:1px solid rgba(255,255,255,.08);padding:11px 12px;border-radius:14px;background:rgba(255,255,255,.04);font-size:13px}.changed-item span:first-child{color:var(--soft)}.changed-item span:last-child{font-weight:800}.empty{color:var(--muted);font-size:13px;padding:10px 0}.mini-actions{display:flex;gap:8px;flex-wrap:wrap}.quick-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.quick-grid button{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--text);border-radius:14px;padding:12px;font-weight:800;text-align:left}.quick-grid small{display:block;color:var(--muted);font-weight:600;margin-top:4px}.chart-wrap{height:260px}.view{display:none}.view.active{display:grid;gap:20px}.dashboard-summary{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);border-radius:18px;padding:16px;color:var(--muted);line-height:1.55}.dashboard-summary strong{color:var(--text)}@media(max-width:1100px){.grid.cols-4,.grid.cols-3{grid-template-columns:repeat(2,minmax(0,1fr))}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.event-row{grid-template-columns:repeat(2,minmax(0,1fr))}.event-note{grid-column:1/-1}}@media(max-width:760px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.topbar{position:relative;align-items:flex-start;flex-direction:column}.content{padding:18px}.grid.cols-4,.grid.cols-3,.grid.cols-2,.form-grid,.quick-grid{grid-template-columns:1fr}.event-row{grid-template-columns:1fr}.metric{font-size:26px}}
-.timeline-shell{position:relative;display:grid;gap:18px;padding:28px 8px 10px;overflow-x:auto}.timeline-track{position:relative;min-width:640px;height:140px}.timeline-line{position:absolute;left:0;right:0;top:66px;height:3px;border-radius:999px;background:linear-gradient(90deg,rgba(93,214,169,.8),rgba(120,166,255,.75));box-shadow:0 0 24px rgba(93,214,169,.12)}.timeline-point{position:absolute;top:0;width:150px;transform:translateX(-50%);display:grid;justify-items:center;gap:8px;text-align:center}.timeline-dot{width:18px;height:18px;border-radius:999px;background:var(--accent);border:3px solid #102037;box-shadow:0 0 0 5px rgba(93,214,169,.16);margin-top:58px}.timeline-point.placeholder .timeline-dot{background:var(--warn);box-shadow:0 0 0 5px rgba(246,198,106,.14)}.timeline-age{font-size:12px;font-weight:850;color:var(--accent);text-transform:uppercase}.timeline-title{font-size:13px;font-weight:850;color:var(--text);line-height:1.25}.timeline-note{font-size:12px;color:var(--muted);line-height:1.35}.timeline-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.timeline-summary .dashboard-summary{min-height:100%}@media(max-width:1100px){.timeline-summary{grid-template-columns:1fr}}@media(max-width:760px){.timeline-track{min-width:560px}.timeline-point{width:130px}}
+.timeline-shell{position:relative;display:grid;gap:18px;padding:24px 8px 10px;overflow-x:auto}.timeline-track{position:relative;min-width:720px;height:360px;padding:0 12px}.timeline-line{position:absolute;left:4%;right:4%;top:86px;height:3px;border-radius:999px;background:linear-gradient(90deg,rgba(93,214,169,.8),rgba(120,166,255,.75));box-shadow:0 0 24px rgba(93,214,169,.12)}.timeline-retirement-band{position:absolute;top:46px;bottom:52px;border:1px solid rgba(93,214,169,.16);border-radius:18px;background:linear-gradient(180deg,rgba(93,214,169,.09),rgba(120,166,255,.05));box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}.timeline-retirement-band span{position:absolute;left:12px;top:10px;font-size:11px;font-weight:850;text-transform:uppercase;color:rgba(189,200,216,.72)}.timeline-scale{position:absolute;left:4%;right:4%;bottom:12px;height:34px}.timeline-tick{position:absolute;bottom:18px;width:1px;height:11px;background:rgba(255,255,255,.18)}.timeline-tick.major{height:16px;background:rgba(255,255,255,.28)}.timeline-tick span{position:absolute;top:18px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:750;color:var(--muted);white-space:nowrap}.timeline-point{position:absolute;top:0;width:168px;transform:translateX(-50%);display:grid;justify-items:center;text-align:center;z-index:2}.timeline-stem{position:absolute;left:50%;top:-30px;width:1px;height:30px;background:rgba(255,255,255,.16)}.timeline-dot{position:absolute;left:50%;top:-40px;transform:translateX(-50%);width:18px;height:18px;border-radius:999px;background:var(--accent);border:3px solid #102037;box-shadow:0 0 0 5px rgba(93,214,169,.16)}.timeline-point.placeholder .timeline-dot{background:var(--warn);box-shadow:0 0 0 5px rgba(246,198,106,.14)}.timeline-label{display:grid;gap:5px;min-height:76px;width:100%;padding:10px 11px;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(8,18,32,.94);box-shadow:0 14px 30px rgba(0,0,0,.22)}.timeline-age{font-size:11px;font-weight:850;color:var(--accent);text-transform:uppercase;line-height:1.2}.timeline-title{font-size:13px;font-weight:850;color:var(--text);line-height:1.25}.timeline-note{font-size:12px;color:var(--muted);line-height:1.35}.timeline-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.timeline-summary .dashboard-summary{min-height:100%}@media(max-width:1100px){.timeline-summary{grid-template-columns:1fr}}@media(max-width:760px){.timeline-track{min-width:640px;height:390px}.timeline-point{width:150px}.timeline-label{padding:9px}}
 </style>
 </head>
 <body>
@@ -429,6 +429,7 @@ function renderTimeline(){
   var currentAge = num('age');
   var retirementAge = num('retireAge');
   var income2Age = num('income2RetireAge');
+  var currentYear = new Date().getFullYear();
   var ltcAge = Math.max(retirementAge,income2Age,currentAge) + 10;
   var legacyAge = Math.max(ltcAge + 10, retirementAge + 25, currentAge + 20);
   var items = [
@@ -442,24 +443,62 @@ function renderTimeline(){
   var maxAge = legacyAge;
   for(var i=0;i<items.length;i++){ minAge = Math.min(minAge,items[i].age); maxAge = Math.max(maxAge,items[i].age); }
   var span = Math.max(1,maxAge-minAge);
-  var html = '<div class="timeline-line"></div>';
-  var ageCounts = {};
-  var ageSeen = {};
-  for(var c=0;c<items.length;c++){ ageCounts[items[c].age] = (ageCounts[items[c].age]||0)+1; }
-  for(var j=0;j<items.length;j++){
-    var item = items[j];
-    ageSeen[item.age] = (ageSeen[item.age]||0)+1;
-    var left = 4 + ((item.age-minAge)/span)*92;
-    if(ageCounts[item.age] > 1){ left += (ageSeen[item.age]-((ageCounts[item.age]+1)/2))*6; }
-    left = clamp(left,4,96);
+  var retirementLeft = clamp(4 + ((retirementAge-minAge)/span)*92,4,96);
+  var retirementRight = 96;
+  var html = '<div class="timeline-retirement-band" style="left:'+retirementLeft+'%;right:'+(100-retirementRight)+'%"><span>Retirement phase</span></div><div class="timeline-line"></div>';
+  var firstTick = Math.floor(minAge/5)*5;
+  var lastTick = Math.ceil(maxAge/5)*5;
+  var tickHtml = '<div class="timeline-scale">';
+  for(var tick=firstTick;tick<=lastTick;tick+=5){
+    var tickLeft = clamp(((tick-minAge)/span)*100,0,100);
+    tickHtml += '<div class="timeline-tick major" style="left:'+tickLeft+'%"><span>'+tick+'</span></div>';
+  }
+  tickHtml += '</div>';
+  var positioned = [];
+  for(var p=0;p<items.length;p++){
+    positioned.push({
+      item:items[p],
+      left:clamp(4 + ((items[p].age-minAge)/span)*92,4,96),
+      order:p
+    });
+  }
+  positioned.sort(function(a,b){ return a.left===b.left ? a.order-b.order : a.left-b.left; });
+  var laneEnds = [];
+  var minGap = 22;
+  for(var a=0;a<positioned.length;a++){
+    var lane = 0;
+    while(laneEnds[lane] !== undefined && positioned[a].left - laneEnds[lane] < minGap){ lane++; }
+    positioned[a].lane = lane;
+    laneEnds[lane] = positioned[a].left;
+  }
+  positioned.sort(function(a,b){ return a.order-b.order; });
+  for(var j=0;j<positioned.length;j++){
+    var point = positioned[j];
+    var item = point.item;
+    var left = point.left;
+    var top = 126 + point.lane*78;
+    var year = currentYear + (item.age-currentAge);
     html += '<div class="timeline-point '+(item.placeholder?'placeholder':'')+'" style="left:'+left+'%">'+
-      '<div class="timeline-age">Age '+item.age+'</div>'+
-      '<div class="timeline-title">'+item.title+'</div>'+
       '<div class="timeline-dot"></div>'+
+      '<div class="timeline-stem"></div>'+
+      '<div class="timeline-label" style="margin-top:'+top+'px">'+
+      '<div class="timeline-age">Age '+item.age+' / '+year+'</div>'+
+      '<div class="timeline-title">'+item.title+'</div>'+
       '<div class="timeline-note">'+item.note+'</div>'+
+      '</div>'+
     '</div>';
   }
+  html += tickHtml;
   track.innerHTML = html;
+  var dots = track.querySelectorAll('.timeline-point');
+  for(var d=0;d<dots.length;d++){
+    var label = dots[d].querySelector('.timeline-label');
+    if(label){
+      var labelTop = parseFloat(label.style.marginTop)||126;
+      dots[d].querySelector('.timeline-dot').style.top = (labelTop-44)+'px';
+      dots[d].querySelector('.timeline-stem').style.top = (labelTop-30)+'px';
+    }
+  }
   var summary = el('timelineSummary');
   if(summary){
     summary.innerHTML =
