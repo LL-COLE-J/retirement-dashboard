@@ -588,7 +588,6 @@ function renderTaxRmdStrategy(path){
   if(el('withdrawalExplain')) el('withdrawalExplain').textContent='Default order uses taxable brokerage first, then traditional tax-deferred accounts, then Roth assets last to reduce lifetime tax drag and preserve tax-free growth.';
   if(el('takeMoneyWhy')) el('takeMoneyWhy').textContent='Order: Taxable ('+money(taxable)+') → Traditional ('+money(taxDeferred)+') → Roth ('+money(roth)+'). Roth IRA is excluded from lifetime owner RMD calculations.';
   if(el('taxStress')) el('taxStress').textContent='Stress test: if spending rises 15% or returns drop, RMD cash flow may push taxable income higher; scenario tools can test this directly.';
-  if(el('taxBottomLine')) el('taxBottomLine').textContent='Recommendation: maintain withdrawal order discipline, satisfy annual RMDs starting at age 73, and re-run scenarios when spending or retirement timing changes.';
   var body=el('rmdScheduleBody'); if(!body) return;
   if(needsInput || taxDeferred<=0){ body.innerHTML='<tr><td colspan="5">Needs input</td></tr>'; return; }
   var startAge=Math.max(73,age); var bal=taxDeferred; var rows='';
@@ -889,11 +888,7 @@ function setupViews(){
     '</div><div class="sub" id="scenarioComparison">Scenario comparison will update after projection run.</div>';
   scenariosView.appendChild(phase210Card);
   var taxCard = document.createElement('div'); taxCard.className='tax-page'; taxCard.id='taxRmdPage';
- codex/add-tax-rmd-menu-item-hjhuns
-  taxCard.innerHTML = '<div class="tax-header"><div><h3>Tax & RMD Strategy</h3><p>Lightweight tax-planning view for compliance, withdrawal order, and stress-tested downside.</p><p class="tax-muted">Tax & RMD visual page deployed — build 2.23-rmd-clickfix</p></div><span class="tax-pill">Save State 2.23</span></div>'+
-
-  taxCard.innerHTML = '<div class="tax-header"><div><h3>Tax & RMD Strategy</h3><p>Lightweight tax-planning view for compliance, withdrawal order, and stress-tested downside.</p></div><span class="tax-pill">Save State 2.23</span></div>'+
- main
+  taxCard.innerHTML = '<div class="tax-header"><div><div class="tax-pill">Tax & RMD page active — 2.23-final-ui</div><h3>Tax & RMD Strategy</h3><p>Lightweight tax-planning view for compliance, withdrawal order, and stress-tested downside.</p></div><span class="tax-pill">Save State 2.23</span></div>'+
     '<div class="tax-grid cols-2">'+
     '<div class="tax-card"><h4>Tax & RMD Status</h4><div class="tax-metric tax-good" id="taxComplianceStatus">COMPLIANT</div><div class="tax-muted" id="taxComplianceNote">Needs input for exact compliance confidence and rule validation.</div></div>'+
     '<div class="tax-card"><h4>Estimated Lifetime Taxes</h4><div class="tax-metric" id="lifetimeTaxMetric">Needs input</div><div class="tax-chart-shell"><div class="tax-chart-bars"><i style="height:24%"></i><i style="height:34%"></i><i style="height:48%"></i><i style="height:58%"></i><i style="height:72%"></i><i style="height:86%"></i></div></div><div class="tax-muted" id="taxImpactComparison">Impact comparison appears after projection.</div></div>'+
@@ -903,7 +898,6 @@ function setupViews(){
     '<div class="tax-card"><h4>RMD Education</h4><div class="tax-muted">Required Minimum Distributions (RMDs) begin at age 73 for most tax-deferred accounts. Missing required distributions can create penalty risk.</div></div>'+
     '<div class="tax-card"><h4>RMD Schedule (5 years)</h4><div class="tax-table-wrap"><table class="tax-table"><thead><tr><th>Age</th><th>Tax-Deferred Balance</th><th>Divisor</th><th>RMD</th><th>Est. Tax</th></tr></thead><tbody id="rmdScheduleBody"><tr><td colspan="5">Needs input</td></tr></tbody></table></div></div>'+
     '</div>'+
- codex/add-tax-rmd-menu-item-hjhuns
     '<div class="tax-grid cols-2">'+
     '<div class="tax-card"><h4>Withdrawal Order Table</h4><div class="tax-muted" id="takeMoneyWhy">Needs input</div><div class="tax-muted" id="withdrawalExplain">Needs input</div></div>'+
     '<div class="tax-card tax-why"><h4>Why this order?</h4><div class="tax-muted">This sequence generally minimizes lifetime tax drag while preserving optionality for high-expense years.</div></div>'+
@@ -914,24 +908,6 @@ function setupViews(){
     '</div>'+
     '<div class="tax-card"><h4>Bottom-line Recommendation</h4><div class="tax-muted" id="taxBottomLine">Needs input. Add account split and withdrawal assumptions to generate a stronger recommendation.</div><div class="tax-actions"><button class="tax-btn" onclick="showView(\'scenarios\')">Run New Scenario</button></div></div>';
 
-    '<div class="tax-grid cols-2">'+
-    '<div class="tax-card"><h4>Withdrawal Order Table</h4><div class="tax-muted" id="takeMoneyWhy">Needs input</div><div class="tax-muted" id="withdrawalExplain">Needs input</div></div>'+
-    '<div class="tax-card tax-why"><h4>Why this order?</h4><div class="tax-muted">This sequence generally minimizes lifetime tax drag while preserving optionality for high-expense years.</div></div>'+
-    '</div>'+
-    '<div class="tax-grid cols-2">'+
-    '<div class="tax-card"><h4>Scenario Impact Comparison</h4><div class="tax-muted" id="taxImpactDetail">Needs input</div></div>'+
-    '<div class="tax-card"><h4>Stress Test</h4><div class="tax-muted" id="taxStress">Needs input</div></div>'+
-    '</div>'+
-codex/add-tax-rmd-menu-item-gnhyra
-    '<div class="tax-card"><h4>Bottom-line Recommendation</h4><div class="tax-muted" id="taxBottomLine">Needs input. Add account split and withdrawal assumptions to generate a stronger recommendation.</div><div class="tax-actions"><button class="tax-btn" onclick="showView(\'scenarios\')">Run New Scenario</button></div></div>';
-
- codex/add-tax-rmd-menu-item-9jqqdp
-    '<div class="tax-actions"><button class="tax-btn" onclick="showView(\'scenarios\')">Run New Scenario</button></div>';
-
-    '<div class="tax-actions"><button class="tax-btn" onclick="showView('scenarios')">Run New Scenario</button></div>';
- main
- main
- main
   taxRmdView.appendChild(taxCard);
 
 
@@ -971,6 +947,7 @@ function wireNav(){
   }
 }
 function showView(name){
+  console.log("showView called:", name);
   var ids = ['dashboard','profile','advisor','scenarios','timeline','taxRmd'];
   for(var i=0;i<ids.length;i++){
     var view = el(ids[i]+'View');
