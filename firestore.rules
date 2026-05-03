@@ -1,0 +1,29 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // TEMP OWNER DEV RULE - tighten before public beta.
+    match /owner_reports/{docId} {
+      allow read, write: if true;
+    }
+
+    // TEMP OWNER DEV RULE - tighten before public beta.
+    match /owner_build_queue/{docId} {
+      allow read, write: if true;
+    }
+
+    // TEMP OWNER DEV RULE - tighten before public beta.
+    match /owner_feedback/{docId} {
+      allow read, write: if true;
+    }
+
+    // TEMP OWNER DEV RULE - tighten before public beta.
+    match /owner_intelligence/{docId} {
+      allow read, write: if true;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
