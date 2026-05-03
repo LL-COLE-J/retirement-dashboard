@@ -305,3 +305,37 @@ Owns:
 - Clarity > completeness
 - Simplicity > accuracy (early phases)
 - Never break working UI
+
+---
+
+## GLOBAL EXECUTION RULES
+
+### Phase Sync Requirement (MANDATORY)
+
+Every time a roadmap phase is executed, the system MUST:
+
+1. Update the visible phase in the UI (left sidebar / Save State card)
+   - Reflect the current phase number (e.g., 2.17, 2.18, etc.)
+   - Include a short, accurate description of what was added
+
+2. Remove or replace any outdated phase labels (e.g., 2.11b)
+
+3. Keep UI and roadmap in sync at all times
+
+---
+
+### Save State Alignment
+
+When a phase is completed:
+
+- UI must reflect the new phase
+- SAVE_STATE.md should be updated if applicable
+- ROADMAP.md remains the source of truth
+
+---
+
+### Non-Negotiable
+
+- No phase is considered complete unless the UI phase label is updated
+- Do not skip this step
+- Do not leave stale phase indicators in the interface
