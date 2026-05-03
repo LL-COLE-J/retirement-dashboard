@@ -120,9 +120,40 @@ button{cursor:pointer}
 @media(max-width:1100px){.tax-grid.cols-3,.tax-grid.cols-2,.tax-step-row{grid-template-columns:1fr}}
 @media(max-width:760px){#taxRmdView{padding:16px}.tax-header h3{font-size:22px}}
 
+
+.domain-landing{display:none;min-height:100vh;padding:40px 20px;align-items:center;justify-content:center}
+.domain-landing.show{display:flex}
+.landing-card{max-width:760px;width:100%;border:1px solid rgba(255,255,255,.1);border-radius:24px;background:rgba(9,20,38,.92);padding:28px;box-shadow:var(--shadow)}
+.landing-kicker{display:inline-flex;padding:6px 10px;border-radius:999px;border:1px solid rgba(93,214,169,.35);background:rgba(93,214,169,.1);color:var(--accent);font-size:12px;font-weight:900;text-transform:uppercase}
+.landing-card h1{margin:14px 0 10px;font-size:34px;line-height:1.1}
+.landing-card p{margin:0;color:var(--soft);line-height:1.6}
+.landing-actions{margin-top:22px;display:flex;gap:10px;flex-wrap:wrap}
+.beta-gate{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(5,10,20,.86);backdrop-filter:blur(8px)}
+.beta-gate.show{display:flex}
+.beta-gate-card{width:min(460px,100%);border:1px solid rgba(255,255,255,.1);border-radius:20px;background:#0d1b2f;padding:22px;box-shadow:var(--shadow)}
+.beta-gate-card h2{margin:0 0 8px}
+.beta-gate-card p{margin:0 0 14px;color:var(--soft);font-size:13px;line-height:1.45}
+.beta-gate-card .field{margin-bottom:10px}
+.beta-gate-note{color:var(--muted);font-size:12px}
+.beta-gate-error{color:#ffc6c6;min-height:20px;font-size:12px;font-weight:800}
+.beta-logout{position:fixed;right:14px;bottom:14px;z-index:160;display:none}
+.beta-logout.show{display:inline-flex}
+
 </style>
 </head>
 <body>
+<section id="domainLanding" class="domain-landing" aria-label="Bastion public landing page">
+  <article class="landing-card">
+    <span class="landing-kicker">Bastion Insight</span>
+    <h1>Clarity for retirement decisions.</h1>
+    <p>Bastion helps households understand whether their financial path is safe, where risk appears, and what next action matters most.</p>
+    <div class="landing-actions">
+      <a class="btn" href="https://app.bastioninsight.com">Open Beta App</a>
+      <a class="btn secondary" href="mailto:hello@bastioninsight.com">Request Access</a>
+    </div>
+  </article>
+</section>
+
 <div class="app">
   <aside class="sidebar">
     <div class="brand"><div class="logo">B</div><div><h1>Bastion</h1><span>Inputs define the path.</span></div></div>
@@ -1196,7 +1227,46 @@ function initOwnerMode(){
 }
 function init(){ loadState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; } setupViews(); syncModeUI(); renderEvents(); commit(); initOwnerMode(); }
 console.log("Bastion Tax & RMD clickfix deployed: 2.23-rmd-clickfix");
-init();
+
+var BETA_SESSION_KEY='bastion_beta_session_v1';
+var OWNER_BETA_PASSWORD='bastion-owner-2026';
+var TESTER_BETA_PASSWORD='bastion-tester-2026';
+var bastionAppBooted=false;
+function isPublicHost(host){ return host==='bastioninsight.com' || host==='www.bastioninsight.com'; }
+function isAppHost(host){ return host==='app.bastioninsight.com'; }
+function isPagesDevHost(host){ return host.indexOf('pages.dev')>-1; }
+function startBastionApp(){ if(bastionAppBooted) return; bastionAppBooted=true; init(); }
+function setAppVisibility(showApp){
+  document.querySelector('.app').style.display=showApp?'grid':'none';
+  document.getElementById('overlay').style.display=showApp?'':'none';
+  document.getElementById('drawer').style.display=showApp?'':'none';
+  document.getElementById('ownerDashboard').style.display=showApp?'':'none';
+}
+function unlockBetaGate(){
+  var pwd=(document.getElementById('betaPasswordInput').value||'').trim();
+  var valid=(pwd===OWNER_BETA_PASSWORD || pwd===TESTER_BETA_PASSWORD);
+  if(!valid){ document.getElementById('betaGateError').textContent='Invalid password.'; return; }
+  localStorage.setItem(BETA_SESSION_KEY,'true');
+  bootByHost();
+}
+function logoutBetaGate(){ localStorage.removeItem(BETA_SESSION_KEY); bastionAppBooted=false; window.location.reload(); }
+function bootByHost(){
+  var host=window.location.hostname.toLowerCase();
+  var landing=document.getElementById('domainLanding');
+  var gate=document.getElementById('betaGate');
+  var logoutBtn=document.getElementById('betaLogoutBtn');
+  if(isPublicHost(host)){ landing.classList.add('show'); setAppVisibility(false); gate.classList.remove('show'); logoutBtn.classList.remove('show'); return; }
+  landing.classList.remove('show');
+  if(isPagesDevHost(host)){ setAppVisibility(true); gate.classList.remove('show'); logoutBtn.classList.remove('show'); startBastionApp(); return; }
+  if(isAppHost(host)){
+    var sessionOk=localStorage.getItem(BETA_SESSION_KEY)==='true';
+    if(!sessionOk){ setAppVisibility(false); gate.classList.add('show'); logoutBtn.classList.remove('show'); return; }
+    setAppVisibility(true); gate.classList.remove('show'); logoutBtn.classList.add('show'); startBastionApp(); return;
+  }
+  setAppVisibility(true); gate.classList.remove('show'); logoutBtn.classList.remove('show'); startBastionApp();
+}
+
+bootByHost();
 </script>
 </body>
 </html>
