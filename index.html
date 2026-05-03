@@ -108,6 +108,7 @@ button{cursor:pointer}
       <button>Advisor</button>
       <button>Scenarios</button>
       <button>Timeline</button>
+      <button>Tax &amp; RMD</button>
     </nav>
     <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.23</strong><br/><span id="phaseDesc">Tax & RMD Strategy UI is live with RMD schedule and tax-order guidance.</span></small></div>
   </aside>
@@ -791,6 +792,7 @@ function setupViews(){
   var scenariosView = document.createElement('section'); scenariosView.id='scenariosView'; scenariosView.className='view';
   var advisorView = document.createElement('section'); advisorView.id='advisorView'; advisorView.className='view';
   var timelineView = document.createElement('section'); timelineView.id='timelineView'; timelineView.className='view';
+  var taxRmdView = document.createElement('section'); taxRmdView.id='taxRmdView'; taxRmdView.className='view';
 
   content.innerHTML = '';
   content.appendChild(dashboardView);
@@ -798,6 +800,7 @@ function setupViews(){
   content.appendChild(advisorView);
   content.appendChild(scenariosView);
   content.appendChild(timelineView);
+  content.appendChild(taxRmdView);
 
   var metrics1 = children[0];
   var metrics2 = children[1];
@@ -876,8 +879,8 @@ function setupViews(){
     '<div class="tax-card"><h4>Where we take money & why</h4><div class="tax-muted" id="takeMoneyWhy"></div></div>'+
     '<div class="tax-card"><h4>Stress Test</h4><div class="tax-muted" id="taxStress"></div></div>'+
     '</div>'+
-    '<div class="tax-actions"><button class="tax-btn" onclick="showView('scenarios')">Run New Scenario</button></div>';
-  scenariosView.appendChild(taxCard);
+    '<div class="tax-actions"><button class="tax-btn" onclick="showView(\'scenarios\')">Run New Scenario</button></div>';
+  taxRmdView.appendChild(taxCard);
 
 
 
@@ -907,8 +910,8 @@ function moveFieldsFromSource(sourceRoot,ids,targetId){
 }
 function wireNav(){
   var buttons = document.querySelectorAll('.nav button');
-  var map = ['dashboard','profile','advisor','scenarios','timeline'];
-  var labels = ['Dashboard','Profile','Advisor','Scenarios','Timeline'];
+  var map = ['dashboard','profile','advisor','scenarios','timeline','taxRmd'];
+  var labels = ['Dashboard','Profile','Advisor','Scenarios','Timeline','Tax & RMD'];
   for(var i=0;i<buttons.length;i++){
     buttons[i].textContent = labels[i] || buttons[i].textContent;
     buttons[i].setAttribute('data-view',map[i] || 'dashboard');
@@ -916,7 +919,7 @@ function wireNav(){
   }
 }
 function showView(name){
-  var ids = ['dashboard','profile','advisor','scenarios','timeline'];
+  var ids = ['dashboard','profile','advisor','scenarios','timeline','taxRmd'];
   for(var i=0;i<ids.length;i++){
     var view = el(ids[i]+'View');
     if(view) view.classList.toggle('active',ids[i]===name);
