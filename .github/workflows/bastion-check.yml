@@ -3,30 +3,21 @@ name: Bastion Check
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   check:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Verify app file exists
+      - name: Verify structure
         run: |
-          if [ ! -f "app/index.html" ]; then
-            echo "ERROR: app/index.html missing"
-            exit 1
-          fi
-
-      - name: Verify agent files exist
-        run: |
+          test -f app/index.html || exit 1
           test -f AGENTS.md || exit 1
           test -f SAVE_STATE.md || exit 1
           test -f ROADMAP.md || exit 1
           test -f REGRESSION_CHECKLIST.md || exit 1
 
-      - name: Done
+      - name: Success
         run: echo "Bastion check passed"
