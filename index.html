@@ -121,13 +121,35 @@ button{cursor:pointer}
 @media(max-width:760px){#taxRmdView{padding:16px}.tax-header h3{font-size:22px}}
 
 
-.domain-landing{display:none;min-height:100vh;padding:40px 20px;align-items:center;justify-content:center}
+.domain-landing{display:none;min-height:100vh;padding:44px 24px;background:#f5f8ff;color:#0f1f3d}
 .domain-landing.show{display:flex}
-.landing-card{max-width:760px;width:100%;border:1px solid rgba(255,255,255,.1);border-radius:24px;background:rgba(9,20,38,.92);padding:28px;box-shadow:var(--shadow)}
-.landing-kicker{display:inline-flex;padding:6px 10px;border-radius:999px;border:1px solid rgba(93,214,169,.35);background:rgba(93,214,169,.1);color:var(--accent);font-size:12px;font-weight:900;text-transform:uppercase}
-.landing-card h1{margin:14px 0 10px;font-size:34px;line-height:1.1}
-.landing-card p{margin:0;color:var(--soft);line-height:1.6}
-.landing-actions{margin-top:22px;display:flex;gap:10px;flex-wrap:wrap}
+.landing-shell{max-width:1180px;width:100%;margin:0 auto;display:grid;gap:28px}
+.landing-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.landing-brand{display:inline-flex;align-items:center;gap:10px;font-weight:900;color:#12284a;font-size:20px;letter-spacing:-.02em}
+.landing-brand img{width:36px;height:36px;border-radius:10px;object-fit:cover}
+.landing-brand-mark{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:#12284a;color:#fff;font-size:19px}
+.landing-badge{display:inline-flex;padding:7px 12px;border-radius:999px;border:1px solid #cad8f2;background:#fff;color:#334f7d;font-size:11px;font-weight:900;letter-spacing:.08em}
+.landing-main{display:grid;grid-template-columns:1.05fr .95fr;gap:26px;align-items:center}
+.landing-left h1{margin:0;font-size:56px;line-height:1.04;letter-spacing:-.03em;color:#0f1f3d}
+.landing-left p{margin:18px 0 0;font-size:18px;line-height:1.6;color:#3a537c;max-width:600px}
+.landing-actions{margin-top:28px;display:flex;gap:12px;flex-wrap:wrap}
+.landing-btn{border:1px solid #10284b;background:#10284b;color:#fff;padding:13px 18px;border-radius:14px;font-weight:850;text-decoration:none;box-shadow:0 12px 28px rgba(16,40,75,.2)}
+.landing-btn.secondary{background:#fff;color:#10284b;border-color:#c1d2ee;box-shadow:none}
+.landing-trust{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:28px}
+.landing-trust .trust-card{border:1px solid #d9e4f7;background:#fff;border-radius:14px;padding:14px}
+.landing-trust strong{display:block;color:#12284a;font-size:13px;margin-bottom:4px}
+.landing-trust span{font-size:12px;color:#496089;line-height:1.45}
+.landing-mock{border:1px solid #d5e1f6;background:#fff;border-radius:22px;padding:18px;box-shadow:0 24px 40px rgba(32,62,102,.12)}
+.mock-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+.mock-head strong{color:#12284a;font-size:14px}
+.mock-chip{font-size:11px;font-weight:900;color:#1f6d4d;background:#dff8eb;border-radius:999px;padding:5px 8px}
+.mock-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mock-metric{border:1px solid #e1e9f8;background:#f9fbff;border-radius:12px;padding:11px}
+.mock-metric span{display:block;color:#6078a2;font-size:11px;font-weight:800;text-transform:uppercase}
+.mock-metric b{display:block;color:#0f1f3d;font-size:19px;margin-top:4px}
+.mock-footer{margin-top:12px;border:1px solid #e1e9f8;background:#f9fbff;border-radius:12px;padding:12px;font-size:12px;color:#435f8f;line-height:1.45}
+@media(max-width:1100px){.landing-main{grid-template-columns:1fr}.landing-left h1{font-size:46px}}
+@media(max-width:760px){.domain-landing{padding:26px 14px}.landing-top{align-items:flex-start;flex-direction:column}.landing-left h1{font-size:35px}.landing-left p{font-size:16px}.landing-trust{grid-template-columns:1fr}}
 .beta-gate{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(5,10,20,.86);backdrop-filter:blur(8px)}
 .beta-gate.show{display:flex}
 .beta-gate-card{width:min(460px,100%);border:1px solid rgba(255,255,255,.1);border-radius:20px;background:#0d1b2f;padding:22px;box-shadow:var(--shadow)}
@@ -143,15 +165,41 @@ button{cursor:pointer}
 </head>
 <body>
 <section id="domainLanding" class="domain-landing" aria-label="Bastion public landing page">
-  <article class="landing-card">
-    <span class="landing-kicker">Bastion Insight</span>
-    <h1>Clarity for retirement decisions.</h1>
-    <p>Bastion helps households understand whether their financial path is safe, where risk appears, and what next action matters most.</p>
-    <div class="landing-actions">
-      <a class="btn" href="https://app.bastioninsight.com">Open Beta App</a>
-      <a class="btn secondary" href="mailto:hello@bastioninsight.com">Request Access</a>
+  <div class="landing-shell">
+    <div class="landing-top">
+      <div class="landing-brand">
+        <img src="logo.png" alt="Bastion logo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';">
+        <span class="landing-brand-mark" style="display:none;">B</span>
+        <span>Bastion</span>
+      </div>
+      <span class="landing-badge">CLARITY. PROTECTION. CONFIDENCE.</span>
     </div>
-  </article>
+    <div class="landing-main">
+      <div class="landing-left">
+        <h1>Know your financial future in seconds.</h1>
+        <p>Bastion Insight helps you model retirement readiness, tax strategy, RMD compliance, healthcare costs, relocation decisions, and legacy outcomes.</p>
+        <div class="landing-actions">
+          <a class="landing-btn" href="#" role="button" aria-disabled="true">Coming Soon</a>
+          <a class="landing-btn secondary" href="mailto:hello@bastioninsight.com?subject=Request%20Beta%20Access">Request Beta Access</a>
+        </div>
+        <div class="landing-trust">
+          <div class="trust-card"><strong>Advisor-Grade Clarity</strong><span>Translate complex planning inputs into one clear path and next step.</span></div>
+          <div class="trust-card"><strong>Risk in Plain English</strong><span>See where plans break, what causes it, and what to adjust first.</span></div>
+          <div class="trust-card"><strong>Scenario Confidence</strong><span>Compare decision tradeoffs quickly without changing your baseline plan.</span></div>
+        </div>
+      </div>
+      <aside class="landing-mock" aria-label="Sample Bastion plan summary">
+        <div class="mock-head"><strong>Plan Summary Snapshot</strong><span class="mock-chip">Stable Path</span></div>
+        <div class="mock-grid">
+          <div class="mock-metric"><span>Runway</span><b>Age 92</b></div>
+          <div class="mock-metric"><span>Retirement Age</span><b>67</b></div>
+          <div class="mock-metric"><span>Biggest Risk</span><b>Healthcare Shock</b></div>
+          <div class="mock-metric"><span>Path Status</span><b style="color:#1f6d4d;">Safe</b></div>
+        </div>
+        <div class="mock-footer">Bastion highlights the outcome, shows the top risk, and recommends the next highest-impact action to protect your plan.</div>
+      </aside>
+    </div>
+  </div>
 </section>
 
 <div class="app">
