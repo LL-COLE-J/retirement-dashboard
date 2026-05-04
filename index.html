@@ -14,7 +14,15 @@ window.BASTION_FIREBASE_CONFIG = {
 </script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ codex/add-owner-intelligence-engine-features-hir3lm
 <title>Bastion Insights - Save State 2.34</title>
+=======
+ codex/add-owner-intelligence-engine-features-ix379a
+<title>Bastion Insights - Save State 2.33</title>
+=======
+<title>Bastion Insights - Save State 2.32</title>
+ main
+ main
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235dd6a9'/%3E%3Cstop offset='1' stop-color='%2378a6ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M32 4 52 12v17c0 14.5-8.1 24.2-20 31C20.1 53.2 12 43.5 12 29V12z'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-size='24' font-family='Inter,Segoe UI,Arial,sans-serif' font-weight='800' fill='%2307111f'%3EB%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -218,12 +226,28 @@ button{cursor:pointer}
       <button>Tax &amp; RMD</button>
       <button>Reports</button>
     </nav>
+ codex/add-owner-intelligence-engine-features-hir3lm
      <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.34 — Owner Dashboard Intelligence UX Repair</strong><br/><span id="phaseDesc">Owner dashboard lifecycle visibility, blocker workflow, and completed-validation controls are now synced.</span></small></div>
+=======
+ codex/add-owner-intelligence-engine-features-ix379a
+     <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.33 — Critical Engine Regression Repair + Owner Blocker Sync</strong><br/><span id="phaseDesc">Core math, baseline save behavior, advisor drawer compact guidance, and owner blocker detection are now repaired and synced.</span></small></div>
+=======
+     <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.32 — Owner Intelligence Engine</strong><br/><span id="phaseDesc">Owner Intelligence Engine now evaluates live app conditions, agent lifecycle movement, and next-phase guidance.</span></small></div>
+ main
+ main
   </aside>
 
   <main class="main">
     <header class="topbar">
+ codex/add-owner-intelligence-engine-features-hir3lm
        <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.34 repairs owner dashboard lifecycle visibility and blocker-first work order.</p></div>
+=======
+ codex/add-owner-intelligence-engine-features-ix379a
+       <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.33 repairs projection integrity, baseline persistence, advisor drawer clarity, and owner blocker visibility.</p></div>
+=======
+       <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.32 keeps Dashboard output-first while making Owner Intelligence live and self-updating.</p></div>
+ main
+ main
       <div class="top-actions">
         <span class="pill" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="showView('reports');toggleDecisionReport(true)">Generate Report</button>
@@ -318,23 +342,63 @@ button{cursor:pointer}
       <h1>Bastion Owner Command Center</h1>
       <p>Agent feedback, product intelligence, and build opportunities.</p>
     </div>
+ codex/add-owner-intelligence-engine-features-hir3lm
     <div class="owner-badge">Bastion Save State 2.34</div>
+=======
+    <div class="owner-badge">Bastion Save State 2.32</div>
+ main
   </header>
 
   <section class="owner-section">
     <h2>Owner Command Summary</h2>
     <div class="owner-report-grid">
+ codex/add-owner-intelligence-engine-features-hir3lm
       <div class="owner-report-field"><span>Current Save State</span><strong id="ownerSummarySaveState">2.34</strong></div>
       <div class="owner-report-field"><span>Active Phase</span><strong id="ownerSummaryPhase">2.34 Owner Dashboard Intelligence UX Repair</strong></div>
       <div class="owner-report-field"><span>Queued Fixes</span><strong id="ownerSummaryQueued">0</strong></div>
       <div class="owner-report-field"><span>Parked Ideas</span><strong id="ownerSummaryParked">0</strong></div>
+=======
+      <div class="owner-report-field"><span>Current Save State</span><strong id="ownerSummarySaveState">2.32</strong></div>
+      <div class="owner-report-field"><span>Active Phase</span><strong id="ownerSummaryPhase">2.32 Owner Intelligence Engine</strong></div>
+      <div class="owner-report-field"><span>Queued Agent Items</span><strong id="ownerSummaryQueued">0</strong></div>
+ main
       <div class="owner-report-field"><span>Completed Validations</span><strong id="ownerSummaryCompleted">0</strong></div>
       <div class="owner-report-field"><span>Active Blockers</span><strong id="ownerSummaryWarnings">0</strong></div>
     </div>
   </section>
 
   <section class="owner-section">
+ codex/add-owner-intelligence-engine-features-hir3lm
     <h2>Active Blockers</h2>
+=======
+    <h2>Daily Intelligence Report</h2>
+    <div class="owner-panel owner-report">
+      <div class="owner-toolbar">
+        <div class="owner-report-status" id="ownerReportStatus">Firestore not connected yet - paste Firebase config locally.</div>
+        <div class="owner-actions"><button class="owner-action" onclick="evaluateOwnerIntelligence('manual')">Refresh Intelligence</button><button class="owner-action primary" onclick="generateOwnerTestReport()">Generate Test Agent Report</button></div>
+      </div>
+      <h3 id="ownerReportTitle">Daily intelligence report</h3>
+      <div class="owner-report-grid">
+        <div class="owner-report-field"><span>Date</span><strong id="ownerReportDate">Not loaded</strong></div>
+        <div class="owner-report-field"><span>Status</span><strong id="ownerReportState">Not connected</strong></div>
+        <div class="owner-report-field"><span>Source</span><strong>owner_reports/daily_test_report</strong></div>
+      </div>
+      <div class="owner-report-summary" id="ownerReportSummary">Static agent cards remain available while Firestore is offline.</div>
+      <div class="owner-report-grid">
+        <div class="owner-report-field"><span>Suggested Next Phase</span><strong id="ownerSuggestedNextPhase">Not loaded</strong></div>
+        <div class="owner-report-field"><span>Generated At</span><strong id="ownerGeneratedAt">Not loaded</strong></div>
+        <div class="owner-report-field"><span>Trust Notes</span><strong id="ownerTrustNotes">Not loaded</strong></div>
+      </div>
+      <div class="owner-report-list">
+        <div class="owner-report-field"><h4>Market Signals</h4><ul id="ownerMarketSignals"><li>Not loaded</li></ul></div>
+        <div class="owner-report-field"><h4>Consumer Ideas</h4><ul id="ownerConsumerIdeas"><li>Not loaded</li></ul></div>
+        <div class="owner-report-field"><h4>Enterprise Ideas</h4><ul id="ownerEnterpriseIdeas"><li>Not loaded</li></ul></div>
+      </div>
+    </div>
+  </section>
+  <section class="owner-section">
+    <h2>Completed Validations</h2>
+ main
     <div class="owner-table-wrap">
       <table class="owner-table">
         <thead><tr><th>Blocker</th><th>Affected Area</th><th>Severity</th><th>Recommended Fix</th><th>Status</th></tr></thead>
@@ -1370,6 +1434,7 @@ function markAgentCompleted(agent){
 }
 function evaluateOwnerIntelligence(trigger){
   window.__ownerIntelligenceLastRun = new Date().toISOString();
+ codex/add-owner-intelligence-engine-features-hir3lm
   var saveOk=getSaveStateVersion()>=2.26;
   var saveAt231=getSaveStateVersion()>=2.31;
   var decisionFirst = ownerDecisionCoreIsFirst();
@@ -1380,6 +1445,32 @@ function evaluateOwnerIntelligence(trigger){
   var profilePresent = ownerProfileSectionsPresent();
   var taxPresent = ownerTaxRmdClarityPresent();
 
+=======
+ codex/add-owner-intelligence-engine-features-ix379a
+  var saveOk=getSaveStateVersion()>=2.26;
+  var saveAt231=getSaveStateVersion()>=2.31;
+  var decisionFirst = ownerDecisionCoreIsFirst();
+  var deltaVisible = ownerScenarioDeltaVisible();
+  var regressionOk = ownerRegressionPassing();
+  var advisorPresent = ownerAdvisorV2Present();
+  var advisorClear = ownerAdvisorActionClarity();
+  var profilePresent = ownerProfileSectionsPresent();
+  var taxPresent = ownerTaxRmdClarityPresent();
+
+=======
+  var saveOk=getSaveStateVersion()>=2.26;
+  var saveAt231=getSaveStateVersion()>=2.31;
+  var decisionFirst = ownerDecisionCoreIsFirst();
+  var deltaVisible = ownerScenarioDeltaVisible();
+  var regressionOk = ownerRegressionPassing();
+  var advisorPresent = ownerAdvisorV2Present();
+  var advisorClear = ownerAdvisorActionClarity();
+  var profilePresent = ownerProfileSectionsPresent();
+  var taxPresent = ownerTaxRmdClarityPresent();
+
+  var saveOk=getSaveStateVersion()>=2.26;
+ main
+ main
   if(saveOk && decisionFirst){
     markAgentCompleted('DECISION_AGENT');
     addOwnerValidation('DECISION_AGENT','Decision Core placement validated and protected.','2.26+');
@@ -1389,6 +1480,10 @@ function evaluateOwnerIntelligence(trigger){
     if(!exists){ ownerFeedback.push({agent:'IMPACT_AGENT',source:'Scenario Impact Engine',finding:'Scenario delta tracking is visible in Decision Core.',recommendation:'Keep years gained/lost and decision shift indicators active.',priority:'High',status:'Completed'}); }
     addOwnerValidation('IMPACT_AGENT','Scenario delta tracking validated.','2.26+');
   }
+ codex/add-owner-intelligence-engine-features-hir3lm
+=======
+ codex/add-owner-intelligence-engine-features-ix379a
+ main
   var blockers = [];
   if((decisionFirst===false) && (getSaveStateVersion()>=2.26)) blockers.push({agent:'ENGINE_BLOCKER',area:'Projection Engine',finding:'Run-out age/Decision Core output appears invalid or not first-visible.',recommendation:'Re-run commit() and verify projection inputs/state wiring.',priority:'High',status:'Blocked'});
   if(!baseline || !baseline.inputs) blockers.push({agent:'BASELINE_BLOCKER',area:'Baseline Save',finding:'Baseline snapshot not present or not persisted.',recommendation:'Use Save Baseline and verify snapshot + metrics persist.',priority:'High',status:'Blocked'});
@@ -1409,6 +1504,7 @@ function evaluateOwnerIntelligence(trigger){
     var b=blockers[bi], found=false;
     for(var oi=0;oi<ownerFeedback.length;oi++){ if(ownerFeedback[oi].agent===b.agent){ ownerFeedback[oi]=b; found=true; } }
     if(!found) ownerFeedback.push(b);
+ codex/add-owner-intelligence-engine-features-hir3lm
   }
   for(var i=0;i<ownerFeedback.length;i++){
     var row = ownerFeedback[i];
@@ -1427,12 +1523,44 @@ function evaluateOwnerIntelligence(trigger){
   renderOwnerFeedback(); renderOwnerBuildQueue(); renderOwnerValidations(); renderOwnerParked(); renderOwnerSummaryCards(); renderOwnerBlockers(); renderOwnerActiveAgents();
   var phase = blockers.length ? 'Fix active blockers before new feature work' : (advisorPresent ? 'Next strategic product phase' : '2.31 Advisor Engine v2 + UX Clarity Layer');
   if(el('ownerSuggestedNextPhase')) el('ownerSuggestedNextPhase').textContent = phase;
+=======
+  }
+=======
+  if(regressionOk){
+    markAgentCompleted('REGRESSION_AGENT');
+    addOwnerValidation('REGRESSION_AGENT','Regression scan passed.','2.32');
+  }
+  if(saveAt231 && advisorPresent && advisorClear){
+    markAgentCompleted('ADVISOR_AGENT');
+    addOwnerValidation('ADVISOR_AGENT','Advisor explanation layer validated.','2.31+');
+  }
+ main
+  for(var i=0;i<ownerFeedback.length;i++){
+    var row = ownerFeedback[i];
+    if(row.agent==='UI_AGENT'){
+      var uiIssue = !profilePresent || !taxPresent;
+      row.status = uiIssue ? 'Active' : (row.status==='Completed'?'Completed':'Watching');
+      row.finding = uiIssue ? 'Profile or Tax & RMD clarity issue still active.' : 'Profile sections grouped; monitor spacing. Tax & RMD explanation layer present.';
+    }
+    if(row.agent==='ADVISOR_AGENT' && row.status!=='Completed'){
+      row.status = advisorPresent ? 'Watching' : 'Needs Data';
+      row.finding = advisorPresent ? 'Advisor explains diagnosis, driver, and next action.' : 'Advisor output still descriptive; needs action logic.';
+    }
+  }
+  renderOwnerFeedback(); renderOwnerBuildQueue(); renderOwnerValidations(); renderOwnerParked(); renderOwnerSummaryCards();
+  var phase = advisorPresent ? (window.__ownerIntelligenceLastRun ? ((!profilePresent || !taxPresent) ? '2.33 UI Clarity and Guided Onboarding' : '2.34 Agent Prioritization and Decision Chaining') : '2.32 Owner Intelligence Engine') : '2.31 Advisor Engine v2 + UX Clarity Layer';
+  if(el('ownerSuggestedNextPhase')) el('ownerSuggestedNextPhase').textContent = phase || 'Next Strategic Planning Phase';
+ main
   if(trigger==='manual') setOwnerReportStatus('Owner intelligence refreshed.','ready');
 }
 function renderOwnerFeedback(){
   var rows = el('ownerFeedbackRows');
   if(!rows) return;
+ codex/add-owner-intelligence-engine-features-hir3lm
   var active=ownerFeedback.filter(function(item){ return item.status!=='Completed' && item.status!=='Rejected' && item.status!=='Parked' && !isCompletedAgent(item.agent) && item.agent.indexOf('BLOCKER')===-1; });
+=======
+  var active=ownerFeedback.filter(function(item){ return item.status!=='Completed' && !isCompletedAgent(item.agent); });
+ main
   if(!active.length){ rows.innerHTML='<tr><td class="owner-empty-row" colspan="7">No unresolved agent findings.</td></tr>'; return; }
   rows.innerHTML = active.map(function(item){ var index=ownerFeedback.indexOf(item);
     return '<tr><td><strong>'+item.agent+'</strong></td><td>'+item.source+'</td><td>'+item.finding+'</td><td>'+item.recommendation+'</td><td><span class="owner-pill '+ownerPriorityClass(item.priority)+'">'+item.priority+'</span></td><td>'+item.status+'</td><td><div class="owner-actions"><button class="owner-action" onclick="setOwnerStatus('+index+',\'Approved\')">Queue Fix</button><button class="owner-action" onclick="setOwnerStatus('+index+',\'Parked\')">Park</button><button class="owner-action" onclick="setOwnerStatus('+index+',\'Rejected\')">Reject</button></div></td></tr>';
@@ -1482,10 +1610,16 @@ function renderOwnerParked(){
 function renderOwnerSummaryCards(){
   var queued = ownerFeedback.filter(function(i){ return (i.status==='Approved' || i.status==='Queued') && !isCompletedAgent(i.agent); }).length;
   var completed = ownerCompletedValidations.length;
+ codex/add-owner-intelligence-engine-features-hir3lm
   var warnings = ownerFeedback.filter(function(i){ return i.agent.indexOf('BLOCKER')>-1 && i.status==='Blocked'; }).length;
   var parked = ownerFeedback.filter(function(i){ return i.status==='Parked'; }).length;
   if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.34');
   if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.34 Owner Dashboard Intelligence UX Repair';
+=======
+  var warnings = ownerFeedback.filter(function(i){ return (i.status==='Warning' || i.status==='Blocked') && !isCompletedAgent(i.agent); }).length;
+  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.32');
+  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.32 Owner Intelligence Engine';
+ main
   if(el('ownerSummaryQueued')) el('ownerSummaryQueued').textContent=String(queued);
   if(el('ownerSummaryParked')) el('ownerSummaryParked').textContent=String(parked);
   if(el('ownerSummaryCompleted')) el('ownerSummaryCompleted').textContent=String(completed);
@@ -1610,7 +1744,11 @@ function createOwnerTestReport(){
       'Do not change formulas during owner intelligence phases.',
       'Keep owner tools hidden from customer-facing routes.'
     ],
+ codex/add-owner-intelligence-engine-features-hir3lm
     suggestedNextPhase:'2.34 Owner Dashboard Intelligence UX Repair',
+=======
+    suggestedNextPhase:'2.33 UI Clarity and Guided Onboarding',
+ main
     generatedAt:now.toISOString()
   };
 }
