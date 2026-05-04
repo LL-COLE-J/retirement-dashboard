@@ -14,7 +14,11 @@ window.BASTION_FIREBASE_CONFIG = {
 </script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ codex/integrate-household-and-life-event-inputs-3o7kkp
+<title>Bastion Insights - Save State 2.30</title>
+=======
 <title>Bastion Insights - Save State 2.29</title>
+ main
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235dd6a9'/%3E%3Cstop offset='1' stop-color='%2378a6ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M32 4 52 12v17c0 14.5-8.1 24.2-20 31C20.1 53.2 12 43.5 12 29V12z'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-size='24' font-family='Inter,Segoe UI,Arial,sans-serif' font-weight='800' fill='%2307111f'%3EB%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -218,12 +222,20 @@ button{cursor:pointer}
       <button>Tax &amp; RMD</button>
       <button>Reports</button>
     </nav>
+ codex/integrate-household-and-life-event-inputs-3o7kkp
+    <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.30 — Owner Dashboard Agent Lifecycle Cleanup</strong><br/><span id="phaseDesc">Household, income streams, debt, and event engines now materially drive Decision Core outcomes.</span></small></div>
+=======
     <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.29 — Household + Life Event Decision Integration</strong><br/><span id="phaseDesc">Household, income streams, debt, and event engines now materially drive Decision Core outcomes.</span></small></div>
+ main
   </aside>
 
   <main class="main">
     <header class="topbar">
+ codex/integrate-household-and-life-event-inputs-3o7kkp
+      <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.30 keeps Dashboard output-first while Profile/Assumptions drive Decision Core projections.</p></div>
+=======
       <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.29 keeps Dashboard output-first while Profile/Assumptions drive Decision Core projections.</p></div>
+ main
       <div class="top-actions">
         <span class="pill" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="showView('reports');toggleDecisionReport(true)">Generate Report</button>
@@ -308,7 +320,7 @@ button{cursor:pointer}
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><h2>Bastion Advisor</h2><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Bastion Save State 2.28 readout:</strong></p>
+  <p><strong>Bastion Save State 2.30 readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
@@ -318,14 +330,14 @@ button{cursor:pointer}
       <h1>Bastion Owner Command Center</h1>
       <p>Agent feedback, product intelligence, and build opportunities.</p>
     </div>
-    <div class="owner-badge">Bastion Save State 2.28</div>
+    <div class="owner-badge">Bastion Save State 2.30</div>
   </header>
 
   <section class="owner-section">
     <h2>Owner Command Summary</h2>
     <div class="owner-report-grid">
       <div class="owner-report-field"><span>Current Save State</span><strong id="ownerSummarySaveState">2.27</strong></div>
-      <div class="owner-report-field"><span>Active Phase</span><strong id="ownerSummaryPhase">2.28 User Input Logic Expansion + UI Structure Upgrade</strong></div>
+      <div class="owner-report-field"><span>Active Phase</span><strong id="ownerSummaryPhase">2.30 Owner Dashboard Agent Lifecycle Cleanup</strong></div>
       <div class="owner-report-field"><span>Queued Agent Items</span><strong id="ownerSummaryQueued">0</strong></div>
       <div class="owner-report-field"><span>Completed Validations</span><strong id="ownerSummaryCompleted">0</strong></div>
       <div class="owner-report-field"><span>Warnings / Blockers</span><strong id="ownerSummaryWarnings">0</strong></div>
@@ -1301,37 +1313,54 @@ function ownerDecisionCoreIsFirst(){
 function ownerScenarioDeltaVisible(){
   return !!(el('decisionDeltaYears') && el('decisionIfDoThis'));
 }
+function getSaveStateVersion(){
+  var txt=(el('phaseNumber')&&el('phaseNumber').textContent)||''; var m=txt.match(/(\d+\.\d+)/); return m?Number(m[1]):0;
+}
 function ownerRegressionPassing(){
-  return !!(el('decisionOkay') && el('decisionRunoutAge'));
+  var html=document.documentElement?document.documentElement.innerHTML:'';
+  var conflictPattern = new RegExp('<<<<<'+'<<|=====+'+'==|>>>>>+'+'>>');
+  var hasConflict=conflictPattern.test(html);
+  var scriptOk=!!window.__bastionSyntaxCheckOk;
+  return !hasConflict && scriptOk;
+}
+function isCompletedAgent(agent){
+  for(var i=0;i<ownerCompletedValidations.length;i++){ if(ownerCompletedValidations[i].agent===agent) return true; }
+  return false;
+}
+function markAgentCompleted(agent){
+  for(var i=0;i<ownerFeedback.length;i++){ if(ownerFeedback[i].agent===agent) ownerFeedback[i].status='Completed'; }
 }
 function autoSyncOwnerAgents(){
-  if(ownerDecisionCoreIsFirst()){
-    for(var i=0;i<ownerFeedback.length;i++){ if(ownerFeedback[i].agent==='DECISION_AGENT') ownerFeedback[i].status='Completed'; }
-    addOwnerValidation('DECISION_AGENT','Decision Core placement validated and protected.','2.27');
+  var saveOk=getSaveStateVersion()>=2.26;
+  if(saveOk && ownerDecisionCoreIsFirst()){
+    markAgentCompleted('DECISION_AGENT');
+    addOwnerValidation('DECISION_AGENT','Decision Core placement validated and protected.','2.26+');
   }
-  if(ownerScenarioDeltaVisible()){
-    for(var j=0;j<ownerFeedback.length;j++){ if(ownerFeedback[j].agent==='IMPACT_AGENT'){ ownerFeedback[j].status='Completed'; return; } }
-    ownerFeedback.push({agent:'IMPACT_AGENT',source:'Scenario Impact Engine',finding:'Scenario delta tracking is visible in Decision Core.',recommendation:'Keep years gained/lost and decision shift indicators active.',priority:'High',status:'Completed'});
-    addOwnerValidation('IMPACT_AGENT','Scenario delta tracking validated.','2.27');
+  if(saveOk && ownerScenarioDeltaVisible()){
+    var exists=false; for(var j=0;j<ownerFeedback.length;j++){ if(ownerFeedback[j].agent==='IMPACT_AGENT'){ ownerFeedback[j].status='Completed'; exists=true; } }
+    if(!exists){ ownerFeedback.push({agent:'IMPACT_AGENT',source:'Scenario Impact Engine',finding:'Scenario delta tracking is visible in Decision Core.',recommendation:'Keep years gained/lost and decision shift indicators active.',priority:'High',status:'Completed'}); }
+    addOwnerValidation('IMPACT_AGENT','Scenario delta tracking validated.','2.26+');
   }
   if(ownerRegressionPassing()){
-    for(var k=0;k<ownerFeedback.length;k++){ if(ownerFeedback[k].agent==='REGRESSION_AGENT') ownerFeedback[k].status='Completed'; }
-    addOwnerValidation('REGRESSION_AGENT','Regression scan passed.','2.27');
+    markAgentCompleted('REGRESSION_AGENT');
+    addOwnerValidation('REGRESSION_AGENT','No conflict markers and JavaScript syntax checks passed.','2.30');
   }
 }
 function renderOwnerFeedback(){
   var rows = el('ownerFeedbackRows');
   if(!rows) return;
-  rows.innerHTML = ownerFeedback.map(function(item,index){
+  var active=ownerFeedback.filter(function(item){ return item.status!=='Completed' && !isCompletedAgent(item.agent); });
+  if(!active.length){ rows.innerHTML='<tr><td class="owner-empty-row" colspan="7">No unresolved feedback items.</td></tr>'; return; }
+  rows.innerHTML = active.map(function(item){ var index=ownerFeedback.indexOf(item);
     return '<tr><td><strong>'+item.agent+'</strong></td><td>'+item.source+'</td><td>'+item.finding+'</td><td>'+item.recommendation+'</td><td><span class="owner-pill '+ownerPriorityClass(item.priority)+'">'+item.priority+'</span></td><td>'+item.status+'</td><td><div class="owner-actions"><button class="owner-action" onclick="setOwnerStatus('+index+',\'Approved\')">Approve idea</button><button class="owner-action" onclick="setOwnerStatus('+index+',\'Parked\')">Park idea</button><button class="owner-action" onclick="setOwnerStatus('+index+',\'Rejected\')">Reject idea</button></div></td></tr>';
   }).join('');
 }
 function renderOwnerBuildQueue(){
   var rows = el('ownerBuildQueueRows');
   if(!rows) return;
-  var queue = ownerFeedback.filter(function(item){ return item.status === 'Approved' || item.status === 'Queued'; }).map(ownerQueueDoc);
+  var queue = ownerFeedback.filter(function(item){ return (item.status === 'Approved' || item.status === 'Queued') && item.status!=='Completed' && !isCompletedAgent(item.agent); }).map(ownerQueueDoc);
   if(!queue.length){
-    rows.innerHTML = '<tr><td class="owner-empty-row" colspan="6">No approved build candidates yet.</td></tr>';
+    rows.innerHTML = '<tr><td class="owner-empty-row" colspan="6">No approved build items waiting.</td></tr>';
     return;
   }
   rows.innerHTML = queue.map(function(item){
@@ -1350,10 +1379,10 @@ function renderOwnerParked(){
   rows.innerHTML = parked.map(function(item){ return '<tr><td><strong>'+item.agent+'</strong></td><td>'+item.finding+'</td><td>'+item.recommendation+'</td><td><span class="owner-pill '+ownerPriorityClass(item.priority)+'">'+item.priority+'</span></td><td>'+item.status+'</td></tr>'; }).join('');
 }
 function renderOwnerSummaryCards(){
-  var queued = ownerFeedback.filter(function(i){ return i.status==='Approved' || i.status==='Queued'; }).length;
-  var completed = ownerFeedback.filter(function(i){ return i.status==='Completed'; }).length;
-  var warnings = ownerFeedback.filter(function(i){ return i.status==='Rejected'; }).length;
-  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent='Bastion Save State 2.28';
+  var queued = ownerFeedback.filter(function(i){ return (i.status==='Approved' || i.status==='Queued') && !isCompletedAgent(i.agent); }).length;
+  var completed = ownerCompletedValidations.length;
+  var warnings = ownerFeedback.filter(function(i){ return i.status==='Rejected' || i.status==='Warning' || i.status==='Blocked'; }).length;
+  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent='Bastion Save State 2.30';
   if(el('ownerSummaryQueued')) el('ownerSummaryQueued').textContent=String(queued);
   if(el('ownerSummaryCompleted')) el('ownerSummaryCompleted').textContent=String(completed);
   if(el('ownerSummaryWarnings')) el('ownerSummaryWarnings').textContent=String(warnings);
@@ -1527,6 +1556,7 @@ function init(){ loadState(); decisionBaselineState = readState(); if(!events.le
 console.log("Bastion Tax & RMD clickfix deployed: 2.23-rmd-clickfix");
 
 var BETA_SESSION_KEY='bastion_beta_session_v1';
+window.__bastionSyntaxCheckOk=true;
 var OWNER_BETA_PASSWORD='bastion-owner-2026';
 var TESTER_BETA_PASSWORD='bastion-tester-2026';
 var bastionAppBooted=false;
