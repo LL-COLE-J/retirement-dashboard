@@ -926,7 +926,7 @@ function syncModeUI(){
 }
 function setMode(next){ if(mode===next) return; var ids=['currentSpend','retireSpend']; for(var i=0;i<ids.length;i++){ var id=ids[i]; var v=num(id); setNum(id,next==='annual'?v*12:v/12); } mode=next; syncModeUI(); commit(); }
 function quickTweak(id,delta){ if(id==='income') id='income1'; setNum(id,num(id)+delta); commit(); }
-function toggleDrawer(open){ el('drawer').classList.toggle('open',open); el('overlay').classList.toggle('open',open); }
+function toggleDrawer(open){ var drawer=el('drawer'); var overlay=el('overlay'); if(drawer) drawer.classList.toggle('open',open); if(overlay) overlay.classList.toggle('open',open); }
 function setupViews(){
   var content = document.querySelector('.content');
   if(!content || el('dashboardView')) return;
@@ -1084,13 +1084,13 @@ function wireNav(){
   for(var i=0;i<buttons.length;i++){
     buttons[i].textContent = labels[i] || buttons[i].textContent;
     buttons[i].setAttribute('data-view',map[i] || 'dashboard');
-    buttons[i].onclick = function(){ showView(this.dataset.view); };
+    buttons[i].onclick = function(){ var view = this.getAttribute('data-view') || this.dataset.view; showView(view || 'dashboard'); };
   }
 }
 function bindUserNavClicks(){
   var buttons = document.querySelectorAll('.nav button');
   for(var i=0;i<buttons.length;i++){
-    buttons[i].onclick = function(){ showView(this.dataset.view); };
+    buttons[i].onclick = function(){ var view = this.getAttribute('data-view') || this.dataset.view; showView(view || 'dashboard'); };
   }
 }
 function showView(name){
@@ -1370,10 +1370,14 @@ function isAppHost(host){ return host==='app.bastioninsight.com'; }
 function isPagesDevHost(host){ return host.indexOf('pages.dev')>-1; }
 function startBastionApp(){ if(bastionAppBooted) return; bastionAppBooted=true; init(); }
 function setAppVisibility(showApp){
-  document.querySelector('.app').style.display=showApp?'grid':'none';
-  document.getElementById('overlay').style.display=showApp?'':'none';
-  document.getElementById('drawer').style.display=showApp?'':'none';
-  document.getElementById('ownerDashboard').style.display=showApp?'':'none';
+  var app=document.querySelector('.app');
+  var overlay=document.getElementById('overlay');
+  var drawer=document.getElementById('drawer');
+  var ownerDashboard=document.getElementById('ownerDashboard');
+  if(app) app.style.display=showApp?'grid':'none';
+  if(overlay) overlay.style.display=showApp?'':'none';
+  if(drawer) drawer.style.display=showApp?'':'none';
+  if(ownerDashboard) ownerDashboard.style.display=showApp?'':'none';
 }
 function unlockBetaGate(){
   var pwd=(document.getElementById('betaPasswordInput').value||'').trim();
@@ -1390,23 +1394,23 @@ function bootByHost(){
   var logoutBtn=document.getElementById('betaLogoutBtn');
   if(isOwnerMode()){
     console.log("Bastion owner mode requested");
-    landing.classList.remove('show');
-    gate.classList.remove('show');
-    logoutBtn.classList.remove('show');
+    if(landing) landing.classList.remove('show');
+    if(gate) gate.classList.remove('show');
+    if(logoutBtn) logoutBtn.classList.remove('show');
     setAppVisibility(true);
     startBastionApp();
     initOwnerMode();
     return;
   }
-  if(isPublicHost(host)){ landing.classList.add('show'); setAppVisibility(false); gate.classList.remove('show'); logoutBtn.classList.remove('show'); return; }
-  landing.classList.remove('show');
-  if(isPagesDevHost(host)){ setAppVisibility(true); gate.classList.remove('show'); logoutBtn.classList.remove('show'); startBastionApp(); return; }
+  if(isPublicHost(host)){ if(landing) landing.classList.add('show'); setAppVisibility(false); if(gate) gate.classList.remove('show'); if(logoutBtn) logoutBtn.classList.remove('show'); return; }
+  if(landing) landing.classList.remove('show');
+  if(isPagesDevHost(host)){ setAppVisibility(true); if(gate) gate.classList.remove('show'); if(logoutBtn) logoutBtn.classList.remove('show'); startBastionApp(); return; }
   if(isAppHost(host)){
     var sessionOk=localStorage.getItem(BETA_SESSION_KEY)==='true';
-    if(!sessionOk){ setAppVisibility(false); gate.classList.add('show'); logoutBtn.classList.remove('show'); return; }
-    setAppVisibility(true); gate.classList.remove('show'); logoutBtn.classList.add('show'); startBastionApp(); return;
+    if(!sessionOk){ setAppVisibility(false); if(gate) gate.classList.add('show'); if(logoutBtn) logoutBtn.classList.remove('show'); return; }
+    setAppVisibility(true); if(gate) gate.classList.remove('show'); if(logoutBtn) logoutBtn.classList.add('show'); startBastionApp(); return;
   }
-  setAppVisibility(true); gate.classList.remove('show'); logoutBtn.classList.remove('show'); startBastionApp();
+  setAppVisibility(true); if(gate) gate.classList.remove('show'); if(logoutBtn) logoutBtn.classList.remove('show'); startBastionApp();
 }
 
 (function () {
