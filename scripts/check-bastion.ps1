@@ -32,6 +32,46 @@ if (!(Test-Path "REGRESSION_CHECKLIST.md")) {
 Write-Host ""
 git status --short
 
+$indexHtml = Get-Content "index.html" -Raw
+$saveStateDoc = Get-Content "SAVE_STATE.md" -Raw
+
+if ($indexHtml -match "<<<<<<<|=======|>>>>>>>") {
+  Write-Host "ERROR: merge conflict markers found in index.html"
+  $errors++
+}
+
+if ($indexHtml -match "codex[-_/ ]branch") {
+  Write-Host "ERROR: branch artifact text found in index.html"
+  $errors++
+}
+
+if ($indexHtml -notmatch "function showView\(") {
+  Write-Host "ERROR: showView routing function missing"
+  $errors++
+}
+
+if ($indexHtml -notmatch "data-view=\"dashboard\"" -or $indexHtml -notmatch "data-view=\"profile\"") {
+  Write-Host "ERROR: navigation data-view bindings missing"
+  $errors++
+}
+
+if ($indexHtml -notmatch "id=\"ownerDashboard\"") {
+  Write-Host "ERROR: owner dashboard route shell missing"
+  $errors++
+}
+
+if ($indexHtml -match "Life Events Builder|Add Debt|Assumptions</h3>") {
+  Write-Host "ERROR: dashboard/profile builder artifact found in source"
+  $errors++
+}
+
+$uiSave = [regex]::Match($indexHtml, "Bastion Save State (\d+\.\d+)").Groups[1].Value
+$docSave = [regex]::Match($saveStateDoc, "Save State (\d+\.\d+)").Groups[1].Value
+if ($uiSave -and $docSave -and $uiSave -ne $docSave) {
+  Write-Host "ERROR: Save State mismatch between UI ($uiSave) and SAVE_STATE.md ($docSave)"
+  $errors++
+}
+
 if ($errors -eq 0) {
   Write-Host ""
   Write-Host "Bastion check passed"
