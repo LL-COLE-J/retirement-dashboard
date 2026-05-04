@@ -1397,7 +1397,49 @@ function bootByHost(){
   setAppVisibility(true); gate.classList.remove('show'); logoutBtn.classList.remove('show'); startBastionApp();
 }
 
-bootByHost();
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var isOwner = params.get("owner") === "true";
+
+  if (isOwner) {
+    console.log("Bastion owner mode requested");
+
+    try {
+      document.body.classList.add("owner-mode");
+
+      var app = document.querySelector(".app");
+      var owner = document.getElementById("ownerDashboard");
+      var landing = document.getElementById("domainLanding");
+      var gate = document.getElementById("betaGate");
+      var logout = document.getElementById("betaLogoutBtn");
+
+      if (app) app.style.display = "none";
+      if (landing) landing.classList.remove("show");
+      if (gate) gate.classList.remove("show");
+      if (logout) logout.classList.remove("show");
+
+      if (owner) {
+        owner.style.display = "grid";
+      } else {
+        document.body.innerHTML = "<h2 style='padding:20px;color:white'>Owner dashboard failed to load. Missing #ownerDashboard.</h2>";
+        return;
+      }
+
+      if (typeof initOwnerMode === "function") {
+        initOwnerMode();
+      }
+
+      console.log("Owner dashboard initialized");
+    } catch (err) {
+      console.error("Owner dashboard failed:", err);
+      document.body.innerHTML = "<h2 style='padding:20px;color:white'>Owner dashboard failed to load. Check console.</h2>";
+    }
+
+    return;
+  }
+
+  bootByHost();
+})();
 </script>
 </body>
 </html>
