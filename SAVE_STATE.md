@@ -1,3 +1,11 @@
+ codex/add-owner-intelligence-engine-features-hir3lm
+# Bastion Save State 2.34 — Owner Dashboard Intelligence UX Repair
+
+- Save State 2.34 active.
+- Owner Dashboard now prioritizes blockers and active work queues ahead of completed history.
+- Completed validations are collapsed by default with explicit show/hide controls.
+- Agent lifecycle visibility prevents completed findings from appearing in active queue sections.
+=======
  codex/add-owner-intelligence-engine-features-ix379a
 # Bastion Save State 2.33 — Critical Engine Regression Repair + Owner Blocker Sync
 
@@ -24,4 +32,5 @@
 - Sidebar visible save state: `Bastion Save State 2.32 — Owner Intelligence Engine`
 - Header/topbar visible save state: `Bastion Save State 2.32 keeps Dashboard output-first while making Owner Intelligence live and self-updating.`
 - File-based save state: `Bastion Save State 2.32 — Owner Intelligence Engine`
+ main
  main
