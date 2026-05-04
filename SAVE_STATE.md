@@ -1,26 +1,22 @@
-# Bastion Save State 2.25 — Decision Core
+# Bastion Save State 2.27 — Owner Dashboard Automation + UI Refresh
 
 ## Current Status
-- Local repo stable at `D:\dev\retirement-dashboard`
-- Deploy path remains root `index.html`
-- Dark UI preserved
-- Dashboard / Profile / Advisor / Scenarios / Timeline intact
-- Owner tools remain hidden unless `?owner=true`
+- Save State 2.27 active
+- Scenario Impact Engine remains active
+- Decision Core remains first visible dashboard output
 
-## Phase 2.25 — Decision Core
-- Dashboard now opens with Decision Core as the first visible output.
-- Outcome classification outputs `SAFE`, `RISK`, or `FAIL` using projection run-out age, margin, and pressure signals.
-- Decision Core highlights run-out age, primary driver, plain-English advisor insight, and recommended next action.
-- Primary driver detection now prioritizes spending pressure, low asset margin, retirement timing, tax drag, and event impact.
-- Decision Output remains visible above charts so the answer appears first.
+## Phase 2.27 — Owner Dashboard Automation + UI Refresh
+- Owner Dashboard now auto-syncs agent lifecycle status from live app state.
+- Decision, Impact, and Regression validations now auto-complete when checks are satisfied.
+- Completed validations now render in a dedicated validation log.
+- Approved queue excludes completed items and keeps queued-only work visible.
+- Added Owner Command Summary cards for save state, active phase, queue, completion count, and blockers.
+- Added explicit Parked Ideas section and cleaner split between inbox/queue/validation/parked sections.
 
 ## Save State Sync
-- Sidebar visible save state: `Bastion Save State 2.25 — Decision Core`
-- Header/topbar visible save state: `Bastion Save State 2.25 — Decision Core`
-- File-based save state: `Bastion Save State 2.25 — Decision Core`
+- Sidebar visible save state: `Bastion Save State 2.27 — Owner Dashboard Automation + UI Refresh`
+- Header/topbar visible save state: `Bastion Save State 2.27 — Owner Dashboard Automation + UI Refresh`
+- File-based save state: `Bastion Save State 2.27 — Owner Dashboard Automation + UI Refresh`
 
 ## Latest Known Phase
-- Phase 2.25 — Decision Core
-
-## Next Phase
-- Expand confidence weighting and structured report export after Decision Core stabilization.
+- Phase 2.27 — Owner Dashboard Automation + UI Refresh
