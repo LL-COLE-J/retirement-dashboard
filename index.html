@@ -14,7 +14,7 @@ window.BASTION_FIREBASE_CONFIG = {
 </script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bastion Insights - Save State 2.23</title>
+<title>Bastion Insights - Save State 2.24a</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235dd6a9'/%3E%3Cstop offset='1' stop-color='%2378a6ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M32 4 52 12v17c0 14.5-8.1 24.2-20 31C20.1 53.2 12 43.5 12 29V12z'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-size='24' font-family='Inter,Segoe UI,Arial,sans-serif' font-weight='800' fill='%2307111f'%3EB%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -215,16 +215,17 @@ button{cursor:pointer}
       <button>Scenarios</button>
       <button>Timeline</button>
       <button>Tax &amp; RMD</button>
+      <button>Reports</button>
     </nav>
-    <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.23 — Decision Engine</strong><br/><span id="phaseDesc">Decision Output and report generation are active with SAFE / RISK / FAIL run-out logic.</span></small></div>
+    <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.24a — Menu-Based Page Separation</strong><br/><span id="phaseDesc">App shell now separates output snapshots from input pages for cleaner desktop and mobile navigation.</span></small></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-      <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.23 — Decision Engine keeps dashboard output focused on the next decision.</p></div>
+      <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.24a keeps each page focused: outputs on Dashboard, inputs on Profile and Scenarios.</p></div>
       <div class="top-actions">
         <span class="pill" id="modePill">Monthly Mode</span>
-        <button class="btn secondary" onclick="toggleDecisionReport(true)">Generate Report</button>
+        <button class="btn secondary" onclick="showView('reports');toggleDecisionReport(true)">Generate Report</button>
         <button class="btn secondary" onclick="toggleDrawer(true)">Advisor Drawer</button>
         <button class="btn" onclick="saveBaseline()">Save Baseline</button>
       </div>
@@ -668,6 +669,10 @@ function renderDecisionCore(path,taxes,capturedSurplus){
   if(el('decisionKeyDriver')) el('decisionKeyDriver').textContent = biggestRisk;
   if(el('decisionNextStep')) el('decisionNextStep').textContent = nextStep;
   if(el('decisionInsightText')) el('decisionInsightText').textContent = insight;
+  if(el('reportPlanStatus')) el('reportPlanStatus').textContent = okay;
+  if(el('reportRunOut')) el('reportRunOut').textContent = runoutText;
+  if(el('reportKeyDrivers')) el('reportKeyDrivers').textContent = biggestRisk+'; monthly gap '+signedMoney(monthlyGap)+'.';
+  if(el('reportNextSteps')) el('reportNextSteps').textContent = nextStep;
   var risks = [];
   if(monthlyGap < 0) risks.push('Income after tax does not cover current spending.');
   if(path.min < 150000) risks.push('Asset cushion falls below $150k at the weakest point.');
@@ -704,6 +709,8 @@ function renderTaxRmdStrategy(path){
   if(el('withdrawalExplain')) el('withdrawalExplain').textContent='Default order uses taxable brokerage first, then traditional tax-deferred accounts, then Roth assets last to reduce lifetime tax drag and preserve tax-free growth.';
   if(el('takeMoneyWhy')) el('takeMoneyWhy').textContent='Order: Taxable ('+money(taxable)+') → Traditional ('+money(taxDeferred)+') → Roth ('+money(roth)+'). Roth IRA is excluded from lifetime owner RMD calculations.';
   if(el('taxStress')) el('taxStress').textContent='Stress test: if spending rises 15% or returns drop, RMD cash flow may push taxable income higher; scenario tools can test this directly.';
+  if(el('reportTaxNote')) el('reportTaxNote').textContent = 'Tax status: '+status+'. Filing '+(filing||'N/A')+' in '+(state||'N/A')+'; RMD assumptions start at age 73.';
+  if(el('reportNextSteps')) el('reportNextSteps').textContent = 'Review tax order, run stress scenario, then regenerate report snapshot.';
   var body=el('rmdScheduleBody'); if(!body) return;
   if(needsInput || taxDeferred<=0){ body.innerHTML='<tr><td colspan="5">Needs input</td></tr>'; return; }
   var startAge=Math.max(73,age); var bal=taxDeferred; var rows='';
@@ -728,6 +735,7 @@ function renderScenarioComparison(base,scenario){
   var primary = causes.length ? causes[0] : 'no active stress causes';
   var causeText = causes.length ? causes.join(', ') : 'none (scenario controls are off/default).';
   box.innerHTML = '<strong>Scenario Comparison</strong><br>Baseline ending path is <strong>'+money(base.ending)+'</strong>. Scenario ending path is <strong>'+money(scenario.ending)+'</strong> (<strong>'+money(diff)+'</strong> delta).<br>Primary impact: <strong>'+primary+'</strong>.<br>Active stress causes: '+causeText;
+  if(el('reportScenarioSummary')) el('reportScenarioSummary').textContent = 'Baseline '+money(base.ending)+' vs Scenario '+money(scenario.ending)+' ('+money(diff)+' delta). Primary impact: '+primary+'.';
 }
 function signedMoney(n){
   var amount = Math.round(Number(n)||0);
@@ -932,6 +940,7 @@ function setupViews(){
   var advisorView = document.createElement('section'); advisorView.id='advisorView'; advisorView.className='view';
   var timelineView = document.createElement('section'); timelineView.id='timelineView'; timelineView.className='view';
   var taxRmdView = document.createElement('section'); taxRmdView.id='taxRmdView'; taxRmdView.className='view';
+  var reportsView = document.createElement('section'); reportsView.id='reportsView'; reportsView.className='view';
 
   content.innerHTML = '';
   content.appendChild(dashboardView);
@@ -940,6 +949,7 @@ function setupViews(){
   content.appendChild(scenariosView);
   content.appendChild(timelineView);
   content.appendChild(taxRmdView);
+  content.appendChild(reportsView);
 
   var metrics1 = children[0];
   var metrics2 = children[1];
@@ -966,9 +976,6 @@ function setupViews(){
   decisionOutputCard.innerHTML = '<div class="section-head"><div><h3>Decision Output</h3><p>Advisor-grade summary for what to do next.</p></div></div><div class="grid cols-2"><div><div class="label">Plan Status</div><div class="metric small" id="decisionPlanStatus">-</div></div><div><div class="label">Run-Out Age</div><div class="metric small" id="decisionRunOutDisplay">-</div></div><div><div class="label">Confidence</div><div class="metric small" id="decisionConfidence">-</div></div><div><div class="label">Key Driver</div><div class="metric small" id="decisionKeyDriver">-</div></div></div><div class="dashboard-summary" style="margin-top:12px;"><strong>Recommended Next Step</strong><br><span id="decisionNextStep">Run model</span><br><br><strong>Advisor Insight</strong><br><span id="decisionInsightText">Run the model to generate insight.</span></div>';
   dashboardView.appendChild(decisionOutputCard);
 
-  if(metrics1) dashboardView.appendChild(metrics1);
-  if(metrics2) dashboardView.appendChild(metrics2);
-  if(metrics3) dashboardView.appendChild(metrics3);
   if(chartGrid) dashboardView.appendChild(chartGrid);
 
   var advisorSummary = document.createElement('div');
@@ -1044,6 +1051,19 @@ function setupViews(){
   timelineAdvisorCard.innerHTML = '<div class="section-head"><div><h3>Advisor Insights</h3><p>Plain-English readout from the timeline and Scenario B comparison.</p></div></div><h4 class="advisor-actions-title">Recommended Actions</h4><ul class="advisor-insights" id="timelineAdvisorInsights"></ul>';
   timelineView.appendChild(timelineAdvisorCard);
 
+  var reportsCard = document.createElement('div'); reportsCard.className='card';
+  reportsCard.innerHTML = '<div class="section-head"><div><h3>Plan Snapshot Report</h3><p>Share-ready summary of your current plan outputs.</p></div><button class="btn secondary" onclick="toggleDecisionReport(true)">Refresh Snapshot</button></div>'+
+    '<div class="grid cols-3">'+
+    '<div class="card"><div class="label">Plan Status</div><div class="metric small" id="reportPlanStatus">-</div></div>'+
+    '<div class="card"><div class="label">Run-Out Age</div><div class="metric small" id="reportRunOut">-</div></div>'+
+    '<div class="card"><div class="label">Key Drivers</div><div class="sub" id="reportKeyDrivers">Run the model to populate key drivers.</div></div>'+
+    '</div>'+
+    '<div class="dashboard-summary"><strong>Scenario Summary</strong><br><span id="reportScenarioSummary">Run Scenario A vs B to fill this snapshot section.</span><br><br><strong>Tax/RMD Note</strong><br><span id="reportTaxNote">Tax and RMD summary appears after model run.</span><br><br><strong>Recommended Next Steps</strong><br><span id="reportNextSteps">Generate report after input updates.</span></div>';
+  reportsView.appendChild(reportsCard);
+  if(metrics1) reportsView.appendChild(metrics1);
+  if(metrics2) reportsView.appendChild(metrics2);
+  if(metrics3) reportsView.appendChild(metrics3);
+
   wireNav();
 }
 function moveFieldsFromSource(sourceRoot,ids,targetId){
@@ -1059,8 +1079,8 @@ function moveFieldsFromSource(sourceRoot,ids,targetId){
 }
 function wireNav(){
   var buttons = document.querySelectorAll('.nav button');
-  var map = ['dashboard','profile','advisor','scenarios','timeline','taxRmd'];
-  var labels = ['Dashboard','Profile','Advisor','Scenarios','Timeline','Tax & RMD'];
+  var map = ['dashboard','profile','advisor','scenarios','timeline','taxRmd','reports'];
+  var labels = ['Dashboard','Profile','Advisor','Scenarios','Timeline','Tax & RMD','Reports'];
   for(var i=0;i<buttons.length;i++){
     buttons[i].textContent = labels[i] || buttons[i].textContent;
     buttons[i].setAttribute('data-view',map[i] || 'dashboard');
@@ -1069,7 +1089,7 @@ function wireNav(){
 }
 function showView(name){
   console.log("showView called:", name);
-  var ids = ['dashboard','profile','advisor','scenarios','timeline','taxRmd'];
+  var ids = ['dashboard','profile','advisor','scenarios','timeline','taxRmd','reports'];
   for(var i=0;i<ids.length;i++){
     var view = el(ids[i]+'View');
     if(view) view.classList.toggle('active',ids[i]===name);
