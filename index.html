@@ -15,6 +15,7 @@ window.BASTION_FIREBASE_CONFIG = {
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Bastion Insights - Save State 2.23</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235dd6a9'/%3E%3Cstop offset='1' stop-color='%2378a6ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M32 4 52 12v17c0 14.5-8.1 24.2-20 31C20.1 53.2 12 43.5 12 29V12z'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-size='24' font-family='Inter,Segoe UI,Arial,sans-serif' font-weight='800' fill='%2307111f'%3EB%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -58,10 +59,13 @@ button{cursor:pointer}
 }
 .brand{display:flex;align-items:center;gap:12px;margin-bottom:26px}
 .logo{
-  width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-weight:800;color:#07111f;
-  background:linear-gradient(135deg,var(--accent),#c9ffe8);box-shadow:0 12px 30px rgba(93,214,169,.25)
+  width:42px;height:42px;display:grid;place-items:center;font-weight:900;color:#07111f;
+  background:linear-gradient(135deg,var(--accent),#c9ffe8);box-shadow:0 12px 30px rgba(93,214,169,.25);
+  clip-path:polygon(50% 0,92% 16%,92% 50%,82% 75%,50% 100%,18% 75%,8% 50%,8% 16%)
 }
 .brand h1{font-size:18px;line-height:1.05;margin:0}.brand span{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+.brand-text{min-width:0}
+.brand-text h1{white-space:nowrap}
 .nav{display:grid;gap:8px}.nav button{
   width:100%;text-align:left;border:1px solid transparent;background:transparent;color:var(--muted);
   padding:12px 12px;border-radius:14px;font-weight:600
@@ -126,8 +130,7 @@ button{cursor:pointer}
 .landing-shell{max-width:1180px;width:100%;margin:0 auto;display:grid;gap:28px}
 .landing-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .landing-brand{display:inline-flex;align-items:center;gap:10px;font-weight:900;color:#12284a;font-size:20px;letter-spacing:-.02em}
-.landing-brand img{width:36px;height:36px;border-radius:10px;object-fit:cover}
-.landing-brand-mark{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:#12284a;color:#fff;font-size:19px}
+.landing-brand-mark{width:36px;height:36px;display:grid;place-items:center;background:#12284a;color:#fff;font-size:19px;font-weight:900;clip-path:polygon(50% 0,92% 16%,92% 50%,82% 75%,50% 100%,18% 75%,8% 50%,8% 16%)}
 .landing-badge{display:inline-flex;padding:7px 12px;border-radius:999px;border:1px solid #cad8f2;background:#fff;color:#334f7d;font-size:11px;font-weight:900;letter-spacing:.08em}
 .landing-main{display:grid;grid-template-columns:1.05fr .95fr;gap:26px;align-items:center}
 .landing-left h1{margin:0;font-size:56px;line-height:1.04;letter-spacing:-.03em;color:#0f1f3d}
@@ -149,7 +152,7 @@ button{cursor:pointer}
 .mock-metric b{display:block;color:#0f1f3d;font-size:19px;margin-top:4px}
 .mock-footer{margin-top:12px;border:1px solid #e1e9f8;background:#f9fbff;border-radius:12px;padding:12px;font-size:12px;color:#435f8f;line-height:1.45}
 @media(max-width:1100px){.landing-main{grid-template-columns:1fr}.landing-left h1{font-size:46px}}
-@media(max-width:760px){.domain-landing{padding:26px 14px}.landing-top{align-items:flex-start;flex-direction:column}.landing-left h1{font-size:35px}.landing-left p{font-size:16px}.landing-trust{grid-template-columns:1fr}}
+@media(max-width:760px){.domain-landing{padding:26px 14px}.landing-top{align-items:flex-start;flex-direction:column}.landing-left h1{font-size:35px}.landing-left p{font-size:16px}.landing-trust{grid-template-columns:1fr}.brand-text .brand-name{font-size:16px}}
 .beta-gate{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(5,10,20,.86);backdrop-filter:blur(8px)}
 .beta-gate.show{display:flex}
 .beta-gate-card{width:min(460px,100%);border:1px solid rgba(255,255,255,.1);border-radius:20px;background:#0d1b2f;padding:22px;box-shadow:var(--shadow)}
@@ -168,9 +171,8 @@ button{cursor:pointer}
   <div class="landing-shell">
     <div class="landing-top">
       <div class="landing-brand">
-        <img src="logo.png" alt="Bastion logo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';">
-        <span class="landing-brand-mark" style="display:none;">B</span>
-        <span>Bastion</span>
+        <span class="landing-brand-mark" aria-hidden="true">B</span>
+        <span>Bastion Insight</span>
       </div>
       <span class="landing-badge">CLARITY. PROTECTION. CONFIDENCE.</span>
     </div>
@@ -204,7 +206,7 @@ button{cursor:pointer}
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="logo">B</div><div><h1>Bastion</h1><span>Inputs define the path.</span></div></div>
+    <div class="brand"><div class="logo" aria-hidden="true">B</div><div class="brand-text"><h1 class="brand-name">Bastion Insight</h1><span>Inputs define the path.</span></div></div>
     <nav class="nav">
       <button class="active">Dashboard</button>
       <button>Profile</button>
