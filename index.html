@@ -15,7 +15,7 @@ window.BASTION_FIREBASE_CONFIG = {
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
  codex/implement-scenario-impact-engine-1iv7x1
-<title>Bastion Insights - Save State 2.27</title>
+<title>Bastion Insights - Save State 2.28</title>
 =======
 <title>Bastion Insights - Save State 2.26</title>
  main
@@ -222,7 +222,7 @@ button{cursor:pointer}
       <button>Reports</button>
     </nav>
  codex/implement-scenario-impact-engine-1iv7x1
-    <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.27 — Scenario Impact Engine</strong><br/><span id="phaseDesc">Owner dashboard automation and validation flow are synced for Phase 2.27.</span></small></div>
+    <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.28 — Scenario Impact Engine</strong><br/><span id="phaseDesc">Owner dashboard automation and validation flow are synced for Phase 2.28.</span></small></div>
 =======
     <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.26 — Scenario Impact Engine</strong><br/><span id="phaseDesc">Scenario Impact Engine adds real-time run-out delta, decision shift detection, and If You Do This guidance.</span></small></div>
  main
@@ -231,7 +231,7 @@ button{cursor:pointer}
   <main class="main">
     <header class="topbar">
  codex/implement-scenario-impact-engine-1iv7x1
-      <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.27 keeps each page focused: outputs on Dashboard, inputs on Profile and Scenarios.</p></div>
+      <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.28 keeps each page focused: outputs on Dashboard, inputs on Profile and Scenarios.</p></div>
 =======
       <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.26 keeps each page focused: outputs on Dashboard, inputs on Profile and Scenarios.</p></div>
  main
@@ -319,7 +319,7 @@ button{cursor:pointer}
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><h2>Bastion Advisor</h2><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Bastion Save State 2.23 readout:</strong></p>
+  <p><strong>Bastion Save State 2.28 readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
@@ -329,14 +329,14 @@ button{cursor:pointer}
       <h1>Bastion Owner Command Center</h1>
       <p>Agent feedback, product intelligence, and build opportunities.</p>
     </div>
-    <div class="owner-badge">Bastion Save State 2.27</div>
+    <div class="owner-badge">Bastion Save State 2.28</div>
   </header>
 
   <section class="owner-section">
     <h2>Owner Command Summary</h2>
     <div class="owner-report-grid">
       <div class="owner-report-field"><span>Current Save State</span><strong id="ownerSummarySaveState">2.27</strong></div>
-      <div class="owner-report-field"><span>Active Phase</span><strong id="ownerSummaryPhase">2.27 Owner Dashboard Automation + UI Refresh</strong></div>
+      <div class="owner-report-field"><span>Active Phase</span><strong id="ownerSummaryPhase">2.28 User Input Logic Expansion + UI Structure Upgrade</strong></div>
       <div class="owner-report-field"><span>Queued Agent Items</span><strong id="ownerSummaryQueued">0</strong></div>
       <div class="owner-report-field"><span>Completed Validations</span><strong id="ownerSummaryCompleted">0</strong></div>
       <div class="owner-report-field"><span>Warnings / Blockers</span><strong id="ownerSummaryWarnings">0</strong></div>
@@ -1092,6 +1092,7 @@ function setupViews(){
   var assumptionIds = ['currentSpend','retireSpend','captureRate','inflationRate','returnProfile','invested','cash','debt'];
   moveFieldsFromSource(coreCard,profileIds,'profileFields');
   moveFieldsFromSource(coreCard,assumptionIds,'assumptionFields');
+  buildPhase228InputExpansion();
 
   if(eventsCard) scenariosView.appendChild(eventsCard);
   if(tweakCard) scenariosView.appendChild(tweakCard);
@@ -1170,6 +1171,28 @@ function moveFieldsFromSource(sourceRoot,ids,targetId){
     }
   }
 }
+function buildPhase228InputExpansion(){
+  var profileFields = el('profileFields');
+  var assumptionsFields = el('assumptionFields');
+  if(!profileFields || !assumptionsFields) return;
+  var household=document.createElement('div'); household.className='sub-card';
+  household.innerHTML='<h4>Household</h4><div class="input-stack"><div class="compact-grid" id="householdPrimary"></div><details><summary>Add Partner</summary><div class="compact-grid" id="householdPartner" style="margin-top:10px"><div class="field"><label>Partner Age</label><input id="partnerAge" type="number" value="0" oninput="commit()"></div><div class="field"><label>Partner Retirement Age</label><input id="partnerRetireAge" type="number" value="67" oninput="commit()"></div><div class="field"><label>Partner Income</label><input id="partnerIncome" type="number" value="0" oninput="commit()"></div><div class="field"><label>Partner SS Estimate</label><input id="partnerSs" type="number" value="0" oninput="commit()"></div><div class="field"><label>Partner Pension</label><input id="partnerPension" type="number" value="0" oninput="commit()"></div></div></details></div>';
+  profileFields.prepend(household);
+  var primary=household.querySelector('#householdPrimary'); ['age','retireAge','income1','income2','income2RetireAge'].forEach(function(id){ var n=el(id); if(n){ var f=n.closest('.field'); if(f) primary.appendChild(f);} });
+
+  var incomeCard=document.createElement('div'); incomeCard.className='sub-card'; incomeCard.innerHTML='<h4>Income (Multi-Stream)</h4><div class="inline-actions"><button class="btn secondary" onclick="addStreamCard()">Add Income Stream</button></div><div id="incomeStreamList" class="mini-list"></div>'; profileFields.appendChild(incomeCard);
+  var retireIncome=document.createElement('div'); retireIncome.className='sub-card'; retireIncome.innerHTML='<h4>Retirement Income</h4><div class="compact-grid"><div class="field"><label>SS Start Age</label><input id="ssStartAge" type="number" value="67" oninput="commit()"></div><div class="field"><label>SS Monthly</label><input id="ssMonthly" type="number" value="0" oninput="commit()"></div><div class="field"><label>Pension Start Age</label><input id="pensionStartAge" type="number" value="65" oninput="commit()"></div><div class="field"><label>Pension Monthly</label><input id="pensionMonthly" type="number" value="0" oninput="commit()"></div></div><div class="toggle-line"><span>Inflation Adjusted</span><input id="retIncomeInflation" type="checkbox" onchange="commit()"></div>'; profileFields.appendChild(retireIncome);
+  var loc=document.createElement('div'); loc.className='sub-card'; loc.innerHTML='<h4>Location</h4><div class="compact-grid"></div>'; profileFields.appendChild(loc); ['taxState','filingStatus'].forEach(function(id){var n=el(id); if(n){var f=n.closest('.field'); if(f) loc.querySelector('.compact-grid').appendChild(f);}});
+
+  var exp=document.createElement('div'); exp.className='sub-card'; exp.innerHTML='<h4>Expenses</h4><div class="compact-grid" id="expenseFields"></div><div class="toggle-line"><span>Long-Term Care Scenario</span><input id="ltcToggle" type="checkbox" onchange="commit()"></div>'; assumptionsFields.prepend(exp); ['currentSpend','retireSpend'].forEach(function(id){var n=el(id); if(n){var f=n.closest('.field'); if(f) exp.querySelector('#expenseFields').appendChild(f);}});
+  var hc=document.createElement('div'); hc.className='field'; hc.innerHTML='<label>Healthcare Monthly Cost</label><input id="healthcareCost" type="number" value="0" oninput="commit()">'; exp.querySelector('#expenseFields').appendChild(hc);
+  var debts=document.createElement('div'); debts.className='sub-card'; debts.innerHTML='<h4>Debts</h4><div class="inline-actions"><button class="btn secondary" onclick="addDebtCard()">Add Debt</button></div><div id="debtList" class="mini-list"></div>'; assumptionsFields.appendChild(debts);
+  var eventsBuilder=document.createElement('div'); eventsBuilder.className='sub-card'; eventsBuilder.innerHTML='<h4>Life Events Builder</h4><div class="inline-actions"><button class="btn secondary" onclick="addLifeEventBuilder()">Add Event</button></div><div id="lifeEventList" class="mini-list"></div>'; assumptionsFields.appendChild(eventsBuilder);
+  if(!el('incomeStreamList').children.length) addStreamCard(); if(!el('debtList').children.length) addDebtCard(); if(!el('lifeEventList').children.length) addLifeEventBuilder();
+}
+function addStreamCard(){var list=el('incomeStreamList'); if(!list) return; var i=list.children.length+1; var d=document.createElement('div'); d.className='card'; d.innerHTML='<div class="compact-grid"><div class="field"><label>Label</label><input value="Income Stream '+i+'" oninput="commit()"></div><div class="field"><label>Amount</label><input type="number" value="0" oninput="commit()"></div><div class="field"><label>Start Age</label><input type="number" value="40" oninput="commit()"></div><div class="field"><label>End Age</label><input type="number" value="65" oninput="commit()"></div><div class="field"><label>Growth Rate %</label><input type="number" value="0" oninput="commit()"></div></div>'; list.appendChild(d);}
+function addDebtCard(){var list=el('debtList'); if(!list) return; var d=document.createElement('div'); d.className='card'; d.innerHTML='<div class="compact-grid"><div class="field"><label>Debt Type</label><input value="Mortgage" oninput="commit()"></div><div class="field"><label>Balance</label><input type="number" value="0" oninput="commit()"></div><div class="field"><label>Rate %</label><input type="number" value="0" oninput="commit()"></div><div class="field"><label>Payment</label><input type="number" value="0" oninput="commit()"></div><div class="field"><label>Payoff Timeline (years)</label><input type="number" value="0" oninput="commit()"></div></div>'; list.appendChild(d);}
+function addLifeEventBuilder(){var list=el('lifeEventList'); if(!list) return; var d=document.createElement('div'); d.className='card'; d.innerHTML='<div class="compact-grid"><div class="field"><label>Type</label><select onchange="commit()"><option>income</option><option>expense</option><option>asset</option><option>shock</option></select></div><div class="field"><label>Start Age</label><input type="number" value="65" oninput="commit()"></div><div class="field"><label>Duration (years)</label><input type="number" value="1" oninput="commit()"></div><div class="field"><label>Amount</label><input type="number" value="0" oninput="commit()"></div></div>'; list.appendChild(d);}
 function wireNav(){
   var buttons = document.querySelectorAll('.nav button');
   var map = ['dashboard','profile','advisor','scenarios','timeline','taxRmd','reports'];
@@ -1337,7 +1360,7 @@ function renderOwnerSummaryCards(){
   var queued = ownerFeedback.filter(function(i){ return i.status==='Approved' || i.status==='Queued'; }).length;
   var completed = ownerFeedback.filter(function(i){ return i.status==='Completed'; }).length;
   var warnings = ownerFeedback.filter(function(i){ return i.status==='Rejected'; }).length;
-  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent='Bastion Save State 2.27';
+  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent='Bastion Save State 2.28';
   if(el('ownerSummaryQueued')) el('ownerSummaryQueued').textContent=String(queued);
   if(el('ownerSummaryCompleted')) el('ownerSummaryCompleted').textContent=String(completed);
   if(el('ownerSummaryWarnings')) el('ownerSummaryWarnings').textContent=String(warnings);
