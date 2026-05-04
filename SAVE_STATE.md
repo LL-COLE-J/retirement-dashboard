@@ -1,3 +1,12 @@
+ codex/add-owner-intelligence-engine-features-ix379a
+# Bastion Save State 2.33 — Critical Engine Regression Repair + Owner Blocker Sync
+
+- Save State 2.33 active.
+- Projection math/state flow repaired to prevent false run-out defaults and stale outcomes.
+- Save Baseline now persists a metrics snapshot and inputs snapshot for scenario deltas.
+- Advisor Drawer now stays compact and links to full Advisor page.
+- Owner Dashboard now surfaces blocker rows for engine, baseline, drawer, and owner-intelligence validation failures.
+=======
 # Bastion Save State 2.32 — Owner Intelligence Engine
 
 - Save State 2.32 active.
@@ -15,3 +24,4 @@
 - Sidebar visible save state: `Bastion Save State 2.32 — Owner Intelligence Engine`
 - Header/topbar visible save state: `Bastion Save State 2.32 keeps Dashboard output-first while making Owner Intelligence live and self-updating.`
 - File-based save state: `Bastion Save State 2.32 — Owner Intelligence Engine`
+ main
