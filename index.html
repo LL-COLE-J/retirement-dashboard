@@ -1088,6 +1088,7 @@ function wireNav(){
   }
 }
 function showView(name){
+  if(document.body.classList.contains('owner-mode')) return;
   console.log("showView called:", name);
   var ids = ['dashboard','profile','advisor','scenarios','timeline','taxRmd','reports'];
   for(var i=0;i<ids.length;i++){
@@ -1330,12 +1331,22 @@ function generateOwnerTestReport(){
 function initOwnerMode(){
   if(!isOwnerMode()) return;
   document.body.classList.add('owner-mode');
-  loadOwnerFeedbackStatus();
-  renderOwnerFeedback();
-  renderOwnerBuildQueue();
-  loadOwnerDailyReport();
+  var ownerDash = document.getElementById('ownerDashboard');
+  var appShell = document.querySelector('.app');
+  if(ownerDash) ownerDash.style.display='grid';
+  if(appShell) appShell.style.display='none';
+  try{
+    loadOwnerFeedbackStatus();
+    renderOwnerFeedback();
+    renderOwnerBuildQueue();
+    loadOwnerDailyReport();
+    console.log("Owner dashboard initialized");
+  }catch(error){
+    if(ownerDash) ownerDash.innerHTML='<div class="card"><h3>Owner dashboard failed to load. Check console.</h3></div>';
+    console.error('Owner dashboard initialization failed', error);
+  }
 }
-function init(){ loadState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; } setupViews(); syncModeUI(); renderEvents(); commit(); initOwnerMode(); }
+function init(){ loadState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; } setupViews(); syncModeUI(); renderEvents(); commit(); }
 console.log("Bastion Tax & RMD clickfix deployed: 2.23-rmd-clickfix");
 
 var BETA_SESSION_KEY='bastion_beta_session_v1';
@@ -1365,6 +1376,16 @@ function bootByHost(){
   var landing=document.getElementById('domainLanding');
   var gate=document.getElementById('betaGate');
   var logoutBtn=document.getElementById('betaLogoutBtn');
+  if(isOwnerMode()){
+    console.log("Bastion owner mode requested");
+    landing.classList.remove('show');
+    gate.classList.remove('show');
+    logoutBtn.classList.remove('show');
+    setAppVisibility(true);
+    startBastionApp();
+    initOwnerMode();
+    return;
+  }
   if(isPublicHost(host)){ landing.classList.add('show'); setAppVisibility(false); gate.classList.remove('show'); logoutBtn.classList.remove('show'); return; }
   landing.classList.remove('show');
   if(isPagesDevHost(host)){ setAppVisibility(true); gate.classList.remove('show'); logoutBtn.classList.remove('show'); startBastionApp(); return; }
