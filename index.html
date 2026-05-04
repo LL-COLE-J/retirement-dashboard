@@ -14,11 +14,7 @@ window.BASTION_FIREBASE_CONFIG = {
 </script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
- codex/integrate-household-and-life-event-inputs-3o7kkp
-<title>Bastion Insights - Save State 2.30</title>
-=======
-<title>Bastion Insights - Save State 2.29</title>
- main
+<title>Bastion Insights - Save State 2.31</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235dd6a9'/%3E%3Cstop offset='1' stop-color='%2378a6ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M32 4 52 12v17c0 14.5-8.1 24.2-20 31C20.1 53.2 12 43.5 12 29V12z'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-size='24' font-family='Inter,Segoe UI,Arial,sans-serif' font-weight='800' fill='%2307111f'%3EB%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -222,20 +218,12 @@ button{cursor:pointer}
       <button>Tax &amp; RMD</button>
       <button>Reports</button>
     </nav>
- codex/integrate-household-and-life-event-inputs-3o7kkp
-    <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.30 — Owner Dashboard Agent Lifecycle Cleanup</strong><br/><span id="phaseDesc">Household, income streams, debt, and event engines now materially drive Decision Core outcomes.</span></small></div>
-=======
-    <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.29 — Household + Life Event Decision Integration</strong><br/><span id="phaseDesc">Household, income streams, debt, and event engines now materially drive Decision Core outcomes.</span></small></div>
- main
+     <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.31 — Advisor Engine v2 + UX Clarity Layer</strong><br/><span id="phaseDesc">Advisor explanations, Profile setup clarity, and Tax/RMD action guidance now lead with plain-English decisions.</span></small></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
- codex/integrate-household-and-life-event-inputs-3o7kkp
-      <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.30 keeps Dashboard output-first while Profile/Assumptions drive Decision Core projections.</p></div>
-=======
-      <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.29 keeps Dashboard output-first while Profile/Assumptions drive Decision Core projections.</p></div>
- main
+       <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.31 keeps Dashboard output-first while adding clearer Advisor, Profile, and Tax/RMD guidance.</p></div>
       <div class="top-actions">
         <span class="pill" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="showView('reports');toggleDecisionReport(true)">Generate Report</button>
@@ -320,7 +308,7 @@ button{cursor:pointer}
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><h2>Bastion Advisor</h2><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Bastion Save State 2.30 readout:</strong></p>
+  <p><strong>Bastion Save State 2.31 readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
@@ -330,14 +318,14 @@ button{cursor:pointer}
       <h1>Bastion Owner Command Center</h1>
       <p>Agent feedback, product intelligence, and build opportunities.</p>
     </div>
-    <div class="owner-badge">Bastion Save State 2.30</div>
+    <div class="owner-badge">Bastion Save State 2.31</div>
   </header>
 
   <section class="owner-section">
     <h2>Owner Command Summary</h2>
     <div class="owner-report-grid">
       <div class="owner-report-field"><span>Current Save State</span><strong id="ownerSummarySaveState">2.27</strong></div>
-      <div class="owner-report-field"><span>Active Phase</span><strong id="ownerSummaryPhase">2.30 Owner Dashboard Agent Lifecycle Cleanup</strong></div>
+      <div class="owner-report-field"><span>Active Phase</span><strong id="ownerSummaryPhase">2.31 Advisor Engine v2 + UX Clarity Layer</strong></div>
       <div class="owner-report-field"><span>Queued Agent Items</span><strong id="ownerSummaryQueued">0</strong></div>
       <div class="owner-report-field"><span>Completed Validations</span><strong id="ownerSummaryCompleted">0</strong></div>
       <div class="owner-report-field"><span>Warnings / Blockers</span><strong id="ownerSummaryWarnings">0</strong></div>
@@ -801,7 +789,10 @@ function renderTaxRmdStrategy(path){
   var lifetimeTaxes = yearlyBaseTax * Math.max(1,(95-age));
   if(el('lifetimeTaxMetric')) el('lifetimeTaxMetric').textContent=money(lifetimeTaxes);
   var optimized = lifetimeTaxes*0.92;
-  if(el('taxImpactComparison')) el('taxImpactComparison').textContent='Impact comparison: optimized '+money(optimized)+' vs simple '+money(lifetimeTaxes)+'.';
+  if(el('taxImpactComparison')) el('taxImpactComparison').textContent='Recommended withdrawal order: Taxable → Traditional → Roth. Estimated optimization: '+money(lifetimeTaxes-optimized)+'.';
+  if(el('taxMeaning')) el('taxMeaning').textContent = needsInput ? 'Bastion needs account balances and retirement income assumptions to make this stronger.' : 'Your plan appears '+(status.toLowerCase())+'. Withdrawal order matters because it can reduce lifetime taxes and keep flexibility for high-expense years.';
+  if(el('taxRiskAreas')) el('taxRiskAreas').textContent = 'Risk can appear from high spending, large tax-deferred balances, delayed RMD pressure, healthcare shocks, and taxable-income spikes.';
+  if(el('taxNextMove')) el('taxNextMove').textContent = needsInput ? 'Add missing account balances and retirement income assumptions.' : (taxDeferred>taxable ? 'Test a Roth conversion scenario and review RMD start assumptions.' : 'Use taxable assets first and monitor annual tax brackets.');
   if(el('withdrawalExplain')) el('withdrawalExplain').textContent='Default order uses taxable brokerage first, then traditional tax-deferred accounts, then Roth assets last to reduce lifetime tax drag and preserve tax-free growth.';
   if(el('takeMoneyWhy')) el('takeMoneyWhy').textContent='Order: Taxable ('+money(taxable)+') → Traditional ('+money(taxDeferred)+') → Roth ('+money(roth)+'). Roth IRA is excluded from lifetime owner RMD calculations.';
   if(el('taxStress')) el('taxStress').textContent='Stress test: if spending rises 15% or returns drop, RMD cash flow may push taxable income higher; scenario tools can test this directly.';
@@ -820,7 +811,7 @@ function commit(){
   el('pathStatus').textContent=status; el('pathStatus').className='metric '+cls; el('statusFill').style.width=score+'%';
   el('pathSummary').textContent='Projected ending path: '+money(withEvents.ending)+'. Reality drag included: tax, inflation, returns, and '+Math.round(captureRate()*100)+'% surplus capture.';
   el('startingNetWorthMetric').textContent=money(startingNetWorth); el('grossIncomeMetric').textContent=money(taxes.income); el('taxEstimateMetric').textContent=money(taxes.total); el('annualSurplusMetric').textContent=money(capturedSurplus); el('endingPathMetric').textContent=money(withEvents.ending); el('minPathMetric').textContent=money(withEvents.min); el('currentSpendMetric').textContent=money(num('currentSpend')); el('retireSpendMetric').textContent=money(num('retireSpend')); el('eventImpactMetric').textContent=money(eventImpactNow());
-  renderDecisionCore(withEvents,taxes,capturedSurplus); renderChart(withoutEvents,withEvents); renderChanges(); renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus); renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus); renderTimeline(); renderTaxRmdStrategy(withEvents); saveState();
+  renderDecisionCore(withEvents,taxes,capturedSurplus); renderChart(withoutEvents,withEvents); renderChanges(); renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus); renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus); renderTimeline(); renderTaxRmdStrategy(withEvents); renderPlanSetupSummary(); saveState();
   renderScenarioComparison(withoutEvents,withEvents);
 }
 function renderScenarioComparison(base,scenario){
@@ -991,20 +982,22 @@ function renderTimeline(){
 function renderChart(base,eventsPath){ var ctx=el('pathChart'); if(chart) chart.destroy(); chart=new Chart(ctx,{type:'line',data:{labels:base.labels,datasets:[{label:'Before Events',data:base.values,tension:.3,borderWidth:2,pointRadius:0},{label:'After Events',data:eventsPath.values,tension:.3,borderWidth:3,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#bdc8d8'}}},scales:{x:{ticks:{color:'#97a6ba'},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'#97a6ba',callback:function(v){return '$'+Math.round(v/1000)+'k';}},grid:{color:'rgba(255,255,255,.06)'}}}}}); }
 function hasEventType(type){ for(var i=0;i<events.length;i++){ if(events[i].type===type) return true; } return false; }
 function renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus){
-  var diff=withEvents.ending-withoutEvents.ending; var stateCode=TAX_CODES.STATE_SIMPLE[taxes.state]||TAX_CODES.STATE_SIMPLE.TN; var items=[];
-  items.push('Household gross income is <strong>'+money(taxes.income)+'</strong>. Estimated federal/state/local tax drag is <strong>'+money(taxes.total)+'</strong> per year.');
-  items.push('Modeled investable surplus after tax, spend, and capture rate is <strong>'+money(capturedSurplus)+'</strong>.');
-  items.push('Income 1 is modeled until age <strong>'+num('retireAge')+'</strong>. Income 2 is modeled until age <strong>'+num('income2RetireAge')+'</strong>.');
-  items.push('Reality assumptions: <strong>'+Math.round(captureRate()*100)+'%</strong> surplus capture, <strong>'+num('inflationRate')+'%</strong> inflation, and <strong>'+val('returnProfile')+'</strong> return profile.');
-  items.push('State logic loaded: <strong>'+stateCode.name+'</strong>. '+stateCode.note);
-  if(hasEventType('medical_care')) items.push('Medical / long-term care scenario is active and applies as a recurring expense during the selected years.');
-  if(hasEventType('pass_away')) items.push('Pass-away scenario is active. V1 reduces household spend by 25% after the selected age; later versions should ask survivor income, Social Security survivor benefit, insurance, estate settlement, and filing-status transition.');
-  items.push('Life events shift the modeled ending path by <strong>'+money(diff)+'</strong>.');
-  items.push('Next: dedicated Household Agent + Tax Jurisdiction Agent so Bastion can capture spouse timing, survivor scenarios, medical care, and location-specific tax rules cleanly.');
+  var status=(el('decisionStatus')&&el('decisionStatus').textContent)||'RISK';
+  var runout=(el('runoutAge')&&el('runoutAge').textContent)||'Not available';
+  var annualRetire=annualSpendValue('retireSpend');
+  var driver = annualRetire>taxes.income ? 'annual retirement spending is high relative to projected income' : (num('debt')>0 ? 'debt payments are consuming cash flow' : 'inflation and tax drag reduce investable surplus');
+  var nextAction = annualRetire>taxes.income ? 'Reduce retirement spending or delay retirement by 1-2 years.' : (num('debt')>0 ? 'Prioritize debt payoff to improve future cash flow.' : 'Run Scenario B with a later retirement age and lower spending.');
+  var items=[];
+  items.push('<strong>Plan Diagnosis:</strong> Your plan is '+status+' with run-out age '+runout+'.');
+  items.push('<strong>Primary Risk Driver:</strong> '+driver+'.');
+  items.push('<strong>Impact Explanation:</strong> Life events and assumptions shift the ending path by '+money(withEvents.ending-withoutEvents.ending)+'.');
+  items.push('<strong>Recommended Next Action:</strong> '+nextAction);
+  items.push('Context: gross income '+money(taxes.income)+', taxes '+money(taxes.total)+', retirement spend '+money(annualRetire)+', debt '+money(num('debt'))+'.');
+  items.push('Healthcare/LTC toggle '+(el('ltcToggle')&&el('ltcToggle').checked?'is ON and can create late-life pressure.':'is OFF in the current profile.'));
   var html=''; for(var i=0;i<items.length;i++){ html+='<li>'+items[i]+'</li>'; }
   el('advisorList').innerHTML=html;
   if(el('advisorPageList')) el('advisorPageList').innerHTML=html;
-  if(el('advisorSummary')) el('advisorSummary').innerHTML='<strong>Advisor Summary</strong><br>'+items[0]+'<br>'+items[1];
+  if(el('advisorSummary')) el('advisorSummary').innerHTML='<strong>Advisor Engine v2 (Compact)</strong><br>'+items[0]+'<br>'+items[3];
 }
 function snapshot(){ return readState(); } function saveBaseline(){ baseline=snapshot(); saveState(); renderChanges(); } function clearBaseline(){ baseline=null; saveState(); renderChanges(); }
 function renderChanges(){
@@ -1014,6 +1007,14 @@ function renderChanges(){
   var eventDelta=now.events.length-(baseline.events?baseline.events.length:0); if(eventDelta) rows.push(['Life Event Count',eventDelta]);
   if(!rows.length){ box.innerHTML='<div class="empty">No changes from saved baseline.</div>'; return; }
   var html=''; for(var r=0;r<rows.length;r++){ var rowLabel=rows[r][0]; var rowDelta=rows[r][1]; var value=(rowLabel.indexOf('Rate')>=0)?rowDelta.toFixed(2)+'%':(typeof rowDelta==='number'&&rowLabel!=='Life Event Count'?money(rowDelta):rowDelta); html+='<div class="changed-item"><span>'+rowLabel+'</span><span class="'+(rowDelta>=0?'good':'bad-text')+'">'+value+'</span></div>'; } box.innerHTML=html;
+}
+function renderPlanSetupSummary(){
+  var box=el('planSetupSummary'); if(!box) return;
+  var incomes=(num('income1')>0?1:0)+(num('income2')>0?1:0);
+  var debtCount=(window.structuredDebts&&structuredDebts.length)||0;
+  var activeEvents=(events||[]).length;
+  var partner=(num('partnerAge')||0)>0;
+  box.innerHTML='<strong>Your Plan Setup</strong><br>Household type: '+(partner?'Couple':'Single')+' • Current age(s): '+num('age')+(partner?(' / '+num('partnerAge')):'')+' • Retirement target age(s): '+num('retireAge')+(partner?(' / '+num('partnerRetireAge')):'')+'<br>Income count: '+incomes+' • Monthly spending: '+money(num('currentSpend'))+' • Active debts: '+debtCount+' • Active life events: '+activeEvents+'<br>Location / filing status: '+(val('taxState')||'N/A')+' / '+(val('filingStatus')||'N/A');
 }
 function syncModeUI(){
   if(el('monthlyBtn')) el('monthlyBtn').classList.toggle('active',mode==='monthly');
@@ -1079,14 +1080,14 @@ function setupViews(){
   var advisorSummary = document.createElement('div');
   advisorSummary.className = 'dashboard-summary';
   advisorSummary.id = 'advisorSummary';
-  advisorSummary.innerHTML = '<strong>Advisor Summary</strong><br>Run the model to generate insight.';
+  advisorSummary.innerHTML = '<strong>Advisor Engine v2 (Compact)</strong><br><span id="advisorCompact">Run the model to generate plan diagnosis and next action.</span>';
   dashboardView.appendChild(advisorSummary);
 
   var coreCard = coreGrid ? coreGrid.children[0] : null;
   var tweakCard = coreGrid ? coreGrid.children[1] : null;
 
   var profileCard = document.createElement('div'); profileCard.className='card';
-  profileCard.innerHTML = '<div class="section-head"><div><h3>Profile</h3><p>Household, income timing, filing status, and tax location.</p></div></div><div class="form-grid" id="profileFields"></div>';
+  profileCard.innerHTML = '<div class="section-head"><div><h3>Profile</h3><p>Your Plan Setup and profile structure.</p></div></div><div id="planSetupSummary" class="dashboard-summary" style="margin-bottom:10px">Plan setup appears after model run.</div><div class="form-grid" id="profileFields"></div>';
   profileView.appendChild(profileCard);
 
   var assumptionsCard = document.createElement('div'); assumptionsCard.className='card';
@@ -1115,11 +1116,14 @@ function setupViews(){
     '</div><div class="sub" id="scenarioComparison">Scenario comparison will update after projection run.</div>';
   scenariosView.appendChild(phase210Card);
   var taxCard = document.createElement('div'); taxCard.className='tax-page'; taxCard.id='taxRmdPage';
-  taxCard.innerHTML = '<div class="tax-header"><div><div class="tax-pill">Tax & RMD page active — 2.23-final-ui</div><h3>Tax & RMD Strategy</h3><p>Lightweight tax-planning view for compliance, withdrawal order, and stress-tested downside.</p></div><span class="tax-pill">Save State 2.23</span></div>'+
+  taxCard.innerHTML = '<div class="tax-header"><div><div class="tax-pill">Tax & RMD clarity layer active — 2.31</div><h3>Your Withdrawal Plan</h3><p>Lightweight tax-planning view for compliance, withdrawal order, and stress-tested downside.</p></div><span class="tax-pill">Save State 2.31</span></div>'+
     '<div class="tax-grid cols-2">'+
-    '<div class="tax-card"><h4>Tax & RMD Status</h4><div class="tax-metric tax-good" id="taxComplianceStatus">COMPLIANT</div><div class="tax-muted" id="taxComplianceNote">Needs input for exact compliance confidence and rule validation.</div></div>'+
-    '<div class="tax-card"><h4>Estimated Lifetime Taxes</h4><div class="tax-metric" id="lifetimeTaxMetric">Needs input</div><div class="tax-chart-shell"><div class="tax-chart-bars"><i style="height:24%"></i><i style="height:34%"></i><i style="height:48%"></i><i style="height:58%"></i><i style="height:72%"></i><i style="height:86%"></i></div></div><div class="tax-muted" id="taxImpactComparison">Impact comparison appears after projection.</div></div>'+
+    '<div class="tax-card"><h4>Status</h4><div class="tax-metric tax-good" id="taxComplianceStatus">ON TRACK</div><div class="tax-muted" id="taxComplianceNote">One-line reason appears after projection.</div></div>'+
+    '<div class="tax-card"><h4>Estimated Lifetime Taxes</h4><div class="tax-metric" id="lifetimeTaxMetric">Needs input</div><div class="tax-muted" id="taxImpactComparison">Withdrawal order recommendation appears after projection.</div></div>'+
     '</div>'+
+    '<div class="tax-card"><h4>What this means for you</h4><div class="tax-muted" id="taxMeaning">Run the model for a plain-English summary.</div></div>'+
+    '<div class="tax-card"><h4>Where risk could appear</h4><div class="tax-muted" id="taxRiskAreas">Risk areas appear after projection.</div></div>'+
+    '<div class="tax-card"><h4>Your next best move</h4><div class="tax-muted" id="taxNextMove">Run the model to get one action-focused recommendation.</div></div>'+
     '<div class="tax-card"><h4>Withdrawal Strategy</h4><div class="tax-step-row"><div class="tax-step"><span>Step 1</span><strong>Taxable first</strong><div class="tax-muted">Use brokerage assets first to manage bracket creep.</div></div><div class="tax-step"><span>Step 2</span><strong>Tax-deferred second</strong><div class="tax-muted">Pull traditional balances to satisfy RMD and control taxes.</div></div><div class="tax-step"><span>Step 3</span><strong>Roth last</strong><div class="tax-muted">Preserve tax-free growth for flexibility and legacy.</div></div></div></div>'+
     '<div class="tax-grid cols-2">'+
     '<div class="tax-card"><h4>RMD Education</h4><div class="tax-muted">Required Minimum Distributions (RMDs) begin at age 73 for most tax-deferred accounts. Missing required distributions can create penalty risk.</div></div>'+
@@ -1343,7 +1347,7 @@ function autoSyncOwnerAgents(){
   }
   if(ownerRegressionPassing()){
     markAgentCompleted('REGRESSION_AGENT');
-    addOwnerValidation('REGRESSION_AGENT','No conflict markers and JavaScript syntax checks passed.','2.30');
+    addOwnerValidation('REGRESSION_AGENT','No conflict markers and JavaScript syntax checks passed.','2.31');
   }
 }
 function renderOwnerFeedback(){
@@ -1382,7 +1386,7 @@ function renderOwnerSummaryCards(){
   var queued = ownerFeedback.filter(function(i){ return (i.status==='Approved' || i.status==='Queued') && !isCompletedAgent(i.agent); }).length;
   var completed = ownerCompletedValidations.length;
   var warnings = ownerFeedback.filter(function(i){ return i.status==='Rejected' || i.status==='Warning' || i.status==='Blocked'; }).length;
-  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent='Bastion Save State 2.30';
+  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent='Bastion Save State 2.31';
   if(el('ownerSummaryQueued')) el('ownerSummaryQueued').textContent=String(queued);
   if(el('ownerSummaryCompleted')) el('ownerSummaryCompleted').textContent=String(completed);
   if(el('ownerSummaryWarnings')) el('ownerSummaryWarnings').textContent=String(warnings);
