@@ -1088,6 +1088,7 @@ function wireNav(){
   }
 }
 function showView(name){
+  if(document.body.classList.contains('owner-mode')) return;
   console.log("showView called:", name);
   var ids = ['dashboard','profile','advisor','scenarios','timeline','taxRmd','reports'];
   for(var i=0;i<ids.length;i++){
@@ -1330,12 +1331,22 @@ function generateOwnerTestReport(){
 function initOwnerMode(){
   if(!isOwnerMode()) return;
   document.body.classList.add('owner-mode');
-  loadOwnerFeedbackStatus();
-  renderOwnerFeedback();
-  renderOwnerBuildQueue();
-  loadOwnerDailyReport();
+  var ownerDash = document.getElementById('ownerDashboard');
+  var appShell = document.querySelector('.app');
+  if(ownerDash) ownerDash.style.display='grid';
+  if(appShell) appShell.style.display='none';
+  try{
+    loadOwnerFeedbackStatus();
+    renderOwnerFeedback();
+    renderOwnerBuildQueue();
+    loadOwnerDailyReport();
+    console.log("Owner dashboard initialized");
+  }catch(error){
+    if(ownerDash) ownerDash.innerHTML='<div class="card"><h3>Owner dashboard failed to load. Check console.</h3></div>';
+    console.error('Owner dashboard initialization failed', error);
+  }
 }
-function init(){ loadState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; } setupViews(); syncModeUI(); renderEvents(); commit(); initOwnerMode(); }
+function init(){ loadState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; } setupViews(); syncModeUI(); renderEvents(); commit(); }
 console.log("Bastion Tax & RMD clickfix deployed: 2.23-rmd-clickfix");
 
 var BETA_SESSION_KEY='bastion_beta_session_v1';
@@ -1376,7 +1387,49 @@ function bootByHost(){
   setAppVisibility(true); gate.classList.remove('show'); logoutBtn.classList.remove('show'); startBastionApp();
 }
 
-bootByHost();
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var isOwner = params.get("owner") === "true";
+
+  if (isOwner) {
+    console.log("Bastion owner mode requested");
+
+    try {
+      document.body.classList.add("owner-mode");
+
+      var app = document.querySelector(".app");
+      var owner = document.getElementById("ownerDashboard");
+      var landing = document.getElementById("domainLanding");
+      var gate = document.getElementById("betaGate");
+      var logout = document.getElementById("betaLogoutBtn");
+
+      if (app) app.style.display = "none";
+      if (landing) landing.classList.remove("show");
+      if (gate) gate.classList.remove("show");
+      if (logout) logout.classList.remove("show");
+
+      if (owner) {
+        owner.style.display = "grid";
+      } else {
+        document.body.innerHTML = "<h2 style='padding:20px;color:white'>Owner dashboard failed to load. Missing #ownerDashboard.</h2>";
+        return;
+      }
+
+      if (typeof initOwnerMode === "function") {
+        initOwnerMode();
+      }
+
+      console.log("Owner dashboard initialized");
+    } catch (err) {
+      console.error("Owner dashboard failed:", err);
+      document.body.innerHTML = "<h2 style='padding:20px;color:white'>Owner dashboard failed to load. Check console.</h2>";
+    }
+
+    return;
+  }
+
+  bootByHost();
+})();
 </script>
 </body>
 </html>
