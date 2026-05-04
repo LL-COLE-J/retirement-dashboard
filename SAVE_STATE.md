@@ -1,4 +1,4 @@
-# Bastion Save State 2.23 — Decision Engine
+# Bastion Save State 2.25 — Decision Core
 
 ## Current Status
 - Local repo stable at `D:\dev\retirement-dashboard`
@@ -7,20 +7,20 @@
 - Dashboard / Profile / Advisor / Scenarios / Timeline intact
 - Owner tools remain hidden unless `?owner=true`
 
-## Phase 2.23 — Decision Engine + Report Output
-- Run-out age now projects yearly assets from current age through age 100.
-- Outcome classification now outputs `SAFE`, `RISK`, or `FAIL` based on run-out age versus target life age.
-- Dashboard now includes a Decision Output card with plan status, run-out age, confidence, key driver, and recommended next step.
-- Advisor-grade local insight text explains why the current plan is safe, risky, or failing.
-- Generate Report now opens a local decision report section with summary, assumptions, risks, and next steps.
+## Phase 2.25 — Decision Core
+- Dashboard now opens with Decision Core as the first visible output.
+- Outcome classification outputs `SAFE`, `RISK`, or `FAIL` using projection run-out age, margin, and pressure signals.
+- Decision Core highlights run-out age, primary driver, plain-English advisor insight, and recommended next action.
+- Primary driver detection now prioritizes spending pressure, low asset margin, retirement timing, tax drag, and event impact.
+- Decision Output remains visible above charts so the answer appears first.
 
 ## Save State Sync
-- Sidebar visible save state: `Bastion Save State 2.23 — Decision Engine`
-- Header/topbar visible save state: `Bastion Save State 2.23 — Decision Engine`
-- File-based save state: `Bastion Save State 2.23 — Decision Engine`
+- Sidebar visible save state: `Bastion Save State 2.25 — Decision Core`
+- Header/topbar visible save state: `Bastion Save State 2.25 — Decision Core`
+- File-based save state: `Bastion Save State 2.25 — Decision Core`
 
 ## Latest Known Phase
-- Phase 2.23 — Decision Engine + Report Output
+- Phase 2.25 — Decision Core
 
 ## Next Phase
-- Expand decision confidence inputs and structured advisor report export.
+- Expand confidence weighting and structured report export after Decision Core stabilization.
