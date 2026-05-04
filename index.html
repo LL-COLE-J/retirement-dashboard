@@ -1084,20 +1084,32 @@ function wireNav(){
   for(var i=0;i<buttons.length;i++){
     buttons[i].textContent = labels[i] || buttons[i].textContent;
     buttons[i].setAttribute('data-view',map[i] || 'dashboard');
-    buttons[i].onclick = function(){ showView(this.getAttribute('data-view')); };
+    buttons[i].onclick = function(){ showView(this.dataset.view); };
+  }
+}
+function bindUserNavClicks(){
+  var buttons = document.querySelectorAll('.nav button');
+  for(var i=0;i<buttons.length;i++){
+    buttons[i].onclick = function(){ showView(this.dataset.view); };
   }
 }
 function showView(name){
   if(document.body.classList.contains('owner-mode')) return;
   console.log("showView called:", name);
   var ids = ['dashboard','profile','advisor','scenarios','timeline','taxRmd','reports'];
+  if(ids.indexOf(name)===-1){
+    console.warn('Invalid view name received:',name,'- defaulting to dashboard');
+    name='dashboard';
+  }
   for(var i=0;i<ids.length;i++){
     var view = el(ids[i]+'View');
-    if(view) view.classList.toggle('active',ids[i]===name);
+    if(view) view.classList.remove('active');
   }
+  var selected = el(name+'View');
+  if(selected) selected.classList.add('active');
   var buttons = document.querySelectorAll('.nav button');
   for(var j=0;j<buttons.length;j++){
-    buttons[j].classList.toggle('active',buttons[j].getAttribute('data-view')===name);
+    buttons[j].classList.toggle('active',buttons[j].dataset.view===name);
   }
 }
 
@@ -1346,7 +1358,7 @@ function initOwnerMode(){
     console.error('Owner dashboard initialization failed', error);
   }
 }
-function init(){ loadState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; } setupViews(); syncModeUI(); renderEvents(); commit(); }
+function init(){ loadState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; } setupViews(); wireNav(); bindUserNavClicks(); syncModeUI(); renderEvents(); showView('dashboard'); commit(); }
 console.log("Bastion Tax & RMD clickfix deployed: 2.23-rmd-clickfix");
 
 var BETA_SESSION_KEY='bastion_beta_session_v1';
