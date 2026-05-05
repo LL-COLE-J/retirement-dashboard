@@ -18,6 +18,7 @@ window.BASTION_FIREBASE_CONFIG = {
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235dd6a9'/%3E%3Cstop offset='1' stop-color='%2378a6ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M32 4 52 12v17c0 14.5-8.1 24.2-20 31C20.1 53.2 12 43.5 12 29V12z'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-size='24' font-family='Inter,Segoe UI,Arial,sans-serif' font-weight='800' fill='%2307111f'%3EB%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="app/views/reports.js"></script>
+<script src="app/views/timeline.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -931,7 +932,7 @@ function setupViews(){
   /* ADVISOR VIEW */
   var advisorView = document.createElement('section'); advisorView.id='advisorView'; advisorView.className='view';
   /* TIMELINE VIEW */
-  var timelineView = document.createElement('section'); timelineView.id='timelineView'; timelineView.className='view';
+  var timelineView = renderTimelineView();
   /* TAX RMD VIEW */
   var taxRmdView = document.createElement('section'); taxRmdView.id='taxRmdView'; taxRmdView.className='view';
   /* REPORTS VIEW */
@@ -1039,12 +1040,6 @@ function setupViews(){
   advisorCard.innerHTML = '<div class="section-head"><div><h3>Advisor</h3><p>Expanded interpretation of the current model.</p></div><button class="btn secondary" onclick="toggleDrawer(true)">Open Drawer</button></div><ul id="advisorPageList"></ul>';
   advisorView.appendChild(advisorCard);
 
-  var timelineCard = document.createElement('div'); timelineCard.className='card';
-  timelineCard.innerHTML = '<div class="section-head"><div><h3>Timeline</h3><p>Simple life path markers based on the current profile inputs.</p></div></div><div class="timeline-intro"><div><h4>Your Financial Life Path</h4><p id="timelineScenarioLine">Scenario B retires at the same age.</p></div><div class="timeline-key"><span><i></i>Scenario A</span><span><i class="scenario-b-line"></i>Scenario B</span></div></div><div class="timeline-shell"><div class="timeline-track" id="timelineTrack"></div></div><div class="timeline-summary" id="timelineSummary"></div>';
-  timelineView.appendChild(timelineCard);
-  var timelineAdvisorCard = document.createElement('div'); timelineAdvisorCard.className='card';
-  timelineAdvisorCard.innerHTML = '<div class="section-head"><div><h3>Advisor Insights</h3><p>Plain-English readout from the timeline and Scenario B comparison.</p></div></div><h4 class="advisor-actions-title">Recommended Actions</h4><ul class="advisor-insights" id="timelineAdvisorInsights"></ul>';
-  timelineView.appendChild(timelineAdvisorCard);
 
   if(metrics1) reportsView.appendChild(metrics1);
   if(metrics2) reportsView.appendChild(metrics2);
