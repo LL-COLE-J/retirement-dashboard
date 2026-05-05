@@ -19,6 +19,7 @@ window.BASTION_FIREBASE_CONFIG = {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="app/views/reports.js"></script>
 <script src="app/views/timeline.js"></script>
+<script src="app/views/scenarios.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -993,21 +994,7 @@ function setupViews(){
   var assumptionIds = ['currentSpend','retireSpend','captureRate','inflationRate','returnProfile','invested','cash','debt'];
   buildProfileInputCenter(coreCard, profileIds, assumptionIds, eventsCard);
 
-  if(eventsCard) scenariosView.appendChild(eventsCard);
-  if(tweakCard) scenariosView.appendChild(tweakCard);
-
-  var phase210Card = document.createElement('div'); phase210Card.className='card';
-  phase210Card.innerHTML = '<div class="section-head"><div><h3>2.10 Scenario Planning</h3><p>Scenario overlay applies only to scenario path. Baseline projection remains unchanged.</p></div></div>'+
-    '<div class="form-grid">'+
-    '<div class="field"><label>First Retiree</label><select><option>Person 1</option><option>Person 2</option></select></div>'+
-    '<div class="field"><label>Retires First Age</label><input id="scenarioFirstRetireAge" type="number" value="67" oninput="commit()"></div>'+
-    '<div class="field"><label>Survivor Scenario</label><select id="scenarioSurvivor" onchange="commit()"><option value="off" selected>Off</option><option value="on">On</option></select></div>'+
-    '<div class="field"><label>Medical / LTC Shock Type</label><select id="scenarioMedicalType" onchange="commit()"><option value="one_time" selected>One-time</option><option value="annual">Annual</option></select></div>'+
-    '<div class="field"><label>Medical / LTC Shock Amount</label><input id="scenarioMedicalAmount" type="number" value="0" oninput="commit()"></div>'+
-    '<div class="field"><label>Market Crash %</label><input id="scenarioMarketCrash" type="number" value="0" oninput="commit()"></div>'+
-    '<div class="field"><label>Tax Increase %</label><input id="scenarioTaxIncrease" type="number" value="0" oninput="commit()"></div>'+
-    '</div><div class="sub" id="scenarioComparison">Scenario comparison will update after projection run.</div>';
-  scenariosView.appendChild(phase210Card);
+  scenariosView = renderScenariosView(scenariosView, eventsCard, tweakCard);
   var taxCard = document.createElement('div'); taxCard.className='tax-page'; taxCard.id='taxRmdPage';
   taxCard.innerHTML = '<div class="tax-header"><div><div class="tax-pill">Tax & RMD clarity layer active — 2.36b</div><h3>Your Withdrawal Plan</h3><p>Lightweight tax-planning view for compliance, withdrawal order, and stress-tested downside.</p></div><span class="tax-pill">Save State 2.36b</span></div>'+
     '<div class="tax-grid cols-2">'+
