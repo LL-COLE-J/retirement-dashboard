@@ -20,6 +20,7 @@ window.BASTION_FIREBASE_CONFIG = {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- STYLES -->
 <style>
 :root{
   --bg:#07111f;
@@ -167,8 +168,11 @@ button{cursor:pointer}
 .beta-logout.show{display:inline-flex}
 
 </style>
+<!-- /STYLES -->
 </head>
 <body>
+<!-- APP SHELL -->
+<!-- APP SHELL: PUBLIC LANDING -->
 <section id="domainLanding" class="domain-landing" aria-label="Bastion public landing page">
   <div class="landing-shell">
     <div class="landing-top">
@@ -206,6 +210,7 @@ button{cursor:pointer}
   </div>
 </section>
 
+<!-- APP SHELL: AUTHENTICATED APP -->
 <div class="app">
   <aside class="sidebar">
     <div class="brand"><div class="logo" aria-hidden="true">B</div><div class="brand-text"><h1 class="brand-name">Bastion Insight</h1><span>Inputs define the path.</span></div></div>
@@ -232,6 +237,7 @@ button{cursor:pointer}
       </div>
     </header>
 
+    <!-- DASHBOARD VIEW: SOURCE CARDS BEFORE ROUTER SPLIT -->
     <section class="content">
       <div class="grid cols-4">
         <div class="card"><div class="label">Path Status</div><div class="metric" id="pathStatus">Stable</div><div class="status-shell"><div class="status-fill" id="statusFill"></div></div><div class="sub" id="pathSummary">Your current path is being modeled.</div></div>
@@ -312,6 +318,7 @@ button{cursor:pointer}
   <ul id="advisorList"></ul>
 </aside>
 
+<!-- OWNER VIEW -->
 <section class="owner-dashboard" id="ownerDashboard" aria-label="Bastion Owner Command Center">
   <header class="owner-header">
     <div>
@@ -398,8 +405,11 @@ button{cursor:pointer}
     <div class="owner-empty-row" id="ownerCompletedHint">Completed validations hidden. Toggle to view.</div>
   </section>
 </section>
+<!-- /OWNER VIEW -->
+<!-- /APP SHELL -->
 
 <script>
+/* STATE */
 var STORAGE_KEY = 'bastion_save_state_2_11b_reality_household';
 var mode = 'annual';
 var chart = null;
@@ -429,6 +439,7 @@ var TAX_CODES = {
   }
 };
 
+/* ENGINE */
 function el(id){ return document.getElementById(id); }
 function setPhase(phase,desc){
   if(el('phaseNumber')) el('phaseNumber').textContent = phase;
@@ -557,6 +568,7 @@ function eventDescription(e){
   return 'One-time expense reduces assets at the selected age.';
 }
 function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,function(c){ if(c==='&')return'&amp;'; if(c==='<')return'&lt;'; if(c==='>')return'&gt;'; if(c==='"')return'&quot;'; if(c==="'")return'&#39;'; return c; }); }
+/* SCENARIOS VIEW */
 function renderEvents(){
   var box=el('eventList'); if(!events.length){ box.innerHTML='<div class="empty">No life events yet. Add one to pressure-test the path.</div>'; return; }
   var html='';
@@ -586,6 +598,7 @@ function renderEvents(){
 function parseBuilderRows(listId,kind){ var list=el(listId); var rows=[]; if(!list) return rows; var cards=list.querySelectorAll('.builder-card,.card'); for(var i=0;i<cards.length;i++){ var inputs=cards[i].querySelectorAll('input,select'); if(kind==='income'&&inputs.length>=5){ rows.push({label:(inputs[0].value||'').trim(),amount:Number(inputs[1].value)||0,startAge:Number(inputs[2].value)||num('age'),endAge:Number(inputs[3].value)||120,growthRate:Number(inputs[4].value)||0}); } if(kind==='debt'&&inputs.length>=5){ rows.push({type:(inputs[0].value||'Debt').trim(),balance:Number(inputs[1].value)||0,rate:Number(inputs[2].value)||0,payment:Number(inputs[3].value)||0,payoffYears:Number(inputs[4].value)||0}); } if(kind==='event'&&inputs.length>=4){ rows.push({type:(inputs[0].value||'expense').trim(),startAge:Number(inputs[1].value)||num('age'),duration:Math.max(1,Number(inputs[2].value)||1),amount:Number(inputs[3].value)||0}); } } return rows; }
 function structuredSnapshot(){ return { household:[{role:'primary',age:num('age'),retireAge:num('retireAge'),income:num('income1')},{role:'partner',age:num('partnerAge'),retireAge:num('partnerRetireAge'),income:num('partnerIncome')}], incomes:parseBuilderRows('incomeStreamList','income'), fixedIncome:[{type:'ss',startAge:num('ssStartAge'),monthly:num('ssMonthly'),inflation:!!(el('retIncomeInflation')&&el('retIncomeInflation').checked)},{type:'pension',startAge:num('pensionStartAge'),monthly:num('pensionMonthly'),inflation:!!(el('retIncomeInflation')&&el('retIncomeInflation').checked)},{type:'partner_ss',startAge:num('partnerRetireAge'),monthly:num('partnerSs'),inflation:false},{type:'partner_pension',startAge:num('partnerRetireAge'),monthly:num('partnerPension'),inflation:false}], debts:parseBuilderRows('debtList','debt'), events:parseBuilderRows('lifeEventList','event'), expenses:{baseline:num('currentSpend'),retirement:num('retireSpend'),healthcareMonthly:num('healthcareCost'),ltc:!!(el('ltcToggle')&&el('ltcToggle').checked)}, location:{state:val('taxState'),filingStatus:val('filingStatus')} }; }
 
+/* ENGINE: PROJECTION */
 function project(includeEvents,sourceState){
   if(includeEvents===undefined) includeEvents=true;
   var s=sourceState||readState(); var labels=[]; var values=[]; var nw=s.invested+s.cash-s.debt; var start=s.age; var end=Math.max(s.retireAge+25,s.income2RetireAge+25,s.age+10); var minValue=null;
@@ -672,6 +685,7 @@ function calculateDecisionMetricsFromState(state){
   else if((runoutAge !== null && runoutAge <= 100) || monthlyGap < 0 || path.min < 150000) status = 'RISK';
   return {runoutAge:runoutAge,status:status,monthlyGap:monthlyGap,pathMin:path.min};
 }
+/* DASHBOARD VIEW */
 function renderDecisionCore(path,taxes,capturedSurplus){
   var runoutAge = firstRunoutAge(path);
   var monthlyGap = Math.round(capturedSurplus / 12);
@@ -770,12 +784,14 @@ function toggleDecisionReport(open){
   panel.classList.toggle('hidden',!open);
   if(open) renderDecisionReport();
 }
+/* REPORTS VIEW */
 function renderDecisionReport(){
   if(!lastDecisionReport || !el('decisionReportBody')) return;
   var report = lastDecisionReport;
   el('decisionReportBody').innerHTML = '<strong>Plan summary:</strong> '+report.insight+'<br><strong>Run-out age:</strong> '+report.runout+'<br><strong>Status:</strong> '+report.status+'<br><strong>Key assumptions:</strong> current inputs, baseline returns, inflation, and tax estimates.<br><strong>Top risks:</strong><ul><li>'+report.risks.join('</li><li>')+'</li></ul><strong>Recommended next step:</strong> '+report.nextStep+'<br><strong>Tax/RMD note:</strong> Tax and RMD strategy reflects simplified planning assumptions and should be reviewed annually.';
 }
 
+/* TAX RMD VIEW */
 function rmdDivisor(age){ var table={73:26.5,74:25.5,75:24.6,76:23.7,77:22.9,78:22.0,79:21.1,80:20.2,81:19.4,82:18.5,83:17.7,84:16.8,85:16.0,86:15.2,87:14.4,88:13.7,89:12.9,90:12.2}; return table[age]||Math.max(2,27-(age-72)); }
 function renderTaxRmdStrategy(path){
   var age=num('age'), retireAge=num('retireAge'), filing=val('filingStatus'), state=val('taxState');
@@ -835,6 +851,7 @@ function yearsDeltaLabel(delta){
   if(years === 0) return 'Same retirement age';
   return 'Retire '+years+' year'+(years===1?'':'s')+' '+(delta<0?'earlier':'later');
 }
+/* TIMELINE VIEW */
 function renderTimelineAdvisorInsights(data){
   var box = el('timelineAdvisorInsights');
   if(!box) return;
@@ -981,6 +998,7 @@ function renderTimeline(){
 }
 function renderChart(base,eventsPath){ var ctx=el('pathChart'); if(chart) chart.destroy(); chart=new Chart(ctx,{type:'line',data:{labels:base.labels,datasets:[{label:'Before Events',data:base.values,tension:.3,borderWidth:2,pointRadius:0},{label:'After Events',data:eventsPath.values,tension:.3,borderWidth:3,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#bdc8d8'}}},scales:{x:{ticks:{color:'#97a6ba'},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'#97a6ba',callback:function(v){return '$'+Math.round(v/1000)+'k';}},grid:{color:'rgba(255,255,255,.06)'}}}}}); }
 function hasEventType(type){ for(var i=0;i<events.length;i++){ if(events[i].type===type) return true; } return false; }
+/* ADVISOR VIEW */
 function renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus){
   var status=(el('decisionStatus')&&el('decisionStatus').textContent)||'RISK';
   var runout=(el('runoutAge')&&el('runoutAge').textContent)||'Not available';
@@ -1041,6 +1059,7 @@ function syncModeUI(){
 function setMode(next){ if(mode===next) return; var ids=['currentSpend','retireSpend']; for(var i=0;i<ids.length;i++){ var id=ids[i]; var v=num(id); setNum(id,next==='annual'?v*12:v/12); } mode=next; syncModeUI(); commit(); }
 function quickTweak(id,delta){ if(id==='income') id='income1'; setNum(id,num(id)+delta); commit(); }
 function toggleDrawer(open){ var drawer=el('drawer'); var overlay=el('overlay'); if(drawer) drawer.classList.toggle('open',open); if(overlay) overlay.classList.toggle('open',open); }
+/* ROUTER: VIEW STRUCTURE */
 function setupViews(){
   var content = document.querySelector('.content');
   if(!content || el('dashboardView')) return;
@@ -1048,12 +1067,19 @@ function setupViews(){
   var children = [];
   for(var i=0;i<content.children.length;i++){ children.push(content.children[i]); }
 
+  /* DASHBOARD VIEW */
   var dashboardView = document.createElement('section'); dashboardView.id='dashboardView'; dashboardView.className='view active';
+  /* PROFILE VIEW */
   var profileView = document.createElement('section'); profileView.id='profileView'; profileView.className='view';
+  /* SCENARIOS VIEW */
   var scenariosView = document.createElement('section'); scenariosView.id='scenariosView'; scenariosView.className='view';
+  /* ADVISOR VIEW */
   var advisorView = document.createElement('section'); advisorView.id='advisorView'; advisorView.className='view';
+  /* TIMELINE VIEW */
   var timelineView = document.createElement('section'); timelineView.id='timelineView'; timelineView.className='view';
+  /* TAX RMD VIEW */
   var taxRmdView = document.createElement('section'); taxRmdView.id='taxRmdView'; taxRmdView.className='view';
+  /* REPORTS VIEW */
   var reportsView = document.createElement('section'); reportsView.id='reportsView'; reportsView.className='view';
 
   content.innerHTML = '';
@@ -1191,6 +1217,7 @@ function moveFieldsFromSource(sourceRoot,ids,targetId){
     }
   }
 }
+/* PROFILE VIEW */
 function buildProfileInputCenter(coreCard, profileIds, assumptionIds, eventsCard){
   var holder = el('profileSections');
   if(!holder || !coreCard) return;
@@ -1233,6 +1260,7 @@ function buildProfileInputCenter(coreCard, profileIds, assumptionIds, eventsCard
 function addStreamCard(){var list=el('incomeStreamList'); if(!list) return; var i=list.children.length+1; var d=document.createElement('div'); d.className='builder-card'; d.innerHTML='<div class="compact-grid"><div class="field"><label>Label</label><input value="Income Stream '+i+'" oninput="commit()"></div><div class="field"><label>Amount</label><input type="number" value="0" oninput="commit()"></div><div class="field"><label>Start Age</label><input type="number" value="40" oninput="commit()"></div><div class="field"><label>End Age</label><input type="number" value="65" oninput="commit()"></div><div class="field"><label>Growth Rate %</label><input type="number" value="0" oninput="commit()"></div></div>'; list.appendChild(d);}
 function addDebtCard(){var list=el('debtList'); if(!list) return; var d=document.createElement('div'); d.className='builder-card'; d.innerHTML='<div class="compact-grid"><div class="field"><label>Debt Type</label><input value="Mortgage" oninput="commit()"></div><div class="field"><label>Balance</label><input type="number" value="0" oninput="commit()"></div><div class="field"><label>Rate %</label><input type="number" value="0" oninput="commit()"></div><div class="field"><label>Payment</label><input type="number" value="0" oninput="commit()"></div><div class="field"><label>Payoff Timeline (years)</label><input type="number" value="0" oninput="commit()"></div></div>'; list.appendChild(d);}
 function addLifeEventBuilder(){var list=el('lifeEventList'); if(!list) return; var d=document.createElement('div'); d.className='builder-card'; d.innerHTML='<div class="compact-grid"><div class="field"><label>Type</label><select onchange="commit()"><option>income</option><option>expense</option><option>asset</option><option>shock</option></select></div><div class="field"><label>Start Age</label><input type="number" value="65" oninput="commit()"></div><div class="field"><label>Duration (years)</label><input type="number" value="1" oninput="commit()"></div><div class="field"><label>Amount</label><input type="number" value="0" oninput="commit()"></div></div>'; list.appendChild(d);}
+/* ROUTER */
 function wireNav(){
   var buttons = document.querySelectorAll('.nav button');
   var map = ['dashboard','profile','advisor','scenarios','timeline','taxRmd','reports'];
@@ -1290,6 +1318,7 @@ function renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus){
   if(el('advisorSummary')) el('advisorSummary').innerHTML = intelligence.join('<br>');
 }
 
+/* OWNER INTELLIGENCE */
 var ownerFeedback = [
   {agent:'UI_AGENT',source:'Internal UI',finding:'Timeline labels are crowded on smaller screens.',recommendation:'Keep timeline labels shorter and preserve vertical spacing.',priority:'Medium',status:'New'},
   {agent:'ANALYTICS_AGENT',source:'User behavior',finding:'Tracking is not active yet, so engagement findings are hypotheses only.',recommendation:'Add click tracking before optimizing behavior.',priority:'Medium',status:'Parked'},
@@ -1711,6 +1740,7 @@ function unlockBetaGate(){
   bootByHost();
 }
 function logoutBetaGate(){ localStorage.removeItem(BETA_SESSION_KEY); bastionAppBooted=false; window.location.reload(); }
+/* ROUTER: BOOT */
 function bootByHost(){
   var host=window.location.hostname.toLowerCase();
   var landing=document.getElementById('domainLanding');
