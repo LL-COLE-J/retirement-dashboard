@@ -35,7 +35,8 @@ git status --short
 $indexHtml = Get-Content "index.html" -Raw
 $saveStateDoc = Get-Content "SAVE_STATE.md" -Raw
 
-if ($indexHtml -match "<<<<<<<|=======|>>>>>>>") {
+$conflictTokens = @(([char]60).ToString() * 7, ([char]61).ToString() * 7, ([char]62).ToString() * 7)
+if ($conflictTokens | Where-Object { $indexHtml.Contains($_) }) {
   Write-Host "ERROR: merge conflict markers found in index.html"
   $errors++
 }
