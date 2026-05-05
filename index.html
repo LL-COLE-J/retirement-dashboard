@@ -20,6 +20,7 @@ window.BASTION_FIREBASE_CONFIG = {
 <script src="app/views/reports.js"></script>
 <script src="app/views/timeline.js"></script>
 <script src="app/views/scenarios.js"></script>
+<script src="app/views/advisor.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1022,10 +1023,7 @@ function setupViews(){
   taxRmdView.appendChild(taxCard);
 
 
-
-  var advisorCard = document.createElement('div'); advisorCard.className='card';
-  advisorCard.innerHTML = '<div class="section-head"><div><h3>Advisor</h3><p>Expanded interpretation of the current model.</p></div><button class="btn secondary" onclick="toggleDrawer(true)">Open Drawer</button></div><ul id="advisorPageList"></ul>';
-  advisorView.appendChild(advisorCard);
+  renderAdvisorView(advisorView);
 
 
   if(metrics1) reportsView.appendChild(metrics1);
