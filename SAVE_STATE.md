@@ -1,6 +1,6 @@
-# Bastion Save State 2.36b — CSS Extracted to App Stylesheet
+# Bastion Save State 2.36h — Profile View Extracted
 
-- Save State 2.36b active.
-- Moved the existing CSS out of `index.html` into `app/styles.css`.
-- Replaced the inline style block with the external stylesheet link.
-- Preserved existing UI design, routing, JavaScript behavior, calculations, and owner route behavior.
+- Save State 2.36h active.
+- Profile view rendering now lives in `app/views/profile.js`.
+- Root `index.html` calls `renderProfileView()` while preserving routing, navigation, UI, and calculations.
+- Dashboard, Profile, Advisor, Scenarios, Timeline, Tax & RMD, and Reports remain in the same user flow.
