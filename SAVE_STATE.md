@@ -1,18 +1,18 @@
-# Bastion Save State 2.36h Patch — Profile Dropdown Options
+# Bastion Save State 2.36j — Extract Dashboard View
 
 Current status:
-- Save State 2.36h patch active.
-- Profile dropdown option restoration runs after `renderProfileView()` rebuilds the extracted Profile view.
-- Existing Dashboard, Owner Dashboard (`owner=true`), routing, calculations, and Profile layout are preserved.
-- Root `index.html` still loads extracted views from `app/views/`.
+- Save State 2.36j active.
+- Dashboard source view rendering now lives in `app/views/dashboard.js` as `renderDashboardView()`.
+- Root `index.html` loads the extracted Dashboard renderer and replaces the inline Dashboard source view with a render call.
+- Existing Dashboard, Decision Core placement, Owner Dashboard (`owner=true`), routing, navigation, calculations, Profile layout, and extracted views are preserved.
 
 Patch completed:
-- Restored Profile dropdown option values for filing status, state/location, return profile, and known Profile select IDs if they are present.
-- Added a Profile-only safety initializer so blank extracted select options are rebuilt without changing populated selects.
+- Created `app/views/dashboard.js` for the Dashboard source view markup.
+- Replaced the inline Dashboard source view in `index.html` with a call to `renderDashboardView()`.
+- Updated visible Save State text in the sidebar, header, title, drawer readout, and this file to Phase 2.36j.
 
 Validation status:
-- Profile opens and dropdowns show expected options in runtime validation.
-- Dropdown selections continue to save through existing `commit()` / `readState()` flow.
-- Dashboard opens normally in runtime validation.
-- Owner Dashboard opens with `owner=true` in runtime validation.
-- `scripts/check-bastion.ps1` was attempted but the container does not have `pwsh` installed.
+- Dashboard source view extraction preserves existing DOM IDs and `commit()` / `readState()` hooks.
+- Dashboard, Profile, Advisor, Scenarios, Timeline, Tax & RMD, Reports, and Owner Dashboard routing remain wired through existing routing logic.
+- `scripts/check-bastion.ps1` was attempted with `pwsh` and `powershell`, but neither PowerShell executable is installed in the container.
+- A Playwright smoke validation passed for Dashboard, Profile, Advisor, Scenarios, Timeline, Tax & RMD, Reports, and Owner Dashboard (`owner=true`) with no captured console errors after browser dependencies were installed.
