@@ -1,18 +1,20 @@
-# Bastion Save State 2.36j — Extract Dashboard View
+# Bastion Save State 2.37 — Router + State Stability Lock
 
 Current status:
-- Save State 2.36j active.
-- Dashboard source view rendering now lives in `app/views/dashboard.js` as `renderDashboardView()`.
-- Root `index.html` loads the extracted Dashboard renderer and replaces the inline Dashboard source view with a render call.
-- Existing Dashboard, Decision Core placement, Owner Dashboard (`owner=true`), routing, navigation, calculations, Profile layout, and extracted views are preserved.
+- Save State 2.37 active.
+- Router/view switching is stabilized around one `showView()` route function and one active view at a time.
+- Profile remains the input center; Dashboard remains output-only and receives updates through the existing `commit()` / `readState()` state path.
+- Scenario, Advisor, Timeline, Reports, Tax & RMD, Profile, Dashboard, and Owner (`owner=true`) routes remain preserved.
 
 Patch completed:
-- Created `app/views/dashboard.js` for the Dashboard source view markup.
-- Replaced the inline Dashboard source view in `index.html` with a call to `renderDashboardView()`.
-- Updated visible Save State text in the sidebar, header, title, drawer readout, and this file to Phase 2.36j.
+- Added defensive view rendering guards so missing extracted view modules show a fallback card instead of breaking the app shell.
+- Normalized sidebar navigation binding to avoid duplicate listener behavior during repeated route switching.
+- Guarded Dashboard metric and chart updates so state commits can continue when optional rendered nodes are unavailable.
+- Updated visible Save State text in the sidebar, header, title, drawer readout, Tax/RMD view, Owner view, and this file to Phase 2.37.
 
 Validation status:
-- Dashboard source view extraction preserves existing DOM IDs and `commit()` / `readState()` hooks.
-- Dashboard, Profile, Advisor, Scenarios, Timeline, Tax & RMD, Reports, and Owner Dashboard routing remain wired through existing routing logic.
-- `scripts/check-bastion.ps1` was attempted with `pwsh` and `powershell`, but neither PowerShell executable is installed in the container.
-- A Playwright smoke validation passed for Dashboard, Profile, Advisor, Scenarios, Timeline, Tax & RMD, Reports, and Owner Dashboard (`owner=true`) with no captured console errors after browser dependencies were installed.
+- Navigation remains Dashboard / Profile / Advisor / Scenarios / Timeline / Tax & RMD / Reports, with Owner Dashboard isolated behind `owner=true`.
+- Profile-owned inputs continue to persist through local storage and propagate to Dashboard outputs through the existing source-of-truth state read.
+- UI_AGENT review: passed with no visual-design changes required.
+- REGRESSION_AGENT review: passed via syntax checks, bash-equivalent Bastion check, and Playwright route smoke.
+- `scripts/check-bastion.ps1` was attempted with `pwsh` and `powershell`, but neither PowerShell executable is installed in this container.

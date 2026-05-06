@@ -14,7 +14,7 @@ window.BASTION_FIREBASE_CONFIG = {
 </script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bastion Insights - Save State 2.36j</title>
+<title>Bastion Insights - Save State 2.37</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235dd6a9'/%3E%3Cstop offset='1' stop-color='%2378a6ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M32 4 52 12v17c0 14.5-8.1 24.2-20 31C20.1 53.2 12 43.5 12 29V12z'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-size='24' font-family='Inter,Segoe UI,Arial,sans-serif' font-weight='800' fill='%2307111f'%3EB%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="app/views/dashboard.js"></script>
@@ -33,6 +33,30 @@ window.BASTION_FIREBASE_CONFIG = {
 <!-- /STYLES -->
 </head>
 <body>
+<script>
+function fallbackRenderedView(label){
+  var section = document.createElement('section');
+  section.className = 'content view-fallback';
+  section.innerHTML = '<div class="card"><h3>'+label+' unavailable</h3><p class="sub">This view module did not load. The rest of Bastion remains available.</p></div>';
+  return section;
+}
+function mountRenderedView(mountId,rendererName,label){
+  var mount = document.getElementById(mountId);
+  if(!mount) return null;
+  try{
+    var renderer = window[rendererName];
+    var node = (typeof renderer === 'function') ? renderer() : fallbackRenderedView(label);
+    mount.replaceWith(node);
+    return node;
+  }catch(error){
+    console.error(label+' failed to render', error);
+    var fallback = fallbackRenderedView(label);
+    mount.replaceWith(fallback);
+    return fallback;
+  }
+}
+</script>
+
 <!-- APP SHELL -->
 <!-- APP SHELL: PUBLIC LANDING -->
 <section id="domainLanding" class="domain-landing" aria-label="Bastion public landing page">
@@ -85,12 +109,12 @@ window.BASTION_FIREBASE_CONFIG = {
       <button>Tax &amp; RMD</button>
       <button>Reports</button>
     </nav>
-     <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.36j — Extract Dashboard View</strong><br/><span id="phaseDesc">Dashboard source view extracted to app/views/dashboard.js; routing, navigation, calculations, and UI behavior unchanged.</span></small></div>
+     <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.37 — Router + State Stability Lock</strong><br/><span id="phaseDesc">Single-router rendering, state persistence, and defensive view loading are locked for stability.</span></small></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-       <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.36j extracts Dashboard source view rendering while preserving routing, navigation, calculations, and UI behavior.</p></div>
+       <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.37 locks router stability, single-view rendering, and Profile-owned state propagation.</p></div>
       <div class="top-actions">
         <span class="pill" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="showView('reports');toggleDecisionReport(true)">Generate Report</button>
@@ -101,7 +125,7 @@ window.BASTION_FIREBASE_CONFIG = {
 
     <div id="dashboardViewMount"></div>
     <script>
-      document.getElementById('dashboardViewMount').replaceWith(renderDashboardView());
+      mountRenderedView('dashboardViewMount','renderDashboardView','Dashboard source view');
     </script>
   </main>
 </div>
@@ -109,14 +133,14 @@ window.BASTION_FIREBASE_CONFIG = {
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><h2>Bastion Advisor</h2><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Bastion Save State 2.36j readout:</strong></p>
+  <p><strong>Bastion Save State 2.37 readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
 <!-- OWNER VIEW -->
 <div id="ownerViewMount"></div>
 <script>
-  document.getElementById('ownerViewMount').replaceWith(renderOwnerView());
+  mountRenderedView('ownerViewMount','renderOwnerView','Owner dashboard view');
 </script>
 <!-- /OWNER VIEW -->
 <!-- /APP SHELL -->
@@ -533,12 +557,14 @@ function renderTaxRmdStrategy(path){
   body.innerHTML=rows;
 }
 
+function setText(id,text){ var node=el(id); if(node) node.textContent=text; }
 function commit(){
   var withEvents=project(true); var withoutEvents=project(false); var taxes=taxSummary(); var startingNetWorth=num('invested')+num('cash')-num('debt'); var annualCurrent=annualSpendValue('currentSpend'); var grossSurplus=taxes.income-taxes.total-annualCurrent; var capturedSurplus=grossSurplus>0?grossSurplus*captureRate():grossSurplus;
   var score=Math.max(0,Math.min(100,Math.round((withEvents.ending/1000000)*50+(withEvents.min>0?35:10)))); var status='Watch'; var cls='warn-text'; if(score>=72){status='Stable';cls='good';}else if(score<45){status='At Risk';cls='bad-text';}
-  el('pathStatus').textContent=status; el('pathStatus').className='metric '+cls; el('statusFill').style.width=score+'%';
-  el('pathSummary').textContent='Projected ending path: '+money(withEvents.ending)+'. Reality drag included: tax, inflation, returns, and '+Math.round(captureRate()*100)+'% surplus capture.';
-  el('startingNetWorthMetric').textContent=money(startingNetWorth); el('grossIncomeMetric').textContent=money(taxes.income); el('taxEstimateMetric').textContent=money(taxes.total); el('annualSurplusMetric').textContent=money(capturedSurplus); el('endingPathMetric').textContent=money(withEvents.ending); el('minPathMetric').textContent=money(withEvents.min); el('currentSpendMetric').textContent=money(num('currentSpend')); el('retireSpendMetric').textContent=money(num('retireSpend')); el('eventImpactMetric').textContent=money(eventImpactNow());
+  if(el('pathStatus')){ el('pathStatus').textContent=status; el('pathStatus').className='metric '+cls; }
+  if(el('statusFill')) el('statusFill').style.width=score+'%';
+  setText('pathSummary','Projected ending path: '+money(withEvents.ending)+'. Reality drag included: tax, inflation, returns, and '+Math.round(captureRate()*100)+'% surplus capture.');
+  setText('startingNetWorthMetric',money(startingNetWorth)); setText('grossIncomeMetric',money(taxes.income)); setText('taxEstimateMetric',money(taxes.total)); setText('annualSurplusMetric',money(capturedSurplus)); setText('endingPathMetric',money(withEvents.ending)); setText('minPathMetric',money(withEvents.min)); setText('currentSpendMetric',money(num('currentSpend'))); setText('retireSpendMetric',money(num('retireSpend'))); setText('eventImpactMetric',money(eventImpactNow()));
   renderDecisionCore(withEvents,taxes,capturedSurplus); renderChart(withoutEvents,withEvents); renderChanges(); renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus); renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus); renderTimeline(); renderTaxRmdStrategy(withEvents); renderPlanSetupSummary(); saveState();
   renderScenarioComparison(withoutEvents,withEvents);
   if(isOwnerMode()) evaluateOwnerIntelligence('commit');
@@ -709,7 +735,7 @@ function renderTimeline(){
   }
   renderTimelineAdvisorInsights({retirementAge:retirementAge,scenarioDelta:scenarioDelta,scenarioHasRisk:scenarioHasRisk,riskCount:riskCount});
 }
-function renderChart(base,eventsPath){ var ctx=el('pathChart'); if(chart) chart.destroy(); chart=new Chart(ctx,{type:'line',data:{labels:base.labels,datasets:[{label:'Before Events',data:base.values,tension:.3,borderWidth:2,pointRadius:0},{label:'After Events',data:eventsPath.values,tension:.3,borderWidth:3,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#bdc8d8'}}},scales:{x:{ticks:{color:'#97a6ba'},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'#97a6ba',callback:function(v){return '$'+Math.round(v/1000)+'k';}},grid:{color:'rgba(255,255,255,.06)'}}}}}); }
+function renderChart(base,eventsPath){ var ctx=el('pathChart'); if(!ctx || !window.Chart) return; if(chart) chart.destroy(); chart=new Chart(ctx,{type:'line',data:{labels:base.labels,datasets:[{label:'Before Events',data:base.values,tension:.3,borderWidth:2,pointRadius:0},{label:'After Events',data:eventsPath.values,tension:.3,borderWidth:3,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#bdc8d8'}}},scales:{x:{ticks:{color:'#97a6ba'},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'#97a6ba',callback:function(v){return '$'+Math.round(v/1000)+'k';}},grid:{color:'rgba(255,255,255,.06)'}}}}}); }
 function hasEventType(type){ for(var i=0;i<events.length;i++){ if(events[i].type===type) return true; } return false; }
 /* ADVISOR VIEW */
 function renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus){
@@ -773,6 +799,26 @@ function setMode(next){ if(mode===next) return; var ids=['currentSpend','retireS
 function quickTweak(id,delta){ if(id==='income') id='income1'; setNum(id,num(id)+delta); commit(); }
 function toggleDrawer(open){ var drawer=el('drawer'); var overlay=el('overlay'); if(drawer) drawer.classList.toggle('open',open); if(overlay) overlay.classList.toggle('open',open); }
 /* ROUTER: VIEW STRUCTURE */
+function safeSection(id,label){
+  var section = document.createElement('section');
+  section.id = id;
+  section.className = 'view';
+  section.innerHTML = '<div class="card"><h3>'+label+' unavailable</h3><p class="sub">This view module did not load. Navigation and saved state remain available.</p></div>';
+  return section;
+}
+function safeRenderSection(rendererName,id,label,args){
+  try{
+    var renderer = window[rendererName];
+    if(typeof renderer === 'function'){
+      var node = renderer.apply(null,args || []);
+      if(node) return node;
+    }
+    console.warn(label+' renderer missing; using fallback view.');
+  }catch(error){
+    console.error(label+' renderer failed', error);
+  }
+  return safeSection(id,label);
+}
 function setupViews(){
   var content = document.querySelector('.content');
   if(!content || el('dashboardView')) return;
@@ -789,11 +835,11 @@ function setupViews(){
   /* ADVISOR VIEW */
   var advisorView = document.createElement('section'); advisorView.id='advisorView'; advisorView.className='view';
   /* TIMELINE VIEW */
-  var timelineView = renderTimelineView();
+  var timelineView = safeRenderSection('renderTimelineView','timelineView','Timeline view');
   /* TAX RMD VIEW */
   var taxRmdView = document.createElement('section'); taxRmdView.id='taxRmdView'; taxRmdView.className='view';
   /* REPORTS VIEW */
-  var reportsView = renderReportsView();
+  var reportsView = safeRenderSection('renderReportsView','reportsView','Reports view');
 
   content.innerHTML = '';
   content.appendChild(dashboardView);
@@ -843,16 +889,15 @@ function setupViews(){
 
   var profileIds = ['age','retireAge','filingStatus','income1','income2','income2RetireAge','taxState','countyTaxRate','cityTaxRate'];
   var assumptionIds = ['currentSpend','retireSpend','captureRate','inflationRate','returnProfile','invested','cash','debt'];
-  profileView = renderProfileView(coreCard, profileIds, assumptionIds, eventsCard);
+  profileView = safeRenderSection('renderProfileView','profileView','Profile view',[coreCard, profileIds, assumptionIds, eventsCard]);
   content.insertBefore(profileView, advisorView);
 
-  scenariosView = renderScenariosView(scenariosView, eventsCard, tweakCard);
-  var taxCard = renderTaxRmdView();
-
+  var renderedScenariosView = safeRenderSection('renderScenariosView','scenariosView','Scenarios view',[scenariosView, eventsCard, tweakCard]);
+  if(renderedScenariosView !== scenariosView){ content.replaceChild(renderedScenariosView, scenariosView); scenariosView = renderedScenariosView; }
+  var taxCard = safeRenderSection('renderTaxRmdView','taxRmdPage','Tax & RMD view');
   taxRmdView.appendChild(taxCard);
 
-
-  renderAdvisorView(advisorView);
+  safeRenderSection('renderAdvisorView','advisorView','Advisor view',[advisorView]);
 
 
   if(metrics1) reportsView.appendChild(metrics1);
@@ -876,14 +921,21 @@ function addStreamCard(){var list=el('incomeStreamList'); if(!list) return; var 
 function addDebtCard(){var list=el('debtList'); if(!list) return; var d=document.createElement('div'); d.className='builder-card'; d.innerHTML='<div class="compact-grid"><div class="field"><label>Debt Type</label><input value="Mortgage" oninput="commit()"></div><div class="field"><label>Balance</label><input type="number" value="0" oninput="commit()"></div><div class="field"><label>Rate %</label><input type="number" value="0" oninput="commit()"></div><div class="field"><label>Payment</label><input type="number" value="0" oninput="commit()"></div><div class="field"><label>Payoff Timeline (years)</label><input type="number" value="0" oninput="commit()"></div></div>'; list.appendChild(d);}
 function addLifeEventBuilder(){var list=el('lifeEventList'); if(!list) return; var d=document.createElement('div'); d.className='builder-card'; d.innerHTML='<div class="compact-grid"><div class="field"><label>Type</label><select onchange="commit()"><option>income</option><option>expense</option><option>asset</option><option>shock</option></select></div><div class="field"><label>Start Age</label><input type="number" value="65" oninput="commit()"></div><div class="field"><label>Duration (years)</label><input type="number" value="1" oninput="commit()"></div><div class="field"><label>Amount</label><input type="number" value="0" oninput="commit()"></div></div>'; list.appendChild(d);}
 /* ROUTER */
+var currentRoute = 'dashboard';
+var viewRoutes = ['dashboard','profile','advisor','scenarios','timeline','taxRmd','reports'];
+function routeFromNavButton(button,index){
+  var map = ['dashboard','profile','advisor','scenarios','timeline','taxRmd','reports'];
+  return button.getAttribute('data-view') || map[index] || 'dashboard';
+}
 function wireNav(){
   var buttons = document.querySelectorAll('.nav button');
   var map = ['dashboard','profile','advisor','scenarios','timeline','taxRmd','reports'];
   var labels = ['Dashboard','Profile','Advisor','Scenarios','Timeline','Tax & RMD','Reports'];
   for(var i=0;i<buttons.length;i++){
+    var route = routeFromNavButton(buttons[i],i);
     buttons[i].textContent = labels[i] || buttons[i].textContent;
-    buttons[i].setAttribute('data-view',map[i] || 'dashboard');
-    buttons[i].onclick = function(){ var view = this.getAttribute('data-view') || this.dataset.view; showView(view || 'dashboard'); };
+    buttons[i].setAttribute('data-view',route);
+    buttons[i].onclick = function(){ showView(this.getAttribute('data-view') || 'dashboard'); };
   }
   if(isOwnerMode() && !document.querySelector('.nav button[data-view="owner"]')){
     var ownerBtn = document.createElement('button');
@@ -893,30 +945,29 @@ function wireNav(){
     var nav = document.querySelector('.nav'); if(nav) nav.appendChild(ownerBtn);
   }
 }
-function bindUserNavClicks(){
-  var buttons = document.querySelectorAll('.nav button');
-  for(var i=0;i<buttons.length;i++){
-    buttons[i].onclick = function(){ var view = this.getAttribute('data-view') || this.dataset.view; showView(view || 'dashboard'); };
-  }
-}
+function bindUserNavClicks(){ wireNav(); }
 function showView(name){
-  if(document.body.classList.contains('owner-mode')) return;
-  console.log("showView called:", name);
-  var ids = ['dashboard','profile','advisor','scenarios','timeline','taxRmd','reports'];
-  if(ids.indexOf(name)===-1){
+  if(document.body.classList.contains('owner-mode')) return currentRoute;
+  if(viewRoutes.indexOf(name)===-1){
     console.warn('Invalid view name received:',name,'- defaulting to dashboard');
     name='dashboard';
   }
-  for(var i=0;i<ids.length;i++){
-    var view = el(ids[i]+'View');
-    if(view) view.classList.remove('active');
-  }
   var selected = el(name+'View');
-  if(selected) selected.classList.add('active');
+  if(!selected){
+    console.warn('Route view missing:',name,'- defaulting to dashboard');
+    name='dashboard';
+    selected = el('dashboardView');
+  }
+  for(var i=0;i<viewRoutes.length;i++){
+    var view = el(viewRoutes[i]+'View');
+    if(view) view.classList.toggle('active',viewRoutes[i]===name);
+  }
+  currentRoute = name;
   var buttons = document.querySelectorAll('.nav button');
   for(var j=0;j<buttons.length;j++){
-    buttons[j].classList.toggle('active',buttons[j].dataset.view===name);
+    buttons[j].classList.toggle('active',buttons[j].getAttribute('data-view')===name);
   }
+  return currentRoute;
 }
 
 function renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus){
@@ -1159,8 +1210,8 @@ function renderOwnerSummaryCards(){
   var completed = ownerCompletedValidations.length;
   var warnings = ownerFeedback.filter(function(i){ return i.agent.indexOf('BLOCKER')>-1 && i.status==='Blocked'; }).length;
   var parked = ownerFeedback.filter(function(i){ return i.status==='Parked'; }).length;
-  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.36i');
-  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.36i Owner View Extracted';
+  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.37');
+  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.37 Router + State Stability Lock';
   if(el('ownerSummaryQueued')) el('ownerSummaryQueued').textContent=String(queued);
   if(el('ownerSummaryParked')) el('ownerSummaryParked').textContent=String(parked);
   if(el('ownerSummaryCompleted')) el('ownerSummaryCompleted').textContent=String(completed);
@@ -1285,7 +1336,7 @@ function createOwnerTestReport(){
       'Do not change formulas during owner intelligence phases.',
       'Keep owner tools hidden from customer-facing routes.'
     ],
-    suggestedNextPhase:'2.36i Owner View Extracted',
+    suggestedNextPhase:'2.37 Router + State Stability Lock',
     generatedAt:now.toISOString()
   };
 }
@@ -1327,7 +1378,7 @@ function initOwnerMode(){
   }
 }
 function init(){ loadState(); decisionBaselineState = readState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; decisionBaselineState.events = events.slice(); } setupViews(); wireNav(); bindUserNavClicks(); syncModeUI(); renderEvents(); showView('dashboard'); commit(); }
-console.log("Bastion Tax & RMD clickfix deployed: 2.23-rmd-clickfix");
+console.log("Bastion Save State 2.37 router and state stability lock active");
 
 var BETA_SESSION_KEY='bastion_beta_session_v1';
 window.__bastionSyntaxCheckOk=true;
