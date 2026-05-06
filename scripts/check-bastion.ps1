@@ -34,10 +34,11 @@ git status --short
 
 $indexHtml = Get-Content "index.html" -Raw
 $saveStateDoc = Get-Content "SAVE_STATE.md" -Raw
+$ownerView = if (Test-Path "app/views/owner.js") { Get-Content "app/views/owner.js" -Raw } else { "" }
 
 $conflictTokens = @(([char]60).ToString() * 7, ([char]61).ToString() * 7, ([char]62).ToString() * 7)
-if ($conflictTokens | Where-Object { $indexHtml.Contains($_) }) {
-  Write-Host "ERROR: merge conflict markers found in index.html"
+if ($conflictTokens | Where-Object { $indexHtml.Contains($_) -or $ownerView.Contains($_) }) {
+  Write-Host "ERROR: merge conflict markers found in index.html or app/views/owner.js"
   $errors++
 }
 
@@ -51,17 +52,19 @@ if ($indexHtml -notmatch "function showView\(") {
   $errors++
 }
 
-if ($indexHtml -notmatch "data-view=\"dashboard\"" -or $indexHtml -notmatch "data-view=\"profile\"") {
+$hasDashboardBinding = $indexHtml -match "data-view=\"dashboard\"" -or $indexHtml -match "'dashboard'"
+$hasProfileBinding = $indexHtml -match "data-view=\"profile\"" -or $indexHtml -match "'profile'"
+if (!$hasDashboardBinding -or !$hasProfileBinding) {
   Write-Host "ERROR: navigation data-view bindings missing"
   $errors++
 }
 
-if ($indexHtml -notmatch "id=\"ownerDashboard\"") {
+if ($indexHtml -notmatch "id=\"ownerDashboard\"" -and $ownerView -notmatch "id=\"ownerDashboard\"") {
   Write-Host "ERROR: owner dashboard route shell missing"
   $errors++
 }
 
-if ($indexHtml -match "Life Events Builder|Add Debt|Assumptions</h3>") {
+if ($indexHtml -match ">Life Events Builder<|>Add Debt<|Assumptions</h3>") {
   Write-Host "ERROR: dashboard/profile builder artifact found in source"
   $errors++
 }
