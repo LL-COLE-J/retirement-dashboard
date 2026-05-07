@@ -174,8 +174,14 @@ NEW:
 - Documented that guardrails are display-safety only and do not intentionally rewrite formulas or create the canonical engine.
 - Updated visible Save State text to 2.39d without redesigning the UI, changing routes, or rebuilding owner dashboard behavior.
 
+## 2.39e — Canonical Baseline (DONE)
+- Added `app/core/bastion-engine.js` as the first lightweight canonical baseline calculation layer.
+- Established canonical ownership for simple low-risk calculations: rate normalization, monthly/annual conversion, savings rate, monthly gap, net worth, debt-to-asset ratio, withdrawal rate, and scenario delta.
+- Routed only simple duplicated calculations through `window.BastionEngine` while preserving current visible behavior and avoiding full engine extraction.
+- Left complex tax, RMD, Monte Carlo, Social Security, Advisor classification, and projection logic non-canonical for future scoped phases.
+- Updated visible Save State text to 2.39e without redesigning the UI, changing routes, or rebuilding owner dashboard behavior.
+
 ## Upcoming Math Repair Subphases
-- 2.39e — Canonical Baseline: lock baseline input ownership and projection source-of-truth.
 - 2.39f — Scenario Delta Repair: keep scenarios cloned from baseline assumptions and show differences only.
 - 2.39g — Dashboard/Timeline/Advisor Sync: verify output views read the same validated engine results.
 
@@ -455,4 +461,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.39d — Numeric Guardrails complete; next phase is 2.39e — Canonical Baseline
+2.39e — Canonical Baseline complete; next phase is 2.39f — Scenario Delta Repair
