@@ -404,4 +404,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.37 — Router + State Stability Lock
+2.38 — Work Branch Safety Lock

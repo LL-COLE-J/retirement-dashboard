@@ -1,6 +1,35 @@
 Write-Host "=== Bastion Local Check ==="
 
 $errors = 0
+$expectedRepoPath = "/workspace/retirement-dashboard"
+$repoPath = (Get-Location).Path.Replace('\','/')
+
+Write-Host "Repository path: $repoPath"
+if ($repoPath -ne $expectedRepoPath) {
+  Write-Host "ERROR: expected repo path $expectedRepoPath"
+  $errors++
+}
+
+Write-Host ""
+Write-Host "Branch status:"
+git status --short --branch
+
+Write-Host ""
+Write-Host "Remotes:"
+$remoteOutput = git remote -v
+if ($remoteOutput) {
+  $remoteOutput | ForEach-Object { Write-Host $_ }
+} else {
+  Write-Host "No git remotes configured for this sandbox."
+}
+
+Write-Host ""
+Write-Host "Latest commit:"
+git log --oneline -1
+
+Write-Host ""
+Write-Host "Branch policy: local branch name is not required to be main for Codex sandbox validation."
+
 
 if (!(Test-Path "index.html")) {
   Write-Host "ERROR: index.html missing"
@@ -30,16 +59,22 @@ if (!(Test-Path "REGRESSION_CHECKLIST.md")) {
 }
 
 Write-Host ""
+Write-Host "Working tree changes:"
 git status --short
 
 $indexHtml = Get-Content "index.html" -Raw
 $saveStateDoc = Get-Content "SAVE_STATE.md" -Raw
 $ownerView = if (Test-Path "app/views/owner.js") { Get-Content "app/views/owner.js" -Raw } else { "" }
 
-$conflictTokens = @(([char]60).ToString() * 7, ([char]61).ToString() * 7, ([char]62).ToString() * 7)
-if ($conflictTokens | Where-Object { $indexHtml.Contains($_) -or $ownerView.Contains($_) }) {
-  Write-Host "ERROR: merge conflict markers found in index.html or app/views/owner.js"
+$lt = [char]60; $eq = [char]61; $gt = [char]62
+$conflictPattern = "^(" + (($lt.ToString()) * 7) + "|" + (($eq.ToString()) * 7) + "|" + (($gt.ToString()) * 7) + ")"
+$conflictScan = git grep -n -I -E $conflictPattern -- .
+if ($LASTEXITCODE -eq 0 -and $conflictScan) {
+  Write-Host "ERROR: merge conflict markers found:"
+  $conflictScan | ForEach-Object { Write-Host $_ }
   $errors++
+} else {
+  Write-Host "OK: no merge conflict markers found in tracked text files"
 }
 
 if ($indexHtml -match "codex[-_/ ]branch") {
@@ -79,7 +114,9 @@ if ($uiSave -and $docSave -and $uiSave -ne $docSave) {
 if ($errors -eq 0) {
   Write-Host ""
   Write-Host "Bastion check passed"
+  exit 0
 } else {
   Write-Host ""
   Write-Host "Bastion check failed"
+  exit 1
 }
