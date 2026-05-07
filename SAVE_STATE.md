@@ -1,20 +1,18 @@
-# Bastion Save State 2.37 — Router + State Stability Lock
+# Bastion Save State 2.39a — AGENTS Operating Constitution
 
 Current status:
-- Save State 2.37 active.
-- Router/view switching is stabilized around one `showView()` route function and one active view at a time.
-- Profile remains the input center; Dashboard remains output-only and receives updates through the existing `commit()` / `readState()` state path.
-- Scenario, Advisor, Timeline, Reports, Tax & RMD, Profile, Dashboard, and Owner (`owner=true`) routes remain preserved.
+- Governance Phase 2.39a active for repository instructions.
+- Added the permanent `AGENTS.md` operating constitution to make future Codex/agent execution safer, smaller, easier to validate, and less likely to regress.
+- App behavior and visible UI were intentionally not changed in this documentation/governance phase.
+- Deployed app Save State text remains at the prior app stabilization state until a future UI phase explicitly updates `app/index.html`.
 
 Patch completed:
-- Added defensive view rendering guards so missing extracted view modules show a fallback card instead of breaking the app shell.
-- Normalized sidebar navigation binding to avoid duplicate listener behavior during repeated route switching.
-- Guarded Dashboard metric and chart updates so state commits can continue when optional rendered nodes are unavailable.
-- Updated visible Save State text in the sidebar, header, title, drawer readout, Tax/RMD view, Owner view, and this file to Phase 2.37.
+- Added Bastion Core Principle, scoped execution, Codex safety, environment, save state, validation, user-proofing, financial safety, live-agent restriction, permission tier, no silent mutation, auditability, security/privacy, emergency shutdown, priority order, and forbidden-action rules to `AGENTS.md`.
+- Updated `ROADMAP.md` to record Phase 2.39a as a completed governance phase.
+- No app features, calculations, routes, or visual design were changed.
 
 Validation status:
-- Navigation remains Dashboard / Profile / Advisor / Scenarios / Timeline / Tax & RMD / Reports, with Owner Dashboard isolated behind `owner=true`.
-- Profile-owned inputs continue to persist through local storage and propagate to Dashboard outputs through the existing source-of-truth state read.
-- UI_AGENT review: passed with no visual-design changes required.
-- REGRESSION_AGENT review: passed via syntax checks, bash-equivalent Bastion check, and Playwright route smoke.
-- `scripts/check-bastion.ps1` was attempted with `pwsh` and `powershell`, but neither PowerShell executable is installed in this container.
+- Documentation-only phase; no app smoke test required.
+- UI_AGENT review: passed with no UI files changed.
+- REGRESSION_AGENT review: passed for documentation scope via diff check, heading verification, and merge-conflict marker scan.
+- `scripts/check-bastion.ps1` was attempted through available PowerShell executables; PowerShell is unavailable in this Codex container, so equivalent bash documentation validation passed.

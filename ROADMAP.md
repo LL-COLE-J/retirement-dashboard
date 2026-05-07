@@ -23,6 +23,12 @@ Deliver a 1-screen financial decision experience
 
 ---
 
+
+## 2.39a — AGENTS Operating Constitution (DONE)
+- Added the permanent Bastion operating constitution to `AGENTS.md`.
+- Locked safer Codex execution rules around small scoped patches, validation, auditability, financial safety, privacy, and live-agent restrictions.
+- Documentation/governance phase only; app behavior and UI were intentionally unchanged.
+
 ## 2.12 — Timeline Layer (DONE)
 - Age-based timeline
 - Key events (retirement, run-out, life events)

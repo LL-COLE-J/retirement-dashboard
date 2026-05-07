@@ -2,6 +2,167 @@
 
 ---
 
+## Bastion Operating Constitution
+
+### 1. Bastion Core Principle
+
+- Inputs define the path. Bastion shows the outcome.
+- Profile owns inputs.
+- Engine owns calculations.
+- Views render outputs.
+- Scenarios clone baseline assumptions.
+- Dashboard remains output-only.
+- Owner dashboard remains isolated behind `owner=true`.
+
+### 2. Scoped Execution Rule
+
+- Break all major phases into small verifiable subphases.
+- One architectural concern per task.
+- Prefer audits before rewrites.
+- Prefer stabilization before expansion.
+- Prefer guardrails before optimization.
+- Avoid multi-system rewrites.
+- Validate after every phase.
+- Lock stable save states frequently.
+
+### 3. Codex Execution Safety
+
+- Verify repo status before changes.
+- Current Codex sandbox may use branch work.
+- Local branch name does not need to be `main` if repo is clean and current commit matches expected project state.
+- Stop on conflicts, dirty tree, detached uncertainty, missing files, or unclear source-of-truth.
+- Make small scoped patches.
+- Do not rewrite full `index.html`.
+- Do not change visual design unless explicitly requested.
+
+### 4. Environment Rules
+
+- Codex containers may be Linux/Ubuntu.
+- Windows local dev uses PowerShell.
+- If `scripts/check-bastion.ps1` cannot run because PowerShell is unavailable, run equivalent bash validation and report limitation.
+- Future preferred improvement: add `scripts/check-bastion.sh` for Linux validation.
+
+### 5. Save State Rules
+
+- Every completed phase must update visible Save State where applicable.
+- `SAVE_STATE.md` and `ROADMAP.md` must match the UI save state.
+- Save State changes must be text-only unless the phase explicitly changes behavior.
+- Never claim a save state is locked unless validation passed.
+
+### 6. Validation Rules
+
+- Run syntax checks for changed JavaScript.
+- Run `git diff --check`.
+- Scan for merge-conflict marker text.
+- Validate route/view loading when app behavior changes.
+- Validate Profile to Dashboard propagation when state/calculation logic changes.
+- Validate Owner isolation with `owner=true` when owner files/routes are touched.
+- Report skipped validations honestly.
+
+### 7. User-Proofing Rule
+
+Assume users will:
+
+- enter bad data
+- misunderstand outputs
+- skip warnings
+- assume certainty
+- panic under stress
+
+Design for invalid inputs, graceful failure, clear warnings, and reversible actions.
+
+### 8. Financial Safety Rule
+
+- Bastion is decision support, not a licensed advisor replacement.
+- Bastion may simulate, project, compare, warn, and explain.
+- Bastion must not autonomously execute financial actions.
+- Financial outputs must expose assumptions where practical.
+- Incomplete data must reduce certainty, not fabricate precision.
+- Avoid false precision and overconfident claims.
+
+### 9. Live Agent Restrictions
+
+Agents may not:
+
+- move money
+- execute trades
+- submit filings
+- alter linked accounts
+- contact financial institutions
+- sign documents
+- trigger irreversible external actions
+
+without explicit user approval, audit logging, and a future permission system.
+
+### 10. Agent Permission Tiers
+
+- Tier 0: UI/display helper only.
+- Tier 1: Calculation assistant.
+- Tier 2: Recommendation/explanation assistant.
+- Tier 3: Monitored external integration assistant.
+- Tier 4: Supervised automation assistant.
+- Tier 5: Prohibited autonomous execution.
+
+No agent may exceed its tier.
+
+### 11. No Silent Mutation Rule
+
+Agents may never silently alter:
+
+- user profile data
+- assumptions
+- scenarios
+- tax treatments
+- projections
+- outputs
+
+Critical changes must be visible, reversible, and attributable.
+
+### 12. Auditability Rule
+
+Critical changes should be traceable:
+
+- what changed
+- when
+- why
+- by which agent/system
+- based on which assumptions
+
+### 13. Security and Privacy Rule
+
+- Minimize sensitive stored data.
+- Prefer least privilege.
+- Keep AI advisory layers separated from direct financial-control systems.
+- External integrations require explicit review.
+- Never expose secrets, API keys, tokens, or private user data.
+
+### 14. Emergency Shutdown Rule
+
+If financial outputs become unreliable, state corruption is detected, security risk emerges, or live integrations malfunction, Bastion must prioritize safe-disable and rollback over uptime.
+
+### 15. Priority Order
+
+1. Stability
+2. Data integrity
+3. Predictability
+4. Maintainability
+5. Explainability
+6. Security
+7. Feature velocity
+
+### 16. Forbidden Actions
+
+- No broad rewrites without explicit approval.
+- No hidden calculations in views.
+- No dashboard input ownership.
+- No uncontrolled live-agent execution.
+- No fabricated certainty.
+- No unlogged critical changes.
+- No deployment from an uncertain state.
+
+---
+
+
 ## Locked Rules
 
 - Dark UI is locked.
