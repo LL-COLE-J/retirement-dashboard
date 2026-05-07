@@ -164,8 +164,11 @@ NEW:
 
 ---
 
+## 2.39c — Math Audit (DONE)
+- Added `MATH_AUDIT.md` as a non-destructive inventory of current financial calculations, duplicated derived metrics, view-owned math, scenario drift risks, Tax/RMD ownership findings, Advisor-output calculation findings, future canonical owners, risk classifications, and 2.39d guardrail recommendations.
+- Updated visible Save State text to 2.39c without changing product behavior, formulas, routes, or UI layout.
+
 ## Upcoming Math Repair Subphases
-- 2.39c — Math Audit: identify formulas, assumptions, and data flow before repairs.
 - 2.39d — Numeric Guardrails: add targeted numeric validation for known risk areas.
 - 2.39e — Canonical Baseline: lock baseline input ownership and projection source-of-truth.
 - 2.39f — Scenario Delta Repair: keep scenarios cloned from baseline assumptions and show differences only.
@@ -447,4 +450,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.39b — Security + Linux Validation Guardrails complete; next phase is 2.39c — Math Audit
+2.39c — Math Audit complete; next phase is 2.39d — Numeric Guardrails

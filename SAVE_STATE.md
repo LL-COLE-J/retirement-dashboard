@@ -1,19 +1,21 @@
-# Bastion Save State 2.39b — Security + Linux Validation Guardrails
+# Bastion Save State 2.39c — Math Audit
 
 Current status:
-- Phase 2.39b completed the security and Linux validation guardrail lock after the prior source-of-truth cleanup.
-- AGENTS.md now defines explicit secret exposure, destructive action, live permission, Linux validation, and deployment freeze rules.
-- `scripts/check-bastion.sh` is now the Codex/GitHub/Linux validation path; PowerShell validation remains the local Windows path.
-- Product behavior, calculations, routes, extracted view structure, and UI layout were intentionally not changed.
+- Phase 2.39c completed a non-destructive inventory of Bastion's current financial math.
+- `MATH_AUDIT.md` now documents where calculations live, view-owned math, duplicated derived metrics, scenario drift risks, Tax/RMD ownership findings, Advisor-output calculation findings, future canonical owners, risk classifications, and recommended 2.39d guardrail actions.
+- Product behavior, formulas, routes, extracted view structure, and UI layout were intentionally not changed.
+- Owner dashboard remains isolated behind `owner=true` and was not a priority for this phase beyond visible Save State text alignment.
 
 Patch completed:
-- Added Linux validation parity with required-file checks, whitespace validation, conflict-remnant scanning, JavaScript syntax checks, inline `index.html` script checks, and secret-pattern scanning.
-- Standardized validation language around Linux/Codex and Windows/PowerShell validation paths in project governance docs.
-- Strengthened security guardrails so suspected secret exposure halts work and blocks commit/push recommendations until owner remediation.
-- Strengthened rollback/destructive-action guardrails so destructive work requires a scoped plan, rollback path, and explicit owner approval.
+- Added `MATH_AUDIT.md` as the Phase 2.39c math inventory.
+- Updated visible Save State and phase text to Bastion Save State 2.39c — Math Audit.
+- Updated Tax/RMD and Owner visible Save State text for alignment only.
+- Updated `ROADMAP.md` so 2.39c is complete and 2.39d Numeric Guardrails remains next.
 
 Validation status:
-- UI_AGENT review: passed for text-only Save State/UI phase copy updates with no layout redesign.
-- REGRESSION_AGENT review: passed for guardrail-only scope via diff check, Linux validation, source scans, and JavaScript syntax checks.
-- Save State alignment: `SAVE_STATE.md` and `index.html` agree on Bastion Save State 2.39b.
-- Next phase remains 2.39c — Math Audit.
+- UI_AGENT review: passed for text-only Save State/UI phase copy updates and documentation-only audit scope with no layout redesign.
+- REGRESSION_AGENT review: passed for audit-only scope via diff check, Linux validation, source scans, and JavaScript syntax checks.
+- ANALYTICS_AGENT impact: not applicable; no behavior tracking or analytics changes.
+- MARKET_AGENT impact: not applicable; no product positioning, onboarding, CTA, layout, or interaction-flow changes.
+- Save State alignment: `SAVE_STATE.md`, `ROADMAP.md`, and visible UI phase text agree on Bastion Save State 2.39c.
+- Next phase remains 2.39d — Numeric Guardrails.
