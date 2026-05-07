@@ -14,10 +14,11 @@ window.BASTION_FIREBASE_CONFIG = {
 </script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bastion Insights - Save State 2.39d</title>
+<title>Bastion Insights - Save State 2.39e</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235dd6a9'/%3E%3Cstop offset='1' stop-color='%2378a6ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M32 4 52 12v17c0 14.5-8.1 24.2-20 31C20.1 53.2 12 43.5 12 29V12z'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-size='24' font-family='Inter,Segoe UI,Arial,sans-serif' font-weight='800' fill='%2307111f'%3EB%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="app/core/number-guards.js"></script>
+<script src="app/core/bastion-engine.js"></script>
 <script src="app/views/dashboard.js"></script>
 <script src="app/views/reports.js"></script>
 <script src="app/views/timeline.js"></script>
@@ -110,12 +111,12 @@ function mountRenderedView(mountId,rendererName,label){
       <button>Tax &amp; RMD</button>
       <button>Reports</button>
     </nav>
-     <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.39d — Numeric Guardrails</strong><br/><span id="phaseDesc">Display-safe numeric guardrails protect high-risk financial outputs without formula rewrites.</span></small></div>
+     <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.39e — Canonical Baseline</strong><br/><span id="phaseDesc">Initial canonical baseline owns simple duplicated calculations while preserving visible behavior.</span></small></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-       <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.39d adds display-safe numeric guardrails without changing formulas or user flow.</p></div>
+       <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.39e adds a canonical baseline layer with no intentional visible behavior changes.</p></div>
       <div class="top-actions">
         <span class="pill" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="showView('reports');toggleDecisionReport(true)">Generate Report</button>
@@ -134,7 +135,7 @@ function mountRenderedView(mountId,rendererName,label){
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><h2>Bastion Advisor</h2><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Bastion Save State 2.39d readout:</strong></p>
+  <p><strong>Bastion Save State 2.39e readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
@@ -196,7 +197,7 @@ function safeFieldNum(id,fallback,min,max){
 }
 function val(id){ var node = el(id); return node ? node.value : ''; }
 function setNum(id,val){ if(el(id)) el(id).value = Math.round(val); }
-function annualSpendValue(id){ return mode === 'annual' ? num(id) : num(id) * 12; }
+function annualSpendValue(id){ return mode === 'annual' ? num(id) : BastionEngine.monthlyToAnnual(num(id)); }
 function localTaxRate(){ return safeDivide(num('countyTaxRate') + num('cityTaxRate'),100,0); }
 function captureRate(){ return clampNumber(safeDivide(num('captureRate'),100,0),0,1,0); }
 function inflationRate(){ return Math.max(0,safeDivide(num('inflationRate'),100,0)); }
@@ -335,7 +336,7 @@ function structuredSnapshot(){ return { household:[{role:'primary',age:num('age'
 /* ENGINE: PROJECTION */
 function project(includeEvents,sourceState){
   if(includeEvents===undefined) includeEvents=true;
-  var s=sourceState||readState(); var labels=[]; var values=[]; var nw=safeNumber(s.invested,0)+safeNumber(s.cash,0)-safeNumber(s.debt,0); var start=safeNumber(s.age,num('age')); var end=Math.max(safeNumber(s.retireAge,start)+25,safeNumber(s.income2RetireAge,start)+25,start+10); var minValue=null;
+  var s=sourceState||readState(); var labels=[]; var values=[]; var nw=BastionEngine.calculateNetWorth(safeNumber(s.invested,0)+safeNumber(s.cash,0),safeNumber(s.debt,0)); var start=safeNumber(s.age,num('age')); var end=Math.max(safeNumber(s.retireAge,start)+25,safeNumber(s.income2RetireAge,start)+25,start+10); var minValue=null;
   window.__projectionState = s;
   var scenario = {
     enabled: !!includeEvents,
@@ -413,7 +414,7 @@ function calculateDecisionMetricsFromState(state){
   var cap = Math.max(0,Math.min(1,(state.captureRate||0)/100));
   var capturedSurplus = grossSurplus > 0 ? grossSurplus*cap : grossSurplus;
   var runoutAge = firstRunoutAge(path);
-  var monthlyGap = Math.round(capturedSurplus/12);
+  var monthlyGap = Math.round(BastionEngine.annualToMonthly(capturedSurplus));
   var status = 'SAFE';
   if(runoutAge !== null && runoutAge < 95) status = 'FAIL';
   else if((runoutAge !== null && runoutAge <= 100) || monthlyGap < 0 || path.min < 150000) status = 'RISK';
@@ -422,7 +423,7 @@ function calculateDecisionMetricsFromState(state){
 /* DASHBOARD VIEW */
 function renderDecisionCore(path,taxes,capturedSurplus){
   var runoutAge = firstRunoutAge(path);
-  var monthlyGap = Math.round(safeDivide(capturedSurplus,12,0));
+  var monthlyGap = Math.round(BastionEngine.annualToMonthly(capturedSurplus));
   var retireAge = num('retireAge');
   var targetLifeAge = 95;
   var runoutText = runoutAge === null ? 'Age 100+' : String(runoutAge);
@@ -556,7 +557,7 @@ function renderTaxRmdStrategy(path){
 
 function setText(id,text){ var node=el(id); if(node) node.textContent=text; }
 function commit(){
-  var withEvents=project(true); var withoutEvents=project(false); var taxes=taxSummary(); var startingNetWorth=num('invested')+num('cash')-num('debt'); var annualCurrent=annualSpendValue('currentSpend'); var grossSurplus=safeNumber(taxes.income-taxes.total-annualCurrent,0); var capturedSurplus=grossSurplus>0?grossSurplus*captureRate():grossSurplus;
+  var withEvents=project(true); var withoutEvents=project(false); var taxes=taxSummary(); var startingNetWorth=BastionEngine.calculateNetWorth(num('invested')+num('cash'),num('debt')); var annualCurrent=annualSpendValue('currentSpend'); var grossSurplus=safeNumber(taxes.income-taxes.total-annualCurrent,0); var capturedSurplus=grossSurplus>0?grossSurplus*captureRate():grossSurplus;
   var score=clampNumber(Math.round(safeDivide(withEvents.ending,1000000,0)*50+(withEvents.min>0?35:10)),0,100,0); var status='Watch'; var cls='warn-text'; if(score>=72){status='Stable';cls='good';}else if(score<45){status='At Risk';cls='bad-text';}
   if(el('pathStatus')){ el('pathStatus').textContent=status; el('pathStatus').className='metric '+cls; }
   if(el('statusFill')) el('statusFill').style.width=score+'%';
@@ -569,7 +570,7 @@ function commit(){
 function renderScenarioComparison(base,scenario){
   var box = el('scenarioComparison');
   if(!box) return;
-  var diff = scenario.ending - base.ending;
+  var diff = BastionEngine.calculateScenarioDelta(base.ending,scenario.ending);
   var causes = scenario.scenarioCauses || [];
   var primary = causes.length ? causes[0] : 'no active stress causes';
   var causeText = causes.length ? causes.join(', ') : 'none (scenario controls are off/default).';
@@ -970,7 +971,7 @@ function showView(name){
 function renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus){
   var baselineIncome = taxes && taxes.income ? taxes.income : 0;
   var annualSpend = annualSpendValue('currentSpend');
-  var savingsRate = baselineIncome>0 ? Math.max(0,Math.min(1,capturedSurplus/baselineIncome)) : 0;
+  var savingsRate = BastionEngine.calculateSavingsRate(baselineIncome,capturedSurplus);
   var riskWindow = 'Low';
   if(withEvents.min < 0 || withEvents.ending < 0) riskWindow = 'High';
   else if(withEvents.min < (baselineIncome*2) || savingsRate < 0.12) riskWindow = 'Moderate';
@@ -1207,8 +1208,8 @@ function renderOwnerSummaryCards(){
   var completed = ownerCompletedValidations.length;
   var warnings = ownerFeedback.filter(function(i){ return i.agent.indexOf('BLOCKER')>-1 && i.status==='Blocked'; }).length;
   var parked = ownerFeedback.filter(function(i){ return i.status==='Parked'; }).length;
-  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.39d');
-  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.39d Numeric Guardrails';
+  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.39e');
+  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.39e Canonical Baseline';
   if(el('ownerSummaryQueued')) el('ownerSummaryQueued').textContent=String(queued);
   if(el('ownerSummaryParked')) el('ownerSummaryParked').textContent=String(parked);
   if(el('ownerSummaryCompleted')) el('ownerSummaryCompleted').textContent=String(completed);
@@ -1333,7 +1334,7 @@ function createOwnerTestReport(){
       'Do not change formulas during owner intelligence phases.',
       'Keep owner tools hidden from customer-facing routes.'
     ],
-    suggestedNextPhase:'2.39e Canonical Baseline',
+    suggestedNextPhase:'2.39f Scenario Delta Repair',
     generatedAt:now.toISOString()
   };
 }
@@ -1375,7 +1376,7 @@ function initOwnerMode(){
   }
 }
 function init(){ loadState(); decisionBaselineState = readState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; decisionBaselineState.events = events.slice(); } setupViews(); wireNav(); bindUserNavClicks(); syncModeUI(); renderEvents(); showView('dashboard'); commit(); }
-console.log("Bastion Save State 2.39d numeric guardrails active");
+console.log("Bastion Save State 2.39e canonical baseline active");
 
 var BETA_SESSION_KEY='bastion_beta_session_v1';
 window.__bastionSyntaxCheckOk=true;

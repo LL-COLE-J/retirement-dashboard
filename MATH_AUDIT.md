@@ -200,3 +200,32 @@ Phase 2.39d added a lightweight numeric guardrail layer before canonical engine 
 - `formatCurrencySafe(value, fallback = "$0")` and `formatPercentSafe(value, fallback = "0%")` prevent broken currency and percentage labels.
 
 Boundary rule: these guardrails must not be treated as the future source of mathematical truth. They are temporary output-safety wrappers so invalid values do not silently propagate through visible financial cards, chart labels, scenario comparisons, timeline labels, Advisor summaries, or Tax/RMD tables. Phase 2.39e should still establish the canonical baseline source-of-truth and make serious invalid states explicit instead of relying on display fallbacks.
+
+
+## 12. Phase 2.39e canonical baseline follow-up
+
+Phase 2.39e added the first lightweight canonical calculation owner in `app/core/bastion-engine.js`. This is intentionally a baseline layer only, not a full extraction of the projection engine.
+
+Initial canonical ownership now covers these low-risk/simple calculations:
+
+- `normalizeAnnualRate(value, fallback)` owns percent-to-decimal normalization for annual rate inputs where a value may appear as either `4.5` or `0.045`.
+- `monthlyToAnnual(value)` owns simple monthly-to-annual conversion.
+- `annualToMonthly(value)` owns simple annual-to-monthly conversion.
+- `calculateSavingsRate(income, savings)` owns guarded savings-rate calculation and clamps the result to a 0–100% range.
+- `calculateMonthlyGap(income, expenses)` owns simple annual cash-flow-to-monthly-gap conversion.
+- `calculateNetWorth(assets, debts)` owns assets-minus-debts net worth math.
+- `calculateDebtToAssetRatio(debt, assets)` owns guarded debt-to-asset ratio math.
+- `calculateWithdrawalRate(annualWithdrawal, portfolio)` owns guarded withdrawal-rate math.
+- `calculateScenarioDelta(baseValue, scenarioValue)` owns simple scenario-versus-baseline delta math.
+
+Only the safest duplicated/simple calculations were routed through `window.BastionEngine` in this phase: monthly/annual conversion, starting/projected net worth, monthly gap, savings rate display, and scenario ending-path delta. This preserves current visible behavior while establishing authoritative ownership for future repairs.
+
+Remaining non-canonical areas:
+
+- Full projection-loop cash-flow logic remains in `index.html`.
+- Federal, state, local, Tax/RMD, withdrawal-order, and RMD divisor logic remain non-canonical and simplified.
+- Scenario stress overlays and clone/baseline semantics remain non-canonical until 2.39f Scenario Delta Repair.
+- Advisor classification, Decision Core status, run-out-age interpretation, and recommendation text remain non-canonical.
+- Social Security, pension, healthcare, long-term-care, Monte Carlo, and compliance-sensitive planning rules remain non-canonical placeholders or view-owned logic.
+
+Boundary rule: `app/core/bastion-engine.js` is now the first source of truth for the simple functions listed above, but it must not be expanded into complex tax, RMD, Monte Carlo, Social Security, or Advisor classification logic without a separate scoped phase and validation pass.
