@@ -16,4 +16,5 @@ Validation status:
 - Governance/text-only phase; no app behavior smoke test required because routes, calculations, and layout were not changed.
 - UI_AGENT review: passed with Save State copy synced and no UI layout changes.
 - REGRESSION_AGENT review: passed for governance scope via save-state alignment check, inline JavaScript syntax check, diff check, and merge-conflict marker scan.
+- Phase 2.39a PR conflict-resolution review: no merge-conflict markers remain, and Save State alignment was revalidated across `index.html`, `app/index.html`, `SAVE_STATE.md`, `ROADMAP.md`, and `AGENTS.md`.
 - `scripts/check-bastion.ps1` was attempted through available PowerShell executables; PowerShell is unavailable in this Codex container, so equivalent bash validation passed.
