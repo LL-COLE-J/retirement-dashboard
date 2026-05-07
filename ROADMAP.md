@@ -442,4 +442,8 @@ NEW:
 
 # CURRENT FOCUS
 
+ codex/update-agents.md-with-operating-constitution
 2.39a — AGENTS Operating Constitution
+=======
+2.38 — Work Branch Safety Lock
+ main
