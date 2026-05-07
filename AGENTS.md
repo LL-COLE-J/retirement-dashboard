@@ -39,8 +39,9 @@
 
 - Codex containers may be Linux/Ubuntu.
 - Windows local dev uses PowerShell.
-- If `scripts/check-bastion.ps1` cannot run because PowerShell is unavailable, run equivalent bash validation and report limitation.
-- Future preferred improvement: add `scripts/check-bastion.sh` for Linux validation.
+- Codex/Linux validation must run `bash scripts/check-bastion.sh`.
+- Windows local validation remains `scripts/check-bastion.ps1` through PowerShell.
+- If either validation path fails, the phase is not complete and merge/deploy/push recommendations are blocked.
 
 ### 5. Save State Rules
 
@@ -53,6 +54,8 @@
 
 - Run syntax checks for changed JavaScript.
 - Run `git diff --check`.
+- Run `bash scripts/check-bastion.sh` in Codex/Linux environments.
+- Run `scripts/check-bastion.ps1` in Windows/PowerShell local environments.
 - Scan for merge-conflict marker text.
 - Validate route/view loading when app behavior changes.
 - Validate Profile to Dashboard propagation when state/calculation logic changes.
@@ -135,6 +138,7 @@ Critical changes should be traceable:
 - Keep AI advisory layers separated from direct financial-control systems.
 - External integrations require explicit review.
 - Never expose secrets, API keys, tokens, or private user data.
+- Suspected secret exposure must follow the Secret Exposure Protocol before any commit or push recommendation.
 
 ### 14. Emergency Shutdown Rule
 
@@ -160,6 +164,47 @@ If financial outputs become unreliable, state corruption is detected, security r
 - No unlogged critical changes.
 - No deployment from an uncertain state.
 
+### 17. Secret Exposure Protocol
+
+If any secret, token, private key, credential, or private user data may be exposed:
+
+- Halt execution immediately.
+- Notify the owner that suspected secret exposure exists without summarizing, repeating, or transforming the secret value.
+- Do not commit the suspected secret.
+- Do not push or recommend pushing while exposure remains unresolved.
+- Require owner remediation before continuing.
+- Re-run secret-pattern validation after remediation.
+
+### 18. Destructive Action Protocol
+
+Before any destructive action, irreversible migration, force operation, deletion, reset, or rollback-sensitive change:
+
+- Define a scoped plan.
+- Identify the rollback path before acting.
+- Obtain explicit owner approval before proceeding.
+- Prefer reversible, reviewable patches over destructive operations.
+- Stop if rollback safety is unclear.
+
+### 19. Live Agent Permission Model
+
+- Observer: read-only inspection and reporting.
+- Analyst: analysis only; no file mutations.
+- Builder: scoped file edits only within owner-approved task boundaries.
+- Deploy: never autonomous; deployment requires owner-directed workflow.
+- Owner: human only; final authority for approvals, secrets, destructive actions, and deployment.
+
+### 20. Linux Validation Rule
+
+- Codex/Linux environments must run `bash scripts/check-bastion.sh`.
+- PowerShell validation remains the local/Windows path through `scripts/check-bastion.ps1`.
+- Linux parity checks must include required files, source-control remnants, syntax checks, inline script checks, and secret-pattern scanning.
+
+### 21. Deployment Freeze Rule
+
+- Failed validation blocks merge, deploy, push, and push-recommendation workflows.
+- Suspected secret exposure blocks merge, deploy, push, and push-recommendation workflows.
+- Unclear rollback safety blocks destructive work until the owner approves a safe plan.
+
 ---
 
 
@@ -174,7 +219,8 @@ If financial outputs become unreliable, state corruption is detected, security r
 - Always preserve current user flow unless explicitly changing it.
 - Every roadmap phase must update the visible UI phase card using `phaseNumber` and `phaseDesc`.
 - No phase is complete unless the visible Save State reflects the current phase/status.
-- Run `scripts/check-bastion.ps1` before finishing every phase.
+- Run `bash scripts/check-bastion.sh` in Codex/Linux before finishing every phase.
+- Run `scripts/check-bastion.ps1` in Windows/PowerShell before finishing every phase.
 
 ---
 
@@ -283,7 +329,7 @@ Required every phase:
 2. Scan `app/index.html` for layout risks.
 3. Check whether new UI creates overflow, overlap, or cramped cards.
 4. Fix obvious visual regressions.
-5. Run `scripts/check-bastion.ps1`.
+5. Run the required environment validation path: `bash scripts/check-bastion.sh` for Codex/Linux or `scripts/check-bastion.ps1` for Windows/PowerShell.
 6. Report UI_AGENT result in the phase summary.
 
 Phase summary must include:
@@ -399,7 +445,7 @@ Checks:
 - Timeline renders
 - Decision Core visible
 - Save State synced
-- `scripts/check-bastion.ps1` passes
+- Required validation path passes: `bash scripts/check-bastion.sh` for Codex/Linux or `scripts/check-bastion.ps1` for Windows/PowerShell
 
 Rules:
 - Never break working features
@@ -847,7 +893,7 @@ Every time a roadmap phase is executed, the system MUST:
 
 3. Keep UI, roadmap, and save state in sync.
 
-4. Run `scripts/check-bastion.ps1`.
+4. Run `bash scripts/check-bastion.sh` in Codex/Linux or `scripts/check-bastion.ps1` in Windows/PowerShell.
 
 5. Report test result in final phase summary.
 
@@ -875,7 +921,7 @@ Before any phase is considered complete:
 4. REGRESSION_AGENT checks completed.
 5. ANALYTICS_AGENT impact considered if user behavior tracking is affected.
 6. MARKET_AGENT impact considered if product positioning, onboarding, buttons, layout, or interaction flow is affected.
-7. `scripts/check-bastion.ps1` passes.
+7. Required environment validation passes: `bash scripts/check-bastion.sh` for Codex/Linux or `scripts/check-bastion.ps1` for Windows/PowerShell.
 8. Only necessary files changed.
 9. Existing layout and logic preserved.
 10. `SAVE_STATE.md` updated to reflect the new phase, stabilization, or rollback.
