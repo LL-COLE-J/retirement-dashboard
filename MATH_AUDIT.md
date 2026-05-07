@@ -188,3 +188,15 @@ Acceptance target for 2.39d:
 - No formulas are silently changed.
 - Existing user flow is preserved.
 - Save State, ROADMAP, and visible phase text are aligned to 2.39d when the phase completes.
+
+## 11. Phase 2.39d guardrail follow-up
+
+Phase 2.39d added a lightweight numeric guardrail layer before canonical engine extraction. These helpers are intentionally display-safety and pre-canonicalization only:
+
+- `safeNumber(value, fallback = 0)` prevents non-finite values from reaching displayed outputs.
+- `safeDivide(numerator, denominator, fallback = 0)` prevents divide-by-zero and non-finite division output.
+- `safePercent(value, fallback = 0)` provides a finite percentage value for display formatting.
+- `clampNumber(value, min, max, fallback = 0)` keeps display-facing numeric values inside explicit bounds.
+- `formatCurrencySafe(value, fallback = "$0")` and `formatPercentSafe(value, fallback = "0%")` prevent broken currency and percentage labels.
+
+Boundary rule: these guardrails must not be treated as the future source of mathematical truth. They are temporary output-safety wrappers so invalid values do not silently propagate through visible financial cards, chart labels, scenario comparisons, timeline labels, Advisor summaries, or Tax/RMD tables. Phase 2.39e should still establish the canonical baseline source-of-truth and make serious invalid states explicit instead of relying on display fallbacks.

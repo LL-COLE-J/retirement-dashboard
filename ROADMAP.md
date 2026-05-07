@@ -168,8 +168,13 @@ NEW:
 - Added `MATH_AUDIT.md` as a non-destructive inventory of current financial calculations, duplicated derived metrics, view-owned math, scenario drift risks, Tax/RMD ownership findings, Advisor-output calculation findings, future canonical owners, risk classifications, and 2.39d guardrail recommendations.
 - Updated visible Save State text to 2.39c without changing product behavior, formulas, routes, or UI layout.
 
+## 2.39d — Numeric Guardrails (DONE)
+- Added `app/core/number-guards.js` as a lightweight pre-canonicalization numeric guardrail layer.
+- Wrapped targeted high-risk display outputs for safe finite numbers, divide-by-zero protection, clamps, currency formatting, and percentage formatting.
+- Documented that guardrails are display-safety only and do not intentionally rewrite formulas or create the canonical engine.
+- Updated visible Save State text to 2.39d without redesigning the UI, changing routes, or rebuilding owner dashboard behavior.
+
 ## Upcoming Math Repair Subphases
-- 2.39d — Numeric Guardrails: add targeted numeric validation for known risk areas.
 - 2.39e — Canonical Baseline: lock baseline input ownership and projection source-of-truth.
 - 2.39f — Scenario Delta Repair: keep scenarios cloned from baseline assumptions and show differences only.
 - 2.39g — Dashboard/Timeline/Advisor Sync: verify output views read the same validated engine results.
@@ -450,4 +455,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.39c — Math Audit complete; next phase is 2.39d — Numeric Guardrails
+2.39d — Numeric Guardrails complete; next phase is 2.39e — Canonical Baseline

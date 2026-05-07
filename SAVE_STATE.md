@@ -1,21 +1,23 @@
-# Bastion Save State 2.39c — Math Audit
+# Bastion Save State 2.39d — Numeric Guardrails
 
 Current status:
-- Phase 2.39c completed a non-destructive inventory of Bastion's current financial math.
-- `MATH_AUDIT.md` now documents where calculations live, view-owned math, duplicated derived metrics, scenario drift risks, Tax/RMD ownership findings, Advisor-output calculation findings, future canonical owners, risk classifications, and recommended 2.39d guardrail actions.
-- Product behavior, formulas, routes, extracted view structure, and UI layout were intentionally not changed.
-- Owner dashboard remains isolated behind `owner=true` and was not a priority for this phase beyond visible Save State text alignment.
+- Phase 2.39d completed lightweight numeric guardrails for high-risk displayed financial outputs.
+- Added `app/core/number-guards.js` with display-safety helpers for finite numbers, divide-by-zero protection, percentage formatting, clamps, and safe currency/percent formatting.
+- Wrapped targeted Dashboard, Scenario, Timeline, Advisor, Tax/RMD, chart-axis, and changed-baseline display paths so `NaN`, `Infinity`, unsafe division, and invalid percentage/currency output do not silently render into the UI.
+- Guardrails are pre-canonicalization display safety only; they do not create the canonical engine or move math ownership.
+- No intentional formula behavior changes, route changes, owner-dashboard rebuild, feature work, or UI redesign were made.
 
 Patch completed:
-- Added `MATH_AUDIT.md` as the Phase 2.39c math inventory.
-- Updated visible Save State and phase text to Bastion Save State 2.39c — Math Audit.
+- Created the numeric guardrail utility layer and loaded it before view modules.
+- Updated visible Save State and phase text to Bastion Save State 2.39d — Numeric Guardrails.
 - Updated Tax/RMD and Owner visible Save State text for alignment only.
-- Updated `ROADMAP.md` so 2.39c is complete and 2.39d Numeric Guardrails remains next.
+- Updated `MATH_AUDIT.md` with a 2.39d follow-up note documenting guardrail boundaries.
+- Updated `ROADMAP.md` so 2.39d is complete and 2.39e — Canonical Baseline remains next.
 
 Validation status:
-- UI_AGENT review: passed for text-only Save State/UI phase copy updates and documentation-only audit scope with no layout redesign.
-- REGRESSION_AGENT review: passed for audit-only scope via diff check, Linux validation, source scans, and JavaScript syntax checks.
+- UI_AGENT review: passed for Save State text alignment and no layout redesign; numeric guardrails did not introduce new visible layout components.
+- REGRESSION_AGENT review: passed for dashboard/profile/advisor/scenarios/timeline/tax/report route preservation through Linux validation and JavaScript syntax checks.
 - ANALYTICS_AGENT impact: not applicable; no behavior tracking or analytics changes.
 - MARKET_AGENT impact: not applicable; no product positioning, onboarding, CTA, layout, or interaction-flow changes.
-- Save State alignment: `SAVE_STATE.md`, `ROADMAP.md`, and visible UI phase text agree on Bastion Save State 2.39c.
-- Next phase remains 2.39d — Numeric Guardrails.
+- Save State alignment: `SAVE_STATE.md`, `ROADMAP.md`, and visible UI phase text agree on Bastion Save State 2.39d.
+- Next phase is 2.39e — Canonical Baseline.
