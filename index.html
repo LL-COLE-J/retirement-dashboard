@@ -14,9 +14,10 @@ window.BASTION_FIREBASE_CONFIG = {
 </script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bastion Insights - Save State 2.39c</title>
+<title>Bastion Insights - Save State 2.39d</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235dd6a9'/%3E%3Cstop offset='1' stop-color='%2378a6ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M32 4 52 12v17c0 14.5-8.1 24.2-20 31C20.1 53.2 12 43.5 12 29V12z'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-size='24' font-family='Inter,Segoe UI,Arial,sans-serif' font-weight='800' fill='%2307111f'%3EB%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="app/core/number-guards.js"></script>
 <script src="app/views/dashboard.js"></script>
 <script src="app/views/reports.js"></script>
 <script src="app/views/timeline.js"></script>
@@ -109,12 +110,12 @@ function mountRenderedView(mountId,rendererName,label){
       <button>Tax &amp; RMD</button>
       <button>Reports</button>
     </nav>
-     <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.39c — Math Audit</strong><br/><span id="phaseDesc">Current financial math is inventoried for future guardrails without product behavior changes.</span></small></div>
+     <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.39d — Numeric Guardrails</strong><br/><span id="phaseDesc">Display-safe numeric guardrails protect high-risk financial outputs without formula rewrites.</span></small></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-       <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.39c inventories current financial math without changing product behavior.</p></div>
+       <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.39d adds display-safe numeric guardrails without changing formulas or user flow.</p></div>
       <div class="top-actions">
         <span class="pill" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="showView('reports');toggleDecisionReport(true)">Generate Report</button>
@@ -133,7 +134,7 @@ function mountRenderedView(mountId,rendererName,label){
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><h2>Bastion Advisor</h2><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Bastion Save State 2.39c readout:</strong></p>
+  <p><strong>Bastion Save State 2.39d readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
@@ -182,14 +183,10 @@ function setPhase(phase,desc){
   if(el('phaseNumber')) el('phaseNumber').textContent = phase;
   if(el('phaseDesc')) el('phaseDesc').textContent = desc;
 }
-function money(n){ return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(Number(n)||0); }
-function num(id){ var node = el(id); return node ? (Number(node.value)||0) : 0; }
-function safeNum(v,fallback){
-  var n = Number(v);
-  if(!isFinite(n) || isNaN(n)) return fallback===undefined?0:fallback;
-  return n;
-}
-function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
+function money(n){ return formatCurrencySafe(n,'$0'); }
+function num(id){ var node = el(id); return node ? safeNumber(node.value,0) : 0; }
+function safeNum(v,fallback){ return safeNumber(v,fallback===undefined?0:fallback); }
+function clamp(v,min,max){ return clampNumber(v,min,max,0); }
 function safeFieldNum(id,fallback,min,max){
   var node = el(id); var raw = node ? node.value : fallback; var n = safeNum(raw,fallback===undefined?0:fallback);
   if(n < 0) n = 0;
@@ -200,9 +197,9 @@ function safeFieldNum(id,fallback,min,max){
 function val(id){ var node = el(id); return node ? node.value : ''; }
 function setNum(id,val){ if(el(id)) el(id).value = Math.round(val); }
 function annualSpendValue(id){ return mode === 'annual' ? num(id) : num(id) * 12; }
-function localTaxRate(){ return (num('countyTaxRate') + num('cityTaxRate')) / 100; }
-function captureRate(){ return Math.max(0,Math.min(1,num('captureRate')/100)); }
-function inflationRate(){ return Math.max(0,num('inflationRate')/100); }
+function localTaxRate(){ return safeDivide(num('countyTaxRate') + num('cityTaxRate'),100,0); }
+function captureRate(){ return clampNumber(safeDivide(num('captureRate'),100,0),0,1,0); }
+function inflationRate(){ return Math.max(0,safeDivide(num('inflationRate'),100,0)); }
 function returnRate(){ var p = val('returnProfile'); if(p === 'conservative') return 0.035; if(p === 'growth') return 0.06; return 0.045; }
 function grossIncomeAtAge(age){
   var state = window.__projectionState || null;
@@ -338,7 +335,7 @@ function structuredSnapshot(){ return { household:[{role:'primary',age:num('age'
 /* ENGINE: PROJECTION */
 function project(includeEvents,sourceState){
   if(includeEvents===undefined) includeEvents=true;
-  var s=sourceState||readState(); var labels=[]; var values=[]; var nw=s.invested+s.cash-s.debt; var start=s.age; var end=Math.max(s.retireAge+25,s.income2RetireAge+25,s.age+10); var minValue=null;
+  var s=sourceState||readState(); var labels=[]; var values=[]; var nw=safeNumber(s.invested,0)+safeNumber(s.cash,0)-safeNumber(s.debt,0); var start=safeNumber(s.age,num('age')); var end=Math.max(safeNumber(s.retireAge,start)+25,safeNumber(s.income2RetireAge,start)+25,start+10); var minValue=null;
   window.__projectionState = s;
   var scenario = {
     enabled: !!includeEvents,
@@ -375,21 +372,21 @@ function project(includeEvents,sourceState){
       // 2) Survivor income removal and expense reduction
       if(scenario.survivorOn && age >= start+1){ annualCashFlow -= s.income2; annualCashFlow += annualRetire*0.25; if(scenario.causes.indexOf('survivor income loss')<0) scenario.causes.push('survivor income loss'); }
       // 3) Market crash asset haircut
-      if(!marketCrashApplied && scenario.marketCrashPct>0 && age===start+1){ nw = nw * (1 - scenario.marketCrashPct/100); marketCrashApplied = true; if(scenario.causes.indexOf('market crash asset reduction')<0) scenario.causes.push('market crash asset reduction'); }
+      if(!marketCrashApplied && scenario.marketCrashPct>0 && age===start+1){ nw = nw * (1 - safeDivide(scenario.marketCrashPct,100,0)); marketCrashApplied = true; if(scenario.causes.indexOf('market crash asset reduction')<0) scenario.causes.push('market crash asset reduction'); }
       // 4) Medical/LTC shock
       if(scenario.medicalAmount>0){
         if(shockType==='annual'){ annualCashFlow -= scenario.medicalAmount; if(scenario.causes.indexOf('medical/LTC cost shock')<0) scenario.causes.push('medical/LTC cost shock'); }
         else if(age===start+1){ nw -= scenario.medicalAmount; if(scenario.causes.indexOf('medical/LTC cost shock')<0) scenario.causes.push('medical/LTC cost shock'); }
       }
       // 5) Tax increase overlay / tax drag
-      if(scenario.taxIncreasePct>0){ annualCashFlow -= Math.max(0,income)*(scenario.taxIncreasePct/100); if(scenario.causes.indexOf('tax increase drag')<0) scenario.causes.push('tax increase drag'); }
+      if(scenario.taxIncreasePct>0){ annualCashFlow -= Math.max(0,income)*safeDivide(scenario.taxIncreasePct,100,0); if(scenario.causes.indexOf('tax increase drag')<0) scenario.causes.push('tax increase drag'); }
     }
     // Phase 2.10 SCENARIO OVERLAY END
-    nw=nw*(1+returnRate())+annualCashFlow;
-    var rounded=Math.round(nw); values.push(rounded); if(minValue===null||rounded<minValue) minValue=rounded;
+    nw=safeNumber(nw*(1+returnRate())+annualCashFlow,0);
+    var rounded=Math.round(safeNumber(nw,0)); values.push(rounded); if(minValue===null||rounded<minValue) minValue=rounded;
   }
   window.__projectionState = null;
-  return {labels:labels,values:values,ending:values[values.length-1],min:minValue,scenarioCauses:scenario.causes};
+  return {labels:labels,values:values,ending:safeNumber(values[values.length-1],0),min:safeNumber(minValue,0),scenarioCauses:scenario.causes};
 }
 function eventImpactNow(){ var age=num('age'); var total=0; for(var i=0;i<events.length;i++){ if(eventApplies(events[i],age)) total+=eventAnnualImpact(events[i]); } return total; }
 function firstRunoutAge(path){
@@ -425,7 +422,7 @@ function calculateDecisionMetricsFromState(state){
 /* DASHBOARD VIEW */
 function renderDecisionCore(path,taxes,capturedSurplus){
   var runoutAge = firstRunoutAge(path);
-  var monthlyGap = Math.round(capturedSurplus / 12);
+  var monthlyGap = Math.round(safeDivide(capturedSurplus,12,0));
   var retireAge = num('retireAge');
   var targetLifeAge = 95;
   var runoutText = runoutAge === null ? 'Age 100+' : String(runoutAge);
@@ -538,9 +535,9 @@ function renderTaxRmdStrategy(path){
   if(el('taxComplianceStatus')) el('taxComplianceStatus').textContent=status;
   if(el('taxComplianceNote')) el('taxComplianceNote').textContent='Filing: '+(filing||'Needs input')+' • State: '+(state||'Needs input')+' • RMD start age: 73';
   var yearlyBaseTax = taxSummaryForIncome(currentGrossIncome()).total;
-  var lifetimeTaxes = yearlyBaseTax * Math.max(1,(95-age));
+  var lifetimeTaxes = safeNumber(yearlyBaseTax * Math.max(1,(95-age)),0);
   if(el('lifetimeTaxMetric')) el('lifetimeTaxMetric').textContent=money(lifetimeTaxes);
-  var optimized = lifetimeTaxes*0.92;
+  var optimized = safeNumber(lifetimeTaxes*0.92,0);
   if(el('taxImpactComparison')) el('taxImpactComparison').textContent='Recommended withdrawal order: Taxable → Traditional → Roth. Estimated optimization: '+money(lifetimeTaxes-optimized)+'.';
   if(el('taxMeaning')) el('taxMeaning').textContent = needsInput ? 'Bastion needs account balances and retirement income assumptions to make this stronger.' : 'Your plan appears '+(status.toLowerCase())+'. Withdrawal order matters because it can reduce lifetime taxes and keep flexibility for high-expense years.';
   if(el('taxRiskAreas')) el('taxRiskAreas').textContent = 'Risk can appear from high spending, large tax-deferred balances, delayed RMD pressure, healthcare shocks, and taxable-income spikes.';
@@ -553,17 +550,17 @@ function renderTaxRmdStrategy(path){
   var body=el('rmdScheduleBody'); if(!body) return;
   if(needsInput || taxDeferred<=0){ body.innerHTML='<tr><td colspan="5">Needs input</td></tr>'; return; }
   var startAge=Math.max(73,age); var bal=taxDeferred; var rows='';
-  for(var i=0;i<5;i++){ var a=startAge+i; var div=rmdDivisor(a); var rmd=bal/div; var tax=taxSummaryForIncome(rmd).total; rows+='<tr><td>'+a+'</td><td>'+money(bal)+'</td><td>'+div.toFixed(1)+'</td><td>'+money(rmd)+'</td><td>'+money(tax)+'</td></tr>'; bal=(bal-rmd)*(1+returnRate()); }
+  for(var i=0;i<5;i++){ var a=startAge+i; var div=rmdDivisor(a); var rmd=safeDivide(bal,div,0); var tax=taxSummaryForIncome(rmd).total; rows+='<tr><td>'+a+'</td><td>'+money(bal)+'</td><td>'+safeNumber(div,0).toFixed(1)+'</td><td>'+money(rmd)+'</td><td>'+money(tax)+'</td></tr>'; bal=safeNumber((bal-rmd)*(1+returnRate()),0); }
   body.innerHTML=rows;
 }
 
 function setText(id,text){ var node=el(id); if(node) node.textContent=text; }
 function commit(){
-  var withEvents=project(true); var withoutEvents=project(false); var taxes=taxSummary(); var startingNetWorth=num('invested')+num('cash')-num('debt'); var annualCurrent=annualSpendValue('currentSpend'); var grossSurplus=taxes.income-taxes.total-annualCurrent; var capturedSurplus=grossSurplus>0?grossSurplus*captureRate():grossSurplus;
-  var score=Math.max(0,Math.min(100,Math.round((withEvents.ending/1000000)*50+(withEvents.min>0?35:10)))); var status='Watch'; var cls='warn-text'; if(score>=72){status='Stable';cls='good';}else if(score<45){status='At Risk';cls='bad-text';}
+  var withEvents=project(true); var withoutEvents=project(false); var taxes=taxSummary(); var startingNetWorth=num('invested')+num('cash')-num('debt'); var annualCurrent=annualSpendValue('currentSpend'); var grossSurplus=safeNumber(taxes.income-taxes.total-annualCurrent,0); var capturedSurplus=grossSurplus>0?grossSurplus*captureRate():grossSurplus;
+  var score=clampNumber(Math.round(safeDivide(withEvents.ending,1000000,0)*50+(withEvents.min>0?35:10)),0,100,0); var status='Watch'; var cls='warn-text'; if(score>=72){status='Stable';cls='good';}else if(score<45){status='At Risk';cls='bad-text';}
   if(el('pathStatus')){ el('pathStatus').textContent=status; el('pathStatus').className='metric '+cls; }
   if(el('statusFill')) el('statusFill').style.width=score+'%';
-  setText('pathSummary','Projected ending path: '+money(withEvents.ending)+'. Reality drag included: tax, inflation, returns, and '+Math.round(captureRate()*100)+'% surplus capture.');
+  setText('pathSummary','Projected ending path: '+money(withEvents.ending)+'. Reality drag included: tax, inflation, returns, and '+formatPercentSafe(captureRate()*100,'0%')+' surplus capture.');
   setText('startingNetWorthMetric',money(startingNetWorth)); setText('grossIncomeMetric',money(taxes.income)); setText('taxEstimateMetric',money(taxes.total)); setText('annualSurplusMetric',money(capturedSurplus)); setText('endingPathMetric',money(withEvents.ending)); setText('minPathMetric',money(withEvents.min)); setText('currentSpendMetric',money(num('currentSpend'))); setText('retireSpendMetric',money(num('retireSpend'))); setText('eventImpactMetric',money(eventImpactNow()));
   renderDecisionCore(withEvents,taxes,capturedSurplus); renderChart(withoutEvents,withEvents); renderChanges(); renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus); renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus); renderTimeline(); renderTaxRmdStrategy(withEvents); renderPlanSetupSummary(); saveState();
   renderScenarioComparison(withoutEvents,withEvents);
@@ -735,7 +732,7 @@ function renderTimeline(){
   }
   renderTimelineAdvisorInsights({retirementAge:retirementAge,scenarioDelta:scenarioDelta,scenarioHasRisk:scenarioHasRisk,riskCount:riskCount});
 }
-function renderChart(base,eventsPath){ var ctx=el('pathChart'); if(!ctx || !window.Chart) return; if(chart) chart.destroy(); chart=new Chart(ctx,{type:'line',data:{labels:base.labels,datasets:[{label:'Before Events',data:base.values,tension:.3,borderWidth:2,pointRadius:0},{label:'After Events',data:eventsPath.values,tension:.3,borderWidth:3,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#bdc8d8'}}},scales:{x:{ticks:{color:'#97a6ba'},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'#97a6ba',callback:function(v){return '$'+Math.round(v/1000)+'k';}},grid:{color:'rgba(255,255,255,.06)'}}}}}); }
+function renderChart(base,eventsPath){ var ctx=el('pathChart'); if(!ctx || !window.Chart) return; if(chart) chart.destroy(); chart=new Chart(ctx,{type:'line',data:{labels:base.labels,datasets:[{label:'Before Events',data:base.values,tension:.3,borderWidth:2,pointRadius:0},{label:'After Events',data:eventsPath.values,tension:.3,borderWidth:3,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#bdc8d8'}}},scales:{x:{ticks:{color:'#97a6ba'},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'#97a6ba',callback:function(v){return '$'+Math.round(safeDivide(v,1000,0))+'k';}},grid:{color:'rgba(255,255,255,.06)'}}}}}); }
 function hasEventType(type){ for(var i=0;i<events.length;i++){ if(events[i].type===type) return true; } return false; }
 /* ADVISOR VIEW */
 function renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus){
@@ -780,7 +777,7 @@ function renderChanges(){
   for(var i=0;i<checks.length;i++){ var label=checks[i][0]; var key=checks[i][1]; var d=(now[key]||0)-(baseInputs[key]||0); if(d) rows.push([label,d]); }
   var eventDelta=now.events.length-(baseInputs.events?baseInputs.events.length:0); if(eventDelta) rows.push(['Life Event Count',eventDelta]);
   if(!rows.length){ box.innerHTML='<div class="empty">No changes from saved baseline.</div>'; return; }
-  var html=''; for(var r=0;r<rows.length;r++){ var rowLabel=rows[r][0]; var rowDelta=rows[r][1]; var value=(rowLabel.indexOf('Rate')>=0)?rowDelta.toFixed(2)+'%':(typeof rowDelta==='number'&&rowLabel!=='Life Event Count'?money(rowDelta):rowDelta); html+='<div class="changed-item"><span>'+rowLabel+'</span><span class="'+(rowDelta>=0?'good':'bad-text')+'">'+value+'</span></div>'; } box.innerHTML=html;
+  var html=''; for(var r=0;r<rows.length;r++){ var rowLabel=rows[r][0]; var rowDelta=rows[r][1]; var value=(rowLabel.indexOf('Rate')>=0)?formatPercentSafe(safeNumber(rowDelta,0),'0%'):(typeof rowDelta==='number'&&rowLabel!=='Life Event Count'?money(rowDelta):rowDelta); html+='<div class="changed-item"><span>'+rowLabel+'</span><span class="'+(rowDelta>=0?'good':'bad-text')+'">'+value+'</span></div>'; } box.innerHTML=html;
 }
 function renderPlanSetupSummary(){
   var box=el('planSetupSummary'); if(!box) return;
@@ -1210,8 +1207,8 @@ function renderOwnerSummaryCards(){
   var completed = ownerCompletedValidations.length;
   var warnings = ownerFeedback.filter(function(i){ return i.agent.indexOf('BLOCKER')>-1 && i.status==='Blocked'; }).length;
   var parked = ownerFeedback.filter(function(i){ return i.status==='Parked'; }).length;
-  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.39c');
-  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.39c Math Audit';
+  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.39d');
+  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.39d Numeric Guardrails';
   if(el('ownerSummaryQueued')) el('ownerSummaryQueued').textContent=String(queued);
   if(el('ownerSummaryParked')) el('ownerSummaryParked').textContent=String(parked);
   if(el('ownerSummaryCompleted')) el('ownerSummaryCompleted').textContent=String(completed);
@@ -1336,7 +1333,7 @@ function createOwnerTestReport(){
       'Do not change formulas during owner intelligence phases.',
       'Keep owner tools hidden from customer-facing routes.'
     ],
-    suggestedNextPhase:'2.39d Numeric Guardrails',
+    suggestedNextPhase:'2.39e Canonical Baseline',
     generatedAt:now.toISOString()
   };
 }
@@ -1378,7 +1375,7 @@ function initOwnerMode(){
   }
 }
 function init(){ loadState(); decisionBaselineState = readState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; decisionBaselineState.events = events.slice(); } setupViews(); wireNav(); bindUserNavClicks(); syncModeUI(); renderEvents(); showView('dashboard'); commit(); }
-console.log("Bastion Save State 2.39c math audit inventory active");
+console.log("Bastion Save State 2.39d numeric guardrails active");
 
 var BETA_SESSION_KEY='bastion_beta_session_v1';
 window.__bastionSyntaxCheckOk=true;
