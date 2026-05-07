@@ -24,11 +24,6 @@ Deliver a 1-screen financial decision experience
 ---
 
 
-## 2.39a — AGENTS Operating Constitution (DONE)
-- Added the permanent Bastion operating constitution to `AGENTS.md`.
-- Locked safer Codex execution rules around small scoped patches, validation, auditability, financial safety, privacy, and live-agent restrictions.
-- Documentation/governance phase only; app behavior and UI were intentionally unchanged.
-
 ## 2.12 — Timeline Layer (DONE)
 - Age-based timeline
 - Key events (retirement, run-out, life events)
@@ -133,6 +128,43 @@ NEW:
 
 NEW:
 - Assumption transparency panel
+
+---
+
+## 2.36 — Modularization Foundation (DONE)
+- Began separating view code into dedicated modules while preserving the single deployed app shell.
+- Kept existing user flow, dark UI, routes, and calculations intact during extraction work.
+- Preserved Dashboard/Profile/Advisor/Scenarios/Timeline navigation while preparing for safer future maintenance.
+
+---
+
+## 2.37 — Router + State Stability Lock (DONE)
+- Stabilized routing around one `showView()` path and one active view at a time.
+- Locked Profile-owned input persistence and Dashboard output propagation through the existing state path.
+- Preserved Owner Dashboard isolation behind `owner=true`.
+
+---
+
+## 2.38 — Work-Branch Safety Lock (DONE)
+- Confirmed Codex work can proceed on a clean active sandbox branch without requiring the local branch name to be `main`.
+- Reinforced stop conditions for dirty worktrees, conflicts, detached uncertainty, and unclear source-of-truth.
+- Kept phase work small, verifiable, and safe to validate before commit.
+
+---
+
+## 2.39a — AGENTS Operating Constitution (DONE)
+- Added the permanent Bastion operating constitution to `AGENTS.md`.
+- Locked safer Codex execution rules around small scoped patches, validation, auditability, financial safety, privacy, and live-agent restrictions.
+- Updated visible Save State copy to 2.39a without changing app behavior or UI layout.
+
+---
+
+## Upcoming Math Repair Subphases
+- 2.39b — Math audit inventory: identify formulas, assumptions, and data flow before repairs.
+- 2.39c — Profile-to-engine input contract repair: ensure Profile owns inputs and Engine owns calculations.
+- 2.39d — Projection calculation repair: fix validated calculation defects only, with before/after checks.
+- 2.39e — Scenario clone/delta repair: keep scenarios cloned from baseline assumptions and show differences only.
+- 2.39f — Validation lock: add repeatable checks for math, state propagation, routes, and owner isolation.
 
 ---
 
@@ -410,4 +442,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.37 — Router + State Stability Lock
+2.39a — AGENTS Operating Constitution
