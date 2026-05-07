@@ -157,14 +157,19 @@ NEW:
 - Locked safer Codex execution rules around small scoped patches, validation, auditability, financial safety, privacy, and live-agent restrictions.
 - Updated visible Save State copy to 2.39a without changing app behavior or UI layout.
 
+## 2.39b — Security + Linux Validation Guardrails (DONE)
+- Strengthened `AGENTS.md` with secret exposure, destructive action, live permission, Linux validation, and deployment freeze guardrails.
+- Added `scripts/check-bastion.sh` as the Codex/GitHub/Linux validation path while preserving PowerShell as the Windows local path.
+- Standardized validation language across Save State and roadmap docs without changing product behavior, calculations, routes, or UI layout.
+
 ---
 
 ## Upcoming Math Repair Subphases
-- 2.39b — Math audit inventory: identify formulas, assumptions, and data flow before repairs.
-- 2.39c — Profile-to-engine input contract repair: ensure Profile owns inputs and Engine owns calculations.
-- 2.39d — Projection calculation repair: fix validated calculation defects only, with before/after checks.
-- 2.39e — Scenario clone/delta repair: keep scenarios cloned from baseline assumptions and show differences only.
-- 2.39f — Validation lock: add repeatable checks for math, state propagation, routes, and owner isolation.
+- 2.39c — Math Audit: identify formulas, assumptions, and data flow before repairs.
+- 2.39d — Numeric Guardrails: add targeted numeric validation for known risk areas.
+- 2.39e — Canonical Baseline: lock baseline input ownership and projection source-of-truth.
+- 2.39f — Scenario Delta Repair: keep scenarios cloned from baseline assumptions and show differences only.
+- 2.39g — Dashboard/Timeline/Advisor Sync: verify output views read the same validated engine results.
 
 ---
 
@@ -442,4 +447,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.39b-precheck — Source-of-Truth Cleanup before Security + Linux Validation Guardrails
+2.39b — Security + Linux Validation Guardrails complete; next phase is 2.39c — Math Audit
