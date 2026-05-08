@@ -185,6 +185,98 @@ Before any destructive action, irreversible migration, force operation, deletion
 - Prefer reversible, reviewable patches over destructive operations.
 - Stop if rollback safety is unclear.
 
+### 18A. Protected Infrastructure Files
+
+The following files are protected infrastructure and require explicit task scope before editing. Owner approval is required when a change affects security, auth, deployment, routing, calculations, compliance, or visible product behavior:
+
+- `AGENTS.md`
+- `SAVE_STATE.md`
+- `ROADMAP.md`
+- `REGRESSION_CHECKLIST.md`
+- `MATH_AUDIT.md`
+- `scripts/check-bastion.sh`
+- `scripts/check-bastion.ps1`
+- `scripts/save-state.ps1`
+- `firebase.json`
+- `firestore.rules`
+- `.firebaserc`
+- `.github/workflows/*`
+- `index.html`
+- `app/index.html`
+- `app/core/*`
+- `app/views/*`
+- `app/styles.css`
+- `styles.css`
+
+### 18B. Sensitive Changes Requiring Owner Approval
+
+Owner approval is required before changing:
+
+- auth behavior
+- Firebase rules
+- API keys or configuration
+- deployment configuration
+- GitHub Actions/workflows
+- environment variables
+- secrets handling
+- financial formulas
+- tax/RMD/compliance logic
+- routing architecture
+- destructive file deletion
+- broad refactors
+- UI redesign phases
+
+### 18C. Agent Self-Deviation Check
+
+Before a phase or PR is considered ready, the agent must explicitly verify:
+
+- Did I touch only allowed files?
+- Did I avoid broad refactors?
+- Did I avoid auth/security/deployment changes unless explicitly requested?
+- Did I avoid financial formula changes unless explicitly requested?
+- Did I avoid UI redesign unless explicitly requested?
+- Did I preserve routes?
+- Did I preserve visible behavior unless explicitly requested?
+- Did I run required validation?
+- Did I update Save State/ROADMAP only when required?
+- Did I avoid exposing or repeating secrets?
+
+Any deviation must be disclosed in the final summary and PR body, treated as a blocker when it affects protected infrastructure or sensitive behavior, and owner-reviewed before merge/deploy/push recommendation.
+
+### 18D. Required PR Summary Fields
+
+Every PR summary must include:
+
+- What changed
+- What did not change
+- Files changed
+- UI impact
+- Calculation impact
+- Security/auth/config impact
+- Secret-leak probe result
+- Validation commands run
+- Rollback plan
+- Save State alignment
+- Agent self-deviation check
+
+### 18E. Secret Leak Probe Requirement
+
+Every phase must proactively probe/test newly added or changed code/configuration for possible secret leakage or sensitive exposure before commit. This includes running the required secret-pattern validation, reviewing newly added text for keys/tokens/private credentials/private user data, and reporting the result in the final summary and PR body. Suspected exposure triggers the Secret Exposure Protocol and blocks commit, merge, deploy, push, and push recommendations until remediated.
+
+### 18F. Agent-Deviation Test Documentation
+
+Future 2.39h follow-up validation should test, in a safe branch or dedicated test harness only, whether repo checks catch:
+
+- unauthorized broad file edits
+- stale Save State / ROADMAP drift
+- broken inline JavaScript
+- conflict-remnant text
+- fake secret patterns
+- unauthorized route/view mutations
+- unauthorized deployment/config mutations involving `firebase.json`, `firestore.rules`, `.github/workflows/*`, or `.firebaserc`
+
+Do not intentionally commit fake secrets or broken files to the main work path. This phase documents and formalizes the checks; destructive/deviation simulation belongs in later isolated validation work only.
+
 ### 19. Live Agent Permission Model
 
 - Observer: read-only inspection and reporting.
