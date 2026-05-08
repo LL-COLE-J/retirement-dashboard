@@ -146,6 +146,19 @@ if fails:
 print('PASS: no failing secret exposure patterns found')
 PY
 
+printf '\nFirebase hardening posture:\n'
+if [[ -f firestore.rules ]] && rg -n 'allow\s+read\s*,\s*write\s*:\s*if\s+true' firestore.rules >/tmp/bastion-open-firestore-rules.txt; then
+  warn 'temporary Firestore allow read/write if true rules found; audit required before beta/production'
+  cat /tmp/bastion-open-firestore-rules.txt
+else
+  pass 'no temporary Firestore allow read/write if true rules found'
+fi
+if git ls-files | rg '(^|/)\.env(\.|$)' >/tmp/bastion-tracked-env-files.txt; then
+  fail 'tracked environment file found'
+else
+  pass 'no tracked .env files found'
+fi
+
 printf '\nSave State alignment:\n'
 ui_save=$(python3 - <<'PY'
 from pathlib import Path
