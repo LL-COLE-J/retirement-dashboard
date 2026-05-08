@@ -14,7 +14,7 @@ window.BASTION_FIREBASE_CONFIG = {
 </script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bastion Insights - Save State 2.39e</title>
+<title>Bastion Insights - Save State 2.39f</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235dd6a9'/%3E%3Cstop offset='1' stop-color='%2378a6ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M32 4 52 12v17c0 14.5-8.1 24.2-20 31C20.1 53.2 12 43.5 12 29V12z'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-size='24' font-family='Inter,Segoe UI,Arial,sans-serif' font-weight='800' fill='%2307111f'%3EB%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="app/core/number-guards.js"></script>
@@ -111,12 +111,12 @@ function mountRenderedView(mountId,rendererName,label){
       <button>Tax &amp; RMD</button>
       <button>Reports</button>
     </nav>
-     <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.39e — Canonical Baseline</strong><br/><span id="phaseDesc">Initial canonical baseline owns simple duplicated calculations while preserving visible behavior.</span></small></div>
+     <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.39f — Scenario Delta Repair</strong><br/><span id="phaseDesc">Scenario A/B deltas now use canonical simple delta math and safer formatting.</span></small></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-       <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.39e adds a canonical baseline layer with no intentional visible behavior changes.</p></div>
+       <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.39f repairs low-risk Scenario A/B delta consistency without redesigning the UI.</p></div>
       <div class="top-actions">
         <span class="pill" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="showView('reports');toggleDecisionReport(true)">Generate Report</button>
@@ -135,7 +135,7 @@ function mountRenderedView(mountId,rendererName,label){
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><h2>Bastion Advisor</h2><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Bastion Save State 2.39e readout:</strong></p>
+  <p><strong>Bastion Save State 2.39f readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
@@ -197,7 +197,11 @@ function safeFieldNum(id,fallback,min,max){
 }
 function val(id){ var node = el(id); return node ? node.value : ''; }
 function setNum(id,val){ if(el(id)) el(id).value = Math.round(val); }
-function annualSpendValue(id){ return mode === 'annual' ? num(id) : BastionEngine.monthlyToAnnual(num(id)); }
+function annualizeModeValue(value,inputMode){ return inputMode === 'monthly' ? BastionEngine.monthlyToAnnual(value) : safeNumber(value,0); }
+function annualSpendValue(id){ return annualizeModeValue(num(id),mode); }
+function scenarioDeltaValue(baseValue,scenarioValue){ return BastionEngine.calculateScenarioDelta(baseValue,scenarioValue); }
+function scenarioPercentDelta(baseValue,scenarioValue){ return safeDivide(scenarioDeltaValue(baseValue,scenarioValue),Math.abs(safeNumber(baseValue,0)),0) * 100; }
+function scenarioDeltaDirection(delta,betterLabel,worseLabel,neutralLabel){ if(delta > 0) return betterLabel; if(delta < 0) return worseLabel; return neutralLabel; }
 function localTaxRate(){ return safeDivide(num('countyTaxRate') + num('cityTaxRate'),100,0); }
 function captureRate(){ return clampNumber(safeDivide(num('captureRate'),100,0),0,1,0); }
 function inflationRate(){ return Math.max(0,safeDivide(num('inflationRate'),100,0)); }
@@ -254,7 +258,7 @@ function taxSummary(){ return taxSummaryForIncome(currentGrossIncome()); }
 function cloneEvent(e){ return {id:e.id,type:e.type,name:e.name,startAge:e.startAge,duration:e.duration,amount:e.amount,frequency:e.frequency}; }
 function readState(){
   var copiedEvents = []; for(var i=0;i<events.length;i++){ copiedEvents.push(cloneEvent(events[i])); }
-  return {age:num('age'),retireAge:num('retireAge'),income2RetireAge:num('income2RetireAge'),filingStatus:val('filingStatus')||'single',taxState:val('taxState')||'TN',countyTaxRate:num('countyTaxRate'),cityTaxRate:num('cityTaxRate'),captureRate:num('captureRate'),inflationRate:num('inflationRate'),returnProfile:val('returnProfile')||'moderate',income1:num('income1'),income2:num('income2'),income:currentGrossIncome(),currentSpend:num('currentSpend'),retireSpend:num('retireSpend'),invested:num('invested'),cash:num('cash'),debt:num('debt'),events:copiedEvents,structured:structuredSnapshot()};
+  return {mode:mode,age:num('age'),retireAge:num('retireAge'),income2RetireAge:num('income2RetireAge'),filingStatus:val('filingStatus')||'single',taxState:val('taxState')||'TN',countyTaxRate:num('countyTaxRate'),cityTaxRate:num('cityTaxRate'),captureRate:num('captureRate'),inflationRate:num('inflationRate'),returnProfile:val('returnProfile')||'moderate',income1:num('income1'),income2:num('income2'),income:currentGrossIncome(),currentSpend:num('currentSpend'),retireSpend:num('retireSpend'),invested:num('invested'),cash:num('cash'),debt:num('debt'),events:copiedEvents,structured:structuredSnapshot()};
 }
 function saveState(){ localStorage.setItem(STORAGE_KEY,JSON.stringify({mode:mode,baseline:baseline,events:events,inputs:readState()})); }
 function loadState(){
@@ -357,8 +361,9 @@ function project(includeEvents,sourceState){
     var taxes=taxSummaryForIncome(income);
     var afterTaxIncome=income-taxes.total;
     var workingIncomeActive=income>0;
-    var spendBaseCurrent = mode === 'annual' ? (s.currentSpend||0) : (s.currentSpend||0)*12;
-    var spendBaseRetire = mode === 'annual' ? (s.retireSpend||0) : (s.retireSpend||0)*12;
+    var stateMode = s.mode || mode;
+    var spendBaseCurrent = annualizeModeValue(s.currentSpend||0,stateMode);
+    var spendBaseRetire = annualizeModeValue(s.retireSpend||0,stateMode);
     var annualCurrent=inflatedAmount(spendBaseCurrent,age);
     var annualRetire=inflatedAmount(spendBaseRetire,age);
     if(passAwayHasOccurred(age)){ annualCurrent*=0.75; annualRetire*=0.75; }
@@ -409,7 +414,7 @@ function calculateDecisionMetricsFromState(state){
   var federal = estimateFederalTax(grossIncome,state.filingStatus||'single');
   var stateTax = estimateStateTax(grossIncome,state.taxState||'TN');
   var local = Math.round(grossIncome * Math.max(0,((state.countyTaxRate||0)+(state.cityTaxRate||0))/100));
-  var annualCurrent = mode === 'annual' ? (state.currentSpend||0) : (state.currentSpend||0)*12;
+  var annualCurrent = annualizeModeValue(state.currentSpend||0,state.mode||mode);
   var grossSurplus = grossIncome - federal - stateTax - local - annualCurrent;
   var cap = Math.max(0,Math.min(1,(state.captureRate||0)/100));
   var capturedSurplus = grossSurplus > 0 ? grossSurplus*cap : grossSurplus;
@@ -475,7 +480,7 @@ function renderDecisionCore(path,taxes,capturedSurplus){
   var baseMetrics = calculateDecisionMetricsFromState(baseState);
   var baseRunout = baseMetrics.runoutAge === null ? 100 : baseMetrics.runoutAge;
   var currentRunout = runoutAge === null ? 100 : runoutAge;
-  var yearsDelta = Math.round(currentRunout - baseRunout);
+  var yearsDelta = Math.round(scenarioDeltaValue(baseRunout,currentRunout));
   var improving = yearsDelta > 0 || (baseMetrics.status !== 'SAFE' && okay === 'SAFE');
   var worsening = yearsDelta < 0 || (baseMetrics.status === 'SAFE' && okay !== 'SAFE') || (baseMetrics.status === 'RISK' && okay === 'FAIL');
   var trend = improving ? 'Improving' : (worsening ? 'Worsening' : 'Stable');
@@ -483,10 +488,10 @@ function renderDecisionCore(path,taxes,capturedSurplus){
   if(el('decisionDeltaYears')){ el('decisionDeltaYears').textContent=(yearsDelta>0?'+':'')+yearsDelta+' years'; el('decisionDeltaYears').className='decision-value '+trendClass; }
   if(el('decisionDeltaStatus')){ el('decisionDeltaStatus').textContent=trend+' • '+baseMetrics.status+' → '+okay; el('decisionDeltaStatus').className='decision-sub '+trendClass; }
   if(el('decisionIfDoThis')){
-    var spendDelta = num('currentSpend') - (baseState.currentSpend||0);
-    var incomeDelta = (num('income1')+num('income2')) - ((baseState.income1||0)+(baseState.income2||0));
-    var retireDelta = num('retireAge') - (baseState.retireAge||num('retireAge'));
-    var eventDelta = events.length - (((baseState.events||[]).length)||0);
+    var spendDelta = scenarioDeltaValue(annualizeModeValue(baseState.currentSpend||0,baseState.mode||mode),annualSpendValue('currentSpend'));
+    var incomeDelta = scenarioDeltaValue((baseState.income1||0)+(baseState.income2||0),num('income1')+num('income2'));
+    var retireDelta = scenarioDeltaValue(baseState.retireAge||num('retireAge'),num('retireAge'));
+    var eventDelta = scenarioDeltaValue(((baseState.events||[]).length)||0,events.length);
     var msg='If you keep these inputs, status stays '+okay+'.';
     if(okay !== baseMetrics.status) msg='If you do this, your plan shifts from '+baseMetrics.status+' → '+okay+'.';
     else if(spendDelta < 0) msg='If you reduce spending by '+money(Math.abs(spendDelta))+', your plan improves by '+Math.abs(yearsDelta)+' years.';
@@ -570,12 +575,16 @@ function commit(){
 function renderScenarioComparison(base,scenario){
   var box = el('scenarioComparison');
   if(!box) return;
-  var diff = BastionEngine.calculateScenarioDelta(base.ending,scenario.ending);
+  var diff = scenarioDeltaValue(base.ending,scenario.ending);
+  var percentDiff = scenarioPercentDelta(base.ending,scenario.ending);
+  var deltaLabel = signedMoney(diff);
+  var percentLabel = formatPercentSafe(Math.abs(percentDiff),'0%');
+  var direction = scenarioDeltaDirection(diff,'higher than baseline','lower than baseline','even with baseline');
   var causes = scenario.scenarioCauses || [];
   var primary = causes.length ? causes[0] : 'no active stress causes';
   var causeText = causes.length ? causes.join(', ') : 'none (scenario controls are off/default).';
-  box.innerHTML = '<strong>Scenario Comparison</strong><br>Baseline ending path is <strong>'+money(base.ending)+'</strong>. Scenario ending path is <strong>'+money(scenario.ending)+'</strong> (<strong>'+money(diff)+'</strong> delta).<br>Primary impact: <strong>'+primary+'</strong>.<br>Active stress causes: '+causeText;
-  if(el('reportScenarioSummary')) el('reportScenarioSummary').textContent = 'Baseline '+money(base.ending)+' vs Scenario '+money(scenario.ending)+' ('+money(diff)+' delta). Primary impact: '+primary+'.';
+  box.innerHTML = '<strong>Scenario Comparison</strong><br>Baseline ending path is <strong>'+money(base.ending)+'</strong>. Scenario ending path is <strong>'+money(scenario.ending)+'</strong> (<strong>'+deltaLabel+'</strong> delta, '+percentLabel+' '+direction+').<br>Primary impact: <strong>'+primary+'</strong>.<br>Active stress causes: '+causeText;
+  if(el('reportScenarioSummary')) el('reportScenarioSummary').textContent = 'Baseline '+money(base.ending)+' vs Scenario '+money(scenario.ending)+' ('+deltaLabel+' delta, '+percentLabel+' '+direction+'). Primary impact: '+primary+'.';
 }
 function signedMoney(n){
   var amount = Math.round(Number(n)||0);
@@ -630,7 +639,7 @@ function renderTimeline(){
   var spendShift = annualCurrentSpend - annualRetireSpend;
   var ltcPlaceholder = Math.max(annualRetireSpend * 0.35, 25000);
   var scenarioRetireAge = safeFieldNum('scenarioFirstRetireAge',retirementAge,currentAge,120);
-  var scenarioDelta = scenarioRetireAge - retirementAge;
+  var scenarioDelta = scenarioDeltaValue(retirementAge,scenarioRetireAge);
   var scenarioMedicalAmount = Math.max(0,safeFieldNum('scenarioMedicalAmount',0,0));
   var scenarioMarketCrash = clamp(safeFieldNum('scenarioMarketCrash',0,0,90),0,90);
   var scenarioTaxIncrease = clamp(safeFieldNum('scenarioTaxIncrease',0,0,25),0,25);
@@ -745,7 +754,7 @@ function renderAdvisor(withEvents,withoutEvents,taxes,capturedSurplus){
   var items=[];
   items.push('<strong>Plan Diagnosis:</strong> Your plan is '+status+' with run-out age '+runout+'.');
   items.push('<strong>Primary Risk Driver:</strong> '+driver+'.');
-  items.push('<strong>Impact Explanation:</strong> Life events and assumptions shift the ending path by '+money(withEvents.ending-withoutEvents.ending)+'.');
+  items.push('<strong>Impact Explanation:</strong> Life events and assumptions shift the ending path by '+signedMoney(scenarioDeltaValue(withoutEvents.ending,withEvents.ending))+'.');
   items.push('<strong>Recommended Next Action:</strong> '+nextAction);
   items.push('Context: gross income '+money(taxes.income)+', taxes '+money(taxes.total)+', retirement spend '+money(annualRetire)+', debt '+money(num('debt'))+'.');
   items.push('Healthcare/LTC toggle '+(el('ltcToggle')&&el('ltcToggle').checked?'is ON and can create late-life pressure.':'is OFF in the current profile.'));
@@ -978,7 +987,7 @@ function renderBastionPhase29(withEvents,withoutEvents,taxes,capturedSurplus){
   var intelligence = [];
   intelligence.push('<strong>Advisor Intelligence</strong> — Savings capture is <strong>'+Math.round(savingsRate*100)+'%</strong> of gross income after taxes/spend.');
   intelligence.push('Risk Window: <strong>'+riskWindow+'</strong>. Minimum modeled path value is <strong>'+money(withEvents.min)+'</strong>.');
-  intelligence.push('Event drag vs baseline path: <strong>'+money(withEvents.ending-withoutEvents.ending)+'</strong>. Current annual spend basis: <strong>'+money(annualSpend)+'</strong>.');
+  intelligence.push('Event drag vs baseline path: <strong>'+signedMoney(scenarioDeltaValue(withoutEvents.ending,withEvents.ending))+'</strong>. Current annual spend basis: <strong>'+money(annualSpend)+'</strong>.');
   if(el('advisorSummary')) el('advisorSummary').innerHTML = intelligence.join('<br>');
 }
 
@@ -1208,8 +1217,8 @@ function renderOwnerSummaryCards(){
   var completed = ownerCompletedValidations.length;
   var warnings = ownerFeedback.filter(function(i){ return i.agent.indexOf('BLOCKER')>-1 && i.status==='Blocked'; }).length;
   var parked = ownerFeedback.filter(function(i){ return i.status==='Parked'; }).length;
-  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.39e');
-  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.39e Canonical Baseline';
+  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.39f');
+  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.39f Scenario Delta Repair';
   if(el('ownerSummaryQueued')) el('ownerSummaryQueued').textContent=String(queued);
   if(el('ownerSummaryParked')) el('ownerSummaryParked').textContent=String(parked);
   if(el('ownerSummaryCompleted')) el('ownerSummaryCompleted').textContent=String(completed);
@@ -1334,7 +1343,7 @@ function createOwnerTestReport(){
       'Do not change formulas during owner intelligence phases.',
       'Keep owner tools hidden from customer-facing routes.'
     ],
-    suggestedNextPhase:'2.39f Scenario Delta Repair',
+    suggestedNextPhase:'2.39g Dashboard/Timeline/Advisor Sync',
     generatedAt:now.toISOString()
   };
 }
@@ -1376,7 +1385,7 @@ function initOwnerMode(){
   }
 }
 function init(){ loadState(); decisionBaselineState = readState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; decisionBaselineState.events = events.slice(); } setupViews(); wireNav(); bindUserNavClicks(); syncModeUI(); renderEvents(); showView('dashboard'); commit(); }
-console.log("Bastion Save State 2.39e canonical baseline active");
+console.log("Bastion Save State 2.39f scenario delta repair active");
 
 var BETA_SESSION_KEY='bastion_beta_session_v1';
 window.__bastionSyntaxCheckOk=true;
