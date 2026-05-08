@@ -216,8 +216,16 @@ NEW:
 - Updated Linux, PowerShell, and GitHub validation checks so future phases validate the canonical root shell and compatibility redirect without treating the redirect as the full app shell.
 - Updated visible Save State text to 2.39j without changing product behavior, formulas, routes, auth behavior, Firebase rule behavior, deployment targets, owner dashboard behavior, or UI layout.
 
+
+## 2.40 — Beta UX Stabilization (ACTIVE / IN PROGRESS)
+- Began controlled light-theme normalization across authenticated app surfaces while preserving the dark sidebar, routes, calculations, governance systems, and app shell assumptions.
+- Improved Profile as the input center with clearer section grouping, section descriptions, trust cues, and beta-ready input hierarchy.
+- Improved Dashboard readability and trust clarity through calmer advisor-grade cards, clearer Decision Core copy, consistent buttons/fields/summaries, and mobile spacing polish.
+- No intentional governance, auth, route, deployment, Firebase, owner-dashboard, or engine rewrites occurred.
+- Future UX refinement direction: onboarding, deeper profile refinement, trusted beta preparation, advisor-grade reporting polish, fallback/empty-state clarity, and mobile refinement.
+
 ## Upcoming Governance and Stabilization Subphases
-- 2.40 — Beta UX Stabilization: uniform UI cohesion, profile input cleanup, advisor-grade light-theme direction, and trusted beta preparation.
+- 2.40 — Beta UX Stabilization: active/in progress for uniform UI cohesion, profile input cleanup, advisor-grade light-theme direction, and trusted beta preparation.
 - Future Firebase hardening: add Firestore rules tests, Firebase Auth boundary design, staging/production separation, production rule tightening, and deployment credential least-privilege review as separate scoped phases.
 
 ---
@@ -496,4 +504,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.39j — App Shell Normalization complete; next phase is 2.40 — Beta UX Stabilization
+2.40 — Beta UX Stabilization active/in progress; next refinements focus onboarding, profile polish, trusted beta reporting, and mobile refinement
