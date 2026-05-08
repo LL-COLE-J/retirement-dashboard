@@ -197,8 +197,16 @@ NEW:
 - Preserved existing routes, calculations, scenario stress behavior, owner isolation, and dark UI.
 - Updated visible Save State text to 2.39g without redesigning the UI, changing routes, or rebuilding owner dashboard behavior.
 
-## Upcoming Math Repair Subphases
-- 2.39h — Next Scoped Stabilization: select the next narrow math/display repair after validation.
+## 2.39h — PR Safety Checklist / Agent Deviation Test (DONE)
+- Added `PR_SAFETY_CHECKLIST.md` to standardize PR summary fields, protected infrastructure file review, owner-approval triggers, rollback planning, and agent self-deviation checks.
+- Updated `AGENTS.md` with protected infrastructure files, sensitive-change owner approval requirements, required PR summary fields, a proactive secret-leak probe requirement, and future agent-deviation validation notes.
+- Documented that future deviation simulations must happen only in a safe branch or dedicated test harness and must not intentionally commit fake secrets or broken files.
+- Updated visible Save State text to 2.39h without changing product behavior, formulas, routes, Firebase/security config, or UI layout.
+
+## Upcoming Governance and Stabilization Subphases
+- 2.39i — Firebase Rules + Environment Hardening Audit: review Firebase rules, environment exposure, and deployment assumptions without changing product behavior unless explicitly scoped.
+- 2.39j — App Shell Normalization: preserve the current user flow while planning future shell cleanup after governance hardening.
+- Future Beta UX Stabilization: continue dark-UI, route, onboarding, and output readability stabilization without broad rewrites.
 
 ---
 
@@ -476,4 +484,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.39g — Dashboard/Timeline/Advisor Sync complete; next phase is 2.39h — Next Scoped Stabilization
+2.39h — PR Safety Checklist / Agent Deviation Test complete; next phase is 2.39i — Firebase Rules + Environment Hardening Audit
