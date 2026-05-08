@@ -14,7 +14,7 @@ window.BASTION_FIREBASE_CONFIG = {
 </script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bastion Insights - Save State 2.39i</title>
+<title>Bastion Insights - Save State 2.39j</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235dd6a9'/%3E%3Cstop offset='1' stop-color='%2378a6ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M32 4 52 12v17c0 14.5-8.1 24.2-20 31C20.1 53.2 12 43.5 12 29V12z'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-size='24' font-family='Inter,Segoe UI,Arial,sans-serif' font-weight='800' fill='%2307111f'%3EB%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="app/core/number-guards.js"></script>
@@ -111,12 +111,12 @@ function mountRenderedView(mountId,rendererName,label){
       <button>Tax &amp; RMD</button>
       <button>Reports</button>
     </nav>
-     <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.39i — Firebase Rules + Environment Hardening Audit</strong><br/><span id="phaseDesc">Firebase posture, environment separation, least-privilege gaps, and deployment guardrails are audited; product behavior is unchanged.</span></small></div>
+     <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.39j — App Shell Normalization</strong><br/><span id="phaseDesc">Root index.html is documented as the canonical app shell; app/index.html remains a compatibility redirect only.</span></small></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-       <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.39i audits Firebase rules, environment readiness, and deployment guardrails without changing product behavior.</p></div>
+       <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.39j documents root index.html as the canonical app shell while preserving current entry behavior.</p></div>
       <div class="top-actions">
         <span class="pill" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="showView('reports');toggleDecisionReport(true)">Generate Report</button>
@@ -135,7 +135,7 @@ function mountRenderedView(mountId,rendererName,label){
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><h2>Bastion Advisor</h2><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Bastion Save State 2.39i readout:</strong></p>
+  <p><strong>Bastion Save State 2.39j readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
@@ -1209,8 +1209,8 @@ function renderOwnerSummaryCards(){
   var completed = ownerCompletedValidations.length;
   var warnings = ownerFeedback.filter(function(i){ return i.agent.indexOf('BLOCKER')>-1 && i.status==='Blocked'; }).length;
   var parked = ownerFeedback.filter(function(i){ return i.status==='Parked'; }).length;
-  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.39i');
-  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.39i Firebase Rules + Environment Hardening Audit';
+  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.39j');
+  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.39j App Shell Normalization';
   if(el('ownerSummaryQueued')) el('ownerSummaryQueued').textContent=String(queued);
   if(el('ownerSummaryParked')) el('ownerSummaryParked').textContent=String(parked);
   if(el('ownerSummaryCompleted')) el('ownerSummaryCompleted').textContent=String(completed);
@@ -1335,7 +1335,7 @@ function createOwnerTestReport(){
       'Do not change formulas during owner intelligence phases.',
       'Keep owner tools hidden from customer-facing routes.'
     ],
-    suggestedNextPhase:'2.39j App Shell Normalization',
+    suggestedNextPhase:'2.40 Beta UX Stabilization',
     generatedAt:now.toISOString()
   };
 }
@@ -1377,7 +1377,7 @@ function initOwnerMode(){
   }
 }
 function init(){ loadState(); decisionBaselineState = readState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; decisionBaselineState.events = events.slice(); } setupViews(); wireNav(); bindUserNavClicks(); syncModeUI(); renderEvents(); showView('dashboard'); commit(); }
-console.log("Bastion Save State 2.39i Firebase hardening audit active");
+console.log("Bastion Save State 2.39j app shell normalization active");
 
 var BETA_SESSION_KEY='bastion_beta_session_v1';
 window.__bastionSyntaxCheckOk=true;

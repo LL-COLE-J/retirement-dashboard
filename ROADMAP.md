@@ -4,7 +4,7 @@
 
 ## CORE PRINCIPLES
 
-- Single-file first (app/index.html)
+- Single-file first (canonical shell: root `index.html`)
 - Decision > data
 - One screen > multiple flows
 - Fast iteration > perfect modeling
@@ -210,10 +210,15 @@ NEW:
 - Added read-only contents permission to the validation-only GitHub workflow.
 - Updated visible Save State text to 2.39i without changing product behavior, formulas, routes, auth behavior, Firebase rule behavior, deployment targets, owner dashboard behavior, or UI layout.
 
+## 2.39j — App Shell Normalization (DONE)
+- Added `APP_SHELL_NORMALIZATION.md` to document the pre-2.39j shell structure, repo references, deployment assumptions, canonical shell path, compatibility redirect decision, risk assessment, rollback plan, future cleanup notes, and validation results.
+- Documented root `index.html` as the canonical app shell and retained `app/index.html` as a lightweight compatibility redirect because external Cloudflare settings are not visible in the repo.
+- Updated Linux, PowerShell, and GitHub validation checks so future phases validate the canonical root shell and compatibility redirect without treating the redirect as the full app shell.
+- Updated visible Save State text to 2.39j without changing product behavior, formulas, routes, auth behavior, Firebase rule behavior, deployment targets, owner dashboard behavior, or UI layout.
+
 ## Upcoming Governance and Stabilization Subphases
-- 2.39j — App Shell Normalization: preserve the current user flow while planning future shell cleanup after governance hardening.
+- 2.40 — Beta UX Stabilization: uniform UI cohesion, profile input cleanup, advisor-grade light-theme direction, and trusted beta preparation.
 - Future Firebase hardening: add Firestore rules tests, Firebase Auth boundary design, staging/production separation, production rule tightening, and deployment credential least-privilege review as separate scoped phases.
-- Future Beta UX Stabilization: continue dark-UI, route, onboarding, and output readability stabilization without broad rewrites.
 
 ---
 
@@ -491,4 +496,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.39i — Firebase Rules + Environment Hardening Audit complete; next phase is 2.39j — App Shell Normalization
+2.39j — App Shell Normalization complete; next phase is 2.40 — Beta UX Stabilization

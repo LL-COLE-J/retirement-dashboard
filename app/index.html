@@ -1,2 +1,17 @@
 <!doctype html>
-<meta http-equiv="refresh" content="0; url=../index.html">
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="refresh" content="0; url=../index.html" />
+  <link rel="canonical" href="../index.html" />
+  <title>Bastion Insight App Shell Redirect</title>
+</head>
+<body>
+  <p>Bastion Insight uses the repository root <code>index.html</code> as the canonical app shell.</p>
+  <p><a href="../index.html">Continue to Bastion Insight</a></p>
+  <script>
+    window.location.replace('../index.html' + window.location.search + window.location.hash);
+  </script>
+</body>
+</html>
