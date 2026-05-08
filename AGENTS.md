@@ -289,6 +289,16 @@ Firebase and deployment configuration must be handled as protected infrastructur
 - GitHub validation workflows should use read-only permissions unless a scoped deployment phase explicitly requires more.
 - Staging and production Firebase projects should be separated before beta or enterprise use, with rollback guidance documented before rule tightening.
 
+### 18H. App Shell Handling Rule
+
+App shell and deployment-entry assumptions are protected infrastructure:
+
+- Root `index.html` is the canonical Bastion app shell unless a future owner-approved deployment-entry phase explicitly changes it.
+- `app/index.html` may exist only as a documented compatibility redirect while root `index.html` remains canonical.
+- App shell changes require explicit owner approval, repo-reference audit, validation updates, and a documented rollback plan.
+- Deployment entry changes must preserve current public behavior unless the owner explicitly approves a behavior change.
+- Root/app shell assumptions must be documented in `APP_SHELL_NORMALIZATION.md` or its successor before merge/deploy/push recommendations.
+
 ### 19. Live Agent Permission Model
 
 - Observer: read-only inspection and reporting.
@@ -315,7 +325,7 @@ Firebase and deployment configuration must be handled as protected infrastructur
 ## Locked Rules
 
 - Dark UI is locked.
-- `app/index.html` remains the deployed app file.
+- Root `index.html` remains the canonical deployed app shell; `app/index.html` remains a compatibility redirect unless a future approved deployment-entry phase changes it.
 - Single-file structure remains for now.
 - Navigation must remain: Dashboard / Profile / Advisor / Scenarios / Timeline.
 - Cloudflare deploys from GitHub `main`.
@@ -430,7 +440,7 @@ Responsibilities:
 
 Required every phase:
 1. Review affected files before final summary.
-2. Scan `app/index.html` for layout risks.
+2. Scan root `index.html` for layout risks and verify `app/index.html` remains compatibility-only when retained.
 3. Check whether new UI creates overflow, overlap, or cramped cards.
 4. Fix obvious visual regressions.
 5. Run the required environment validation path: `bash scripts/check-bastion.sh` for Codex/Linux or `scripts/check-bastion.ps1` for Windows/PowerShell.
@@ -1045,7 +1055,7 @@ Before any phase is considered complete:
 ### Non-Negotiable
 
 - No phase is considered complete unless the UI phase label is updated.
-- No phase is considered complete until `SAVE_STATE.md`, root `index.html`, and deployed UI agree.
+- No phase is considered complete until `SAVE_STATE.md`, root `index.html`, documented app shell assumptions, and deployed UI agree.
 - Do not skip UI_AGENT review.
 - Do not skip REGRESSION_AGENT review.
 - Do not leave stale phase indicators in the interface.
