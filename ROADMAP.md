@@ -188,8 +188,17 @@ NEW:
 - Preserved the existing scenario engine, tax/RMD logic, Monte Carlo placeholders, Social Security placeholders, routes, and dark UI.
 - Updated visible Save State text to 2.39f without redesigning the UI, changing routes, or rebuilding owner dashboard behavior.
 
+
+## 2.39g — Dashboard/Timeline/Advisor Sync (DONE)
+- Routed run-out age detection through `BastionEngine.firstRunoutAge()` so shared output views use one safe fallback.
+- Added shared signed currency and signed percentage formatting helpers for Dashboard, Timeline, Advisor, Scenario, and baseline-change display labels.
+- Normalized Scenario Comparison percent labels, Advisor impact summaries, Advisor intelligence savings-rate display, and baseline-change delta signs without changing core formulas.
+- Clarified spending display mode in the plan setup summary so monthly vs annual input mode is not mislabeled.
+- Preserved existing routes, calculations, scenario stress behavior, owner isolation, and dark UI.
+- Updated visible Save State text to 2.39g without redesigning the UI, changing routes, or rebuilding owner dashboard behavior.
+
 ## Upcoming Math Repair Subphases
-- 2.39g — Dashboard/Timeline/Advisor Sync: verify output views read the same validated engine results.
+- 2.39h — Next Scoped Stabilization: select the next narrow math/display repair after validation.
 
 ---
 
@@ -467,4 +476,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.39f — Scenario Delta Repair complete; next phase is 2.39g — Dashboard/Timeline/Advisor Sync
+2.39g — Dashboard/Timeline/Advisor Sync complete; next phase is 2.39h — Next Scoped Stabilization

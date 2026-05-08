@@ -260,3 +260,26 @@ Remaining non-canonical areas:
 - Tax/RMD, Social Security, Monte Carlo, and compliance-sensitive planning rules remain outside the canonical baseline layer.
 
 Boundary rule: 2.39f only repairs safe/simple scenario deltas and display formatting. It does not authorize full scenario-engine extraction or changes to complex financial rules.
+
+## 14. Phase 2.39g dashboard/timeline/advisor sync follow-up
+
+Phase 2.39g synchronized safe/simple display-facing metrics across Dashboard, Timeline, Advisor, and Scenario surfaces without extracting the full projection engine.
+
+Canonical display and fallback routing now covers:
+
+- Run-out age detection through `BastionEngine.firstRunoutAge()`.
+- Signed currency labels through `formatSignedCurrencySafe()`.
+- Signed percentage labels through `formatSignedPercentSafe()`.
+- Scenario ending-path percentage labels through the shared percent wrapper.
+- Advisor intelligence savings-rate display through the shared percent wrapper.
+- Baseline-change money and rate deltas through shared signed formatting helpers.
+- Plan setup current-spend labeling through monthly/annual mode-aware copy.
+
+Remaining non-canonical areas:
+
+- Projection-loop cash-flow logic remains in `index.html`.
+- Scenario stress overlays and full clone/baseline semantics remain non-canonical.
+- Tax/RMD, Social Security, Monte Carlo, healthcare, and compliance-sensitive planning rules remain outside the canonical baseline layer.
+- Advisor recommendation selection and Decision Core classification thresholds remain view/orchestration owned.
+
+Boundary rule: 2.39g only synchronizes safe/simple output interpretation and formatting. It does not authorize formula changes, scenario-engine extraction, tax/RMD upgrades, or UI redesign.
