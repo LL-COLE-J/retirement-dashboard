@@ -104,11 +104,31 @@ if ($indexHtml -match ">Life Events Builder<|>Add Debt<|Assumptions</h3>") {
   $errors++
 }
 
-$uiSave = [regex]::Match($indexHtml, "Bastion Save State (\d+\.\d+)").Groups[1].Value
-$docSave = [regex]::Match($saveStateDoc, "Save State (\d+\.\d+)").Groups[1].Value
+$uiSave = [regex]::Match($indexHtml, "Bastion Save State ([^<`n]+)").Groups[1].Value.Trim()
+$docSave = [regex]::Match($saveStateDoc, "Bastion Save State ([^`n]+)").Groups[1].Value.Trim()
 if ($uiSave -and $docSave -and $uiSave -ne $docSave) {
   Write-Host "ERROR: Save State mismatch between UI ($uiSave) and SAVE_STATE.md ($docSave)"
   $errors++
+}
+
+Write-Host ""
+Write-Host "Firebase hardening posture:"
+if (Test-Path "firestore.rules") {
+  $openRules = Select-String -Path "firestore.rules" -Pattern "allow\s+read\s*,\s*write\s*:\s*if\s+true"
+  if ($openRules) {
+    Write-Host "WARN: temporary Firestore allow read/write if true rules found; audit required before beta/production"
+    $openRules | ForEach-Object { Write-Host ("{0}:{1}: {2}" -f $_.Path, $_.LineNumber, $_.Line.Trim()) }
+  } else {
+    Write-Host "OK: no temporary Firestore allow read/write if true rules found"
+  }
+}
+$trackedEnv = git ls-files | Select-String -Pattern "(^|/)\.env(\.|$)"
+if ($trackedEnv) {
+  Write-Host "ERROR: tracked environment file found"
+  $trackedEnv | ForEach-Object { Write-Host $_ }
+  $errors++
+} else {
+  Write-Host "OK: no tracked .env files found"
 }
 
 if ($errors -eq 0) {

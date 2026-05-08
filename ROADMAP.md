@@ -203,9 +203,16 @@ NEW:
 - Documented that future deviation simulations must happen only in a safe branch or dedicated test harness and must not intentionally commit fake secrets or broken files.
 - Updated visible Save State text to 2.39h without changing product behavior, formulas, routes, Firebase/security config, or UI layout.
 
+## 2.39i — Firebase Rules + Environment Hardening Audit (DONE)
+- Added `FIREBASE_HARDENING_AUDIT.md` to document current Firebase posture, public-vs-private config expectations, Firestore rule risk, GitHub workflow posture, deployment/config handling, environment separation readiness, least-privilege gaps, future staging/production guidance, future secret-management guidance, beta-readiness concerns, recommended hardening phases, and rollback guidance.
+- Updated `AGENTS.md` with Firebase/environment hardening governance that distinguishes acceptable public Firebase browser config from true secret exposure and warns that client-side owner gates are not security boundaries.
+- Added validation warnings for temporary Firestore `allow read, write: if true` rules and tracked environment-file checks in Linux and PowerShell validation.
+- Added read-only contents permission to the validation-only GitHub workflow.
+- Updated visible Save State text to 2.39i without changing product behavior, formulas, routes, auth behavior, Firebase rule behavior, deployment targets, owner dashboard behavior, or UI layout.
+
 ## Upcoming Governance and Stabilization Subphases
-- 2.39i — Firebase Rules + Environment Hardening Audit: review Firebase rules, environment exposure, and deployment assumptions without changing product behavior unless explicitly scoped.
 - 2.39j — App Shell Normalization: preserve the current user flow while planning future shell cleanup after governance hardening.
+- Future Firebase hardening: add Firestore rules tests, Firebase Auth boundary design, staging/production separation, production rule tightening, and deployment credential least-privilege review as separate scoped phases.
 - Future Beta UX Stabilization: continue dark-UI, route, onboarding, and output readability stabilization without broad rewrites.
 
 ---
@@ -484,4 +491,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.39h — PR Safety Checklist / Agent Deviation Test complete; next phase is 2.39i — Firebase Rules + Environment Hardening Audit
+2.39i — Firebase Rules + Environment Hardening Audit complete; next phase is 2.39j — App Shell Normalization

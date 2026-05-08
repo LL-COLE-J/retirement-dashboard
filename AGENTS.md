@@ -277,6 +277,18 @@ Future 2.39h follow-up validation should test, in a safe branch or dedicated tes
 
 Do not intentionally commit fake secrets or broken files to the main work path. This phase documents and formalizes the checks; destructive/deviation simulation belongs in later isolated validation work only.
 
+
+### 18G. Firebase and Environment Hardening Rule
+
+Firebase and deployment configuration must be handled as protected infrastructure:
+
+- Firebase browser config may be public-facing when it is used only for client SDK initialization and protected by Security Rules.
+- Firebase service-account JSON, private keys, OAuth client secrets, deployment tokens, `.env` files, and private user data must never be committed.
+- Client-side owner gates, route flags, or browser-shipped passwords are not security boundaries and must not be relied on for beta or production data protection.
+- Firestore rules must prefer default-deny and least-privilege access; any temporary `allow read, write: if true` rule is a documented beta blocker unless explicitly approved for a local/dev-only phase.
+- GitHub validation workflows should use read-only permissions unless a scoped deployment phase explicitly requires more.
+- Staging and production Firebase projects should be separated before beta or enterprise use, with rollback guidance documented before rule tightening.
+
 ### 19. Live Agent Permission Model
 
 - Observer: read-only inspection and reporting.
