@@ -48,10 +48,30 @@
     return new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(numeric) + '%';
   }
 
+  function formatSignedCurrencySafe(value, fallback){
+    var resolvedFallback = fallback === undefined ? '$0' : fallback;
+    var numeric = safeNumber(value, null);
+    if(numeric === null) return resolvedFallback;
+    if(numeric > 0) return '+' + formatCurrencySafe(numeric, resolvedFallback);
+    if(numeric < 0) return '-' + formatCurrencySafe(Math.abs(numeric), resolvedFallback);
+    return formatCurrencySafe(0, resolvedFallback);
+  }
+
+  function formatSignedPercentSafe(value, fallback){
+    var resolvedFallback = fallback === undefined ? '0%' : fallback;
+    var numeric = safePercent(value, null);
+    if(numeric === null) return resolvedFallback;
+    if(numeric > 0) return '+' + formatPercentSafe(numeric, resolvedFallback);
+    if(numeric < 0) return '-' + formatPercentSafe(Math.abs(numeric), resolvedFallback);
+    return formatPercentSafe(0, resolvedFallback);
+  }
+
   global.safeNumber = safeNumber;
   global.safeDivide = safeDivide;
   global.safePercent = safePercent;
   global.clampNumber = clampNumber;
   global.formatCurrencySafe = formatCurrencySafe;
   global.formatPercentSafe = formatPercentSafe;
+  global.formatSignedCurrencySafe = formatSignedCurrencySafe;
+  global.formatSignedPercentSafe = formatSignedPercentSafe;
 })(typeof window !== 'undefined' ? window : globalThis);

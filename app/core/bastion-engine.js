@@ -61,6 +61,14 @@
     return guards.safeNumber(scenarioValue,0) - guards.safeNumber(baseValue,0);
   }
 
+  function firstRunoutAge(path){
+    if(!path || !path.labels || !path.values) return null;
+    for(var i=0;i<path.values.length;i++){
+      if(guards.safeNumber(path.values[i],0) <= 0) return path.labels[i];
+    }
+    return null;
+  }
+
   global.BastionEngine = {
     normalizeAnnualRate: normalizeAnnualRate,
     monthlyToAnnual: monthlyToAnnual,
@@ -70,6 +78,7 @@
     calculateNetWorth: calculateNetWorth,
     calculateDebtToAssetRatio: calculateDebtToAssetRatio,
     calculateWithdrawalRate: calculateWithdrawalRate,
-    calculateScenarioDelta: calculateScenarioDelta
+    calculateScenarioDelta: calculateScenarioDelta,
+    firstRunoutAge: firstRunoutAge
   };
 })(typeof window !== 'undefined' ? window : globalThis);
