@@ -181,8 +181,14 @@ NEW:
 - Left complex tax, RMD, Monte Carlo, Social Security, Advisor classification, and projection logic non-canonical for future scoped phases.
 - Updated visible Save State text to 2.39e without redesigning the UI, changing routes, or rebuilding owner dashboard behavior.
 
+## 2.39f — Scenario Delta Repair (DONE)
+- Routed safe/simple Scenario A/B ending-path, Advisor impact, Decision Core years, and Timeline retirement-age deltas through the canonical scenario delta helper backed by `BastionEngine.calculateScenarioDelta()`.
+- Normalized Scenario Comparison signed currency deltas, guarded percent deltas, divide-by-zero fallback, and positive/negative/neutral direction labels.
+- Reduced monthly/annual mismatch in Decision Core spending-delta explanations by annualizing current and saved baseline spend values before comparison.
+- Preserved the existing scenario engine, tax/RMD logic, Monte Carlo placeholders, Social Security placeholders, routes, and dark UI.
+- Updated visible Save State text to 2.39f without redesigning the UI, changing routes, or rebuilding owner dashboard behavior.
+
 ## Upcoming Math Repair Subphases
-- 2.39f — Scenario Delta Repair: keep scenarios cloned from baseline assumptions and show differences only.
 - 2.39g — Dashboard/Timeline/Advisor Sync: verify output views read the same validated engine results.
 
 ---
@@ -461,4 +467,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.39e — Canonical Baseline complete; next phase is 2.39f — Scenario Delta Repair
+2.39f — Scenario Delta Repair complete; next phase is 2.39g — Dashboard/Timeline/Advisor Sync

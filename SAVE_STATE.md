@@ -1,24 +1,24 @@
-# Bastion Save State 2.39e — Canonical Baseline
+# Bastion Save State 2.39f — Scenario Delta Repair
 
 Current status:
-- Phase 2.39e completed the first lightweight canonical baseline layer for simple Bastion financial calculations.
-- Added `app/core/bastion-engine.js` as the initial calculation owner for low-risk baseline math: annual rate normalization, monthly/annual conversion, savings rate, monthly gap, net worth, debt-to-asset ratio, withdrawal rate, and scenario delta.
-- Loaded the canonical layer after `app/core/number-guards.js` and before view modules so it can reuse numeric guardrails while avoiding a full engine extraction.
-- Routed only simple duplicated calculations through `window.BastionEngine`: monthly/annual conversion, net worth, monthly gap, savings rate, and scenario ending-path delta.
-- Complex tax, RMD, Monte Carlo, Social Security, Advisor classification, and projection engine logic remain non-canonical until future scoped phases.
-- No intentional visible behavior changes, route changes, owner-dashboard rebuild, feature work, or UI redesign were made.
+- Phase 2.39f repaired low-risk Scenario A/B delta drift without rewriting the scenario engine, tax engines, RMD logic, Monte Carlo logic, Social Security logic, or UI design.
+- Scenario ending-path, Advisor impact, Advisor compact intelligence, Decision Core run-out years, and Timeline Scenario B retirement-age deltas now route safe/simple delta math through `BastionEngine.calculateScenarioDelta()` via a shared UI helper.
+- Scenario comparison now uses guarded percent-delta formatting with divide-by-zero fallback and signed money labels so positive, negative, and neutral deltas are clearer and consistent.
+- Current-spend deltas in Decision Core now compare annualized values, reducing monthly/annual mode mismatch when explaining “If You Do This” spending changes.
+- Baseline snapshots now retain the active input mode so future baseline comparisons can safely annualize saved spend assumptions.
+- Complex projection-loop cash flow, tax, RMD, Social Security, Monte Carlo, and Advisor classification rules remain non-canonical until future scoped phases.
 
 Patch completed:
-- Created the canonical baseline utility layer and loaded it before view modules.
-- Updated visible Save State and phase text to Bastion Save State 2.39e — Canonical Baseline.
-- Updated Tax/RMD and Owner visible Save State text for alignment only.
-- Updated `MATH_AUDIT.md` with a 2.39e follow-up note documenting canonical ownership and remaining non-canonical areas.
-- Updated `ROADMAP.md` so 2.39e is complete and 2.39f — Scenario Delta Repair remains next.
+- Added shared scenario delta helpers in `index.html` for canonical simple deltas, guarded percent deltas, direction labels, and annualized mode values.
+- Routed safe/simple duplicated delta call sites through the canonical scenario delta helper.
+- Normalized Scenario Comparison delta display to signed currency plus guarded percentage context.
+- Updated visible Save State and phase text to Bastion Save State 2.39f — Scenario Delta Repair.
+- Updated `MATH_AUDIT.md` and `ROADMAP.md` with the 2.39f completion note and next 2.39g sync phase.
 
 Validation status:
-- UI_AGENT review: passed for Save State text alignment and no layout redesign; canonical baseline did not introduce new visible layout components.
-- REGRESSION_AGENT review: passed for dashboard/profile/advisor/scenarios/timeline/tax/report route preservation through Linux validation and JavaScript syntax checks.
-- ANALYTICS_AGENT impact: not applicable; no behavior tracking or analytics changes.
-- MARKET_AGENT impact: not applicable; no product positioning, onboarding, CTA, layout, or interaction-flow changes.
-- Save State alignment: `SAVE_STATE.md`, `ROADMAP.md`, and visible UI phase text agree on Bastion Save State 2.39e.
-- Next phase is 2.39f — Scenario Delta Repair.
+- UI_AGENT review: passed; text-only phase labels and existing scenario comparison copy changed without redesigning cards, routes, or dark UI.
+- REGRESSION_AGENT review: passed through Linux validation, JavaScript syntax checks, route-file checks, and conflict-marker scanning.
+- ANALYTICS_AGENT impact: not applicable; no behavior tracking or analytics collection changed.
+- MARKET_AGENT impact: minimal; scenario output copy was clarified but no CTA, onboarding, pricing, or product-positioning flow changed.
+- Save State alignment: `SAVE_STATE.md`, `ROADMAP.md`, and visible UI phase text agree on Bastion Save State 2.39f.
+- Next phase is 2.39g — Dashboard/Timeline/Advisor Sync.

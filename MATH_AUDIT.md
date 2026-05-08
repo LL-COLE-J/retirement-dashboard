@@ -224,8 +224,39 @@ Remaining non-canonical areas:
 
 - Full projection-loop cash-flow logic remains in `index.html`.
 - Federal, state, local, Tax/RMD, withdrawal-order, and RMD divisor logic remain non-canonical and simplified.
-- Scenario stress overlays and clone/baseline semantics remain non-canonical until 2.39f Scenario Delta Repair.
+- Scenario stress overlays and clone/baseline semantics remain non-canonical; 2.39f only repaired safe/simple delta display routing.
 - Advisor classification, Decision Core status, run-out-age interpretation, and recommendation text remain non-canonical.
 - Social Security, pension, healthcare, long-term-care, Monte Carlo, and compliance-sensitive planning rules remain non-canonical placeholders or view-owned logic.
 
 Boundary rule: `app/core/bastion-engine.js` is now the first source of truth for the simple functions listed above, but it must not be expanded into complex tax, RMD, Monte Carlo, Social Security, or Advisor classification logic without a separate scoped phase and validation pass.
+
+## 13. Phase 2.39f scenario delta repair follow-up
+
+Phase 2.39f reduced low-risk Scenario A/B delta drift without rewriting the scenario engine.
+
+Canonical delta routing now covers these simple display-facing comparisons:
+
+- Scenario Comparison ending-path delta.
+- Advisor impact explanation ending-path delta.
+- Advisor compact intelligence event-drag delta.
+- Decision Core baseline-vs-current run-out years delta.
+- Decision Core input-change deltas for income, retirement age, event count, and annualized spend.
+- Timeline Scenario B retirement-age delta.
+
+Formatting and fallback repairs:
+
+- Scenario Comparison now shows signed currency deltas instead of unsigned currency deltas.
+- Scenario Comparison now shows a guarded percent delta with divide-by-zero fallback.
+- Scenario Comparison now labels deltas as higher, lower, or even with baseline.
+- Decision Core spending deltas now annualize current and saved baseline values before comparison to reduce monthly/annual explanation drift.
+- Baseline snapshots now persist the input mode used when the baseline was saved.
+
+Remaining non-canonical areas:
+
+- Scenario stress overlays inside the projection loop remain non-canonical.
+- Full scenario clone semantics remain non-canonical.
+- Timeline risk windows still use display-owned scenario stress inputs.
+- Advisor classification and recommendation logic remain non-canonical.
+- Tax/RMD, Social Security, Monte Carlo, and compliance-sensitive planning rules remain outside the canonical baseline layer.
+
+Boundary rule: 2.39f only repairs safe/simple scenario deltas and display formatting. It does not authorize full scenario-engine extraction or changes to complex financial rules.
