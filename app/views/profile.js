@@ -1,7 +1,7 @@
 function renderProfileView(coreCard, profileIds, assumptionIds, eventsCard){
   var profileView = document.createElement('section'); profileView.id='profileView'; profileView.className='view profile-view';
   var profileCard = document.createElement('div'); profileCard.className='card';
-  profileCard.innerHTML = '<div class="section-head profile-hero"><div><span class="eyebrow">Profile input center</span><h3>Profile</h3><p>Keep assumptions organized before Bastion turns them into dashboard outputs. Missing or placeholder values should be resolved here, not on the Dashboard.</p></div><div class="profile-trust-stack"><span>Inputs owned here</span><span>Outputs stay on Dashboard</span><span>Calculations unchanged</span></div></div><div id="planSetupSummary" class="dashboard-summary profile-summary">Plan setup appears after model run. Use the sections below to confirm household facts, income, spending, assets, debts, tax profile, and retirement assumptions.</div><div class="mini-list profile-section-list" id="profileSections"></div>';
+  profileCard.innerHTML = '<div class="section-head profile-hero"><div><span class="eyebrow">Profile input center</span><h3>Profile</h3><p>Profile is Bastion’s input center. Confirm household, income, expenses, assets, debts, retirement, tax, special-account, and scenario assumptions here before Bastion renders dashboard outputs.</p></div><div class="profile-trust-stack"><span>Inputs owned here</span><span>Outputs stay on Dashboard</span><span>Calculations unchanged</span></div></div><div id="planSetupSummary" class="dashboard-summary profile-summary">Plan setup appears after model run. 2.40a keeps current inputs and calculations intact while making missing, estimated, and placeholder values easier to review.</div><div class="mini-list profile-section-list" id="profileSections"></div>';
   profileView.appendChild(profileCard);
   buildProfileInputCenter(coreCard, profileIds, assumptionIds, eventsCard, profileView.querySelector('#profileSections'));
   restoreProfileDropdownOptions(profileView);
@@ -115,74 +115,110 @@ function optionHtml(options,selectedValue){
   return html;
 }
 
-function ensureProfileField(target,id,label,controlHtml){
-  if(!target || el(id)) return;
+function ensureProfileField(target,id,label,controlHtml,helperText){
+  if(!target) return;
+  var existing = el(id);
+  if(existing){
+    var existingField = existing.closest ? existing.closest('.field') : null;
+    if(existingField){
+      existingField.classList.add('profile-field');
+      var labelNode = existingField.querySelector ? existingField.querySelector('label') : null;
+      if(labelNode) labelNode.textContent = label;
+      var helperNode = existingField.querySelector ? existingField.querySelector('.profile-field-helper') : null;
+      if(helperText && !helperNode){
+        helperNode = document.createElement('small');
+        helperNode.className = 'profile-field-helper';
+        existingField.appendChild(helperNode);
+      }
+      if(helperNode) helperNode.textContent = helperText || '';
+      if(existingField.parentNode !== target) target.appendChild(existingField);
+    }
+    return;
+  }
   var field = document.createElement('div');
-  field.className = 'field';
-  field.innerHTML = '<label>'+label+'</label>'+controlHtml;
+  field.className = 'field profile-field';
+  var helper = helperText ? '<small class="profile-field-helper">'+helperText+'</small>' : '';
+  field.innerHTML = '<label>'+label+'</label>'+controlHtml+helper;
   target.appendChild(field);
 }
 
 function ensureProfileCoreFields(grids,values){
   var opts = profileDropdownOptionSets();
   function value(id,defaultValue){ return values[id] !== undefined ? values[id] : defaultValue; }
-  ensureProfileField(grids.household,'age','Current Age','<input id="age" type="number" value="'+value('age','40')+'" oninput="commit()">');
-  ensureProfileField(grids.household,'retireAge','Retirement Age','<input id="retireAge" type="number" value="'+value('retireAge','67')+'" oninput="commit()">');
-  ensureProfileField(grids.income,'income1','Primary Income','<input id="income1" type="number" value="'+value('income1','85000')+'" oninput="commit()">');
-  ensureProfileField(grids.income,'income2','Secondary Income','<input id="income2" type="number" value="'+value('income2','0')+'" oninput="commit()">');
-  ensureProfileField(grids.income,'income2RetireAge','Income 2 Retires At','<input id="income2RetireAge" type="number" value="'+value('income2RetireAge','67')+'" oninput="commit()">');
-  ensureProfileField(grids.expenses,'currentSpend','Current Annual Spend','<input id="currentSpend" type="number" value="'+value('currentSpend','45600')+'" oninput="commit()">');
-  ensureProfileField(grids.expenses,'retireSpend','Retirement Annual Spend','<input id="retireSpend" type="number" value="'+value('retireSpend','38400')+'" oninput="commit()">');
-  ensureProfileField(grids.expenses,'captureRate','Surplus Invested %','<input id="captureRate" type="number" step="1" value="'+value('captureRate','75')+'" oninput="commit()">');
-  ensureProfileField(grids.expenses,'inflationRate','Inflation %','<input id="inflationRate" type="number" step="0.1" value="'+value('inflationRate','3')+'" oninput="commit()">');
-  ensureProfileField(grids.expenses,'returnProfile','Return Profile','<select id="returnProfile" onchange="commit()">'+optionHtml(opts.returnProfile,value('returnProfile','moderate'))+'</select>');
-  ensureProfileField(grids.expenses,'invested','Invested Assets','<input id="invested" type="number" value="'+value('invested','125000')+'" oninput="commit()">');
-  ensureProfileField(grids.expenses,'cash','Cash','<input id="cash" type="number" value="'+value('cash','18000')+'" oninput="commit()">');
-  ensureProfileField(grids.debts,'debt','Total Debt','<input id="debt" type="number" value="'+value('debt','22000')+'" oninput="commit()">');
-  ensureProfileField(grids.locationTaxes,'filingStatus','Filing Status','<select id="filingStatus" onchange="commit()">'+optionHtml(opts.filingStatus,value('filingStatus','married_joint'))+'</select>');
-  ensureProfileField(grids.locationTaxes,'taxState','State','<select id="taxState" onchange="commit()">'+optionHtml(opts.taxState,value('taxState','TN'))+'</select>');
-  ensureProfileField(grids.locationTaxes,'countyTaxRate','County Tax Rate %','<input id="countyTaxRate" type="number" step="0.01" value="'+value('countyTaxRate','0')+'" oninput="commit()">');
-  ensureProfileField(grids.locationTaxes,'cityTaxRate','City Tax Rate %','<input id="cityTaxRate" type="number" step="0.01" value="'+value('cityTaxRate','0')+'" oninput="commit()">');
+  ensureProfileField(grids.household,'age','Current age','<input id="age" type="number" value="'+value('age','40')+'" oninput="commit()">','Years. Used as the starting point for the plan.');
+  ensureProfileField(grids.income,'income1','Primary income / year','<input id="income1" type="number" value="'+value('income1','85000')+'" oninput="commit()">','Annual gross income before retirement.');
+  ensureProfileField(grids.income,'income2','Secondary income / year','<input id="income2" type="number" value="'+value('income2','0')+'" oninput="commit()">','Optional annual gross income. Use 0 when not applicable.');
+  ensureProfileField(grids.income,'income2RetireAge','Secondary income ends at age','<input id="income2RetireAge" type="number" value="'+value('income2RetireAge','67')+'" oninput="commit()">','Years. Supports a basic staggered retirement timing input.');
+  ensureProfileField(grids.expenses,'currentSpend','Current spending / year','<input id="currentSpend" type="number" value="'+value('currentSpend','45600')+'" oninput="commit()">','Annual household spending used before retirement.');
+  ensureProfileField(grids.assets,'invested','Invested assets','<input id="invested" type="number" value="'+value('invested','125000')+'" oninput="commit()">','Current invested balance; future phases will split asset types.');
+  ensureProfileField(grids.assets,'cash','Cash reserves','<input id="cash" type="number" value="'+value('cash','18000')+'" oninput="commit()">','Liquid cash available today.');
+  ensureProfileField(grids.debts,'debt','Total debt','<input id="debt" type="number" value="'+value('debt','22000')+'" oninput="commit()">','Current total debt; future phases will separate mortgage, auto, and other debt types.');
+  ensureProfileField(grids.retirement,'retireAge','Target retirement age','<input id="retireAge" type="number" value="'+value('retireAge','67')+'" oninput="commit()">','Years. Used by the engine as the baseline retirement transition age.');
+  ensureProfileField(grids.retirement,'retireSpend','Retirement spending / year','<input id="retireSpend" type="number" value="'+value('retireSpend','38400')+'" oninput="commit()">','Annual retirement spending estimate. Unknown/derived states are planned for later.');
+  ensureProfileField(grids.scenarioAssumptions,'captureRate','Surplus invested %','<input id="captureRate" type="number" step="1" value="'+value('captureRate','75')+'" oninput="commit()">','Percent of surplus cash flow assumed to be invested.');
+  ensureProfileField(grids.scenarioAssumptions,'inflationRate','Inflation assumption %','<input id="inflationRate" type="number" step="0.1" value="'+value('inflationRate','3')+'" oninput="commit()">','Annual inflation assumption. This remains a baseline assumption, not an expense lock.');
+  ensureProfileField(grids.scenarioAssumptions,'returnProfile','Return profile','<select id="returnProfile" onchange="commit()">'+optionHtml(opts.returnProfile,value('returnProfile','moderate'))+'</select>','Simple return assumption profile; formulas are unchanged in 2.40a.');
+  ensureProfileField(grids.locationTaxes,'filingStatus','Filing status','<select id="filingStatus" onchange="commit()">'+optionHtml(opts.filingStatus,value('filingStatus','married_joint'))+'</select>','Federal filing-status approximation used by the current tax model.');
+  ensureProfileField(grids.locationTaxes,'taxState','Tax state','<select id="taxState" onchange="commit()">'+optionHtml(opts.taxState,value('taxState','TN'))+'</select>','State-level approximation. ZIP/jurisdiction modeling is future work.');
+  ensureProfileField(grids.locationTaxes,'countyTaxRate','County tax rate %','<input id="countyTaxRate" type="number" step="0.01" value="'+value('countyTaxRate','0')+'" oninput="commit()">','Optional local rate percentage.');
+  ensureProfileField(grids.locationTaxes,'cityTaxRate','City tax rate %','<input id="cityTaxRate" type="number" step="0.01" value="'+value('cityTaxRate','0')+'" oninput="commit()">','Optional local rate percentage.');
 }
 
 function buildProfileInputCenter(coreCard, profileIds, assumptionIds, eventsCard, profileHolder){
   var holder = profileHolder || el('profileSections');
   if(!holder || !coreCard) return;
-  function section(title, description, openByDefault){
+  function section(title, description, openByDefault, note){
     var details = document.createElement('details');
     if(openByDefault) details.setAttribute('open','open');
     details.className = 'section-block profile-section';
-    details.innerHTML = '<summary><span>'+title+'</span><small>'+description+'</small></summary><div class="compact-grid"></div>';
+    var noteHtml = note ? '<p class="profile-section-note">'+note+'</p>' : '';
+    details.innerHTML = '<summary><span>'+title+'</span><small>'+description+'</small></summary>'+noteHtml+'<div class="compact-grid"></div>';
     holder.appendChild(details);
     return details.querySelector('.compact-grid');
   }
-  var household = section('Household','Ages and retirement timing that anchor the projection.', true);
-  var income = section('Income','Earned income streams and staggered retirement timing.', true);
-  var retirementIncome = section('Retirement','Social Security and pension placeholders for future planning.', false);
-  var expenses = section('Expenses & Assets','Spending, cash, invested assets, return, and inflation assumptions.', true);
-  var debts = section('Debts','Current obligations that reduce starting net worth.', false);
-  var locationTaxes = section('Tax Profile','Filing status and state/local approximation inputs.', false);
-  var lifeEvents = section('Life Events','Scenario-owned events stay separate from baseline profile assumptions.', false);
+  var household = section('Household','Who the plan starts with today.', true, 'Current 2.40a inputs stay intentionally simple. Future household modeling can add many family compositions without moving calculations into Profile.');
+  var income = section('Income','Earned income streams and staggered timing.', true, 'Use annual gross amounts. Future phases can add multiple income types and payment frequencies.');
+  var expenses = section('Expenses','Current spending assumptions only.', true, 'Expenses remain separate from return and inflation assumptions so later models can support estimated, unknown, or derived spending states.');
+  var assets = section('Assets','Cash and invested balances currently available.', true, 'Future modeling should distinguish liquid, semi-liquid, and illiquid assets.');
+  var debts = section('Debts','Current obligations that reduce starting net worth.', false, 'Debt is summarized in 2.40a. Housing and auto debt should later link to asset values and equity.');
+  var retirement = section('Retirement','Target retirement timing and spending goal.', true, 'Retirement spending stays a baseline estimate for now; unknown/estimated/derived states are future work.');
+  var locationTaxes = section('Tax Profile','Filing status and state/local approximation inputs.', false, 'Current tax inputs remain approximate. Future tax modeling should support state, jurisdiction, and ZIP-aware rules.');
+  var specialAccounts = section('Special Accounts','Social Security and pension placeholders.', false, 'These fields prepare the Profile structure for future special-account modeling without changing engine formulas.');
+  var scenarioAssumptions = section('Scenario Assumptions','Inflation, return profile, and surplus-investing assumptions.', false, 'Assumptions stay visible and editable here. Dashboard remains output-only.');
+  var lifeEvents = section('Life Events','Scenario-owned events stay separate from baseline profile assumptions.', false, 'Life events are linked by workflow, not silently copied into baseline inputs.');
   var allProfileIds = ['age','retireAge','income1','income2','income2RetireAge','currentSpend','retireSpend','captureRate','inflationRate','returnProfile','invested','cash','debt','filingStatus','taxState','countyTaxRate','cityTaxRate'];
   var capturedValues = captureProfileFieldValues(coreCard,allProfileIds);
-  moveFieldsFromSource(coreCard,['age','retireAge'],household.id = 'householdGrid');
-  moveFieldsFromSource(coreCard,['income1','income2','income2RetireAge'],income.id = 'incomeGrid');
-  moveFieldsFromSource(coreCard,['currentSpend','retireSpend','captureRate','inflationRate','returnProfile','invested','cash'],expenses.id = 'expenseGrid');
-  moveFieldsFromSource(coreCard,['debt'],debts.id = 'debtGrid');
-  moveFieldsFromSource(coreCard,['filingStatus','taxState','countyTaxRate','cityTaxRate'],locationTaxes.id = 'locationTaxGrid');
-  ensureProfileCoreFields({household:household,income:income,expenses:expenses,debts:debts,locationTaxes:locationTaxes},capturedValues);
+  household.id = 'householdGrid';
+  income.id = 'incomeGrid';
+  expenses.id = 'expenseGrid';
+  assets.id = 'assetGrid';
+  debts.id = 'debtGrid';
+  retirement.id = 'retirementGrid';
+  locationTaxes.id = 'locationTaxGrid';
+  specialAccounts.id = 'specialAccountsGrid';
+  scenarioAssumptions.id = 'scenarioAssumptionsGrid';
+  lifeEvents.id = 'lifeEventsGrid';
+  moveFieldsFromSource(coreCard,['age'],'householdGrid');
+  moveFieldsFromSource(coreCard,['income1','income2','income2RetireAge'],'incomeGrid');
+  moveFieldsFromSource(coreCard,['currentSpend'],'expenseGrid');
+  moveFieldsFromSource(coreCard,['invested','cash'],'assetGrid');
+  moveFieldsFromSource(coreCard,['debt'],'debtGrid');
+  moveFieldsFromSource(coreCard,['retireAge','retireSpend'],'retirementGrid');
+  moveFieldsFromSource(coreCard,['filingStatus','taxState','countyTaxRate','cityTaxRate'],'locationTaxGrid');
+  moveFieldsFromSource(coreCard,['captureRate','inflationRate','returnProfile'],'scenarioAssumptionsGrid');
+  ensureProfileCoreFields({household:household,income:income,expenses:expenses,assets:assets,debts:debts,retirement:retirement,locationTaxes:locationTaxes,scenarioAssumptions:scenarioAssumptions},capturedValues);
   var retirementFields = ['ssStartAge','ssMonthly','pensionStartAge','pensionMonthly'];
   for(var i=0;i<retirementFields.length;i++){
-    var field = document.createElement('div'); field.className='field';
-    if(retirementFields[i]==='ssStartAge') field.innerHTML='<label>SS Start Age</label><input id="ssStartAge" type="number" value="67" oninput="commit()">';
-    if(retirementFields[i]==='ssMonthly') field.innerHTML='<label>SS Monthly</label><input id="ssMonthly" type="number" value="0" oninput="commit()">';
-    if(retirementFields[i]==='pensionStartAge') field.innerHTML='<label>Pension Start Age</label><input id="pensionStartAge" type="number" value="65" oninput="commit()">';
-    if(retirementFields[i]==='pensionMonthly') field.innerHTML='<label>Pension Monthly</label><input id="pensionMonthly" type="number" value="0" oninput="commit()">';
-    retirementIncome.appendChild(field);
+    var field = document.createElement('div'); field.className='field profile-field';
+    if(retirementFields[i]==='ssStartAge') field.innerHTML='<label>Social Security start age</label><input id="ssStartAge" type="number" value="67" oninput="commit()"><small class="profile-field-helper">Placeholder age for future special-account modeling.</small>';
+    if(retirementFields[i]==='ssMonthly') field.innerHTML='<label>Social Security monthly amount</label><input id="ssMonthly" type="number" value="0" oninput="commit()"><small class="profile-field-helper">Monthly estimate. Use 0 when unknown.</small>';
+    if(retirementFields[i]==='pensionStartAge') field.innerHTML='<label>Pension start age</label><input id="pensionStartAge" type="number" value="65" oninput="commit()"><small class="profile-field-helper">Placeholder age for future pension handling.</small>';
+    if(retirementFields[i]==='pensionMonthly') field.innerHTML='<label>Pension monthly amount</label><input id="pensionMonthly" type="number" value="0" oninput="commit()"><small class="profile-field-helper">Monthly estimate. Use 0 when not applicable.</small>';
+    specialAccounts.appendChild(field);
   }
   if(eventsCard){
     var helper = document.createElement('div');
-    helper.className='dashboard-summary';
+    helper.className='dashboard-summary profile-empty-note';
     helper.innerHTML='<strong>Life events are managed in Scenarios.</strong><br>Use the Scenarios tab to add, compare, or remove events without silently mutating baseline profile inputs.';
     lifeEvents.appendChild(helper);
   }

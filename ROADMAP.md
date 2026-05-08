@@ -219,13 +219,24 @@ NEW:
 
 ## 2.40 — Beta UX Stabilization (ACTIVE / IN PROGRESS)
 - Began controlled light-theme normalization across authenticated app surfaces while preserving the dark sidebar, routes, calculations, governance systems, and app shell assumptions.
-- Improved Profile as the input center with clearer section grouping, section descriptions, trust cues, and beta-ready input hierarchy.
 - Improved Dashboard readability and trust clarity through calmer advisor-grade cards, clearer Decision Core copy, consistent buttons/fields/summaries, and mobile spacing polish.
 - No intentional governance, auth, route, deployment, Firebase, owner-dashboard, or engine rewrites occurred.
-- Future UX refinement direction: onboarding, deeper profile refinement, trusted beta preparation, advisor-grade reporting polish, fallback/empty-state clarity, and mobile refinement.
+- Future UX refinement direction: onboarding, deeper profile refinement, trusted beta preparation, advisor-grade reporting polish, fallback/empty-state clarity, navigation clarity, dashboard readability, expanded profile data model, financial intelligence engine, and mobile refinement.
+
+### 2.40a — Profile Input Stabilization (DONE)
+- Stabilized Profile as Bastion's clear input center while keeping Dashboard output-only.
+- Reorganized existing Profile inputs into Household, Income, Expenses, Assets, Debts, Retirement, Tax Profile, Special Accounts, Scenario Assumptions, and Life Events sections.
+- Clarified labels, helper text, units, placeholder states, and future-model boundaries without changing calculations, routes, storage behavior, scenario logic, Firebase/auth/deployment config, or engine behavior.
+- Added `PROFILE_INPUT_MODEL_NOTES.md` to document current Profile stabilization goals and future household, income, expense, asset/debt/equity, tax-profile, retirement-flexibility, and confidence/missing-input requirements.
+- Updated visible Save State text to 2.40a and set the next phase to 2.40b — Profile UX Cohesion.
 
 ## Upcoming Governance and Stabilization Subphases
-- 2.40 — Beta UX Stabilization: active/in progress for uniform UI cohesion, profile input cleanup, advisor-grade light-theme direction, and trusted beta preparation.
+- 2.40b — Profile UX Cohesion: next scoped pass for Profile visual consistency, readability, and beta-user clarity.
+- Future dashboard readability: preserve output-only Dashboard clarity while improving report/readout polish.
+- Future navigation clarity: keep Dashboard / Profile / Advisor / Scenarios / Timeline flow stable while reducing beta-user friction.
+- Future trusted beta preparation: continue advisor-grade reporting polish, fallback/empty-state clarity, validation, and governance hardening.
+- Future expanded profile data model: add household, income, expense, asset, debt, tax, and confidence modeling only through scoped engine-owned phases.
+- Future financial intelligence engine: expand analysis and recommendations without moving calculations into views.
 - Future Firebase hardening: add Firestore rules tests, Firebase Auth boundary design, staging/production separation, production rule tightening, and deployment credential least-privilege review as separate scoped phases.
 
 ---
@@ -504,4 +515,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.40 — Beta UX Stabilization active/in progress; next refinements focus onboarding, profile polish, trusted beta reporting, and mobile refinement
+2.40a — Profile Input Stabilization complete; next phase is 2.40b — Profile UX Cohesion, with future dashboard readability, navigation clarity, trusted beta preparation, expanded profile data model, and financial intelligence engine work preserved
