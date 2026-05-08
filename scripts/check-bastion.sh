@@ -21,6 +21,8 @@ required_files=(
   SAVE_STATE.md
   ROADMAP.md
   index.html
+  APP_SHELL_NORMALIZATION.md
+  app/index.html
   app/styles.css
   app/views/dashboard.js
   app/views/reports.js
@@ -57,8 +59,12 @@ pass 'no conflict-remnant text found in tracked text files'
 
 printf '\nJavaScript module syntax:\n'
 shopt -s nullglob
+core_files=(app/core/*.js)
 view_files=(app/views/*.js)
+((${#core_files[@]} > 0)) || fail 'no core JavaScript files found'
 ((${#view_files[@]} > 0)) || fail 'no view JavaScript files found'
+node --check "${core_files[@]}"
+pass 'node --check app/core/*.js'
 node --check "${view_files[@]}"
 pass 'node --check app/views/*.js'
 
@@ -158,6 +164,30 @@ if git ls-files | rg '(^|/)\.env(\.|$)' >/tmp/bastion-tracked-env-files.txt; the
 else
   pass 'no tracked .env files found'
 fi
+
+
+printf '\nApp shell normalization:\n'
+python3 - <<'PYCHECK'
+from pathlib import Path
+import re
+root = Path('index.html').read_text(encoding='utf-8')
+app = Path('app/index.html').read_text(encoding='utf-8')
+doc = Path('APP_SHELL_NORMALIZATION.md').read_text(encoding='utf-8')
+if 'Canonical app shell path: `index.html` at the repository root.' not in doc:
+    raise SystemExit('canonical app shell path missing from APP_SHELL_NORMALIZATION.md')
+if 'id="phaseNumber"' not in root or 'function showView(' not in root:
+    raise SystemExit('root index.html does not contain the canonical app shell markers')
+if 'url=../index.html' not in app:
+    raise SystemExit('app/index.html compatibility redirect target missing')
+if 'window.location.replace' not in app:
+    raise SystemExit('app/index.html JavaScript redirect fallback missing')
+if re.search(r'Bastion Save State [0-9]', app):
+    raise SystemExit('app/index.html should not contain visible Save State text')
+if 'app/core/bastion-engine.js' in app or 'app/views/dashboard.js' in app:
+    raise SystemExit('app/index.html appears to duplicate the full app shell')
+print('PASS: root index.html is canonical; app/index.html is a compatibility redirect')
+PYCHECK
+pass 'app shell canonical structure validated'
 
 printf '\nSave State alignment:\n'
 ui_save=$(python3 - <<'PY'

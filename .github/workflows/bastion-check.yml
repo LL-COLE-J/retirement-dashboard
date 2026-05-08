@@ -16,11 +16,15 @@ jobs:
 
       - name: Verify structure
         run: |
+          test -f index.html || exit 1
           test -f app/index.html || exit 1
+          test -f APP_SHELL_NORMALIZATION.md || exit 1
           test -f AGENTS.md || exit 1
           test -f SAVE_STATE.md || exit 1
           test -f ROADMAP.md || exit 1
           test -f REGRESSION_CHECKLIST.md || exit 1
+          grep -q 'Canonical app shell path: `index.html` at the repository root.' APP_SHELL_NORMALIZATION.md
+          grep -q "url=../index.html" app/index.html
 
       - name: Success
         run: echo "Bastion check passed"

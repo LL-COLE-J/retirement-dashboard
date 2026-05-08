@@ -38,6 +38,20 @@ if (!(Test-Path "index.html")) {
   Write-Host "OK: index.html exists"
 }
 
+if (!(Test-Path "APP_SHELL_NORMALIZATION.md")) {
+  Write-Host "ERROR: APP_SHELL_NORMALIZATION.md missing"
+  $errors++
+} else {
+  Write-Host "OK: APP_SHELL_NORMALIZATION.md exists"
+}
+
+if (!(Test-Path "app/index.html")) {
+  Write-Host "ERROR: app/index.html compatibility redirect missing"
+  $errors++
+} else {
+  Write-Host "OK: app/index.html compatibility redirect exists"
+}
+
 if (!(Test-Path "AGENTS.md")) {
   Write-Host "ERROR: AGENTS.md missing"
   $errors++
@@ -64,6 +78,8 @@ git status --short
 
 $indexHtml = Get-Content "index.html" -Raw
 $saveStateDoc = Get-Content "SAVE_STATE.md" -Raw
+$appIndexHtml = if (Test-Path "app/index.html") { Get-Content "app/index.html" -Raw } else { "" }
+$appShellDoc = if (Test-Path "APP_SHELL_NORMALIZATION.md") { Get-Content "APP_SHELL_NORMALIZATION.md" -Raw } else { "" }
 $ownerView = if (Test-Path "app/views/owner.js") { Get-Content "app/views/owner.js" -Raw } else { "" }
 
 $lt = [char]60; $eq = [char]61; $gt = [char]62
@@ -109,6 +125,37 @@ $docSave = [regex]::Match($saveStateDoc, "Bastion Save State ([^`n]+)").Groups[1
 if ($uiSave -and $docSave -and $uiSave -ne $docSave) {
   Write-Host "ERROR: Save State mismatch between UI ($uiSave) and SAVE_STATE.md ($docSave)"
   $errors++
+}
+
+
+Write-Host ""
+Write-Host "App shell normalization:"
+if ($appShellDoc -notmatch 'Canonical app shell path: `index.html` at the repository root\.') {
+  Write-Host "ERROR: canonical app shell path missing from APP_SHELL_NORMALIZATION.md"
+  $errors++
+}
+if ($indexHtml -notmatch "id=`"phaseNumber`"" -or $indexHtml -notmatch "function showView\(") {
+  Write-Host "ERROR: root index.html does not contain canonical app shell markers"
+  $errors++
+}
+if ($appIndexHtml -notmatch "url=\.\./index\.html") {
+  Write-Host "ERROR: app/index.html compatibility redirect target missing"
+  $errors++
+}
+if ($appIndexHtml -notmatch "window\.location\.replace") {
+  Write-Host "ERROR: app/index.html JavaScript redirect fallback missing"
+  $errors++
+}
+if ($appIndexHtml -match "Bastion Save State [0-9]") {
+  Write-Host "ERROR: app/index.html should not contain visible Save State text"
+  $errors++
+}
+if ($appIndexHtml -match "app/core/bastion-engine\.js" -or $appIndexHtml -match "app/views/dashboard\.js") {
+  Write-Host "ERROR: app/index.html appears to duplicate the full app shell"
+  $errors++
+}
+if ($errors -eq 0) {
+  Write-Host "OK: root index.html is canonical; app/index.html is a compatibility redirect"
 }
 
 Write-Host ""
