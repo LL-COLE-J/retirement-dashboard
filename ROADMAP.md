@@ -291,10 +291,20 @@ NEW:
 - Applied logo variants strategically: full lockup on public landing, Tower as a premium marketing/hero accent only, Shield+B in app/sidebar/Dashboard summary contexts, compact B for header/advisor/mobile/favicon contexts, and monochrome branding for Reports.
 - Refined brand CSS utilities and landing/report polish to better match the advisor-grade navy / royal blue / sage green / muted gold / slate / off-white direction while preserving 2.40c Dashboard readability and the 2.40d brand token system.
 - Preserved Dashboard output-only behavior, Profile input ownership, routes, IDs, commit behavior, formulas, engines, scenarios, auth/Firebase/Firestore/deployment configuration, governance warnings, owner isolation, Enterprise as future baseline only, and existing user flow.
-- Updated visible Save State text to 2.40g and kept 2.41 — Beta Access & Security Gate as the next required phase.
+- Updated visible Save State text to 2.40g and preserved the beta access/security gate as a future required phase.
+
+
+
+### 2.41 — Visual Consolidation + Brand Integration (DONE)
+- Consolidated Bastion's approved tower identity across the public landing surface, app sidebar/header, reports, compact favicon/app icon, and future enterprise-ready lockup asset without creating a new brand direction.
+- Standardized the premium navy / gold / white visual system, card radius, shadows, typography hierarchy, button treatment, status chips, KPI cards, chart styling, section spacing, sidebar spacing, top navigation spacing, and mobile stacking.
+- Refined Dashboard/report/scenario/Tax-RMD visual surfaces toward an institutional executive-briefing feel while keeping Dashboard output-only and Profile input ownership intact.
+- Added visual-only future-direction cards for home/relocation comparisons, equity unlock, lifestyle scoring, and report/export consistency without adding engines, formulas, routes, or data ownership changes.
+- Preserved routes, IDs, commit behavior, formulas, engines, scenarios, auth/Firebase/Firestore/deployment configuration, governance warnings, owner isolation, Enterprise as future baseline only, and existing user flow.
+- Updated visible Save State text to 2.41 and preserved beta access/security gate, healthcare modeling, relocation modeling, report export, RMD/tax rule-versioning, and financial intelligence as separate future phases.
 
 ## Upcoming Governance and Stabilization Subphases
-- 2.41 — Beta Access & Security Gate remains the next required phase.
+- 2.42 — Beta Access & Security Gate remains the next required phase.
 - Future navigation clarity: keep Dashboard / Profile / Advisor / Scenarios / Timeline flow stable while reducing beta-user friction.
 - Future navigation audit: validate menu clarity and route/view expectations without changing Dashboard/Profile ownership.
 - Future onboarding and public beta/contact form: prepare trusted beta access, contact capture, fallback/empty-state clarity, validation, and governance hardening as separate phases.
@@ -579,4 +589,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.40g — Brand Asset Pack & Personal Site Integration complete; next required phase is 2.41 — Beta Access & Security Gate, with navigation audit, onboarding, public beta/contact form, expanded profile model, security, report generation, healthcare, relocation, RMD, tax strategy, and financial intelligence work preserved
+2.41 — Visual Consolidation + Brand Integration complete; next required phase is 2.42 — Beta Access & Security Gate, with navigation audit, onboarding, public beta/contact form, expanded profile model, security, report generation, healthcare, relocation, RMD, tax strategy, and financial intelligence work preserved
