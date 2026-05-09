@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" role="img" aria-labelledby="title desc">
+  <title id="title">Bastion Insight horizontal logo</title>
+  <desc id="desc">Bastion Shield B mark with Bastion Insight wordmark.</desc>
+  <defs>
+    <linearGradient id="shieldGradient" x1="8" y1="6" x2="60" y2="66" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#10284b"/>
+      <stop offset="1" stop-color="#07111f"/>
+    </linearGradient>
+    <linearGradient id="edgeGradient" x1="16" y1="9" x2="52" y2="62" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5dd6a9"/>
+      <stop offset="1" stop-color="#78a6ff" stop-opacity="0.5"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#shieldGradient)" d="M34 6 58 15.7v19.8c0 16.7-8.9 27.6-24 35.5C18.9 63.1 10 52.2 10 35.5V15.7z"/>
+  <path fill="none" stroke="url(#edgeGradient)" stroke-width="3" stroke-linejoin="round" d="M34 11 53 18.7v16.8c0 13.8-7.1 23.4-19 30.3-11.9-6.9-19-16.5-19-30.3V18.7z"/>
+  <path fill="#d6a94f" d="M26.2 22h8.2c5.1 0 8.4 2.6 8.4 6.8 0 2.3-1.1 4.2-3.1 5.4 2.7 1.1 4.2 3.3 4.2 6.2 0 4.8-3.7 7.8-9.5 7.8h-8.2zm7.8 10.1c2 0 3.2-.9 3.2-2.6 0-1.6-1.2-2.6-3.2-2.6h-2.3v5.2zm.4 11c2.4 0 3.9-1.1 3.9-3.1s-1.5-3.1-3.9-3.1h-2.7v6.2z"/>
+  <text x="78" y="34" fill="#10284b" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="25" font-weight="900" letter-spacing="-1.2">Bastion</text>
+  <text x="78" y="55" fill="#64748b" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16" font-weight="750" letter-spacing="0.2">Insight</text>
+  <path fill="#d6a94f" d="M189 24h2.4v29H189z" opacity="0.8"/>
+  <text x="204" y="43" fill="#334155" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="850" letter-spacing="1.7">CLARITY</text>
+  <text x="204" y="57" fill="#64748b" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="750" letter-spacing="1.2">PROTECTION</text>
+</svg>

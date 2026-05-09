@@ -275,7 +275,17 @@ NEW:
 | Reports | Placeholder | INSIGHT_AGENT / ENTERPRISE_AGENT / UI_AGENT | Snapshot/report surface for current outputs only. | Add export, advisor delivery, report generation, narrative packaging, and audit trail in separate report-generation phases. |
 | Owner Dashboard (`owner=true`) | Active | Owner / REGRESSION_AGENT / DEVOPS_AGENT | Isolated owner-only governance/queue dashboard behind `owner=true`; not part of consumer menu unless owner mode is active. | Keep isolated while future trusted beta, validation, security, and deployment governance mature. |
 
+
+### 2.40f — Logo Asset Integration (DONE)
+- Replaced temporary/placeholder shield branding with reusable production-ready Bastion SVG logo assets as a surgical brand-asset pass only.
+- Added actual reusable assets for the Primary Shield+B mark, Compact B mark, Full horizontal lockup, and Monochrome/report variant.
+- Applied logo variants by surface: full horizontal lockup on the public landing surface, compact/Shield+B marks in the sidebar and header, a restrained small Shield+B mark in the Dashboard executive summary, formal monochrome branding in Reports, and a tiny compact mark in the Advisor drawer.
+- Preserved the 2.40d brand token system by routing logo sizing and placement through existing brand utility classes where practical.
+- Preserved Dashboard output-only behavior, Profile input ownership, routes, IDs, commit behavior, formulas, engines, scenarios, auth/Firebase/deployment configuration, governance warnings, owner isolation, and existing user flow.
+- Updated visible Save State text to 2.40f and kept 2.41 — Beta Access & Security Gate as the next phase.
+
 ## Upcoming Governance and Stabilization Subphases
+- 2.41 — Beta Access & Security Gate remains the next phase.
 - Future navigation clarity: keep Dashboard / Profile / Advisor / Scenarios / Timeline flow stable while reducing beta-user friction.
 - Future trusted beta preparation: continue advisor-grade reporting polish, fallback/empty-state clarity, validation, and governance hardening.
 - Future expanded profile data model: add household, income, expense, asset, debt, tax, and confidence modeling only through scoped engine-owned phases.
@@ -558,4 +568,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.40e — Navigation & Menu Completion Audit complete; next recommended phase is trusted beta/navigation refinement, with onboarding direction, expanded profile data model, security hardening, report generation, and financial intelligence engine work preserved
+2.40f — Logo Asset Integration complete; next recommended phase is 2.41 — Beta Access & Security Gate, with onboarding direction, expanded profile data model, security hardening, report generation, and financial intelligence engine work preserved
