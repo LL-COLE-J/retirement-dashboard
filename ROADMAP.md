@@ -230,9 +230,16 @@ NEW:
 - Added `PROFILE_INPUT_MODEL_NOTES.md` to document current Profile stabilization goals and future household, income, expense, asset/debt/equity, tax-profile, retirement-flexibility, and confidence/missing-input requirements.
 - Updated visible Save State text to 2.40a and set the next phase to 2.40b — Profile UX Cohesion.
 
+
+### 2.40b — Profile UX Cohesion (DONE)
+- Improved Profile visual cohesion with a calmer advisor-grade light-theme intake treatment while preserving the dark sidebar and existing app flow.
+- Normalized Profile spacing, card hierarchy, section summaries, field containers, helper-text readability, input alignment, and mobile stacking.
+- Clarified annual vs monthly expectations in Profile review copy and special-account helper presentation without changing calculations or storage behavior.
+- Preserved routes, formulas, auth/Firebase/deployment configuration, governance systems, owner isolation, Dashboard output-only behavior, and Profile input ownership.
+- Updated visible Save State text to 2.40b and set the next phase to 2.40c — Dashboard Readability.
+
 ## Upcoming Governance and Stabilization Subphases
-- 2.40b — Profile UX Cohesion: next scoped pass for Profile visual consistency, readability, and beta-user clarity.
-- Future dashboard readability: preserve output-only Dashboard clarity while improving report/readout polish.
+- 2.40c — Dashboard Readability: preserve output-only Dashboard clarity while improving report/readout polish.
 - Future navigation clarity: keep Dashboard / Profile / Advisor / Scenarios / Timeline flow stable while reducing beta-user friction.
 - Future trusted beta preparation: continue advisor-grade reporting polish, fallback/empty-state clarity, validation, and governance hardening.
 - Future expanded profile data model: add household, income, expense, asset, debt, tax, and confidence modeling only through scoped engine-owned phases.
@@ -515,4 +522,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.40a — Profile Input Stabilization complete; next phase is 2.40b — Profile UX Cohesion, with future dashboard readability, navigation clarity, trusted beta preparation, expanded profile data model, and financial intelligence engine work preserved
+2.40b — Profile UX Cohesion complete; next phase is 2.40c — Dashboard Readability, with future navigation clarity, trusted beta preparation, onboarding direction, expanded profile data model, and financial intelligence engine work preserved

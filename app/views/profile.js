@@ -1,7 +1,7 @@
 function renderProfileView(coreCard, profileIds, assumptionIds, eventsCard){
   var profileView = document.createElement('section'); profileView.id='profileView'; profileView.className='view profile-view';
   var profileCard = document.createElement('div'); profileCard.className='card';
-  profileCard.innerHTML = '<div class="section-head profile-hero"><div><span class="eyebrow">Profile input center</span><h3>Profile</h3><p>Profile is Bastion’s input center. Confirm household, income, expenses, assets, debts, retirement, tax, special-account, and scenario assumptions here before Bastion renders dashboard outputs.</p></div><div class="profile-trust-stack"><span>Inputs owned here</span><span>Outputs stay on Dashboard</span><span>Calculations unchanged</span></div></div><div id="planSetupSummary" class="dashboard-summary profile-summary">Plan setup appears after model run. 2.40a keeps current inputs and calculations intact while making missing, estimated, and placeholder values easier to review.</div><div class="mini-list profile-section-list" id="profileSections"></div>';
+  profileCard.innerHTML = '<div class="section-head profile-hero"><div><span class="eyebrow">Profile input center</span><h3>Profile</h3><p>Profile is Bastion’s advisor-grade intake workspace. Confirm household, income, expenses, assets, debts, retirement, tax, special-account, and scenario assumptions here before Bastion renders dashboard outputs.</p></div><div class="profile-trust-stack"><span>Inputs owned here</span><span>Outputs stay on Dashboard</span><span>No formula changes</span></div></div><div id="planSetupSummary" class="dashboard-summary profile-summary"><strong>Profile review checklist:</strong> Annual inputs are labeled “/ year,” monthly special-account placeholders are labeled “monthly,” and Dashboard remains output-only.</div><div class="profile-guidance-strip"><span>1. Confirm current household</span><span>2. Review annual cash flow</span><span>3. Check retirement assumptions</span></div><div class="mini-list profile-section-list" id="profileSections"></div>';
   profileView.appendChild(profileCard);
   buildProfileInputCenter(coreCard, profileIds, assumptionIds, eventsCard, profileView.querySelector('#profileSections'));
   restoreProfileDropdownOptions(profileView);
@@ -138,7 +138,7 @@ function ensureProfileField(target,id,label,controlHtml,helperText){
   var field = document.createElement('div');
   field.className = 'field profile-field';
   var helper = helperText ? '<small class="profile-field-helper">'+helperText+'</small>' : '';
-  field.innerHTML = '<label>'+label+'</label>'+controlHtml+helper;
+  field.innerHTML = '<label>'+label+'</label><div class="profile-control-wrap">'+controlHtml+'</div>'+helper;
   target.appendChild(field);
 }
 
@@ -157,7 +157,7 @@ function ensureProfileCoreFields(grids,values){
   ensureProfileField(grids.retirement,'retireSpend','Retirement spending / year','<input id="retireSpend" type="number" value="'+value('retireSpend','38400')+'" oninput="commit()">','Annual retirement spending estimate. Unknown/derived states are planned for later.');
   ensureProfileField(grids.scenarioAssumptions,'captureRate','Surplus invested %','<input id="captureRate" type="number" step="1" value="'+value('captureRate','75')+'" oninput="commit()">','Percent of surplus cash flow assumed to be invested.');
   ensureProfileField(grids.scenarioAssumptions,'inflationRate','Inflation assumption %','<input id="inflationRate" type="number" step="0.1" value="'+value('inflationRate','3')+'" oninput="commit()">','Annual inflation assumption. This remains a baseline assumption, not an expense lock.');
-  ensureProfileField(grids.scenarioAssumptions,'returnProfile','Return profile','<select id="returnProfile" onchange="commit()">'+optionHtml(opts.returnProfile,value('returnProfile','moderate'))+'</select>','Simple return assumption profile; formulas are unchanged in 2.40a.');
+  ensureProfileField(grids.scenarioAssumptions,'returnProfile','Return profile','<select id="returnProfile" onchange="commit()">'+optionHtml(opts.returnProfile,value('returnProfile','moderate'))+'</select>','Simple return assumption profile; formulas are unchanged in 2.40b.');
   ensureProfileField(grids.locationTaxes,'filingStatus','Filing status','<select id="filingStatus" onchange="commit()">'+optionHtml(opts.filingStatus,value('filingStatus','married_joint'))+'</select>','Federal filing-status approximation used by the current tax model.');
   ensureProfileField(grids.locationTaxes,'taxState','Tax state','<select id="taxState" onchange="commit()">'+optionHtml(opts.taxState,value('taxState','TN'))+'</select>','State-level approximation. ZIP/jurisdiction modeling is future work.');
   ensureProfileField(grids.locationTaxes,'countyTaxRate','County tax rate %','<input id="countyTaxRate" type="number" step="0.01" value="'+value('countyTaxRate','0')+'" oninput="commit()">','Optional local rate percentage.');
@@ -172,15 +172,15 @@ function buildProfileInputCenter(coreCard, profileIds, assumptionIds, eventsCard
     if(openByDefault) details.setAttribute('open','open');
     details.className = 'section-block profile-section';
     var noteHtml = note ? '<p class="profile-section-note">'+note+'</p>' : '';
-    details.innerHTML = '<summary><span>'+title+'</span><small>'+description+'</small></summary>'+noteHtml+'<div class="compact-grid"></div>';
+    details.innerHTML = '<summary><div class="profile-section-title"><span>'+title+'</span><small>'+description+'</small></div><span class="profile-section-caret" aria-hidden="true">⌄</span></summary>'+noteHtml+'<div class="compact-grid"></div>';
     holder.appendChild(details);
     return details.querySelector('.compact-grid');
   }
-  var household = section('Household','Who the plan starts with today.', true, 'Current 2.40a inputs stay intentionally simple. Future household modeling can add many family compositions without moving calculations into Profile.');
+  var household = section('Household','Who the plan starts with today.', true, 'Current 2.40b inputs stay intentionally simple. Future household modeling can add many family compositions without moving calculations into Profile.');
   var income = section('Income','Earned income streams and staggered timing.', true, 'Use annual gross amounts. Future phases can add multiple income types and payment frequencies.');
   var expenses = section('Expenses','Current spending assumptions only.', true, 'Expenses remain separate from return and inflation assumptions so later models can support estimated, unknown, or derived spending states.');
   var assets = section('Assets','Cash and invested balances currently available.', true, 'Future modeling should distinguish liquid, semi-liquid, and illiquid assets.');
-  var debts = section('Debts','Current obligations that reduce starting net worth.', false, 'Debt is summarized in 2.40a. Housing and auto debt should later link to asset values and equity.');
+  var debts = section('Debts','Current obligations that reduce starting net worth.', false, 'Debt is summarized in 2.40b. Housing and auto debt should later link to asset values and equity.');
   var retirement = section('Retirement','Target retirement timing and spending goal.', true, 'Retirement spending stays a baseline estimate for now; unknown/estimated/derived states are future work.');
   var locationTaxes = section('Tax Profile','Filing status and state/local approximation inputs.', false, 'Current tax inputs remain approximate. Future tax modeling should support state, jurisdiction, and ZIP-aware rules.');
   var specialAccounts = section('Special Accounts','Social Security and pension placeholders.', false, 'These fields prepare the Profile structure for future special-account modeling without changing engine formulas.');
@@ -211,9 +211,9 @@ function buildProfileInputCenter(coreCard, profileIds, assumptionIds, eventsCard
   for(var i=0;i<retirementFields.length;i++){
     var field = document.createElement('div'); field.className='field profile-field';
     if(retirementFields[i]==='ssStartAge') field.innerHTML='<label>Social Security start age</label><input id="ssStartAge" type="number" value="67" oninput="commit()"><small class="profile-field-helper">Placeholder age for future special-account modeling.</small>';
-    if(retirementFields[i]==='ssMonthly') field.innerHTML='<label>Social Security monthly amount</label><input id="ssMonthly" type="number" value="0" oninput="commit()"><small class="profile-field-helper">Monthly estimate. Use 0 when unknown.</small>';
+    if(retirementFields[i]==='ssMonthly') field.innerHTML='<label>Social Security monthly amount</label><div class="profile-control-wrap"><input id="ssMonthly" type="number" value="0" oninput="commit()"></div><small class="profile-field-helper">Monthly estimate. Use 0 when unknown.</small>';
     if(retirementFields[i]==='pensionStartAge') field.innerHTML='<label>Pension start age</label><input id="pensionStartAge" type="number" value="65" oninput="commit()"><small class="profile-field-helper">Placeholder age for future pension handling.</small>';
-    if(retirementFields[i]==='pensionMonthly') field.innerHTML='<label>Pension monthly amount</label><input id="pensionMonthly" type="number" value="0" oninput="commit()"><small class="profile-field-helper">Monthly estimate. Use 0 when not applicable.</small>';
+    if(retirementFields[i]==='pensionMonthly') field.innerHTML='<label>Pension monthly amount</label><div class="profile-control-wrap"><input id="pensionMonthly" type="number" value="0" oninput="commit()"></div><small class="profile-field-helper">Monthly estimate. Use 0 when not applicable.</small>';
     specialAccounts.appendChild(field);
   }
   if(eventsCard){
