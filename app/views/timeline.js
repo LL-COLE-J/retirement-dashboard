@@ -4,7 +4,7 @@ function renderTimelineView(){
   timelineView.className = 'view';
 
   var timelineCard = document.createElement('div'); timelineCard.className='card';
-  timelineCard.innerHTML = '<div class="section-head"><div><h3>Timeline</h3><p>Simple life path markers based on the current profile inputs.</p></div></div><div class="timeline-intro"><div><h4>Your Financial Life Path</h4><p id="timelineScenarioLine">Scenario B retires at the same age.</p></div><div class="timeline-key"><span><i></i>Scenario A</span><span><i class="scenario-b-line"></i>Scenario B</span></div></div><div class="timeline-shell"><div class="timeline-track" id="timelineTrack"></div></div><div class="timeline-summary" id="timelineSummary"></div>';
+  timelineCard.innerHTML = '<div class="section-head"><div><h3>Timeline</h3><p>Simple life path markers based on the current profile inputs.</p></div></div><div class="view-status-banner"><span class="view-status-label status-mvp">MVP</span><span>Timeline is readable scenario context, not a complete planning calendar. Future refinements can expand labels and overlays without moving inputs out of Profile.</span></div><div class="timeline-intro"><div><h4>Your Financial Life Path</h4><p id="timelineScenarioLine">Scenario B retires at the same age.</p></div><div class="timeline-key"><span><i></i>Scenario A</span><span><i class="scenario-b-line"></i>Scenario B</span></div></div><div class="timeline-shell"><div class="timeline-track" id="timelineTrack"></div></div><div class="timeline-summary" id="timelineSummary"></div>';
   timelineView.appendChild(timelineCard);
 
   var timelineAdvisorCard = document.createElement('div'); timelineAdvisorCard.className='card';

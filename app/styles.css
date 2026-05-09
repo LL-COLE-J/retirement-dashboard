@@ -88,6 +88,16 @@ button{cursor:pointer}
   padding:12px 12px;border-radius:14px;font-weight:600
 }
 .nav button.active,.nav button:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.08);color:var(--text)}
+.nav-label,.nav-status{display:block;line-height:1.2}
+.nav-status{margin-top:4px;color:var(--muted);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;opacity:.86}
+.nav button.active .nav-status,.nav button:hover .nav-status{color:var(--accent)}
+.view-status-banner{display:flex;align-items:flex-start;gap:10px;margin:0 0 14px;padding:11px 12px;border:1px solid var(--brand-border);border-radius:14px;background:var(--brand-off-white);color:var(--beta-soft);font-size:12px;font-weight:750;line-height:1.45}
+.view-status-label{flex:0 0 auto;display:inline-flex;align-items:center;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:950;text-transform:uppercase;letter-spacing:.08em;border:1px solid var(--brand-border)}
+.status-active{background:#ecfdf5;border-color:#bbf7d0;color:#047857}
+.status-mvp{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+.status-partial{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
+.status-placeholder{background:#f8fafc;border-color:#cbd5e1;color:#475569}
+.status-future{background:#fffaf0;border-color:#f3dfb1;color:#8a5a0a}
 .side-card{margin-top:22px;padding:16px;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.045)}
 .side-card small{color:var(--muted);line-height:1.5;display:block}.side-card strong{color:var(--accent)}
 .main{min-width:0}.topbar{
@@ -317,6 +327,7 @@ body:not(.owner-mode){background:var(--beta-bg);color:var(--beta-text)}
   .app{grid-template-columns:1fr}
   .sidebar{position:relative;height:auto}
   .topbar{position:relative;align-items:flex-start;flex-direction:column;padding:16px}
+  .view-status-banner{display:grid;gap:8px}
   .content{padding:16px;gap:14px}
   .profile-view .card{padding:16px}
   .main .grid.cols-4,.main .grid.cols-3,.main .grid.cols-2,.decision-core{grid-template-columns:1fr}

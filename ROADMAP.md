@@ -254,6 +254,27 @@ NEW:
 - Preserved 2.40c Dashboard readability improvements, Profile as canonical intake/input owner, Dashboard as output-only owner, routes, input IDs, formulas, engines, scenarios, auth/Firebase/deployment configuration, governance warnings, owner isolation, and commit behavior.
 - Updated visible Save State text to 2.40d and preserved future navigation clarity, beta preparation, onboarding, expanded profile model, security hardening, and financial intelligence work as future phases.
 
+
+### 2.40e — Navigation & Menu Completion Audit (DONE)
+- Audited visible navigation and view surfaces as a surgical readability pass only.
+- Added subtle UI status labels/helper copy so unfinished areas are clearly framed and not misleading.
+- Confirmed Dashboard remains output-only and Profile remains the canonical intake/input owner.
+- Confirmed Profile is structurally stabilized but not feature-complete; expanded household, income, asset, debt, tax, special-account, onboarding, trusted beta, security, report generation, and financial intelligence work remain future scoped phases.
+- Preserved 2.40c Dashboard readability, 2.40d brand token system, governance warnings, routes, input IDs, formulas, engines, auth/Firebase/deployment configuration, owner isolation, and commit behavior.
+- Updated visible Save State text to 2.40e and preserved future navigation, trusted beta, onboarding, expanded profile model, security, report generation, and financial intelligence work as separate scoped phases.
+
+#### 2.40e Menu / View Completion Matrix
+| Menu item / view | Status | Owner | Current boundary | Future refinement path |
+| --- | --- | --- | --- | --- |
+| Dashboard | Active | DECISION_AGENT / OUTCOME_AGENT / UI_AGENT | Output-only Moment of Truth, Decision Output, metrics, charts, and compact advisor readout from Profile-owned inputs. | Keep decision-first hierarchy; add deeper intelligence only through engine-owned phases without adding Dashboard input ownership. |
+| Profile | Partial | ONBOARDING_AGENT / INCOME_AGENT / TAX_AGENT / UI_AGENT | Canonical intake/input owner with structurally stabilized household, income, expense, asset, debt, retirement, tax, special-account, scenario-assumption, and life-event boundaries. | Expand household compositions, income streams, asset/debt/equity splits, tax profile depth, confidence/missing-input states, and onboarding in scoped future phases. |
+| Advisor | MVP | ADVISOR_AGENT / INSIGHT_AGENT | Plain-English interpretation of current model outputs and compact drawer context. | Add second-opinion workflow, deeper recommendation logic, report-friendly advisor narrative, and confidence framing without overstating certainty. |
+| Scenarios | MVP | SCENARIO_AGENT / STRESS_AGENT / EVENT_AGENT | Scenario overlays and stress-test framing compare alternatives without mutating baseline assumptions. | Add event presets, trusted beta scenario paths, timeline refinement, and richer tradeoff explanations as separate scoped phases. |
+| Timeline | MVP | TIMELINE_AGENT / IMPACT_AGENT | Readable life-path markers using current Profile inputs and Scenario B comparison. | Refine label collision handling, richer overlays, legacy/healthcare markers, and mobile readability without moving calculations into the view. |
+| Tax & RMD | Future Phase | TAX_AGENT / RMD_AGENT / PLANNING_RULES_AGENT | Educational and placeholder-level withdrawal/tax/RMD clarity surface; not CPA-level guidance. | Add versioned tax/RMD rules, state/local depth, account-type split, compliance review, and rule verification before beta reliance. |
+| Reports | Placeholder | INSIGHT_AGENT / ENTERPRISE_AGENT / UI_AGENT | Snapshot/report surface for current outputs only. | Add export, advisor delivery, report generation, narrative packaging, and audit trail in separate report-generation phases. |
+| Owner Dashboard (`owner=true`) | Active | Owner / REGRESSION_AGENT / DEVOPS_AGENT | Isolated owner-only governance/queue dashboard behind `owner=true`; not part of consumer menu unless owner mode is active. | Keep isolated while future trusted beta, validation, security, and deployment governance mature. |
+
 ## Upcoming Governance and Stabilization Subphases
 - Future navigation clarity: keep Dashboard / Profile / Advisor / Scenarios / Timeline flow stable while reducing beta-user friction.
 - Future trusted beta preparation: continue advisor-grade reporting polish, fallback/empty-state clarity, validation, and governance hardening.
@@ -537,4 +558,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.40d — Brand Token Lock complete; next recommended phase is future navigation clarity / trusted beta preparation, with onboarding direction, expanded profile data model, security hardening, and financial intelligence engine work preserved
+2.40e — Navigation & Menu Completion Audit complete; next recommended phase is trusted beta/navigation refinement, with onboarding direction, expanded profile data model, security hardening, report generation, and financial intelligence engine work preserved
