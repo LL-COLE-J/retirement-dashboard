@@ -304,6 +304,14 @@ NEW:
 - Updated visible Save State text to 2.41 and preserved beta access/security gate, healthcare modeling, relocation modeling, report export, RMD/tax rule-versioning, and financial intelligence as separate future phases.
 
 
+
+### 2.41b — Canonical Brand Asset Adoption (DONE)
+- Adopted the approved canonical SVG brand system from `assets/brand/` without changing calculations, Profile ownership, routing, mobile behavior, auth/Firebase/deployment configuration, or owner isolation.
+- Added the approved asset set: `bastion-tower.svg`, `bastion-tower-lockup.svg`, `bastion-shield-b.svg`, `bastion-b-mark.svg`, `bastion-report-mark.svg`, `favicon.svg`, and `brand-tokens.css`.
+- Imported canonical brand tokens globally and updated favicon, landing, app operational surfaces, compact mobile/header/drawer marks, Dashboard executive mark, and Reports branding to use canonical asset paths.
+- Normalized brand usage only: public landing uses the tower lockup, app operational surfaces use Shield+B, mobile/compact surfaces use the B mark, reports use the report mark, and favicon uses the canonical favicon.
+- Updated visible Save State text to 2.41b and preserved future mobile navigation architecture work as a separate scoped phase.
+
 ### 2.42 — Mobile Navigation + Guided Flow System (DONE)
 - Added a compact mobile brand bar, thumb-friendly bottom mobile navigation, and a lighter mobile Save State strip while preserving desktop navigation and all existing routes.
 - Refined mobile page structure around executive summary first, key recommendation second, and progressively expandable details afterward.
@@ -599,4 +607,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.42 — Mobile Navigation + Guided Flow System complete; next required phases remain scoped onboarding, SEO pages, healthcare expansion, relocation engine, RMD optimization, reports, enterprise, financial intelligence, advanced integrations, beta access, and security gating without changing current formulas/routes/auth/Firebase/deployment behavior
+2.41b — Canonical Brand Asset Adoption complete; next required phases remain scoped onboarding, SEO pages, healthcare expansion, relocation engine, RMD optimization, reports, enterprise, financial intelligence, advanced integrations, beta access, security gating, and future mobile navigation architecture without changing current formulas/routes/auth/Firebase/deployment behavior
