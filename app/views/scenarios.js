@@ -9,6 +9,7 @@ function renderScenariosView(existingView, eventsCard, tweakCard){
   var phase210Card = document.createElement('div');
   phase210Card.className = 'card';
   phase210Card.innerHTML = '<div class="section-head"><div><h3>Scenario Planning</h3><p>Scenario overlay applies only to scenario path. Baseline projection remains unchanged.</p></div></div>'+
+    '<div class="view-status-banner"><span class="view-status-label status-mvp">MVP</span><span>Scenario controls support comparison and stress-test framing. Expanded event libraries, onboarding presets, and trusted-beta flows stay future scoped.</span></div>'+
     '<div class="form-grid">'+
     '<div class="field"><label>First Retiree</label><select><option>Person 1</option><option>Person 2</option></select></div>'+
     '<div class="field"><label>Retires First Age</label><input id="scenarioFirstRetireAge" type="number" value="67" oninput="commit()"></div>'+
