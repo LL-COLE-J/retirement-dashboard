@@ -14,8 +14,8 @@ window.BASTION_FIREBASE_CONFIG = {
 </script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bastion Insights - Bastion Save State 2.40f — Logo Asset Integration</title>
-<link rel="icon" type="image/svg+xml" href="app/assets/logos/bastion-shield-b.svg">
+<title>Bastion Insights - Bastion Save State 2.40g — Brand Asset Pack & Personal Site Integration</title>
+<link rel="icon" type="image/svg+xml" href="app/assets/brand/bastion-shield-b.svg">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="app/core/number-guards.js"></script>
 <script src="app/core/bastion-engine.js"></script>
@@ -65,12 +65,13 @@ function mountRenderedView(mountId,rendererName,label){
   <div class="landing-shell">
     <div class="landing-top">
       <div class="landing-brand">
-        <img class="brand-asset brand-lockup-img" src="app/assets/logos/bastion-lockup-horizontal.svg" alt="Bastion Insight">
+        <img class="brand-asset brand-lockup-img" src="app/assets/brand/bastion-lockup-horizontal.svg" alt="Bastion Insight">
       </div>
       <span class="landing-badge">CLARITY. PROTECTION. CONFIDENCE.</span>
     </div>
     <div class="landing-main">
       <div class="landing-left">
+        <div class="landing-hero-accent" aria-hidden="true"><img class="brand-asset brand-tower-img" src="app/assets/brand/bastion-tower-mark.svg" alt=""></div>
         <h1>Know your financial future in seconds.</h1>
         <p>Bastion Insight helps you model retirement readiness, tax strategy, RMD compliance, healthcare costs, relocation decisions, and legacy outcomes.</p>
         <div class="landing-actions">
@@ -100,7 +101,7 @@ function mountRenderedView(mountId,rendererName,label){
 <!-- APP SHELL: AUTHENTICATED APP -->
 <div class="app">
   <aside class="sidebar">
-    <div class="brand brand-lockup"><img class="brand-asset brand-shield-img" src="app/assets/logos/bastion-shield-b.svg" alt="" aria-hidden="true"><div class="brand-text"><h1 class="brand-name wordmark-lockup">Bastion Insight</h1><span>Inputs define the path.</span></div></div>
+    <div class="brand brand-lockup"><img class="brand-asset brand-shield-img" src="app/assets/brand/bastion-shield-b.svg" alt="" aria-hidden="true"><div class="brand-text"><h1 class="brand-name wordmark-lockup">Bastion Insight</h1><span>Inputs define the path.</span></div></div>
     <nav class="nav">
       <button class="active">Dashboard</button>
       <button>Profile</button>
@@ -110,12 +111,12 @@ function mountRenderedView(mountId,rendererName,label){
       <button>Tax &amp; RMD</button>
       <button>Reports</button>
     </nav>
-     <div class="side-card brand-surface-card"><small><strong id="phaseNumber">Bastion Save State 2.40f — Logo Asset Integration</strong><br/><span id="phaseDesc">Production SVG logo assets are integrated across public, app, dashboard, advisor, and report surfaces while 2.40d brand tokens, Profile ownership, and calculations remain unchanged.</span></small></div>
+     <div class="side-card brand-surface-card"><small><strong id="phaseNumber">Bastion Save State 2.40g — Brand Asset Pack & Personal Site Integration</strong><br/><span id="phaseDesc">Brand assets are integrated across public, app, dashboard, advisor, report, mobile, and favicon contexts while 2.40d tokens, Profile ownership, and calculations remain unchanged.</span></small></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-       <div class="topbar-title"><img class="brand-asset brand-compact-img topbar-mark" src="app/assets/logos/bastion-compact-b.svg" alt="" aria-hidden="true"><div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.40f integrates the production logo asset system. Dashboard remains output-only, Profile remains the canonical intake owner, and 2.40d brand tokens remain preserved.</p></div></div>
+       <div class="topbar-title"><img class="brand-asset brand-compact-img topbar-mark" src="app/assets/brand/bastion-compact-b.svg" alt="" aria-hidden="true"><div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.40g integrates the production brand asset pack. Dashboard remains output-only, Profile remains the canonical intake owner, and 2.40d brand tokens remain preserved.</p></div></div>
       <div class="top-actions">
         <span class="pill trust-chip" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="showView('reports');toggleDecisionReport(true)">Generate Report</button>
@@ -133,8 +134,8 @@ function mountRenderedView(mountId,rendererName,label){
 
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
-  <div class="drawer-head"><div class="drawer-title"><img class="brand-asset brand-tiny-img" src="app/assets/logos/bastion-compact-b.svg" alt="" aria-hidden="true"><h2>Bastion Advisor</h2></div><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Bastion Save State 2.40f readout:</strong></p>
+  <div class="drawer-head"><div class="drawer-title"><img class="brand-asset brand-tiny-img" src="app/assets/brand/bastion-compact-b.svg" alt="" aria-hidden="true"><h2>Bastion Advisor</h2></div><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
+  <p><strong>Bastion Save State 2.40g readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
@@ -857,8 +858,8 @@ function setupViews(){
   var decisionCard = document.createElement('div');
   decisionCard.className = 'card dashboard-hero-card';
   decisionCard.innerHTML =
-    '<div class="dashboard-hero-head"><div class="dashboard-brand-lockup"><img class="brand-asset dashboard-brand-shield" src="app/assets/logos/bastion-shield-b.svg" alt="" aria-hidden="true"><div><span class="eyebrow">Executive summary</span><h3>Moment of Truth</h3><p>Decision Core answers where the plan stands if nothing changes, using Profile-owned inputs.</p></div></div><div class="dashboard-readiness-stack trust-chip-row"><span class="trust-chip">Profile-owned inputs</span><span class="trust-chip">Output-only dashboard</span><span class="trust-chip">Decision support</span></div></div>'+
-    '<div class="view-status-banner"><span class="view-status-label status-active">Active</span><span>Dashboard is an output-only readout. Change assumptions in Profile or Scenarios; formulas and routes are unchanged in 2.40f.</span></div>'+
+    '<div class="dashboard-hero-head"><div class="dashboard-brand-lockup"><img class="brand-asset dashboard-brand-shield" src="app/assets/brand/bastion-shield-b.svg" alt="" aria-hidden="true"><div><span class="eyebrow">Executive summary</span><h3>Moment of Truth</h3><p>Decision Core answers where the plan stands if nothing changes, using Profile-owned inputs.</p></div></div><div class="dashboard-readiness-stack trust-chip-row"><span class="trust-chip">Profile-owned inputs</span><span class="trust-chip">Output-only dashboard</span><span class="trust-chip">Decision support</span></div></div>'+
+    '<div class="view-status-banner"><span class="view-status-label status-active">Active</span><span>Dashboard is an output-only readout. Change assumptions in Profile or Scenarios; formulas and routes are unchanged in 2.40g.</span></div>'+
     '<div class="decision-core">'+
     '<div class="decision-card primary"><div class="decision-kicker">Am I Okay?</div><div class="decision-value large" id="decisionOkay">-</div><div class="decision-sub">Plain-English safety readout for the current path.</div><div class="decision-statement" id="decisionBaselineStatement"><strong>Baseline:</strong> Run the model to see the current path.</div></div>'+
     '<div class="decision-card"><div class="decision-kicker">Run-out Age</div><div class="decision-value large" id="decisionRunoutAge">-</div><div class="decision-sub">First age where the projection falls to zero.</div></div>'+
@@ -880,7 +881,7 @@ function setupViews(){
   var advisorSummary = document.createElement('div');
   advisorSummary.className = 'dashboard-summary advisor-compact-summary brand-surface-card';
   advisorSummary.id = 'advisorSummary';
-  advisorSummary.innerHTML = '<span class="advisor-compact-title"><img class="brand-asset brand-tiny-img" src="app/assets/logos/bastion-compact-b.svg" alt="" aria-hidden="true"><strong>Advisor Engine v2 (Compact)</strong></span><br><span id="advisorCompact">Run the model to generate plan diagnosis and next action.</span>';
+  advisorSummary.innerHTML = '<span class="advisor-compact-title"><img class="brand-asset brand-tiny-img" src="app/assets/brand/bastion-compact-b.svg" alt="" aria-hidden="true"><strong>Advisor Engine v2 (Compact)</strong></span><br><span id="advisorCompact">Run the model to generate plan diagnosis and next action.</span>';
   dashboardView.appendChild(advisorSummary);
 
   var coreCard = coreGrid ? coreGrid.children[0] : null;
@@ -1232,8 +1233,8 @@ function renderOwnerSummaryCards(){
   var completed = ownerCompletedValidations.length;
   var warnings = ownerFeedback.filter(function(i){ return i.agent.indexOf('BLOCKER')>-1 && i.status==='Blocked'; }).length;
   var parked = ownerFeedback.filter(function(i){ return i.status==='Parked'; }).length;
-  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.40f — Logo Asset Integration');
-  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.40f Logo Asset Integration';
+  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.40g — Brand Asset Pack & Personal Site Integration');
+  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.40g Brand Asset Pack & Personal Site Integration';
   if(el('ownerSummaryQueued')) el('ownerSummaryQueued').textContent=String(queued);
   if(el('ownerSummaryParked')) el('ownerSummaryParked').textContent=String(parked);
   if(el('ownerSummaryCompleted')) el('ownerSummaryCompleted').textContent=String(completed);
@@ -1400,7 +1401,7 @@ function initOwnerMode(){
   }
 }
 function init(){ loadState(); decisionBaselineState = readState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; decisionBaselineState.events = events.slice(); } setupViews(); wireNav(); bindUserNavClicks(); syncModeUI(); renderEvents(); showView('dashboard'); commit(); }
-console.log("Bastion Save State 2.40f logo asset integration active");
+console.log("Bastion Save State 2.40g brand asset pack and personal site integration active");
 
 var BETA_SESSION_KEY='bastion_beta_session_v1';
 window.__bastionSyntaxCheckOk=true;

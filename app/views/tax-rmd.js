@@ -1,6 +1,6 @@
 function renderTaxRmdView(){
   var taxCard = document.createElement('div'); taxCard.className='tax-page'; taxCard.id='taxRmdPage';
-  taxCard.innerHTML = '<div class="tax-header"><div><div class="tax-pill">Future Phase</div><h3>Your Withdrawal Plan</h3><p>Lightweight tax-planning view for compliance, withdrawal order, and stress-tested downside.</p></div><span class="tax-pill">Save State 2.40f</span></div>'+
+  taxCard.innerHTML = '<div class="tax-header"><div><div class="tax-pill">Future Phase</div><h3>Your Withdrawal Plan</h3><p>Lightweight tax-planning view for compliance, withdrawal order, and stress-tested downside.</p></div><span class="tax-pill">Save State 2.40g</span></div>'+
     '<div class="view-status-banner"><span class="view-status-label status-future">Future Phase</span><span>Tax and RMD content is intentionally educational/placeholder-level. It is not CPA-level guidance and needs a dedicated rules/versioning phase before beta reliance.</span></div>'+
     '<div class="tax-grid cols-2">'+
     '<div class="tax-card"><h4>Status</h4><div class="tax-metric tax-good" id="taxComplianceStatus">ON TRACK</div><div class="tax-muted" id="taxComplianceNote">One-line reason appears after projection.</div></div>'+

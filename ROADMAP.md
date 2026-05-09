@@ -284,12 +284,23 @@ NEW:
 - Preserved Dashboard output-only behavior, Profile input ownership, routes, IDs, commit behavior, formulas, engines, scenarios, auth/Firebase/deployment configuration, governance warnings, owner isolation, and existing user flow.
 - Updated visible Save State text to 2.40f and kept 2.41 — Beta Access & Security Gate as the next phase.
 
+
+### 2.40g — Brand Asset Pack & Personal Site Integration (DONE)
+- Completed a surgical visual-identity pass for the regular Bastion Personal site/app only.
+- Added production brand assets under `app/assets/brand/`: Primary Shield+B mark, Minimal compact B mark, Tower marketing mark, Full horizontal Bastion Insight lockup, Tower accent lockup, and Monochrome/report variant.
+- Applied logo variants strategically: full lockup on public landing, Tower as a premium marketing/hero accent only, Shield+B in app/sidebar/Dashboard summary contexts, compact B for header/advisor/mobile/favicon contexts, and monochrome branding for Reports.
+- Refined brand CSS utilities and landing/report polish to better match the advisor-grade navy / royal blue / sage green / muted gold / slate / off-white direction while preserving 2.40c Dashboard readability and the 2.40d brand token system.
+- Preserved Dashboard output-only behavior, Profile input ownership, routes, IDs, commit behavior, formulas, engines, scenarios, auth/Firebase/Firestore/deployment configuration, governance warnings, owner isolation, Enterprise as future baseline only, and existing user flow.
+- Updated visible Save State text to 2.40g and kept 2.41 — Beta Access & Security Gate as the next required phase.
+
 ## Upcoming Governance and Stabilization Subphases
-- 2.41 — Beta Access & Security Gate remains the next phase.
+- 2.41 — Beta Access & Security Gate remains the next required phase.
 - Future navigation clarity: keep Dashboard / Profile / Advisor / Scenarios / Timeline flow stable while reducing beta-user friction.
-- Future trusted beta preparation: continue advisor-grade reporting polish, fallback/empty-state clarity, validation, and governance hardening.
-- Future expanded profile data model: add household, income, expense, asset, debt, tax, and confidence modeling only through scoped engine-owned phases.
-- Future financial intelligence engine: expand analysis and recommendations without moving calculations into views.
+- Future navigation audit: validate menu clarity and route/view expectations without changing Dashboard/Profile ownership.
+- Future onboarding and public beta/contact form: prepare trusted beta access, contact capture, fallback/empty-state clarity, validation, and governance hardening as separate phases.
+- Future expanded profile data model: add household, income, expense, asset, debt, tax, special accounts, healthcare, relocation, and confidence modeling only through scoped engine-owned phases.
+- Future report generation: add export, advisor delivery, narrative packaging, and audit trail only in a dedicated reporting phase.
+- Future RMD, tax strategy, and financial intelligence: expand versioned planning logic, recommendations, and explanations without moving calculations into views.
 - Future Firebase hardening: add Firestore rules tests, Firebase Auth boundary design, staging/production separation, production rule tightening, and deployment credential least-privilege review as separate scoped phases.
 
 ---
@@ -568,4 +579,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.40f — Logo Asset Integration complete; next recommended phase is 2.41 — Beta Access & Security Gate, with onboarding direction, expanded profile data model, security hardening, report generation, and financial intelligence engine work preserved
+2.40g — Brand Asset Pack & Personal Site Integration complete; next required phase is 2.41 — Beta Access & Security Gate, with navigation audit, onboarding, public beta/contact form, expanded profile model, security, report generation, healthcare, relocation, RMD, tax strategy, and financial intelligence work preserved

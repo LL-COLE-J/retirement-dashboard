@@ -50,10 +50,11 @@ body{
 button,input,select{font:inherit}
 button{cursor:pointer}
 
-/* Phase 2.40d — brand token lock utilities; 2.40f maps production logo assets onto them */
+/* Phase 2.40d — brand token lock utilities; 2.40g maps production brand assets onto them */
 .brand-lockup,.wordmark-lockup{min-width:0}
 .brand-asset{display:block;max-width:100%;height:auto;flex:0 0 auto}
 .brand-lockup-img{width:220px}
+.brand-tower-img{width:82px;height:auto;opacity:.95;filter:drop-shadow(0 18px 24px rgba(16,40,75,.14))}
 .brand-shield-img{width:42px;height:42px}
 .brand-compact-img{width:30px;height:30px;border-radius:10px;box-shadow:0 10px 20px rgba(16,40,75,.16)}
 .brand-tiny-img{width:22px;height:22px;border-radius:7px}
@@ -161,7 +162,7 @@ button{cursor:pointer}
 @media(max-width:760px){#taxRmdView{padding:16px}.tax-header h3{font-size:22px}}
 
 
-.domain-landing{display:none;min-height:100vh;padding:44px 24px;background:#f5f8ff;color:#0f1f3d}
+.domain-landing{display:none;min-height:100vh;padding:44px 24px;background:linear-gradient(180deg,#f8fbff 0%,#eef4ff 100%);color:#0f1f3d}
 .domain-landing.show{display:flex}
 .landing-shell{max-width:1180px;width:100%;margin:0 auto;display:grid;gap:28px}
 .landing-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -170,6 +171,7 @@ button{cursor:pointer}
 .landing-brand-mark{width:36px;height:36px;display:grid;place-items:center;background:#12284a;color:#fff;font-size:19px;font-weight:900;clip-path:polygon(50% 0,92% 16%,92% 50%,82% 75%,50% 100%,18% 75%,8% 50%,8% 16%)}
 .landing-badge{display:inline-flex;padding:7px 12px;border-radius:999px;border:1px solid #cad8f2;background:#fff;color:#334f7d;font-size:11px;font-weight:900;letter-spacing:.08em}
 .landing-main{display:grid;grid-template-columns:1.05fr .95fr;gap:26px;align-items:center}
+.landing-left{position:relative}.landing-hero-accent{width:max-content;margin:0 0 16px;padding:10px;border:1px solid #dbe6f6;background:rgba(255,255,255,.72);border-radius:22px;box-shadow:0 18px 36px rgba(16,40,75,.08)}
 .landing-left h1{margin:0;font-size:56px;line-height:1.04;letter-spacing:-.03em;color:#0f1f3d}
 .landing-left p{margin:18px 0 0;font-size:18px;line-height:1.6;color:#3a537c;max-width:600px}
 .landing-actions{margin-top:28px;display:flex;gap:12px;flex-wrap:wrap}
@@ -179,7 +181,7 @@ button{cursor:pointer}
 .landing-trust .trust-card{border:1px solid #d9e4f7;background:#fff;border-radius:14px;padding:14px}
 .landing-trust strong{display:block;color:#12284a;font-size:13px;margin-bottom:4px}
 .landing-trust span{font-size:12px;color:#496089;line-height:1.45}
-.landing-mock{border:1px solid #d5e1f6;background:#fff;border-radius:22px;padding:18px;box-shadow:0 24px 40px rgba(32,62,102,.12)}
+.landing-mock{border:1px solid #d5e1f6;background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);border-radius:22px;padding:18px;box-shadow:0 24px 40px rgba(32,62,102,.12)}
 .mock-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
 .mock-head strong{color:#12284a;font-size:14px}
 .mock-chip{font-size:11px;font-weight:900;color:#1f6d4d;background:#dff8eb;border-radius:999px;padding:5px 8px}
@@ -189,7 +191,7 @@ button{cursor:pointer}
 .mock-metric b{display:block;color:#0f1f3d;font-size:19px;margin-top:4px}
 .mock-footer{margin-top:12px;border:1px solid #e1e9f8;background:#f9fbff;border-radius:12px;padding:12px;font-size:12px;color:#435f8f;line-height:1.45}
 @media(max-width:1100px){.landing-main{grid-template-columns:1fr}.landing-left h1{font-size:46px}}
-@media(max-width:760px){.domain-landing{padding:26px 14px}.landing-top{align-items:flex-start;flex-direction:column}.landing-brand .brand-lockup-img{width:210px}.landing-left h1{font-size:35px}.landing-left p{font-size:16px}.landing-trust{grid-template-columns:1fr}.brand-text .brand-name{font-size:16px}}
+@media(max-width:760px){.domain-landing{padding:26px 14px}.landing-top{align-items:flex-start;flex-direction:column}.landing-brand .brand-lockup-img{width:210px}.landing-hero-accent{margin-bottom:12px;padding:8px}.brand-tower-img{width:58px}.landing-left h1{font-size:35px}.landing-left p{font-size:16px}.landing-trust{grid-template-columns:1fr}.brand-text .brand-name{font-size:16px}}
 .beta-gate{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(5,10,20,.86);backdrop-filter:blur(8px)}
 .beta-gate.show{display:flex}
 .beta-gate-card{width:min(460px,100%);border:1px solid rgba(255,255,255,.1);border-radius:20px;background:#0d1b2f;padding:22px;box-shadow:var(--shadow)}
