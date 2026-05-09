@@ -14,8 +14,8 @@ window.BASTION_FIREBASE_CONFIG = {
 </script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bastion Insights - Bastion Save State 2.40e — Navigation & Menu Completion Audit</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235dd6a9'/%3E%3Cstop offset='1' stop-color='%2378a6ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M32 4 52 12v17c0 14.5-8.1 24.2-20 31C20.1 53.2 12 43.5 12 29V12z'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-size='24' font-family='Inter,Segoe UI,Arial,sans-serif' font-weight='800' fill='%2307111f'%3EB%3C/text%3E%3C/svg%3E">
+<title>Bastion Insights - Bastion Save State 2.40f — Logo Asset Integration</title>
+<link rel="icon" type="image/svg+xml" href="app/assets/logos/bastion-shield-b.svg">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="app/core/number-guards.js"></script>
 <script src="app/core/bastion-engine.js"></script>
@@ -65,8 +65,7 @@ function mountRenderedView(mountId,rendererName,label){
   <div class="landing-shell">
     <div class="landing-top">
       <div class="landing-brand">
-        <span class="landing-brand-mark" aria-hidden="true">B</span>
-        <span>Bastion Insight</span>
+        <img class="brand-asset brand-lockup-img" src="app/assets/logos/bastion-lockup-horizontal.svg" alt="Bastion Insight">
       </div>
       <span class="landing-badge">CLARITY. PROTECTION. CONFIDENCE.</span>
     </div>
@@ -101,7 +100,7 @@ function mountRenderedView(mountId,rendererName,label){
 <!-- APP SHELL: AUTHENTICATED APP -->
 <div class="app">
   <aside class="sidebar">
-    <div class="brand brand-lockup"><div class="logo brand-mark brand-mark-shield" aria-hidden="true">B</div><div class="brand-text"><h1 class="brand-name wordmark-lockup">Bastion Insight</h1><span>Inputs define the path.</span></div></div>
+    <div class="brand brand-lockup"><img class="brand-asset brand-shield-img" src="app/assets/logos/bastion-shield-b.svg" alt="" aria-hidden="true"><div class="brand-text"><h1 class="brand-name wordmark-lockup">Bastion Insight</h1><span>Inputs define the path.</span></div></div>
     <nav class="nav">
       <button class="active">Dashboard</button>
       <button>Profile</button>
@@ -111,12 +110,12 @@ function mountRenderedView(mountId,rendererName,label){
       <button>Tax &amp; RMD</button>
       <button>Reports</button>
     </nav>
-     <div class="side-card brand-surface-card"><small><strong id="phaseNumber">Bastion Save State 2.40e — Navigation & Menu Completion Audit</strong><br/><span id="phaseDesc">Menu items are labeled by completion status while 2.40c Dashboard readability, 2.40d brand tokens, Profile ownership, and calculations remain unchanged.</span></small></div>
+     <div class="side-card brand-surface-card"><small><strong id="phaseNumber">Bastion Save State 2.40f — Logo Asset Integration</strong><br/><span id="phaseDesc">Production SVG logo assets are integrated across public, app, dashboard, advisor, and report surfaces while 2.40d brand tokens, Profile ownership, and calculations remain unchanged.</span></small></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-       <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.40e audits navigation completion status. Dashboard remains output-only, Profile remains the canonical intake owner, and 2.40c readability plus 2.40d brand tokens remain preserved.</p></div>
+       <div class="topbar-title"><img class="brand-asset brand-compact-img topbar-mark" src="app/assets/logos/bastion-compact-b.svg" alt="" aria-hidden="true"><div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.40f integrates the production logo asset system. Dashboard remains output-only, Profile remains the canonical intake owner, and 2.40d brand tokens remain preserved.</p></div></div>
       <div class="top-actions">
         <span class="pill trust-chip" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="showView('reports');toggleDecisionReport(true)">Generate Report</button>
@@ -134,8 +133,8 @@ function mountRenderedView(mountId,rendererName,label){
 
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
-  <div class="drawer-head"><h2>Bastion Advisor</h2><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Bastion Save State 2.40e readout:</strong></p>
+  <div class="drawer-head"><div class="drawer-title"><img class="brand-asset brand-tiny-img" src="app/assets/logos/bastion-compact-b.svg" alt="" aria-hidden="true"><h2>Bastion Advisor</h2></div><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
+  <p><strong>Bastion Save State 2.40f readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
@@ -858,8 +857,8 @@ function setupViews(){
   var decisionCard = document.createElement('div');
   decisionCard.className = 'card dashboard-hero-card';
   decisionCard.innerHTML =
-    '<div class="dashboard-hero-head"><div class="dashboard-brand-lockup"><span class="dashboard-brand-shield brand-mark brand-mark-shield" aria-hidden="true">B</span><div><span class="eyebrow">Executive summary</span><h3>Moment of Truth</h3><p>Decision Core answers where the plan stands if nothing changes, using Profile-owned inputs.</p></div></div><div class="dashboard-readiness-stack trust-chip-row"><span class="trust-chip">Profile-owned inputs</span><span class="trust-chip">Output-only dashboard</span><span class="trust-chip">Decision support</span></div></div>'+
-    '<div class="view-status-banner"><span class="view-status-label status-active">Active</span><span>Dashboard is an output-only readout. Change assumptions in Profile or Scenarios; formulas and routes are unchanged in 2.40e.</span></div>'+
+    '<div class="dashboard-hero-head"><div class="dashboard-brand-lockup"><img class="brand-asset dashboard-brand-shield" src="app/assets/logos/bastion-shield-b.svg" alt="" aria-hidden="true"><div><span class="eyebrow">Executive summary</span><h3>Moment of Truth</h3><p>Decision Core answers where the plan stands if nothing changes, using Profile-owned inputs.</p></div></div><div class="dashboard-readiness-stack trust-chip-row"><span class="trust-chip">Profile-owned inputs</span><span class="trust-chip">Output-only dashboard</span><span class="trust-chip">Decision support</span></div></div>'+
+    '<div class="view-status-banner"><span class="view-status-label status-active">Active</span><span>Dashboard is an output-only readout. Change assumptions in Profile or Scenarios; formulas and routes are unchanged in 2.40f.</span></div>'+
     '<div class="decision-core">'+
     '<div class="decision-card primary"><div class="decision-kicker">Am I Okay?</div><div class="decision-value large" id="decisionOkay">-</div><div class="decision-sub">Plain-English safety readout for the current path.</div><div class="decision-statement" id="decisionBaselineStatement"><strong>Baseline:</strong> Run the model to see the current path.</div></div>'+
     '<div class="decision-card"><div class="decision-kicker">Run-out Age</div><div class="decision-value large" id="decisionRunoutAge">-</div><div class="decision-sub">First age where the projection falls to zero.</div></div>'+
@@ -881,7 +880,7 @@ function setupViews(){
   var advisorSummary = document.createElement('div');
   advisorSummary.className = 'dashboard-summary advisor-compact-summary brand-surface-card';
   advisorSummary.id = 'advisorSummary';
-  advisorSummary.innerHTML = '<strong>Advisor Engine v2 (Compact)</strong><br><span id="advisorCompact">Run the model to generate plan diagnosis and next action.</span>';
+  advisorSummary.innerHTML = '<span class="advisor-compact-title"><img class="brand-asset brand-tiny-img" src="app/assets/logos/bastion-compact-b.svg" alt="" aria-hidden="true"><strong>Advisor Engine v2 (Compact)</strong></span><br><span id="advisorCompact">Run the model to generate plan diagnosis and next action.</span>';
   dashboardView.appendChild(advisorSummary);
 
   var coreCard = coreGrid ? coreGrid.children[0] : null;
@@ -1233,8 +1232,8 @@ function renderOwnerSummaryCards(){
   var completed = ownerCompletedValidations.length;
   var warnings = ownerFeedback.filter(function(i){ return i.agent.indexOf('BLOCKER')>-1 && i.status==='Blocked'; }).length;
   var parked = ownerFeedback.filter(function(i){ return i.status==='Parked'; }).length;
-  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.40e — Navigation & Menu Completion Audit');
-  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.40e Navigation & Menu Completion Audit';
+  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.40f — Logo Asset Integration');
+  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.40f Logo Asset Integration';
   if(el('ownerSummaryQueued')) el('ownerSummaryQueued').textContent=String(queued);
   if(el('ownerSummaryParked')) el('ownerSummaryParked').textContent=String(parked);
   if(el('ownerSummaryCompleted')) el('ownerSummaryCompleted').textContent=String(completed);
@@ -1401,7 +1400,7 @@ function initOwnerMode(){
   }
 }
 function init(){ loadState(); decisionBaselineState = readState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; decisionBaselineState.events = events.slice(); } setupViews(); wireNav(); bindUserNavClicks(); syncModeUI(); renderEvents(); showView('dashboard'); commit(); }
-console.log("Bastion Save State 2.40e navigation and menu completion audit active");
+console.log("Bastion Save State 2.40f logo asset integration active");
 
 var BETA_SESSION_KEY='bastion_beta_session_v1';
 window.__bastionSyntaxCheckOk=true;
