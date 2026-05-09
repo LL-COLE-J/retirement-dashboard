@@ -312,6 +312,15 @@ NEW:
 - Normalized brand usage only: public landing uses the tower lockup, app operational surfaces use Shield+B, mobile/compact surfaces use the B mark, reports use the report mark, and favicon uses the canonical favicon.
 - Updated visible Save State text to 2.41b and preserved future mobile navigation architecture work as a separate scoped phase.
 
+
+### 2.41d — Public Landing Restoration + Cinematic Tower Hero (DONE)
+- Restored the public visitor entry as a cinematic, tower-led Bastion landing page instead of an internal app/dashboard-looking surface.
+- Used `assets/brand/bastion-tower-lockup.svg` for public header branding and `assets/brand/bastion-tower.svg` as the advisor-grade hero accent.
+- Added deep navy hero treatment, gold beacon/star accent, premium platform copy, Request Beta Access and See How It Works CTAs, and an advisor-grade preview card.
+- Kept internal dashboard controls out of the public landing page, including the internal Save State card, mode controls, Generate Report, Advisor Drawer, and Save Baseline controls.
+- Preserved app/dashboard route behavior, Profile input ownership, Dashboard output-only behavior, formulas, owner isolation, auth/Firebase/Firestore configuration, deployment configuration, and canonical brand assets.
+- Updated visible Save State text to 2.41d while leaving broader onboarding, beta access plumbing, formula expansion, and route architecture as separate scoped phases.
+
 ### 2.42 — Mobile Navigation + Guided Flow System (DONE)
 - Added a compact mobile brand bar, thumb-friendly bottom mobile navigation, and a lighter mobile Save State strip while preserving desktop navigation and all existing routes.
 - Refined mobile page structure around executive summary first, key recommendation second, and progressively expandable details afterward.
@@ -607,4 +616,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.41b — Canonical Brand Asset Adoption complete; next required phases remain scoped onboarding, SEO pages, healthcare expansion, relocation engine, RMD optimization, reports, enterprise, financial intelligence, advanced integrations, beta access, security gating, and future mobile navigation architecture without changing current formulas/routes/auth/Firebase/deployment behavior
+2.41d — Public Landing Restoration + Cinematic Tower Hero complete; next required phases remain scoped onboarding, SEO pages, healthcare expansion, relocation engine, RMD optimization, reports, enterprise, financial intelligence, advanced integrations, beta access, security gating, and future mobile navigation architecture without changing current formulas/routes/auth/Firebase/deployment behavior

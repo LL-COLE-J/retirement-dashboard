@@ -6,14 +6,14 @@ function renderOwnerView(){
       <h1>Bastion Owner Command Center</h1>
       <p>Agent feedback, product intelligence, and build opportunities.</p>
     </div>
-    <div class="owner-badge">Bastion Save State 2.41b — Canonical Brand Asset Adoption</div>
+    <div class="owner-badge">Bastion Save State 2.41d — Public Landing Restoration + Cinematic Tower Hero</div>
   </header>
 
   <section class="owner-section">
     <h2>Owner Command Summary</h2>
     <div class="owner-report-grid">
-      <div class="owner-report-field"><span>Current Save State</span><strong id="ownerSummarySaveState">Bastion Save State 2.41b — Canonical Brand Asset Adoption</strong></div>
-      <div class="owner-report-field"><span>Active Phase</span><strong id="ownerSummaryPhase">2.41b Canonical Brand Asset Adoption</strong></div>
+      <div class="owner-report-field"><span>Current Save State</span><strong id="ownerSummarySaveState">Bastion Save State 2.41d — Public Landing Restoration + Cinematic Tower Hero</strong></div>
+      <div class="owner-report-field"><span>Active Phase</span><strong id="ownerSummaryPhase">2.41d Public Landing Restoration</strong></div>
       <div class="owner-report-field"><span>Queued Fixes</span><strong id="ownerSummaryQueued">0</strong></div>
       <div class="owner-report-field"><span>Parked Ideas</span><strong id="ownerSummaryParked">0</strong></div>
       <div class="owner-report-field"><span>Completed Validations</span><strong id="ownerSummaryCompleted">0</strong></div>

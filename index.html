@@ -14,7 +14,7 @@ window.BASTION_FIREBASE_CONFIG = {
 </script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bastion Insights - Bastion Save State 2.41b — Canonical Brand Asset Adoption</title>
+<title>Bastion Insights - Bastion Save State 2.41d — Public Landing Restoration + Cinematic Tower Hero</title>
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="app/core/number-guards.js"></script>
@@ -63,37 +63,44 @@ function mountRenderedView(mountId,rendererName,label){
 <!-- APP SHELL -->
 <!-- APP SHELL: PUBLIC LANDING -->
 <section id="domainLanding" class="domain-landing" aria-label="Bastion public landing page">
+  <div class="landing-beacon" aria-hidden="true"></div>
   <div class="landing-shell">
     <div class="landing-top">
       <div class="landing-brand">
         <img class="brand-asset brand-lockup-img" src="assets/brand/bastion-tower-lockup.svg" alt="Bastion Insights">
       </div>
-      <span class="landing-badge">CLARITY. PROTECTION. CONFIDENCE.</span>
+      <a class="landing-nav-link" href="mailto:hello@bastioninsight.com?subject=Request%20Beta%20Access">Request Beta Access</a>
     </div>
     <div class="landing-main">
       <div class="landing-left">
-        <div class="landing-hero-accent" aria-hidden="true"><img class="brand-asset brand-tower-img" src="assets/brand/bastion-tower.svg" alt=""></div>
-        <h1>Know your financial future in seconds.</h1>
-        <p>Bastion Insights helps you model retirement readiness, tax strategy, RMD compliance, healthcare costs, relocation decisions, and legacy outcomes.</p>
+        <div class="landing-kicker"><span aria-hidden="true">✦</span> Advisor-grade retirement intelligence</div>
+        <h1>See the path, the risk, and the next move before retirement decisions become irreversible.</h1>
+        <p>Bastion turns household inputs into a clear retirement decision brief: runway, stress points, scenario tradeoffs, and plain-English next steps for protecting the plan.</p>
         <div class="landing-actions">
-          <a class="landing-btn" href="#" role="button" aria-disabled="true">Coming Soon</a>
-          <a class="landing-btn secondary" href="mailto:hello@bastioninsight.com?subject=Request%20Beta%20Access">Request Beta Access</a>
+          <a class="landing-btn" href="mailto:hello@bastioninsight.com?subject=Request%20Beta%20Access">Request Beta Access</a>
+          <a class="landing-btn secondary" href="#how-it-works">See How It Works</a>
         </div>
-        <div class="landing-trust">
-          <div class="trust-card"><strong>Advisor-Grade Clarity</strong><span>Translate complex planning inputs into one clear path and next step.</span></div>
-          <div class="trust-card"><strong>Risk in Plain English</strong><span>See where plans break, what causes it, and what to adjust first.</span></div>
-          <div class="trust-card"><strong>Scenario Confidence</strong><span>Compare decision tradeoffs quickly without changing your baseline plan.</span></div>
+        <div class="landing-trust" id="how-it-works" aria-label="How Bastion works">
+          <div class="trust-card"><strong>Profile defines the path</strong><span>Household, income, spending, and timing assumptions stay in the Profile workspace.</span></div>
+          <div class="trust-card"><strong>Bastion shows the outcome</strong><span>The Dashboard becomes an output-only command brief: status, runway, top risk, and next step.</span></div>
+          <div class="trust-card"><strong>Scenarios stay reversible</strong><span>Compare decisions without mutating the baseline assumptions that anchor the plan.</span></div>
         </div>
       </div>
-      <aside class="landing-mock" aria-label="Sample Bastion plan summary">
-        <div class="mock-head"><strong>Plan Summary Snapshot</strong><span class="mock-chip">Stable Path</span></div>
-        <div class="mock-grid">
-          <div class="mock-metric"><span>Runway</span><b>Age 92</b></div>
-          <div class="mock-metric"><span>Retirement Age</span><b>67</b></div>
-          <div class="mock-metric"><span>Biggest Risk</span><b>Healthcare Shock</b></div>
-          <div class="mock-metric"><span>Path Status</span><b style="color:#1f6d4d;">Safe</b></div>
+      <aside class="landing-mock" aria-label="Advisor-grade Bastion preview card">
+        <div class="landing-hero-accent" aria-hidden="true"><img class="brand-asset brand-tower-img" src="assets/brand/bastion-tower.svg" alt=""></div>
+        <div class="mock-head"><strong>Advisor-Grade Preview</strong><span class="mock-chip">Decision Brief</span></div>
+        <div class="mock-verdict">
+          <span>Plan Status</span>
+          <b>Stable, with one major watchpoint</b>
+          <p>Healthcare and tax drag are the leading threats to runway after retirement begins.</p>
         </div>
-        <div class="mock-footer">Bastion highlights the outcome, shows the top risk, and recommends the next highest-impact action to protect your plan.</div>
+        <div class="mock-grid">
+          <div class="mock-metric"><span>Projected runway</span><b>Age 92</b></div>
+          <div class="mock-metric"><span>Confidence</span><b>Moderate+</b></div>
+          <div class="mock-metric"><span>Biggest risk</span><b>Healthcare shock</b></div>
+          <div class="mock-metric"><span>Next move</span><b>Stress test spend</b></div>
+        </div>
+        <div class="mock-footer">Decision support only. Bastion simulates, compares, warns, and explains; it does not execute financial actions.</div>
       </aside>
     </div>
   </div>
@@ -112,13 +119,13 @@ function mountRenderedView(mountId,rendererName,label){
       <button>Tax &amp; RMD</button>
       <button>Reports</button>
     </nav>
-     <div class="side-card brand-surface-card"><small><strong id="phaseNumber">Bastion Save State 2.41b — Canonical Brand Asset Adoption</strong><br/><span id="phaseDesc">Canonical SVG brand assets are adopted from /assets/brand while routing, calculations, mobile behavior, Save State, and Profile ownership remain unchanged.</span></small></div>
+     <div class="side-card brand-surface-card"><small><strong id="phaseNumber">Bastion Save State 2.41d — Public Landing Restoration + Cinematic Tower Hero</strong><br/><span id="phaseDesc">Public landing now opens with the cinematic tower hero while routing, calculations, auth/Firebase, Dashboard output-only behavior, and Profile ownership remain unchanged.</span></small></div>
   </aside>
 
   <main class="main">
     <div class="mobile-brandbar" aria-label="Bastion mobile navigation summary"><div class="mobile-brandbar-lockup"><img class="brand-asset brand-tiny-img" src="assets/brand/bastion-b-mark.svg" alt="" aria-hidden="true"><div><strong>Bastion Insights</strong><span id="mobileFlowLabel">Dashboard guided flow</span></div></div><button class="btn secondary mobile-drawer-trigger" onclick="toggleDrawer(true)">Advisor</button></div>
     <header class="topbar">
-       <div class="topbar-title"><img class="brand-asset brand-compact-img topbar-mark" src="assets/brand/bastion-b-mark.svg" alt="" aria-hidden="true"><div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.41b adopts the canonical SVG brand system while preserving routing, calculations, mobile behavior, Dashboard output-only behavior, and Profile-owned inputs.</p></div></div>
+       <div class="topbar-title"><img class="brand-asset brand-compact-img topbar-mark" src="assets/brand/bastion-b-mark.svg" alt="" aria-hidden="true"><div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.41d restores the cinematic public tower landing while preserving routing, calculations, auth/Firebase, Dashboard output-only behavior, and Profile-owned inputs.</p></div></div>
       <div class="top-actions">
         <span class="pill trust-chip" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="showView('reports');toggleDecisionReport(true)">Generate Report</button>
@@ -145,7 +152,7 @@ function mountRenderedView(mountId,rendererName,label){
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><div class="drawer-title"><img class="brand-asset brand-tiny-img" src="assets/brand/bastion-b-mark.svg" alt="" aria-hidden="true"><h2>Bastion Advisor</h2></div><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Bastion Save State 2.41b readout:</strong></p>
+  <p><strong>Bastion Save State 2.41d readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
@@ -869,7 +876,7 @@ function setupViews(){
   decisionCard.className = 'card dashboard-hero-card';
   decisionCard.innerHTML =
     '<div class="dashboard-hero-head"><div class="dashboard-brand-lockup"><img class="brand-asset dashboard-brand-shield" src="assets/brand/bastion-shield-b.svg" alt="" aria-hidden="true"><div><span class="eyebrow">Executive summary</span><h3>Moment of Truth</h3><p>Decision Core answers where the plan stands if nothing changes, using Profile-owned inputs.</p></div></div><div class="dashboard-readiness-stack trust-chip-row"><span class="trust-chip">Profile-owned inputs</span><span class="trust-chip">Output-only dashboard</span><span class="trust-chip">Decision support</span></div></div>'+
-    '<div class="view-status-banner"><span class="view-status-label status-active">Active</span><span>Dashboard is an output-only guided readout. On mobile, the answer appears first, recommendations second, and supporting detail opens afterward; formulas and routes are unchanged in 2.41b.</span></div><div class="mobile-context-anchors" aria-label="Mobile section context"><a href="#dashboardView">Overview</a><a href="#decisionBiggestRisk">Risks</a><a href="#decisionNextStep">Strategy</a><a href="#dashboardDetails">Details</a></div>'+
+    '<div class="view-status-banner"><span class="view-status-label status-active">Active</span><span>Dashboard is an output-only guided readout. On mobile, the answer appears first, recommendations second, and supporting detail opens afterward; formulas and routes are unchanged in 2.41d.</span></div><div class="mobile-context-anchors" aria-label="Mobile section context"><a href="#dashboardView">Overview</a><a href="#decisionBiggestRisk">Risks</a><a href="#decisionNextStep">Strategy</a><a href="#dashboardDetails">Details</a></div>'+
     '<div class="decision-core">'+
     '<div class="decision-card primary"><div class="decision-kicker">Am I Okay?</div><div class="decision-value large" id="decisionOkay">-</div><div class="decision-sub">Plain-English safety readout for the current path.</div><div class="decision-statement" id="decisionBaselineStatement"><strong>Baseline:</strong> Run the model to see the current path.</div></div>'+
     '<div class="decision-card"><div class="decision-kicker">Run-out Age</div><div class="decision-value large" id="decisionRunoutAge">-</div><div class="decision-sub">First age where the projection falls to zero.</div></div>'+
@@ -1257,8 +1264,8 @@ function renderOwnerSummaryCards(){
   var completed = ownerCompletedValidations.length;
   var warnings = ownerFeedback.filter(function(i){ return i.agent.indexOf('BLOCKER')>-1 && i.status==='Blocked'; }).length;
   var parked = ownerFeedback.filter(function(i){ return i.status==='Parked'; }).length;
-  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.41b — Canonical Brand Asset Adoption');
-  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.41b Canonical Brand Asset Adoption';
+  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.41d — Public Landing Restoration + Cinematic Tower Hero');
+  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.41d Public Landing Restoration';
   if(el('ownerSummaryQueued')) el('ownerSummaryQueued').textContent=String(queued);
   if(el('ownerSummaryParked')) el('ownerSummaryParked').textContent=String(parked);
   if(el('ownerSummaryCompleted')) el('ownerSummaryCompleted').textContent=String(completed);
@@ -1425,7 +1432,7 @@ function initOwnerMode(){
   }
 }
 function init(){ loadState(); decisionBaselineState = readState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; decisionBaselineState.events = events.slice(); } setupViews(); wireNav(); bindUserNavClicks(); syncModeUI(); renderEvents(); showView('dashboard'); commit(); }
-console.log("Bastion Save State 2.41b canonical brand asset adoption active");
+console.log("Bastion Save State 2.41d public landing restoration active");
 
 var BETA_SESSION_KEY='bastion_beta_session_v1';
 window.__bastionSyntaxCheckOk=true;
@@ -1441,10 +1448,12 @@ function setAppVisibility(showApp){
   var overlay=document.getElementById('overlay');
   var drawer=document.getElementById('drawer');
   var ownerDashboard=document.getElementById('ownerDashboard');
+  var mobileBottomNav=document.querySelector('.mobile-bottom-nav');
   if(app) app.style.display=showApp?'grid':'none';
   if(overlay) overlay.style.display=showApp?'':'none';
   if(drawer) drawer.style.display=showApp?'':'none';
   if(ownerDashboard) ownerDashboard.style.display=showApp?'':'none';
+  if(mobileBottomNav) mobileBottomNav.style.display=showApp?'':'none';
 }
 function unlockBetaGate(){
   var pwd=(document.getElementById('betaPasswordInput').value||'').trim();
