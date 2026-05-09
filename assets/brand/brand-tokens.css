@@ -1,39 +1,18 @@
-/* Bastion canonical brand tokens — Phase 2.41b. */
-:root{
-  --brand-navy:#081B33;
-  --brand-navy-900:#061226;
-  --brand-royal:#0E2A52;
-  --brand-royal-soft:#EAF1FB;
-  --brand-slate:#0F172A;
-  --brand-slate-muted:#475569;
-  --brand-gold:#C9A66B;
-  --brand-gold-soft:#fffaf0;
-  --brand-sage:#3FA26A;
-  --brand-sage-strong:#3FA26A;
-  --brand-off-white:#F7F9FC;
-  --brand-surface:#ffffff;
-  --brand-surface-raised:#fbfdff;
-  --brand-surface-dark:#0d1b2f;
-  --brand-text:#0F172A;
-  --brand-text-inverse:#e8eef8;
-  --brand-border:rgba(15,23,42,0.08);
-  --brand-border-strong:rgba(15,23,42,0.14);
-  --brand-shadow:0 14px 34px rgba(15,31,61,.08);
-  --brand-shadow-strong:0 24px 80px rgba(0,0,0,.32);
-  --bg:var(--brand-navy-900);
-  --panel:var(--brand-surface-dark);
-  --panel2:#101f35;
-  --panel3:#14243d;
-  --line:#213450;
-  --line2:#2f4566;
-  --text:var(--brand-text-inverse);
-  --muted:#97a6ba;
-  --soft:#bdc8d8;
-  --accent:var(--brand-sage);
-  --accent2:#78a6ff;
-  --warn:#f6c66a;
-  --bad:#ff7a7a;
-  --good:#60e6a9;
-  --shadow:var(--brand-shadow-strong);
-  --radius:20px;
+:root {
+  --bastion-navy: #081B33;
+  --bastion-navy-2: #0E2A52;
+  --bastion-royal-blue: #1E4DB7;
+  --bastion-gold: #C9A66B;
+  --bastion-sage: #3FA26A;
+  --bastion-soft-blue: #EAF1FB;
+  --bastion-slate: #475569;
+  --bastion-light-gray: #F1F5F9;
+  --bastion-off-white: #F7F9FC;
+  --bastion-text: #0F172A;
+  --bastion-muted: #64748B;
+  --bastion-border: rgba(15, 23, 42, 0.08);
+  --bastion-shadow-card: 0 16px 40px rgba(8, 27, 51, 0.10);
+  --bastion-shadow-soft: 0 8px 22px rgba(8, 27, 51, 0.08);
+  --bastion-radius-card: 24px;
+  --bastion-radius-control: 16px;
 }
