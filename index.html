@@ -14,7 +14,7 @@ window.BASTION_FIREBASE_CONFIG = {
 </script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bastion Insights - Bastion Save State 2.41 — Visual Consolidation + Brand Integration</title>
+<title>Bastion Insights - Bastion Save State 2.42 — Mobile Navigation + Guided Flow System</title>
 <link rel="icon" type="image/svg+xml" href="app/assets/brand/bastion-app-icon.svg">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="app/core/number-guards.js"></script>
@@ -111,12 +111,13 @@ function mountRenderedView(mountId,rendererName,label){
       <button>Tax &amp; RMD</button>
       <button>Reports</button>
     </nav>
-     <div class="side-card brand-surface-card"><small><strong id="phaseNumber">Bastion Save State 2.41 — Visual Consolidation + Brand Integration</strong><br/><span id="phaseDesc">Tower identity, brand tokens, spacing, cards, navigation, reports, scenarios, Tax/RMD, and mobile polish are visually consolidated while Profile ownership and calculations remain unchanged.</span></small></div>
+     <div class="side-card brand-surface-card"><small><strong id="phaseNumber">Bastion Save State 2.42 — Mobile Navigation + Guided Flow System</strong><br/><span id="phaseDesc">Mobile navigation, guided card flow, sticky context anchors, expandable detail layers, and phone readability are improved while Profile ownership and calculations remain unchanged.</span></small></div>
   </aside>
 
   <main class="main">
+    <div class="mobile-brandbar" aria-label="Bastion mobile navigation summary"><div class="mobile-brandbar-lockup"><img class="brand-asset brand-tiny-img" src="app/assets/brand/bastion-compact-b.svg" alt="" aria-hidden="true"><div><strong>Bastion Insights</strong><span id="mobileFlowLabel">Dashboard guided flow</span></div></div><button class="btn secondary mobile-drawer-trigger" onclick="toggleDrawer(true)">Advisor</button></div>
     <header class="topbar">
-       <div class="topbar-title"><img class="brand-asset brand-compact-img topbar-mark" src="app/assets/brand/bastion-compact-b.svg" alt="" aria-hidden="true"><div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.41 consolidates the approved tower identity, navy/gold/white system, spacing, cards, charts, and report surfaces. Dashboard remains output-only and Profile remains the canonical intake owner.</p></div></div>
+       <div class="topbar-title"><img class="brand-asset brand-compact-img topbar-mark" src="app/assets/brand/bastion-compact-b.svg" alt="" aria-hidden="true"><div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.42 turns mobile into a guided planning flow with lighter navigation, clearer section context, expandable details, and calmer chart/KPI pacing. Dashboard remains output-only and Profile remains the canonical intake owner.</p></div></div>
       <div class="top-actions">
         <span class="pill trust-chip" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="showView('reports');toggleDecisionReport(true)">Generate Report</button>
@@ -132,10 +133,18 @@ function mountRenderedView(mountId,rendererName,label){
   </main>
 </div>
 
+<nav class="mobile-bottom-nav nav" aria-label="Primary mobile navigation">
+  <button data-view="dashboard">Dashboard</button>
+  <button data-view="profile">Profile</button>
+  <button data-view="advisor">Advisor</button>
+  <button data-view="scenarios">Scenarios</button>
+  <button data-view="timeline">Timeline</button>
+</nav>
+
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><div class="drawer-title"><img class="brand-asset brand-tiny-img" src="app/assets/brand/bastion-compact-b.svg" alt="" aria-hidden="true"><h2>Bastion Advisor</h2></div><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Bastion Save State 2.41 readout:</strong></p>
+  <p><strong>Bastion Save State 2.42 readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
@@ -859,7 +868,7 @@ function setupViews(){
   decisionCard.className = 'card dashboard-hero-card';
   decisionCard.innerHTML =
     '<div class="dashboard-hero-head"><div class="dashboard-brand-lockup"><img class="brand-asset dashboard-brand-shield" src="app/assets/brand/bastion-tower-mark.svg" alt="" aria-hidden="true"><div><span class="eyebrow">Executive summary</span><h3>Moment of Truth</h3><p>Decision Core answers where the plan stands if nothing changes, using Profile-owned inputs.</p></div></div><div class="dashboard-readiness-stack trust-chip-row"><span class="trust-chip">Profile-owned inputs</span><span class="trust-chip">Output-only dashboard</span><span class="trust-chip">Decision support</span></div></div>'+
-    '<div class="view-status-banner"><span class="view-status-label status-active">Active</span><span>Dashboard is an output-only readout. Change assumptions in Profile or Scenarios; formulas and routes are unchanged in 2.41.</span></div>'+
+    '<div class="view-status-banner"><span class="view-status-label status-active">Active</span><span>Dashboard is an output-only guided readout. On mobile, the answer appears first, recommendations second, and supporting detail opens afterward; formulas and routes are unchanged in 2.42.</span></div><div class="mobile-context-anchors" aria-label="Mobile section context"><a href="#dashboardView">Overview</a><a href="#decisionBiggestRisk">Risks</a><a href="#decisionNextStep">Strategy</a><a href="#dashboardDetails">Details</a></div>'+
     '<div class="decision-core">'+
     '<div class="decision-card primary"><div class="decision-kicker">Am I Okay?</div><div class="decision-value large" id="decisionOkay">-</div><div class="decision-sub">Plain-English safety readout for the current path.</div><div class="decision-statement" id="decisionBaselineStatement"><strong>Baseline:</strong> Run the model to see the current path.</div></div>'+
     '<div class="decision-card"><div class="decision-kicker">Run-out Age</div><div class="decision-value large" id="decisionRunoutAge">-</div><div class="decision-sub">First age where the projection falls to zero.</div></div>'+
@@ -876,12 +885,21 @@ function setupViews(){
   decisionOutputCard.innerHTML = '<div class="section-head"><div><span class="eyebrow">Recommendation</span><h3>Decision Output</h3><p>Trust-focused summary with status, confidence, driver, and next step.</p></div></div><div class="decision-output-grid"><div class="decision-output-item status-badge-surface"><div class="label">Plan Status</div><div class="metric small" id="decisionPlanStatus">-</div></div><div class="decision-output-item"><div class="label">Run-Out Age</div><div class="metric small" id="decisionRunOutDisplay">-</div></div><div class="decision-output-item"><div class="label">Confidence</div><div class="metric small" id="decisionConfidence">-</div></div><div class="decision-output-item"><div class="label">Key Driver</div><div class="metric small" id="decisionKeyDriver">-</div></div></div><div class="dashboard-summary dashboard-next-step brand-surface-card"><strong>Recommended Next Step</strong><br><span id="decisionNextStep">Run model</span><br><br><strong>Advisor Insight</strong><br><span id="decisionInsightText">Run the model to generate insight.</span></div>';
   dashboardView.appendChild(decisionOutputCard);
 
-  if(chartGrid){ chartGrid.classList.add('dashboard-chart-grid'); dashboardView.appendChild(chartGrid); }
+  if(chartGrid){
+    chartGrid.classList.add('dashboard-chart-grid');
+    var dashboardDetails = document.createElement('details');
+    dashboardDetails.id = 'dashboardDetails';
+    dashboardDetails.className = 'mobile-detail-panel dashboard-supporting-details';
+    dashboardDetails.open = true;
+    dashboardDetails.innerHTML = '<summary><span>Supporting charts and detail</span><small>Open after the answer and recommendation.</small></summary>';
+    dashboardDetails.appendChild(chartGrid);
+    dashboardView.appendChild(dashboardDetails);
+  }
 
   var advisorSummary = document.createElement('div');
   advisorSummary.className = 'dashboard-summary advisor-compact-summary brand-surface-card';
   advisorSummary.id = 'advisorSummary';
-  advisorSummary.innerHTML = '<span class="advisor-compact-title"><img class="brand-asset brand-tiny-img" src="app/assets/brand/bastion-compact-b.svg" alt="" aria-hidden="true"><strong>Advisor Engine v2 (Compact)</strong></span><br><span id="advisorCompact">Run the model to generate plan diagnosis and next action.</span>';
+  advisorSummary.innerHTML = '<span class="advisor-compact-title"><img class="brand-asset brand-tiny-img" src="app/assets/brand/bastion-compact-b.svg" alt="" aria-hidden="true"><strong>Advisor Engine v2 (Compact)</strong></span><br><span id="advisorCompact">Run the model to generate plan diagnosis and next action.</span><details class="mobile-inline-detail"><summary>Why this matters</summary><p>The compact advisor note explains the meaning of the output without changing your baseline assumptions.</p></details>';
   dashboardView.appendChild(advisorSummary);
 
   var coreCard = coreGrid ? coreGrid.children[0] : null;
@@ -986,6 +1004,11 @@ function showView(name){
     if(view) view.classList.toggle('active',viewRoutes[i]===name);
   }
   currentRoute = name;
+  var mobileFlowLabel = el('mobileFlowLabel');
+  if(mobileFlowLabel){
+    var routeLabels = {dashboard:'Dashboard guided flow',profile:'Profile inputs',advisor:'Advisor readout',scenarios:'Scenario comparison',timeline:'Timeline path',taxRmd:'Tax/RMD details',reports:'Report snapshot'};
+    mobileFlowLabel.textContent = routeLabels[name] || 'Guided plan flow';
+  }
   var buttons = document.querySelectorAll('.nav button');
   for(var j=0;j<buttons.length;j++){
     buttons[j].classList.toggle('active',buttons[j].getAttribute('data-view')===name);
@@ -1233,8 +1256,8 @@ function renderOwnerSummaryCards(){
   var completed = ownerCompletedValidations.length;
   var warnings = ownerFeedback.filter(function(i){ return i.agent.indexOf('BLOCKER')>-1 && i.status==='Blocked'; }).length;
   var parked = ownerFeedback.filter(function(i){ return i.status==='Parked'; }).length;
-  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.41 — Visual Consolidation + Brand Integration');
-  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.41 Visual Consolidation + Brand Integration';
+  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.42 — Mobile Navigation + Guided Flow System');
+  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.42 Mobile Navigation + Guided Flow System';
   if(el('ownerSummaryQueued')) el('ownerSummaryQueued').textContent=String(queued);
   if(el('ownerSummaryParked')) el('ownerSummaryParked').textContent=String(parked);
   if(el('ownerSummaryCompleted')) el('ownerSummaryCompleted').textContent=String(completed);
@@ -1401,7 +1424,7 @@ function initOwnerMode(){
   }
 }
 function init(){ loadState(); decisionBaselineState = readState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; decisionBaselineState.events = events.slice(); } setupViews(); wireNav(); bindUserNavClicks(); syncModeUI(); renderEvents(); showView('dashboard'); commit(); }
-console.log("Bastion Save State 2.41 visual consolidation and brand integration active");
+console.log("Bastion Save State 2.42 mobile navigation and guided flow system active");
 
 var BETA_SESSION_KEY='bastion_beta_session_v1';
 window.__bastionSyntaxCheckOk=true;
