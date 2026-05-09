@@ -238,8 +238,15 @@ NEW:
 - Preserved routes, formulas, auth/Firebase/deployment configuration, governance systems, owner isolation, Dashboard output-only behavior, and Profile input ownership.
 - Updated visible Save State text to 2.40b and set the next phase to 2.40c — Dashboard Readability.
 
+
+### 2.40c — Dashboard Readability (DONE)
+- Improved Dashboard hierarchy with a clearer executive-summary flow and advisor-grade Decision Core presentation.
+- Normalized Dashboard KPI/readout cards, recommendation presentation, helper text hierarchy, chart framing, spacing, and mobile stacking.
+- Introduced restrained Dashboard trust/readiness indicators and controlled Shield+B branding integration while avoiding flashy fintech styling.
+- Preserved Dashboard output-only behavior, Profile input ownership, routes, IDs, commit behavior, formulas, engines, scenarios, auth/Firebase/deployment configuration, governance warnings, and owner isolation.
+- Updated visible Save State text to 2.40c and preserved future navigation clarity / trusted beta preparation as separate scoped work.
+
 ## Upcoming Governance and Stabilization Subphases
-- 2.40c — Dashboard Readability: preserve output-only Dashboard clarity while improving report/readout polish.
 - Future navigation clarity: keep Dashboard / Profile / Advisor / Scenarios / Timeline flow stable while reducing beta-user friction.
 - Future trusted beta preparation: continue advisor-grade reporting polish, fallback/empty-state clarity, validation, and governance hardening.
 - Future expanded profile data model: add household, income, expense, asset, debt, tax, and confidence modeling only through scoped engine-owned phases.
@@ -522,4 +529,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.40b — Profile UX Cohesion complete; next phase is 2.40c — Dashboard Readability, with future navigation clarity, trusted beta preparation, onboarding direction, expanded profile data model, and financial intelligence engine work preserved
+2.40c — Dashboard Readability complete; next recommended phase is future navigation clarity / trusted beta preparation, with onboarding direction, expanded profile data model, financial intelligence engine work, and governance hardening preserved

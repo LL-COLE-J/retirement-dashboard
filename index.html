@@ -14,7 +14,7 @@ window.BASTION_FIREBASE_CONFIG = {
 </script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bastion Insights - Save State 2.40b</title>
+<title>Bastion Insights - Save State 2.40c</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235dd6a9'/%3E%3Cstop offset='1' stop-color='%2378a6ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M32 4 52 12v17c0 14.5-8.1 24.2-20 31C20.1 53.2 12 43.5 12 29V12z'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-size='24' font-family='Inter,Segoe UI,Arial,sans-serif' font-weight='800' fill='%2307111f'%3EB%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="app/core/number-guards.js"></script>
@@ -111,12 +111,12 @@ function mountRenderedView(mountId,rendererName,label){
       <button>Tax &amp; RMD</button>
       <button>Reports</button>
     </nav>
-     <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.40b — Profile UX Cohesion</strong><br/><span id="phaseDesc">Profile now has advisor-grade light-theme cohesion, clearer spacing, annual/monthly cues, and unchanged calculations.</span></small></div>
+     <div class="side-card"><small><strong id="phaseNumber">Bastion Save State 2.40c — Dashboard Readability</strong><br/><span id="phaseDesc">Dashboard now has clearer executive-summary flow, normalized readout hierarchy, and unchanged Profile-owned inputs/calculations.</span></small></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-       <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.40b improves Profile readability and advisor-grade light-theme cohesion while preserving dashboard outputs, calculations, routes, and engine behavior.</p></div>
+       <div><h2>Lifetime Financial Path</h2><p>Bastion Save State 2.40c improves Dashboard readability, executive-summary hierarchy, chart framing, and advisor-grade recommendation presentation while preserving Profile-owned inputs, calculations, routes, and engine behavior.</p></div>
       <div class="top-actions">
         <span class="pill" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="showView('reports');toggleDecisionReport(true)">Generate Report</button>
@@ -135,7 +135,7 @@ function mountRenderedView(mountId,rendererName,label){
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><h2>Bastion Advisor</h2><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Bastion Save State 2.40b readout:</strong></p>
+  <p><strong>Bastion Save State 2.40c readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
@@ -826,7 +826,7 @@ function setupViews(){
   for(var i=0;i<content.children.length;i++){ children.push(content.children[i]); }
 
   /* DASHBOARD VIEW */
-  var dashboardView = document.createElement('section'); dashboardView.id='dashboardView'; dashboardView.className='view active';
+  var dashboardView = document.createElement('section'); dashboardView.id='dashboardView'; dashboardView.className='view active dashboard-view';
   /* PROFILE VIEW */
   var profileView = null;
   /* SCENARIOS VIEW */
@@ -856,9 +856,9 @@ function setupViews(){
   var chartGrid = children[5];
 
   var decisionCard = document.createElement('div');
-  decisionCard.className = 'card';
+  decisionCard.className = 'card dashboard-hero-card';
   decisionCard.innerHTML =
-    '<div class="section-head"><div><h3>Moment of Truth</h3><p>Decision Core answers where the plan stands if nothing changes, using Profile-owned inputs.</p></div></div>'+
+    '<div class="dashboard-hero-head"><div class="dashboard-brand-lockup"><span class="dashboard-brand-shield" aria-hidden="true">B</span><div><span class="eyebrow">Executive summary</span><h3>Moment of Truth</h3><p>Decision Core answers where the plan stands if nothing changes, using Profile-owned inputs.</p></div></div><div class="dashboard-readiness-stack"><span>Profile-owned inputs</span><span>Output-only dashboard</span><span>Decision support</span></div></div>'+
     '<div class="decision-core">'+
     '<div class="decision-card primary"><div class="decision-kicker">Am I Okay?</div><div class="decision-value large" id="decisionOkay">-</div><div class="decision-sub">Plain-English safety readout for the current path.</div><div class="decision-statement" id="decisionBaselineStatement"><strong>Baseline:</strong> Run the model to see the current path.</div></div>'+
     '<div class="decision-card"><div class="decision-kicker">Run-out Age</div><div class="decision-value large" id="decisionRunoutAge">-</div><div class="decision-sub">First age where the projection falls to zero.</div></div>'+
@@ -867,18 +867,18 @@ function setupViews(){
     '<div class="decision-card"><div class="decision-kicker">Retirement Reality</div><div class="decision-value" id="decisionReality">-</div><div class="decision-sub">On Track or At Risk for the current baseline.</div></div>'+
     '<div class="decision-card"><div class="decision-kicker">Years gained/lost</div><div class="decision-value" id="decisionDeltaYears">0 years</div><div class="decision-sub" id="decisionDeltaStatus">Stable</div></div>'+
     '</div>'+
-    '<div class="dashboard-summary" style="margin-top:10px;"><strong>If You Do This</strong><br><span id="decisionIfDoThis">Update inputs to see impact.</span></div>'+
+    '<div class="dashboard-summary dashboard-action-summary"><strong>If You Do This</strong><br><span id="decisionIfDoThis">Update inputs to see impact.</span></div>'+
     '<div class="decision-report hidden" id="decisionReportPanel"><h4>Decision Report</h4><div id="decisionReportBody">Click Generate Report to view plan summary.</div></div>';
   dashboardView.appendChild(decisionCard);
   var decisionOutputCard = document.createElement('div');
-  decisionOutputCard.className = 'card';
-  decisionOutputCard.innerHTML = '<div class="section-head"><div><h3>Decision Output</h3><p>Trust-focused summary with status, confidence, driver, and next step.</p></div></div><div class="grid cols-2"><div><div class="label">Plan Status</div><div class="metric small" id="decisionPlanStatus">-</div></div><div><div class="label">Run-Out Age</div><div class="metric small" id="decisionRunOutDisplay">-</div></div><div><div class="label">Confidence</div><div class="metric small" id="decisionConfidence">-</div></div><div><div class="label">Key Driver</div><div class="metric small" id="decisionKeyDriver">-</div></div></div><div class="dashboard-summary" style="margin-top:12px;"><strong>Recommended Next Step</strong><br><span id="decisionNextStep">Run model</span><br><br><strong>Advisor Insight</strong><br><span id="decisionInsightText">Run the model to generate insight.</span></div>';
+  decisionOutputCard.className = 'card dashboard-recommendation-card';
+  decisionOutputCard.innerHTML = '<div class="section-head"><div><span class="eyebrow">Recommendation</span><h3>Decision Output</h3><p>Trust-focused summary with status, confidence, driver, and next step.</p></div></div><div class="decision-output-grid"><div class="decision-output-item"><div class="label">Plan Status</div><div class="metric small" id="decisionPlanStatus">-</div></div><div class="decision-output-item"><div class="label">Run-Out Age</div><div class="metric small" id="decisionRunOutDisplay">-</div></div><div class="decision-output-item"><div class="label">Confidence</div><div class="metric small" id="decisionConfidence">-</div></div><div class="decision-output-item"><div class="label">Key Driver</div><div class="metric small" id="decisionKeyDriver">-</div></div></div><div class="dashboard-summary dashboard-next-step"><strong>Recommended Next Step</strong><br><span id="decisionNextStep">Run model</span><br><br><strong>Advisor Insight</strong><br><span id="decisionInsightText">Run the model to generate insight.</span></div>';
   dashboardView.appendChild(decisionOutputCard);
 
-  if(chartGrid) dashboardView.appendChild(chartGrid);
+  if(chartGrid){ chartGrid.classList.add('dashboard-chart-grid'); dashboardView.appendChild(chartGrid); }
 
   var advisorSummary = document.createElement('div');
-  advisorSummary.className = 'dashboard-summary';
+  advisorSummary.className = 'dashboard-summary advisor-compact-summary';
   advisorSummary.id = 'advisorSummary';
   advisorSummary.innerHTML = '<strong>Advisor Engine v2 (Compact)</strong><br><span id="advisorCompact">Run the model to generate plan diagnosis and next action.</span>';
   dashboardView.appendChild(advisorSummary);
@@ -1209,8 +1209,8 @@ function renderOwnerSummaryCards(){
   var completed = ownerCompletedValidations.length;
   var warnings = ownerFeedback.filter(function(i){ return i.agent.indexOf('BLOCKER')>-1 && i.status==='Blocked'; }).length;
   var parked = ownerFeedback.filter(function(i){ return i.status==='Parked'; }).length;
-  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.40b');
-  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.40b Profile UX Cohesion';
+  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.40c');
+  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.40c Dashboard Readability';
   if(el('ownerSummaryQueued')) el('ownerSummaryQueued').textContent=String(queued);
   if(el('ownerSummaryParked')) el('ownerSummaryParked').textContent=String(parked);
   if(el('ownerSummaryCompleted')) el('ownerSummaryCompleted').textContent=String(completed);
@@ -1377,7 +1377,7 @@ function initOwnerMode(){
   }
 }
 function init(){ loadState(); decisionBaselineState = readState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; decisionBaselineState.events = events.slice(); } setupViews(); wireNav(); bindUserNavClicks(); syncModeUI(); renderEvents(); showView('dashboard'); commit(); }
-console.log("Bastion Save State 2.40b profile UX cohesion active");
+console.log("Bastion Save State 2.40c dashboard readability active");
 
 var BETA_SESSION_KEY='bastion_beta_session_v1';
 window.__bastionSyntaxCheckOk=true;
