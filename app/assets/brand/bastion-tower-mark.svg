@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 112" role="img" aria-labelledby="title desc">
+  <title id="title">Bastion tower marketing mark</title>
+  <desc id="desc">Premium Bastion tower accent for public marketing and hero surfaces.</desc>
+  <defs>
+    <linearGradient id="towerFace" x1="18" y1="8" x2="78" y2="104" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#153764"/>
+      <stop offset="0.58" stop-color="#10284b"/>
+      <stop offset="1" stop-color="#07111f"/>
+    </linearGradient>
+    <linearGradient id="towerAccent" x1="29" y1="14" x2="68" y2="98" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5dd6a9" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#d6a94f" stop-opacity="0.72"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#towerFace)" d="M48 6 76 20v13h-8v54l10 9v8H18v-8l10-9V33h-8V20z"/>
+  <path fill="none" stroke="url(#towerAccent)" stroke-width="4" stroke-linejoin="round" d="M48 14 68 24v5h-8v61l6 6H30l6-6V29h-8v-5z"/>
+  <path fill="#f8fbff" fill-opacity="0.95" d="M41 36h14v9H41zm0 18h14v9H41zm0 18h14v9H41z"/>
+  <path fill="#d6a94f" d="M35 25h26v5H35zm1 67h24v5H36z"/>
+</svg>
