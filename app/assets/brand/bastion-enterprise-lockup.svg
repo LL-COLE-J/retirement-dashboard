@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 410 78" role="img" aria-labelledby="title desc">
+  <title id="title">Bastion Enterprise tower lockup</title>
+  <desc id="desc">Enterprise lockup using the approved Bastion tower foundation and navy gold institutional palette.</desc>
+  <defs>
+    <linearGradient id="enterpriseTower" x1="9" y1="5" x2="53" y2="73" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0E2A52"/>
+      <stop offset="1" stop-color="#081B33"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#enterpriseTower)" d="M31 6 51 16v9h-6v37l7 7v5H10v-5l7-7V25h-6v-9z"/>
+  <path fill="none" stroke="#C9A66B" stroke-width="2.5" stroke-linejoin="round" d="M31 12 45 19v3h-6v42l4 4H19l4-4V22h-6v-3z"/>
+  <path fill="#F7F9FC" d="M27 33h8v6h-8zm0 13h8v6h-8z"/>
+  <text x="70" y="35" fill="#081B33" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="25" font-weight="900" letter-spacing="-1.1">Bastion Enterprise</text>
+  <text x="72" y="56" fill="#475569" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="850" letter-spacing="1.8">ADVISOR-GRADE FINANCIAL INTELLIGENCE</text>
+  <path fill="#C9A66B" d="M317 24h2.4v32H317z" opacity="0.86"/>
+  <text x="334" y="43" fill="#0E2A52" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="850" letter-spacing="1.5">READY</text>
+  <text x="334" y="57" fill="#475569" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="750" letter-spacing="1.1">FUTURE</text>
+</svg>
