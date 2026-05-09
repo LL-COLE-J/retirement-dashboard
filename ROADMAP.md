@@ -282,7 +282,7 @@ NEW:
 - Applied logo variants by surface: full horizontal lockup on the public landing surface, compact/Shield+B marks in the sidebar and header, a restrained small Shield+B mark in the Dashboard executive summary, formal monochrome branding in Reports, and a tiny compact mark in the Advisor drawer.
 - Preserved the 2.40d brand token system by routing logo sizing and placement through existing brand utility classes where practical.
 - Preserved Dashboard output-only behavior, Profile input ownership, routes, IDs, commit behavior, formulas, engines, scenarios, auth/Firebase/deployment configuration, governance warnings, owner isolation, and existing user flow.
-- Updated visible Save State text to 2.40f and kept 2.41 — Beta Access & Security Gate as the next phase.
+- Updated visible Save State text to 2.40f and kept the beta access/security gate as a future required phase.
 
 
 ### 2.40g — Brand Asset Pack & Personal Site Integration (DONE)
@@ -303,8 +303,18 @@ NEW:
 - Preserved routes, IDs, commit behavior, formulas, engines, scenarios, auth/Firebase/Firestore/deployment configuration, governance warnings, owner isolation, Enterprise as future baseline only, and existing user flow.
 - Updated visible Save State text to 2.41 and preserved beta access/security gate, healthcare modeling, relocation modeling, report export, RMD/tax rule-versioning, and financial intelligence as separate future phases.
 
+
+### 2.42 — Mobile Navigation + Guided Flow System (DONE)
+- Added a compact mobile brand bar, thumb-friendly bottom mobile navigation, and a lighter mobile Save State strip while preserving desktop navigation and all existing routes.
+- Refined mobile page structure around executive summary first, key recommendation second, and progressively expandable details afterward.
+- Added sticky Dashboard context anchors for Overview, Risks, Strategy, and Details to preserve orientation on long phone pages.
+- Added expandable detail panels for Dashboard supporting charts, RMD education/schedule, Tax/RMD stress comparison, scenario detail layers, and compact advisor explanations.
+- Improved mobile KPI/card spacing, chart height, table overflow behavior, and touch readability without changing formulas, engines, scenarios, routes, auth, Firebase, Firestore rules, deployment logic, input IDs, governance warnings, or commit behavior.
+- Preserved future onboarding, SEO pages, healthcare expansion, relocation engine, RMD optimization, reports, enterprise, financial intelligence, advanced integrations, beta access, and security gating as separate scoped phases.
+- Updated visible Save State text to 2.42 and kept Bastion's 2.40c readability system, 2.40d brand token system, and tower-led identity direction intact.
+
 ## Upcoming Governance and Stabilization Subphases
-- 2.42 — Beta Access & Security Gate remains the next required phase.
+- Beta Access & Security Gate remains a future required phase after the 2.42 mobile guidance/readability lock.
 - Future navigation clarity: keep Dashboard / Profile / Advisor / Scenarios / Timeline flow stable while reducing beta-user friction.
 - Future navigation audit: validate menu clarity and route/view expectations without changing Dashboard/Profile ownership.
 - Future onboarding and public beta/contact form: prepare trusted beta access, contact capture, fallback/empty-state clarity, validation, and governance hardening as separate phases.
@@ -589,4 +599,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.41 — Visual Consolidation + Brand Integration complete; next required phase is 2.42 — Beta Access & Security Gate, with navigation audit, onboarding, public beta/contact form, expanded profile model, security, report generation, healthcare, relocation, RMD, tax strategy, and financial intelligence work preserved
+2.42 — Mobile Navigation + Guided Flow System complete; next required phases remain scoped onboarding, SEO pages, healthcare expansion, relocation engine, RMD optimization, reports, enterprise, financial intelligence, advanced integrations, beta access, and security gating without changing current formulas/routes/auth/Firebase/deployment behavior
