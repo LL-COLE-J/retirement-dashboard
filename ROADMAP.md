@@ -246,6 +246,14 @@ NEW:
 - Preserved Dashboard output-only behavior, Profile input ownership, routes, IDs, commit behavior, formulas, engines, scenarios, auth/Firebase/deployment configuration, governance warnings, and owner isolation.
 - Updated visible Save State text to 2.40c and preserved future navigation clarity / trusted beta preparation as separate scoped work.
 
+
+### 2.40d — Brand Token Lock (DONE)
+- Normalized Bastion brand CSS tokens for navy, royal blue, slate, muted gold, sage green, off-white, text, borders, shadows, and surfaces.
+- Added reusable brand utility classes for Shield+B and compact marks, wordmark lockups, trust chips, status badges, buttons, card hierarchy, branded surface cards, and report surfaces.
+- Applied the brand system lightly to sidebar, header, Dashboard summary/readout surfaces, advisor drawer context, and report-style UI elements without over-applying logos.
+- Preserved 2.40c Dashboard readability improvements, Profile as canonical intake/input owner, Dashboard as output-only owner, routes, input IDs, formulas, engines, scenarios, auth/Firebase/deployment configuration, governance warnings, owner isolation, and commit behavior.
+- Updated visible Save State text to 2.40d and preserved future navigation clarity, beta preparation, onboarding, expanded profile model, security hardening, and financial intelligence work as future phases.
+
 ## Upcoming Governance and Stabilization Subphases
 - Future navigation clarity: keep Dashboard / Profile / Advisor / Scenarios / Timeline flow stable while reducing beta-user friction.
 - Future trusted beta preparation: continue advisor-grade reporting polish, fallback/empty-state clarity, validation, and governance hardening.
@@ -529,4 +537,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.40c — Dashboard Readability complete; next recommended phase is future navigation clarity / trusted beta preparation, with onboarding direction, expanded profile data model, financial intelligence engine work, and governance hardening preserved
+2.40d — Brand Token Lock complete; next recommended phase is future navigation clarity / trusted beta preparation, with onboarding direction, expanded profile data model, security hardening, and financial intelligence engine work preserved
