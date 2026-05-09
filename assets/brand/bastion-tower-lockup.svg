@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 366 78" role="img" aria-labelledby="title desc">
+  <title id="title">Bastion Insight tower accent lockup</title>
+  <desc id="desc">Bastion Insight wordmark with a premium tower accent for public marketing surfaces.</desc>
+  <defs>
+    <linearGradient id="towerSmall" x1="9" y1="5" x2="53" y2="73" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#153764"/>
+      <stop offset="1" stop-color="#07111f"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#towerSmall)" d="M31 6 51 16v9h-6v37l7 7v5H10v-5l7-7V25h-6v-9z"/>
+  <path fill="none" stroke="#5dd6a9" stroke-opacity="0.8" stroke-width="2.5" stroke-linejoin="round" d="M31 12 45 19v3h-6v42l4 4H19l4-4V22h-6v-3z"/>
+  <path fill="#d6a94f" d="M22 26h18v4H22zm5 12h8v6h-8zm0 13h8v6h-8z"/>
+  <text x="70" y="36" fill="#10284b" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="26" font-weight="900" letter-spacing="-1.2">Bastion Insight</text>
+  <text x="72" y="56" fill="#64748b" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="850" letter-spacing="1.8">FINANCIAL PATH CLARITY</text>
+  <path fill="#d6a94f" d="M263 24h2.4v32H263z" opacity="0.82"/>
+  <text x="280" y="43" fill="#334155" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="850" letter-spacing="1.5">ADVISOR-GRADE</text>
+  <text x="280" y="57" fill="#64748b" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="750" letter-spacing="1.1">DECISION SUPPORT</text>
+</svg>
