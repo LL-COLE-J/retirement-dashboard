@@ -67,7 +67,7 @@ function mountRenderedView(mountId,rendererName,label){
   <div class="landing-shell">
     <div class="landing-top">
       <div class="landing-brand">
-        <img class="brand-asset brand-lockup-img" src="assets/brand/bastion-tower-lockup.svg" alt="Bastion Insights">
+        <img class="brand-asset brand-lockup-img" src="assets/brand/beacon-keep-primary.PNG" alt="Bastion Insights">
       </div>
       <a class="landing-nav-link" href="mailto:hello@bastioninsight.com?subject=Request%20Beta%20Access">Request Beta Access</a>
     </div>
@@ -87,7 +87,7 @@ function mountRenderedView(mountId,rendererName,label){
         </div>
       </div>
       <aside class="landing-mock" aria-label="Advisor-grade Bastion preview card">
-        <div class="landing-hero-accent" aria-hidden="true"><img class="brand-asset brand-tower-img" src="assets/brand/bastion-tower.svg" alt=""></div>
+        <div class="landing-hero-accent" aria-hidden="true"><img class="brand-asset landing-cinematic-img" src="assets/brand/hero-tower-cinematic.png" alt=""></div>
         <div class="mock-head"><strong>Advisor-Grade Intelligence</strong><span class="mock-chip">Lifetime Plan</span></div>
         <div class="mock-verdict">
           <span>Plan Status</span>
@@ -109,7 +109,7 @@ function mountRenderedView(mountId,rendererName,label){
 <!-- APP SHELL: AUTHENTICATED APP -->
 <div class="app">
   <aside class="sidebar">
-    <div class="brand brand-lockup"><img class="brand-asset brand-shield-img" src="assets/brand/bastion-shield-b.svg" alt="" aria-hidden="true"><div class="brand-text"><h1 class="brand-name wordmark-lockup">Bastion Insights</h1><span>Inputs define the path.</span></div></div>
+    <div class="brand brand-lockup"><img class="brand-asset brand-shield-img" src="assets/brand/beacon-keep-shield.png" alt="" aria-hidden="true"><div class="brand-text"><h1 class="brand-name wordmark-lockup">Bastion Insights</h1><span>Inputs define the path.</span></div></div>
     <nav class="nav">
       <button class="active">Dashboard</button>
       <button>Profile</button>
@@ -119,13 +119,13 @@ function mountRenderedView(mountId,rendererName,label){
       <button>Tax &amp; RMD</button>
       <button>Reports</button>
     </nav>
-     <div class="side-card brand-surface-card"><small><strong id="phaseNumber">Bastion Save State 2.43 — Bastion Platform Identity Lock</strong><br/><span id="phaseDesc">Platform identity, architecture, Beacon Keep visual standards, and full-life positioning are locked while routes, calculations, auth/Firebase, Dashboard output-only intent, and Profile ownership remain unchanged.</span></small></div>
+     <div class="side-card brand-surface-card"><small><strong id="phaseNumber">Bastion Save State 2.44 — Canonical Visual Asset Wiring</strong><br/><span id="phaseDesc">Canonical Beacon Keep PNG assets are wired into public landing, app identity, and report surfaces while routes, calculations, auth/Firebase, Dashboard output-only intent, and Profile ownership remain unchanged.</span></small></div>
   </aside>
 
   <main class="main">
-    <div class="mobile-brandbar" aria-label="Bastion mobile navigation summary"><div class="mobile-brandbar-lockup"><img class="brand-asset brand-tiny-img" src="assets/brand/bastion-b-mark.svg" alt="" aria-hidden="true"><div><strong>Bastion Insights</strong><span id="mobileFlowLabel">Dashboard guided flow</span></div></div><button class="btn secondary mobile-drawer-trigger" onclick="toggleDrawer(true)">Advisor</button></div>
+    <div class="mobile-brandbar" aria-label="Bastion mobile navigation summary"><div class="mobile-brandbar-lockup"><img class="brand-asset brand-tiny-img" src="assets/brand/beacon-keep-bmark.png" alt="" aria-hidden="true"><div><strong>Bastion Insights</strong><span id="mobileFlowLabel">Dashboard guided flow</span></div></div><button class="btn secondary mobile-drawer-trigger" onclick="toggleDrawer(true)">Advisor</button></div>
     <header class="topbar">
-       <div class="topbar-title"><img class="brand-asset brand-compact-img topbar-mark" src="assets/brand/bastion-b-mark.svg" alt="" aria-hidden="true"><div><h2>Full Life Planning Platform</h2><p>Bastion Save State 2.43 locks the platform identity: Full life planning. One intelligent system. Routes, calculations, auth/Firebase, Dashboard output-only intent, and Profile-owned inputs remain preserved.</p></div></div>
+       <div class="topbar-title"><img class="brand-asset brand-compact-img topbar-mark" src="assets/brand/beacon-keep-bmark.png" alt="" aria-hidden="true"><div><h2>Full Life Planning Platform</h2><p>Bastion Save State 2.44 wires the canonical Beacon Keep premium PNG assets into the landing, app identity, and report surfaces. Full life planning stays clear; routes, calculations, auth/Firebase, Dashboard output-only intent, and Profile-owned inputs remain preserved.</p></div></div>
       <div class="top-actions">
         <span class="pill trust-chip" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="showView('reports');toggleDecisionReport(true)">Generate Report</button>
@@ -151,8 +151,8 @@ function mountRenderedView(mountId,rendererName,label){
 
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
-  <div class="drawer-head"><div class="drawer-title"><img class="brand-asset brand-tiny-img" src="assets/brand/bastion-b-mark.svg" alt="" aria-hidden="true"><h2>Bastion Advisor</h2></div><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Bastion Save State 2.43 readout:</strong></p>
+  <div class="drawer-head"><div class="drawer-title"><img class="brand-asset brand-tiny-img" src="assets/brand/beacon-keep-bmark.png" alt="" aria-hidden="true"><h2>Bastion Advisor</h2></div><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
+  <p><strong>Bastion Save State 2.44 readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
@@ -875,8 +875,8 @@ function setupViews(){
   var decisionCard = document.createElement('div');
   decisionCard.className = 'card dashboard-hero-card';
   decisionCard.innerHTML =
-    '<div class="dashboard-hero-head"><div class="dashboard-brand-lockup"><img class="brand-asset dashboard-brand-shield" src="assets/brand/bastion-shield-b.svg" alt="" aria-hidden="true"><div><span class="eyebrow">Executive summary</span><h3>Moment of Truth</h3><p>Decision Core answers where the plan stands if nothing changes, using Profile-owned inputs.</p></div></div><div class="dashboard-readiness-stack trust-chip-row"><span class="trust-chip">Profile-owned inputs</span><span class="trust-chip">Output-only dashboard</span><span class="trust-chip">Decision support</span></div></div>'+
-    '<div class="view-status-banner"><span class="view-status-label status-active">Active</span><span>Dashboard is an output-only guided readout. On mobile, the answer appears first, recommendations second, and supporting detail opens afterward; platform positioning is locked and formulas/routes are unchanged in 2.43.</span></div><div class="mobile-context-anchors" aria-label="Mobile section context"><a href="#dashboardView">Overview</a><a href="#decisionBiggestRisk">Risks</a><a href="#decisionNextStep">Strategy</a><a href="#dashboardDetails">Details</a></div>'+
+    '<div class="dashboard-hero-head"><div class="dashboard-brand-lockup"><img class="brand-asset dashboard-brand-shield" src="assets/brand/beacon-keep-shield.png" alt="" aria-hidden="true"><div><span class="eyebrow">Executive summary</span><h3>Moment of Truth</h3><p>Decision Core answers where the plan stands if nothing changes, using Profile-owned inputs.</p></div></div><div class="dashboard-readiness-stack trust-chip-row"><span class="trust-chip">Profile-owned inputs</span><span class="trust-chip">Output-only dashboard</span><span class="trust-chip">Decision support</span></div></div>'+
+    '<div class="view-status-banner"><span class="view-status-label status-active">Active</span><span>Dashboard is an output-only guided readout. On mobile, the answer appears first, recommendations second, and supporting detail opens afterward; canonical visuals are wired and formulas/routes are unchanged in 2.44.</span></div><div class="mobile-context-anchors" aria-label="Mobile section context"><a href="#dashboardView">Overview</a><a href="#decisionBiggestRisk">Risks</a><a href="#decisionNextStep">Strategy</a><a href="#dashboardDetails">Details</a></div>'+
     '<div class="decision-core">'+
     '<div class="decision-card primary"><div class="decision-kicker">Am I Okay?</div><div class="decision-value large" id="decisionOkay">-</div><div class="decision-sub">Plain-English safety readout for the current path.</div><div class="decision-statement" id="decisionBaselineStatement"><strong>Baseline:</strong> Run the model to see the current path.</div></div>'+
     '<div class="decision-card"><div class="decision-kicker">Run-out Age</div><div class="decision-value large" id="decisionRunoutAge">-</div><div class="decision-sub">First age where the projection falls to zero.</div></div>'+
@@ -907,7 +907,7 @@ function setupViews(){
   var advisorSummary = document.createElement('div');
   advisorSummary.className = 'dashboard-summary advisor-compact-summary brand-surface-card';
   advisorSummary.id = 'advisorSummary';
-  advisorSummary.innerHTML = '<span class="advisor-compact-title"><img class="brand-asset brand-tiny-img" src="assets/brand/bastion-b-mark.svg" alt="" aria-hidden="true"><strong>Advisor Engine v2 (Compact)</strong></span><br><span id="advisorCompact">Run the model to generate plan diagnosis and next action.</span><details class="mobile-inline-detail"><summary>Why this matters</summary><p>The compact advisor note explains the meaning of the output without changing your baseline assumptions.</p></details>';
+  advisorSummary.innerHTML = '<span class="advisor-compact-title"><img class="brand-asset brand-tiny-img" src="assets/brand/beacon-keep-bmark.png" alt="" aria-hidden="true"><strong>Advisor Engine v2 (Compact)</strong></span><br><span id="advisorCompact">Run the model to generate plan diagnosis and next action.</span><details class="mobile-inline-detail"><summary>Why this matters</summary><p>The compact advisor note explains the meaning of the output without changing your baseline assumptions.</p></details>';
   dashboardView.appendChild(advisorSummary);
 
   var coreCard = coreGrid ? coreGrid.children[0] : null;
@@ -1264,8 +1264,8 @@ function renderOwnerSummaryCards(){
   var completed = ownerCompletedValidations.length;
   var warnings = ownerFeedback.filter(function(i){ return i.agent.indexOf('BLOCKER')>-1 && i.status==='Blocked'; }).length;
   var parked = ownerFeedback.filter(function(i){ return i.status==='Parked'; }).length;
-  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.43 — Bastion Platform Identity Lock');
-  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.43 Platform Identity Lock';
+  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.44 — Canonical Visual Asset Wiring');
+  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.44 Canonical Visual Asset Wiring';
   if(el('ownerSummaryQueued')) el('ownerSummaryQueued').textContent=String(queued);
   if(el('ownerSummaryParked')) el('ownerSummaryParked').textContent=String(parked);
   if(el('ownerSummaryCompleted')) el('ownerSummaryCompleted').textContent=String(completed);
@@ -1432,7 +1432,7 @@ function initOwnerMode(){
   }
 }
 function init(){ loadState(); decisionBaselineState = readState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; decisionBaselineState.events = events.slice(); } setupViews(); wireNav(); bindUserNavClicks(); syncModeUI(); renderEvents(); showView('dashboard'); commit(); }
-console.log("Bastion Save State 2.43 platform identity lock active");
+console.log("Bastion Save State 2.44 canonical visual asset wiring active");
 
 var BETA_SESSION_KEY='bastion_beta_session_v1';
 window.__bastionSyntaxCheckOk=true;

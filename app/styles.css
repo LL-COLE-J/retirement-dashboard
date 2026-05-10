@@ -50,7 +50,7 @@ body{
 button,input,select{font:inherit}
 button{cursor:pointer}
 
-/* Phase 2.40d — brand token lock utilities; 2.43 locks the approved Beacon Keep tower system onto them */
+/* Phase 2.40d — brand token lock utilities; Phase 2.44 wires approved Beacon Keep PNG surfaces onto them */
 .brand-lockup,.wordmark-lockup{min-width:0}
 .brand-asset{display:block;max-width:100%;height:auto;flex:0 0 auto}
 .brand-lockup-img{width:220px}
@@ -569,7 +569,7 @@ html,body{max-width:100%;overflow-x:hidden}
   .scenario-console-card:before{margin:-16px -16px 16px}.scenario-visual-strip{grid-template-columns:1fr;gap:10px;margin:0}.scenario-visual-strip div{padding:13px}.form-grid{grid-template-columns:1fr!important;gap:10px}.event-row{grid-template-columns:1fr!important}
 }
 
-/* Phase 2.43 — Platform Identity Lock landing overrides */
+/* Phase 2.44 — Canonical Visual Asset Wiring landing overrides */
 .domain-landing .landing-trust .trust-card,
 .domain-landing .landing-mock,
 .domain-landing .mock-metric,
@@ -589,3 +589,63 @@ html,body{max-width:100%;overflow-x:hidden}
 .domain-landing .landing-brand .brand-lockup-img{width:238px;filter:none}
 .domain-landing .landing-left h1{font-size:clamp(42px,5.2vw,64px);line-height:1}
 @media(max-width:760px){.domain-landing .landing-brand{width:100%;justify-content:flex-start}.domain-landing .landing-brand .brand-lockup-img{width:214px}.domain-landing .landing-left h1{font-size:36px;line-height:1.04}.domain-landing{padding-bottom:34px}}
+
+/* Phase 2.44 — Canonical Visual Asset Wiring */
+.domain-landing{
+  background:
+    radial-gradient(circle at 72% 12%,rgba(201,166,107,.3),transparent 0 12%,transparent 24%),
+    radial-gradient(circle at 18% 10%,rgba(42,82,132,.52),transparent 30%),
+    radial-gradient(circle at 84% 80%,rgba(14,42,82,.76),transparent 34%),
+    linear-gradient(135deg,#020814 0%,#06182e 45%,#0b1f3a 100%);
+}
+.domain-landing .landing-brand{
+  padding:0;
+  border:0;
+  border-radius:24px;
+  background:transparent;
+  box-shadow:none;
+}
+.domain-landing .landing-brand .brand-lockup-img{
+  width:118px;
+  border-radius:20px;
+  filter:drop-shadow(0 26px 46px rgba(0,0,0,.42));
+}
+.landing-hero-accent{
+  width:100%;
+  margin:0 auto 22px;
+  padding:10px;
+  background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.025));
+}
+.landing-cinematic-img{
+  width:100%;
+  max-width:430px;
+  margin:0 auto;
+  border-radius:22px;
+  box-shadow:0 32px 90px rgba(0,0,0,.38),0 0 72px rgba(201,166,107,.16);
+}
+.brand-shield-img,.dashboard-brand-shield{
+  object-fit:contain;
+  filter:drop-shadow(0 12px 22px rgba(201,166,107,.14));
+}
+.brand-compact-img,.brand-tiny-img{
+  width:auto;
+  object-fit:contain;
+  border-radius:0;
+  box-shadow:none;
+  filter:drop-shadow(0 8px 14px rgba(201,166,107,.12));
+}
+.brand-compact-img{height:34px}
+.brand-tiny-img{height:26px}
+.report-brand-row .brand-report-img{
+  width:58px;
+  height:auto;
+  filter:drop-shadow(0 10px 20px rgba(8,27,51,.08));
+}
+@media(max-width:760px){
+  .domain-landing .landing-brand .brand-lockup-img{width:98px}
+  .landing-cinematic-img{max-width:100%;border-radius:18px}
+  .brand-compact-img{height:30px}
+  .brand-tiny-img{height:24px}
+}
+body:has(#domainLanding.show){background:#020814}
+@media(max-width:760px){.domain-landing.show{overflow:visible}}
