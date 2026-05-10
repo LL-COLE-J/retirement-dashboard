@@ -16,6 +16,93 @@ Every feature must answer:
 
 ---
 
+## Platform Vision & Architecture (LOCKED IN 2.43)
+
+### Mission
+
+Bastion is a lifetime financial intelligence platform: **Full life planning. One intelligent system.**
+
+Bastion is a modular planning ecosystem and institutional-grade decision platform. It is not a retirement calculator, budgeting app, or short-term fintech widget.
+
+### Core philosophy
+
+- Any occasion
+- Any age
+- Any path
+
+### Planning and intelligence domains
+
+Bastion models planning, tax, retirement, estate, healthcare, insurance, risk, compliance, forecasting, scenarios, and enterprise oversight across every stage of life.
+
+### Official platform architecture
+
+**Primary**
+- Dashboard
+- Plan
+- Scenarios
+- Advisor
+
+**Planning**
+- Retirement
+- Tax
+- Healthcare
+- Estate
+- Insurance
+- Cash Flow
+
+**Intelligence**
+- Risk
+- Forecasting
+- Monte Carlo
+- Alerts
+- Optimization
+
+**Operations**
+- Reports
+- Documents
+- Notes
+- Client Portal
+
+**Enterprise**
+- Teams
+- Governance
+- Audit
+- Permissions
+
+### Visual philosophy
+
+Bastion's approved visual direction is cinematic institutional, premium enterprise fintech, deep navy, muted gold, off-white, glass/soft shadows where appropriate, elegant serif headlines, clean operational typography, high-end dashboard framing, cinematic hero imagery, and premium spacing/rhythm.
+
+The approved Beacon Keep tower identity is the primary Bastion visual direction. All future imagery must be premium, cinematic, enterprise-grade, production-quality, and consistent with the Beacon Keep tower system. Placeholder illustrations, flat generic vectors, stock-feeling graphics, low-detail icons, temporary imagery, and random inconsistent SVGs are prohibited.
+
+### Surface hierarchy
+
+1. Public marketing surfaces: dark cinematic premium presentation.
+2. Operational application surfaces: refined light institutional workspace.
+3. Enterprise/admin surfaces: hybrid executive dark/light dashboards.
+4. Reports: ultra-clean print-grade layouts.
+
+### Progressive disclosure strategy
+
+Bastion should show the decision first, scenario comparison second, assumptions third, and technical/compliance/reporting depth last. Complexity should appear only when it helps the user understand risk, tradeoffs, or action.
+
+### Long-term ecosystem goals
+
+- Preserve one intelligent planning system instead of disconnected calculators.
+- Expand modular planning domains through scoped engine-owned phases.
+- Keep critical financial logic auditable and separated from views.
+- Preserve Profile input ownership, Dashboard output-only intent, Scenario reversibility, and Owner isolation.
+- Support advisor-grade reporting, enterprise governance, audit trails, teams, permissions, and client-portal workflows without compromising consumer clarity.
+
+### Locked brand language
+
+- “Plan today. Protect tomorrow.”
+- “Financial clarity for every stage of life.”
+- “One plan. Any path.”
+- “See the path before you walk it.”
+- “Full life planning. One intelligent system.”
+
+
 # PHASE 2 — CORE DECISION SYSTEM (CURRENT)
 
 Goal:
@@ -272,7 +359,7 @@ NEW:
 | Scenarios | MVP | SCENARIO_AGENT / STRESS_AGENT / EVENT_AGENT | Scenario overlays and stress-test framing compare alternatives without mutating baseline assumptions. | Add event presets, trusted beta scenario paths, timeline refinement, and richer tradeoff explanations as separate scoped phases. |
 | Timeline | MVP | TIMELINE_AGENT / IMPACT_AGENT | Readable life-path markers using current Profile inputs and Scenario B comparison. | Refine label collision handling, richer overlays, legacy/healthcare markers, and mobile readability without moving calculations into the view. |
 | Tax & RMD | Future Phase | TAX_AGENT / RMD_AGENT / PLANNING_RULES_AGENT | Educational and placeholder-level withdrawal/tax/RMD clarity surface; not CPA-level guidance. | Add versioned tax/RMD rules, state/local depth, account-type split, compliance review, and rule verification before beta reliance. |
-| Reports | Placeholder | INSIGHT_AGENT / ENTERPRISE_AGENT / UI_AGENT | Snapshot/report surface for current outputs only. | Add export, advisor delivery, report generation, narrative packaging, and audit trail in separate report-generation phases. |
+| Reports | Future Phase | INSIGHT_AGENT / ENTERPRISE_AGENT / UI_AGENT | Snapshot/report surface for current outputs only. | Add export, advisor delivery, report generation, narrative packaging, and audit trail in separate report-generation phases. |
 | Owner Dashboard (`owner=true`) | Active | Owner / REGRESSION_AGENT / DEVOPS_AGENT | Isolated owner-only governance/queue dashboard behind `owner=true`; not part of consumer menu unless owner mode is active. | Keep isolated while future trusted beta, validation, security, and deployment governance mature. |
 
 
@@ -329,6 +416,13 @@ NEW:
 - Improved mobile KPI/card spacing, chart height, table overflow behavior, and touch readability without changing formulas, engines, scenarios, routes, auth, Firebase, Firestore rules, deployment logic, input IDs, governance warnings, or commit behavior.
 - Preserved future onboarding, SEO pages, healthcare expansion, relocation engine, RMD optimization, reports, enterprise, financial intelligence, advanced integrations, beta access, and security gating as separate scoped phases.
 - Updated visible Save State text to 2.42 and kept Bastion's 2.40c readability system, 2.40d brand token system, and tower-led identity direction intact.
+
+### 2.43 — Bastion Platform Identity Lock (DONE)
+- Locked Bastion's platform positioning as “Full life planning. One intelligent system.”
+- Documented Bastion as a lifetime financial intelligence platform, modular planning ecosystem, and institutional-grade decision platform rather than a retirement calculator.
+- Added permanent platform architecture documentation covering Primary, Planning, Intelligence, Operations, and Enterprise hierarchy.
+- Added canonical visual system documentation for the Beacon Keep tower identity, cinematic institutional visual language, image-quality standards, dashboard framing, spacing rhythm, navigation hierarchy, and mobile direction.
+- Updated visible Save State text to 2.43 while preserving routes, calculations, engine behavior, Profile input ownership, Dashboard output-only intent, owner isolation, auth/Firebase/Firestore configuration, deployment configuration, and app shell assumptions.
 
 ## Upcoming Governance and Stabilization Subphases
 - Beta Access & Security Gate remains a future required phase after the 2.42 mobile guidance/readability lock.
@@ -616,4 +710,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.41d — Public Landing Restoration + Cinematic Tower Hero complete; next required phases remain scoped onboarding, SEO pages, healthcare expansion, relocation engine, RMD optimization, reports, enterprise, financial intelligence, advanced integrations, beta access, security gating, and future mobile navigation architecture without changing current formulas/routes/auth/Firebase/deployment behavior
+2.43 — Bastion Platform Identity Lock complete; next required phases remain scoped onboarding, SEO pages, healthcare expansion, relocation engine, RMD optimization, reports, enterprise, financial intelligence, advanced integrations, beta access, security gating, and future navigation architecture without changing current formulas/routes/auth/Firebase/deployment behavior
