@@ -103,6 +103,46 @@ function mountRenderedView(mountId,rendererName,label){
         <div class="mock-footer">Decision support only. Bastion simulates, compares, warns, and explains; it does not execute financial actions.</div>
       </aside>
     </div>
+
+    <section class="landing-platform" aria-label="Bastion planning coverage">
+      <div class="platform-copy">
+        <span class="landing-section-kicker">One platform for planning, protection, and decision support.</span>
+        <h2>Financial clarity for every stage of life.</h2>
+        <p>Plan across retirement, tax strategy, estate, insurance, healthcare, cash flow, documents, reports, alerts, notes, and advisor collaboration while the operating app remains native, traceable, and interactive.</p>
+      </div>
+      <div class="platform-grid" aria-label="Future-ready planning domains">
+        <div>Financial Planning</div>
+        <div>Tax Optimization</div>
+        <div>RMD Planning</div>
+        <div>Investments</div>
+        <div>Cash Flow</div>
+        <div>Insurance</div>
+        <div>Healthcare</div>
+        <div>Estate Planning</div>
+        <div>Documents</div>
+        <div>Reports</div>
+        <div>Alerts</div>
+        <div>Advisor Collaboration</div>
+      </div>
+    </section>
+
+    <section class="landing-operating-preview" aria-label="Bastion operational preview">
+      <div class="operating-preview-card">
+        <span>Decision Core</span>
+        <strong>Am I okay?</strong>
+        <p>A direct answer stays above charts, notes, and scenario detail.</p>
+      </div>
+      <div class="operating-preview-card">
+        <span>Profile-owned inputs</span>
+        <strong>Assumptions stay traceable.</strong>
+        <p>Dashboard remains output-only while Profile owns the plan inputs.</p>
+      </div>
+      <div class="operating-preview-card">
+        <span>Scenario modeling</span>
+        <strong>Any age. Any occasion. Any path.</strong>
+        <p>Compare paths without silently mutating the baseline.</p>
+      </div>
+    </section>
   </div>
 </section>
 
@@ -119,13 +159,13 @@ function mountRenderedView(mountId,rendererName,label){
       <button>Tax &amp; RMD</button>
       <button>Reports</button>
     </nav>
-     <div class="side-card brand-surface-card"><small><strong id="phaseNumber">Bastion Save State 2.44 — Canonical Visual Asset Wiring</strong><br/><span id="phaseDesc">Canonical Beacon Keep PNG assets are wired into public landing, app identity, and report surfaces while routes, calculations, auth/Firebase, Dashboard output-only intent, and Profile ownership remain unchanged.</span></small></div>
+     <div class="side-card brand-surface-card"><small><strong id="phaseNumber">Bastion Save State 2.45 — Premium UI Reconstruction</strong><br/><span id="phaseDesc">Light-first premium SaaS reconstruction is active across the public landing and operational workspace while routes, calculations, auth/Firebase, Dashboard output-only intent, and Profile ownership remain unchanged.</span></small></div>
   </aside>
 
   <main class="main">
     <div class="mobile-brandbar" aria-label="Bastion mobile navigation summary"><div class="mobile-brandbar-lockup"><img class="brand-asset brand-tiny-img" src="assets/brand/beacon-keep-bmark.png" alt="" aria-hidden="true"><div><strong>Bastion Insights</strong><span id="mobileFlowLabel">Dashboard guided flow</span></div></div><button class="btn secondary mobile-drawer-trigger" onclick="toggleDrawer(true)">Advisor</button></div>
     <header class="topbar">
-       <div class="topbar-title"><img class="brand-asset brand-compact-img topbar-mark" src="assets/brand/beacon-keep-bmark.png" alt="" aria-hidden="true"><div><h2>Full Life Planning Platform</h2><p>Bastion Save State 2.44 wires the canonical Beacon Keep premium PNG assets into the landing, app identity, and report surfaces. Full life planning stays clear; routes, calculations, auth/Firebase, Dashboard output-only intent, and Profile-owned inputs remain preserved.</p></div></div>
+       <div class="topbar-title"><img class="brand-asset brand-compact-img topbar-mark" src="assets/brand/beacon-keep-bmark.png" alt="" aria-hidden="true"><div><h2>Full Life Planning Platform</h2><p>Bastion Save State 2.45 rebuilds the landing and operational workspace into a light-first premium SaaS experience. Full life planning stays clear; routes, calculations, auth/Firebase, Dashboard output-only intent, and Profile-owned inputs remain preserved.</p></div></div>
       <div class="top-actions">
         <span class="pill trust-chip" id="modePill">Monthly Mode</span>
         <button class="btn secondary" onclick="showView('reports');toggleDecisionReport(true)">Generate Report</button>
@@ -152,7 +192,7 @@ function mountRenderedView(mountId,rendererName,label){
 <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><div class="drawer-title"><img class="brand-asset brand-tiny-img" src="assets/brand/beacon-keep-bmark.png" alt="" aria-hidden="true"><h2>Bastion Advisor</h2></div><button class="btn secondary" onclick="toggleDrawer(false)">Close</button></div>
-  <p><strong>Bastion Save State 2.44 readout:</strong></p>
+  <p><strong>Bastion Save State 2.45 readout:</strong></p>
   <ul id="advisorList"></ul>
 </aside>
 
@@ -876,7 +916,7 @@ function setupViews(){
   decisionCard.className = 'card dashboard-hero-card';
   decisionCard.innerHTML =
     '<div class="dashboard-hero-head"><div class="dashboard-brand-lockup"><img class="brand-asset dashboard-brand-shield" src="assets/brand/beacon-keep-shield.png" alt="" aria-hidden="true"><div><span class="eyebrow">Executive summary</span><h3>Moment of Truth</h3><p>Decision Core answers where the plan stands if nothing changes, using Profile-owned inputs.</p></div></div><div class="dashboard-readiness-stack trust-chip-row"><span class="trust-chip">Profile-owned inputs</span><span class="trust-chip">Output-only dashboard</span><span class="trust-chip">Decision support</span></div></div>'+
-    '<div class="view-status-banner"><span class="view-status-label status-active">Active</span><span>Dashboard is an output-only guided readout. On mobile, the answer appears first, recommendations second, and supporting detail opens afterward; canonical visuals are wired and formulas/routes are unchanged in 2.44.</span></div><div class="mobile-context-anchors" aria-label="Mobile section context"><a href="#dashboardView">Overview</a><a href="#decisionBiggestRisk">Risks</a><a href="#decisionNextStep">Strategy</a><a href="#dashboardDetails">Details</a></div>'+
+    '<div class="view-status-banner"><span class="view-status-label status-active">Active</span><span>Dashboard is an output-only guided readout. On mobile, the answer appears first, recommendations second, and supporting detail opens afterward; premium light-first UI reconstruction is active and formulas/routes are unchanged in 2.45.</span></div><div class="mobile-context-anchors" aria-label="Mobile section context"><a href="#dashboardView">Overview</a><a href="#decisionBiggestRisk">Risks</a><a href="#decisionNextStep">Strategy</a><a href="#dashboardDetails">Details</a></div>'+
     '<div class="decision-core">'+
     '<div class="decision-card primary"><div class="decision-kicker">Am I Okay?</div><div class="decision-value large" id="decisionOkay">-</div><div class="decision-sub">Plain-English safety readout for the current path.</div><div class="decision-statement" id="decisionBaselineStatement"><strong>Baseline:</strong> Run the model to see the current path.</div></div>'+
     '<div class="decision-card"><div class="decision-kicker">Run-out Age</div><div class="decision-value large" id="decisionRunoutAge">-</div><div class="decision-sub">First age where the projection falls to zero.</div></div>'+
@@ -1264,8 +1304,8 @@ function renderOwnerSummaryCards(){
   var completed = ownerCompletedValidations.length;
   var warnings = ownerFeedback.filter(function(i){ return i.agent.indexOf('BLOCKER')>-1 && i.status==='Blocked'; }).length;
   var parked = ownerFeedback.filter(function(i){ return i.status==='Parked'; }).length;
-  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.44 — Canonical Visual Asset Wiring');
-  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.44 Canonical Visual Asset Wiring';
+  if(el('ownerSummarySaveState')) el('ownerSummarySaveState').textContent=((el('phaseNumber')&&el('phaseNumber').textContent)||'Bastion Save State 2.45 — Premium UI Reconstruction');
+  if(el('ownerSummaryPhase')) el('ownerSummaryPhase').textContent='2.45 Premium UI Reconstruction';
   if(el('ownerSummaryQueued')) el('ownerSummaryQueued').textContent=String(queued);
   if(el('ownerSummaryParked')) el('ownerSummaryParked').textContent=String(parked);
   if(el('ownerSummaryCompleted')) el('ownerSummaryCompleted').textContent=String(completed);
@@ -1432,7 +1472,7 @@ function initOwnerMode(){
   }
 }
 function init(){ loadState(); decisionBaselineState = readState(); if(!events.length){ events=[normalizeEvent({type:'recurring_expense',name:'Future recurring expense',startAge:45,duration:5,amount:3000,frequency:'annual'})]; decisionBaselineState.events = events.slice(); } setupViews(); wireNav(); bindUserNavClicks(); syncModeUI(); renderEvents(); showView('dashboard'); commit(); }
-console.log("Bastion Save State 2.44 canonical visual asset wiring active");
+console.log("Bastion Save State 2.45 premium UI reconstruction active");
 
 var BETA_SESSION_KEY='bastion_beta_session_v1';
 window.__bastionSyntaxCheckOk=true;
