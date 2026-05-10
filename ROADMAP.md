@@ -424,6 +424,12 @@ NEW:
 - Added canonical visual system documentation for the Beacon Keep tower identity, cinematic institutional visual language, image-quality standards, dashboard framing, spacing rhythm, navigation hierarchy, and mobile direction.
 - Updated visible Save State text to 2.43 while preserving routes, calculations, engine behavior, Profile input ownership, Dashboard output-only intent, owner isolation, auth/Firebase/Firestore configuration, deployment configuration, and app shell assumptions.
 
+### 2.44 — Canonical Visual Asset Wiring (DONE)
+- Wired the locally added canonical Beacon Keep premium PNG assets from `assets/brand/` into the live UI without changing formulas, calculations, engines, auth/Firebase/Firestore behavior, routing architecture, Profile ownership, Dashboard ownership, or deployment configuration.
+- Updated the public landing to use `beacon-keep-primary.PNG` for the landing brand surface and `hero-tower-cinematic.png` as the above-the-fold cinematic tower visual while preserving deep navy, muted-gold CTA styling, prominent Request Beta Access CTA, and full-life platform language.
+- Updated operational app identity surfaces to use `beacon-keep-shield.png` and `beacon-keep-bmark.png` in sidebar, mobile, header, Dashboard, Advisor drawer, and report-style contexts without introducing large cinematic imagery into the workspace.
+- Updated visible Save State text to 2.44 and preserved current routes, calculations, app shell assumptions, owner isolation, and light operational app readability.
+
 ## Upcoming Governance and Stabilization Subphases
 - Beta Access & Security Gate remains a future required phase after the 2.42 mobile guidance/readability lock.
 - Future navigation clarity: keep Dashboard / Profile / Advisor / Scenarios / Timeline flow stable while reducing beta-user friction.
@@ -710,4 +716,4 @@ NEW:
 
 # CURRENT FOCUS
 
-2.43 — Bastion Platform Identity Lock complete; next required phases remain scoped onboarding, SEO pages, healthcare expansion, relocation engine, RMD optimization, reports, enterprise, financial intelligence, advanced integrations, beta access, security gating, and future navigation architecture without changing current formulas/routes/auth/Firebase/deployment behavior
+2.44 — Canonical Visual Asset Wiring complete; next required phases remain scoped onboarding, SEO pages, healthcare expansion, relocation engine, RMD optimization, reports, enterprise, financial intelligence, advanced integrations, beta access, security gating, and future navigation architecture without changing current formulas/routes/auth/Firebase/deployment behavior
